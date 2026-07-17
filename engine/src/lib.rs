@@ -332,16 +332,17 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
                     let ink = node.color.clone().unwrap_or_else(|| "#000000".into());
                     let left = node.x + dx - line.width / 2.0;
                     let baseline = node.y + dy + line.baseline_shift;
-                    for (i, word) in line.words.iter().enumerate() {
-                        let (word_opacity, word_dy, color) = match &node.reveal {
+                    // one clock per piece: a word, or a single glyph
+                    let piece = |idx: f32, kept: bool| -> (f32, f32, String) {
+                        match &node.reveal {
                             Some((at, r)) => {
-                                let start = at + i as f32 * r.stagger;
+                                let start = at + idx * r.stagger;
                                 let p = ((t - start) / r.dur).clamp(0.0, 1.0);
                                 let rise = r.rise * (1.0 - out_cubic(p));
                                 let o = out_cubic((p * 2.0).min(1.0));
                                 let q =
                                     ((t - start - r.color_delay) / r.color_dur).clamp(0.0, 1.0);
-                                let color = if r.keep.iter().any(|k| k == &word.text) {
+                                let color = if kept {
                                     r.accent.clone()
                                 } else {
                                     mix_hex(&r.accent, &ink, out_cubic(q))
@@ -349,19 +350,52 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
                                 (o, rise, color)
                             }
                             None => (1.0, 0.0, ink.clone()),
-                        };
-                        cmds.push(DrawCmd {
-                            op: "path".into(),
-                            x: left + word.x,
-                            y: baseline + word_dy,
-                            w: None,
-                            h: None,
-                            radius: None,
-                            d: Some(word.path.clone()),
-                            color,
-                            opacity: opacity * word_opacity,
-                            scale,
-                        });
+                        }
+                    };
+                    let glyph_unit = node
+                        .reveal
+                        .as_ref()
+                        .map(|(_, r)| r.unit == "glyph")
+                        .unwrap_or(false);
+                    let mut gi = 0usize;
+                    for (wi, word) in line.words.iter().enumerate() {
+                        let kept = node
+                            .reveal
+                            .as_ref()
+                            .map(|(_, r)| r.keep.iter().any(|k| k == &word.text))
+                            .unwrap_or(false);
+                        if glyph_unit {
+                            for glyph in &word.glyphs {
+                                let (o, rise, color) = piece(gi as f32, kept);
+                                gi += 1;
+                                cmds.push(DrawCmd {
+                                    op: "path".into(),
+                                    x: left + word.x + glyph.x,
+                                    y: baseline + rise,
+                                    w: None,
+                                    h: None,
+                                    radius: None,
+                                    d: Some(glyph.path.clone()),
+                                    color,
+                                    opacity: opacity * o,
+                                    scale,
+                                });
+                            }
+                        } else {
+                            let (o, rise, color) = piece(wi as f32, kept);
+                            cmds.push(DrawCmd {
+                                op: "path".into(),
+                                x: left + word.x,
+                                y: baseline + rise,
+                                w: None,
+                                h: None,
+                                radius: None,
+                                d: Some(word.path.clone()),
+                                color,
+                                opacity: opacity * o,
+                                scale,
+                            });
+                        }
                     }
                 }
                 "rect" => {
@@ -476,6 +510,30 @@ mod tests {
     }
 
     #[test]
+    fn glyph_unit_gives_each_letter_its_own_clock() {
+        load_font();
+        let overlay = r##"{"tracks":[
+          {"target":"title","at":0.2,
+           "reveal":{"unit":"glyph","stagger":0.03,"keep":["scale"]}}
+        ]}"##;
+        let cmds: Vec<Value> =
+            serde_json::from_str(&render_frame(STAGE, overlay, 0.5)).unwrap();
+        let paths: Vec<&Value> = cmds.iter().filter(|c| c["op"] == "path").collect();
+        assert_eq!(paths.len(), 20, "one cmd per glyph");
+        let first = paths[0]["opacity"].as_f64().unwrap();
+        let last = paths[19]["opacity"].as_f64().unwrap();
+        assert!(first > last, "first glyph {first} leads last {last}");
+
+        let done: Vec<Value> =
+            serde_json::from_str(&render_frame(STAGE, overlay, 2.0)).unwrap();
+        let settled: Vec<&Value> = done.iter().filter(|c| c["op"] == "path").collect();
+        for g in &settled[15..20] {
+            assert_eq!(g["color"], "#e8671f", "scale glyphs keep accent");
+        }
+        assert_eq!(settled[0]["color"], "#161616");
+    }
+
+    #[test]
     fn pill_still_pops() {
         let f = frame(1.4);
         let pill = f.iter().find(|c| c["op"] == "rect").unwrap();
@@ -485,6 +543,7 @@ mod tests {
 
     #[test]
     fn deterministic() {
+        load_font();
         assert_eq!(
             render_frame(STAGE, OVERLAY, 0.8),
             render_frame(STAGE, OVERLAY, 0.8)

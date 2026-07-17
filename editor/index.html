@@ -40,7 +40,7 @@
 
     const overlay = JSON.stringify({
       tracks: [
-        { target: 'title', at: 0.2, reveal: { unit: 'word', keep: ['scale'] } },
+        { target: 'title', at: 0.2, reveal: { unit: 'glyph', stagger: 0.03, keep: ['scale'] } },
         { target: 'pill', at: 1.1, keys: {
             opacity: [{ t: 0, v: 0 }, { t: 0.05, v: 1 }],
             scale:   [{ t: 0, v: 0.96 }, { t: 0.17, v: 1, ease: [0.22, 1, 0.36, 1] }]

@@ -12,6 +12,14 @@ pub fn init_font(bytes: Vec<u8>) -> bool {
 }
 
 #[derive(Clone)]
+pub struct ShapedGlyph {
+    /// offset from the word's left edge
+    pub x: f32,
+    /// svg path in pixels, origin at the glyph's own pen position
+    pub path: String,
+}
+
+#[derive(Clone)]
 pub struct ShapedWord {
     pub text: String,
     /// offset from the line's left edge
@@ -19,6 +27,7 @@ pub struct ShapedWord {
     pub width: f32,
     /// svg path in pixels, origin at the word's left edge on the baseline
     pub path: String,
+    pub glyphs: Vec<ShapedGlyph>,
 }
 
 #[derive(Clone)]
@@ -79,14 +88,23 @@ fn shape_word(face: &Face, outline_face: &ttf_parser::Face, word: &str, scale: f
 
     let mut pen = 0.0f32;
     let mut d = String::new();
+    let mut out_glyphs = Vec::new();
     for (info, pos) in infos.iter().zip(positions) {
-        let mut b = PathBuilder {
+        let gx = pen + pos.x_offset as f32 * scale;
+        let mut own = PathBuilder {
             d: String::new(),
             scale,
-            ox: pen + pos.x_offset as f32 * scale,
+            ox: 0.0,
         };
-        outline_face.outline_glyph(GlyphId(info.glyph_id as u16), &mut b);
-        d.push_str(&b.d);
+        outline_face.outline_glyph(GlyphId(info.glyph_id as u16), &mut own);
+        let mut in_word = PathBuilder {
+            d: String::new(),
+            scale,
+            ox: gx,
+        };
+        outline_face.outline_glyph(GlyphId(info.glyph_id as u16), &mut in_word);
+        d.push_str(&in_word.d);
+        out_glyphs.push(ShapedGlyph { x: gx, path: own.d });
         pen += pos.x_advance as f32 * scale;
     }
     ShapedWord {
@@ -94,6 +112,7 @@ fn shape_word(face: &Face, outline_face: &ttf_parser::Face, word: &str, scale: f
         x: 0.0,
         width: pen,
         path: d,
+        glyphs: out_glyphs,
     }
 }
 
