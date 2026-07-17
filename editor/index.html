@@ -20,7 +20,7 @@
     <canvas id="c" width="1920" height="1080"></canvas>
     <div class="row">
       <button id="play">play</button>
-      <input id="t" type="range" min="0" max="6.8" step="0.01" value="0" />
+      <input id="t" type="range" min="0" max="9.8" step="0.01" value="0" />
       <span id="tv" style="width:52px">0.00s</span>
     </div>
     <p>engine: <code id="status">loading…</code></p>
@@ -46,6 +46,21 @@
             font: { family: 'inter', weight: 600, size: 56 }, color: '#161616' },
           { id: 'pill', type: 'rect', x: 960, y: 660, w: 480, h: 96,
             radius: 48, fill: '#ea752f' }
+        ] },
+        { id: 'click', bg: '#fafafa', dur: 3.0,
+          transition: { kind: 'fade', dur: 0.35 }, nodes: [
+          { id: 'btn', type: 'rect', x: 960, y: 540, w: 340, h: 92, radius: 46,
+            fill: '#ea752f',
+            states: { pressed: { fill: '#c85a1a', scale: 0.96 } } },
+          { id: 'btnlabel', type: 'text', text: 'Generate',
+            x: 960, y: 540,
+            font: { family: 'inter', weight: 600, size: 38 }, color: '#ffffff' },
+          { id: 'card', type: 'rect', x: 960, y: 780, w: 620, h: 150, radius: 24,
+            fill: '#ffffff' },
+          { id: 'cardtext', type: 'text', text: 'Launch video ready',
+            x: 960, y: 780,
+            font: { family: 'inter', weight: 600, size: 40 }, color: '#161616' },
+          { id: 'cur', type: 'cursor', x: 620, y: 800, w: 30 }
         ] },
         { id: 'terminal', bg: '#050505', dur: 2.6,
           transition: { kind: 'fade', dur: 0.35 }, nodes: [
@@ -76,6 +91,23 @@
         { target: 'pill', at: 0.75, keys: {
             opacity: [{ t: 0, v: 0 }, { t: 0.05, v: 1 }],
             scale:   [{ t: 0, v: 0.96 }, { t: 0.17, v: 1, ease: [0.22, 1, 0.36, 1] }]
+        } },
+        { target: 'card', at: 0, keys: { opacity: [{ t: 0, v: 0 }] } },
+        { target: 'cardtext', at: 0, keys: { opacity: [{ t: 0, v: 0 }] } },
+        { target: 'cur', at: 0.4, keys: {
+            x: [{ t: 0, v: 0 }, { t: 0.7, v: 340, ease: 'inOutCubic' }],
+            y: [{ t: 0, v: 0 }, { t: 0.7, v: -250, ease: 'inOutCubic' }]
+        } },
+        { target: 'btn', at: 1.35, state: 'pressed' },
+        { target: 'btn', at: 1.5, state: 'base' },
+        { target: 'card', at: 1.6, keys: {
+            opacity: [{ t: 0, v: 0 }, { t: 0.12, v: 1 }],
+            y: [{ t: 0, v: 30 }, { t: 0.3, v: 0, ease: 'outCubic' }],
+            scale: [{ t: 0, v: 0.96 }, { t: 0.3, v: 1, ease: [0.22, 1, 0.36, 1] }]
+        } },
+        { target: 'cardtext', at: 1.7, keys: {
+            opacity: [{ t: 0, v: 0 }, { t: 0.15, v: 1 }],
+            y: [{ t: 0, v: 20 }, { t: 0.3, v: 0, ease: 'outCubic' }]
         } },
         { target: 'tpill', loop: true, keys: {
             glow_opacity: [
@@ -118,7 +150,7 @@
     const slider = document.getElementById('t');
     const tv = document.getElementById('tv');
     const playBtn = document.getElementById('play');
-    const DUR = 6.8;
+    const DUR = 9.8;
 
     function frame(t) {
       const cmds = JSON.parse(render(stage, overlay, t));

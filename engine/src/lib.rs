@@ -74,11 +74,29 @@ pub struct Node {
     pub glow: Option<Glow>,
     #[serde(default)]
     pub gradient: Option<Gradient>,
+    /// named property overrides the overlay can flip to (button pressed,
+    /// panel open...). unknown names mean "back to base".
+    #[serde(default)]
+    pub states: HashMap<String, StateDef>,
+    #[serde(skip)]
+    flips: Vec<(f32, String)>,
     #[serde(skip)]
     reveal: Option<(f32, Reveal)>,
     /// property name -> (loop start, loop period), set by looped overlay tracks
     #[serde(skip)]
     loops: HashMap<String, (f32, f32)>,
+}
+
+#[derive(Deserialize, Clone, Default)]
+pub struct StateDef {
+    #[serde(default)]
+    pub fill: Option<String>,
+    #[serde(default)]
+    pub scale: Option<f32>,
+    #[serde(default)]
+    pub opacity: Option<f32>,
+    #[serde(default)]
+    pub dy: Option<f32>,
 }
 
 /// a soft emission behind the node: a gaussian-blurred copy of the shape,
@@ -225,6 +243,9 @@ pub struct Track {
     pub keys: HashMap<String, Vec<Key>>,
     #[serde(default)]
     pub reveal: Option<Reveal>,
+    /// flip the target node to this named state at `at`
+    #[serde(default)]
+    pub state: Option<String>,
     /// repeat this track's keys forever from `at`
     #[serde(rename = "loop", default)]
     pub looped: bool,
@@ -334,6 +355,76 @@ fn ease(p: f32, kind: &Option<Ease>) -> f32 {
     }
 }
 
+const STATE_DUR: f32 = 0.12;
+
+struct StateBlend {
+    from_fill: Option<String>,
+    to_fill: Option<String>,
+    p: f32,
+    scale: f32,
+    opacity: f32,
+    dy: f32,
+}
+
+/// resolve the node's latest state flip at time t, easing the overridden
+/// props from the previous state's values over STATE_DUR
+fn state_blend(node: &Node, t: f32) -> StateBlend {
+    let neutral = StateBlend {
+        from_fill: None,
+        to_fill: None,
+        p: 1.0,
+        scale: 1.0,
+        opacity: 1.0,
+        dy: 0.0,
+    };
+    let mut cur: Option<(f32, &str)> = None;
+    let mut prev: Option<&str> = None;
+    for (at, name) in &node.flips {
+        if *at <= t {
+            prev = cur.map(|c| c.1);
+            cur = Some((*at, name));
+        } else {
+            break;
+        }
+    }
+    let Some((at, name)) = cur else {
+        return neutral;
+    };
+    let lookup = |n: &str| node.states.get(n).cloned().unwrap_or_default();
+    let to = lookup(name);
+    let from = prev.map(lookup).unwrap_or_default();
+    let p = out_cubic(((t - at) / STATE_DUR).clamp(0.0, 1.0));
+    let lerp = |a: f32, b: f32| a + (b - a) * p;
+    StateBlend {
+        from_fill: from.fill.clone(),
+        to_fill: to.fill.clone(),
+        p,
+        scale: lerp(from.scale.unwrap_or(1.0), to.scale.unwrap_or(1.0)),
+        opacity: lerp(from.opacity.unwrap_or(1.0), to.opacity.unwrap_or(1.0)),
+        dy: lerp(from.dy.unwrap_or(0.0), to.dy.unwrap_or(0.0)),
+    }
+}
+
+fn arrow_path(s: f32) -> String {
+    let pts = [
+        (0.0, 0.0),
+        (0.0, 18.4),
+        (4.6, 14.1),
+        (7.2, 20.4),
+        (10.0, 19.2),
+        (7.5, 13.0),
+        (13.2, 13.0),
+    ];
+    let mut d = String::new();
+    for (i, (x, y)) in pts.iter().enumerate() {
+        let cmd = if i == 0 { 'M' } else { 'L' };
+        let _ =
+            std::fmt::Write::write_fmt(&mut d, format_args!("{}{:.1} {:.1}", cmd, x * s, y * s));
+    }
+    d.push('Z');
+    d
+}
+
 /// property lookup with loop support: looped tracks wrap time inside their
 /// window so the keys repeat forever from the track start.
 fn node_prop(node: &Node, name: &str, default: f32, t: f32) -> f32 {
@@ -417,6 +508,11 @@ fn merge(stage: &mut Stage, overlay: &Overlay) {
                         }
                     }
                 }
+                if let Some(s) = &track.state {
+                    node.flips.push((track.at, s.clone()));
+                    node.flips
+                        .sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
+                }
             }
         }
     }
@@ -496,10 +592,11 @@ fn render_scene(scene: &Scene, tl: f32, fade: f32, cmds: &mut Vec<DrawCmd>) {
     let t = tl;
     {
         for node in &scene.nodes {
-            let opacity = node_prop(node, "opacity", 1.0, t) * fade;
+            let sb = state_blend(node, t);
+            let opacity = node_prop(node, "opacity", 1.0, t) * fade * sb.opacity;
             let dx = node_prop(node, "x", 0.0, t);
-            let dy = node_prop(node, "y", 0.0, t);
-            let scale = node_prop(node, "scale", 1.0, t);
+            let dy = node_prop(node, "y", 0.0, t) + sb.dy;
+            let scale = node_prop(node, "scale", 1.0, t) * sb.scale;
             match node.kind.as_str() {
                 "text" => {
                     let content = match &node.text {
@@ -590,7 +687,16 @@ fn render_scene(scene: &Scene, tl: f32, fade: f32, cmds: &mut Vec<DrawCmd>) {
                     }
                 }
                 "rect" => {
-                    let fill = node.fill.clone().unwrap_or_else(|| "#000000".into());
+                    let base = node.fill.clone().unwrap_or_else(|| "#000000".into());
+                    let fill = if node.flips.is_empty() {
+                        base
+                    } else {
+                        mix_hex(
+                            sb.from_fill.as_deref().unwrap_or(&base),
+                            sb.to_fill.as_deref().unwrap_or(&base),
+                            sb.p,
+                        )
+                    };
                     if let Some(g) = &node.glow {
                         let sigma = node_prop(node, "glow_sigma", g.sigma, t);
                         let glow_opacity = node_prop(node, "glow_opacity", g.opacity, t);
@@ -636,6 +742,40 @@ fn render_scene(scene: &Scene, tl: f32, fade: f32, cmds: &mut Vec<DrawCmd>) {
                         opacity,
                         scale,
                     });
+                }
+                "cursor" => {
+                    let s = node.w.unwrap_or(26.0) / 13.2;
+                    let cx = node.x + dx;
+                    let cy = node.y + dy;
+                    let layers: [(f32, f32, f32, String, Option<f32>, f32); 3] = [
+                        (2.0, 3.0, s, "#000000".into(), Some(5.0), 0.3),
+                        (0.0, 0.0, s * 1.22, "#ffffff".into(), None, 1.0),
+                        (
+                            0.0,
+                            0.0,
+                            s,
+                            node.fill.clone().unwrap_or_else(|| "#111111".into()),
+                            None,
+                            1.0,
+                        ),
+                    ];
+                    for (ox, oy, ps, color, blur, alpha) in layers {
+                        cmds.push(DrawCmd {
+                            op: "path".into(),
+                            x: cx + ox,
+                            y: cy + oy,
+                            w: None,
+                            h: None,
+                            radius: None,
+                            d: Some(arrow_path(ps)),
+                            blur,
+                            grad: None,
+                            src: None,
+                            color,
+                            opacity: opacity * alpha,
+                            scale,
+                        });
+                    }
                 }
                 "image" => {
                     cmds.push(DrawCmd {
@@ -707,6 +847,46 @@ mod tests {
     fn frame(t: f32) -> Vec<Value> {
         load_font();
         serde_json::from_str(&render_frame(STAGE, OVERLAY, t)).unwrap()
+    }
+
+    #[test]
+    fn cursor_glides_and_states_flip() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1920,1080],"scenes":[{"id":"s","bg":"#fafafa",
+          "nodes":[
+            {"id":"btn","type":"rect","x":960,"y":540,"w":320,"h":90,"radius":45,
+             "fill":"#ea752f","states":{"pressed":{"fill":"#c85a1a","scale":0.96}}},
+            {"id":"cur","type":"cursor","x":700,"y":700}
+          ]}]}"##;
+        let overlay = r##"{"tracks":[
+          {"target":"cur","at":0.2,"keys":{
+            "x":[{"t":0,"v":0},{"t":0.6,"v":250,"ease":"inOutCubic"}],
+            "y":[{"t":0,"v":0},{"t":0.6,"v":-150,"ease":"inOutCubic"}]}},
+          {"target":"btn","at":0.9,"state":"pressed"},
+          {"target":"btn","at":1.05,"state":"base"}
+        ]}"##;
+        let f = |t: f32| -> Vec<Value> {
+            serde_json::from_str(&render_frame(stage, overlay, t)).unwrap()
+        };
+
+        // cursor: three layered arrow paths, gliding
+        let mid = f(0.5);
+        let arrows: Vec<&Value> = mid.iter().filter(|c| c["op"] == "path").collect();
+        assert_eq!(arrows.len(), 3, "shadow + outline + arrow");
+        let x = arrows[2]["x"].as_f64().unwrap();
+        assert!(x > 700.0 && x < 950.0, "mid-glide x {x}");
+
+        // pressed: fill lerps toward the pressed color, scale dips
+        let pressed = f(1.02);
+        let btn = pressed.iter().find(|c| c["op"] == "rect").unwrap();
+        assert_ne!(btn["color"], "#ea752f", "fill left base during press");
+        assert!(btn["scale"].as_f64().unwrap() < 1.0, "pressed scale dip");
+
+        // released: back to base
+        let released = f(1.5);
+        let btn2 = released.iter().find(|c| c["op"] == "rect").unwrap();
+        assert_eq!(btn2["color"], "#ea752f");
+        assert_eq!(btn2["scale"], 1.0);
     }
 
     #[test]
