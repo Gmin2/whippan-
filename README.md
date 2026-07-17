@@ -51,7 +51,10 @@ cd editor && python3 -m http.server 8777
 - step 0 done — tracer bullet: json -> rust(wasm) -> draw commands -> canvas -> scrubber
 - step 1 done — two-layer doc (stage + overlay merged by id, per-track `at`),
   cubic-bezier easing, paint swapped to skia (canvaskit)
-- known gap: variable-font weight axis not applied yet (title renders at 400,
-  stage asks 600) — picked up with the step-2 text system
-- next: step 2, primitives gated by reference beats (per-glyph text reveals
-  first, against the ai-1 opening line)
+- step 2 in progress — primitives gated by reference beats:
+  - text owned by the engine: rustybuzz shaping, weight axis, glyph outlines
+    as paths, word + per-glyph reveal with the accent temper (vs ai-1 f0048-56)
+  - glow: blurred echo emission with `glow_sigma`/`glow_opacity` keyable,
+    looped tracks for the breath (vs terminal f0027)
+- next fidelity targets: gradient fills + directional glow offset (terminal's
+  lit-tube pill, 1.6x top-heavy bloom), mono font support, multi-scene timing

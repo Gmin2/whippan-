@@ -29,21 +29,28 @@
 
     const stage = JSON.stringify({
       fps: 30, size: [1920, 1080],
-      scenes: [{ id: 's1', bg: '#fafafa', nodes: [
-        { id: 'title', type: 'text', text: 'The fastest way to scale',
-          x: 960, y: 500,
-          font: { family: 'inter', weight: 600, size: 72 }, color: '#161616' },
-        { id: 'pill', type: 'rect', x: 960, y: 660, w: 480, h: 96,
-          radius: 48, fill: '#ea752f' }
+      scenes: [{ id: 's1', bg: '#050505', nodes: [
+        { id: 'pill', type: 'rect', x: 960, y: 520, w: 760, h: 116,
+          radius: 58, fill: '#4a21d5', glow: { sigma: 46, opacity: 0.9 } },
+        { id: 'cmd', type: 'text', text: '$ npm init @shopify/shop-mini@latest',
+          x: 960, y: 520,
+          font: { family: 'inter', weight: 450, size: 34 }, color: '#d4bcfe' }
       ] }]
     });
 
     const overlay = JSON.stringify({
       tracks: [
-        { target: 'title', at: 0.2, reveal: { unit: 'glyph', stagger: 0.03, keep: ['scale'] } },
-        { target: 'pill', at: 1.1, keys: {
-            opacity: [{ t: 0, v: 0 }, { t: 0.05, v: 1 }],
-            scale:   [{ t: 0, v: 0.96 }, { t: 0.17, v: 1, ease: [0.22, 1, 0.36, 1] }]
+        { target: 'pill', loop: true, keys: {
+            glow_opacity: [
+              { t: 0, v: 0.78 },
+              { t: 0.725, v: 1.0, ease: 'inOutCubic' },
+              { t: 1.45, v: 0.78, ease: 'inOutCubic' }
+            ],
+            glow_sigma: [
+              { t: 0, v: 42 },
+              { t: 0.725, v: 50, ease: 'inOutCubic' },
+              { t: 1.45, v: 42, ease: 'inOutCubic' }
+            ]
         } }
       ]
     });
@@ -64,12 +71,18 @@
     const tv = document.getElementById('tv');
 
     function frame(t) {
-      skc.clear(CK.parseColorString('#fafafa'));
       const cmds = JSON.parse(render(stage, overlay, t));
       for (const c of cmds) {
+        if (c.op === 'clear') {
+          skc.clear(CK.parseColorString(c.color));
+          continue;
+        }
         const col = CK.parseColorString(c.color);
         col[3] = c.opacity;
         paint.setColor(col);
+        paint.setMaskFilter(c.blur
+          ? CK.MaskFilter.MakeBlur(CK.BlurStyle.Normal, c.blur, true)
+          : null);
         skc.save();
         skc.translate(c.x, c.y);
         skc.scale(c.scale, c.scale);

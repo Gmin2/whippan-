@@ -44,8 +44,32 @@ pub struct Node {
     pub color: Option<String>,
     #[serde(default)]
     pub keys: HashMap<String, Vec<Key>>,
+    #[serde(default)]
+    pub glow: Option<Glow>,
     #[serde(skip)]
     reveal: Option<(f32, Reveal)>,
+    /// property name -> (loop start, loop period), set by looped overlay tracks
+    #[serde(skip)]
+    loops: HashMap<String, (f32, f32)>,
+}
+
+/// a soft emission behind the node: a gaussian-blurred copy of the shape,
+/// drawn first. sigma and opacity are overridable per-frame through the
+/// keyed properties `glow_sigma` and `glow_opacity`.
+#[derive(Deserialize, Clone)]
+pub struct Glow {
+    #[serde(default = "d_sigma")]
+    pub sigma: f32,
+    #[serde(default = "d_glow_opacity")]
+    pub opacity: f32,
+    #[serde(default)]
+    pub color: Option<String>,
+}
+fn d_sigma() -> f32 {
+    32.0
+}
+fn d_glow_opacity() -> f32 {
+    0.85
 }
 
 #[derive(Deserialize)]
@@ -140,6 +164,9 @@ pub struct Track {
     pub keys: HashMap<String, Vec<Key>>,
     #[serde(default)]
     pub reveal: Option<Reveal>,
+    /// repeat this track's keys forever from `at`
+    #[serde(rename = "loop", default)]
+    pub looped: bool,
 }
 
 #[derive(Serialize)]
@@ -155,6 +182,8 @@ pub struct DrawCmd {
     pub radius: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub d: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blur: Option<f32>,
     pub color: String,
     pub opacity: f32,
     pub scale: f32,
@@ -225,6 +254,16 @@ fn ease(p: f32, kind: &Option<Ease>) -> f32 {
     }
 }
 
+/// property lookup with loop support: looped tracks wrap time inside their
+/// window so the keys repeat forever from the track start.
+fn node_prop(node: &Node, name: &str, default: f32, t: f32) -> f32 {
+    let t = match node.loops.get(name) {
+        Some((at, period)) if t > *at => at + (t - at) % period,
+        _ => t,
+    };
+    eval_prop(&node.keys, name, default, t)
+}
+
 fn eval_prop(keys: &HashMap<String, Vec<Key>>, name: &str, default: f32, t: f32) -> f32 {
     let track = match keys.get(name) {
         Some(k) if !k.is_empty() => k,
@@ -289,6 +328,15 @@ fn merge(stage: &mut Stage, overlay: &Overlay) {
                 if let Some(r) = &track.reveal {
                     node.reveal = Some((track.at, r.clone()));
                 }
+                if track.looped {
+                    for (prop, keys) in &track.keys {
+                        if let Some(last) = keys.last() {
+                            if last.t > 0.0 {
+                                node.loops.insert(prop.clone(), (track.at, last.t));
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -309,11 +357,24 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
     }
     let mut cmds: Vec<DrawCmd> = Vec::new();
     if let Some(scene) = stage.scenes.first() {
+        cmds.push(DrawCmd {
+            op: "clear".into(),
+            x: 0.0,
+            y: 0.0,
+            w: None,
+            h: None,
+            radius: None,
+            d: None,
+            blur: None,
+            color: scene.bg.clone().unwrap_or_else(|| "#ffffff".into()),
+            opacity: 1.0,
+            scale: 1.0,
+        });
         for node in &scene.nodes {
-            let opacity = eval_prop(&node.keys, "opacity", 1.0, t);
-            let dx = eval_prop(&node.keys, "x", 0.0, t);
-            let dy = eval_prop(&node.keys, "y", 0.0, t);
-            let scale = eval_prop(&node.keys, "scale", 1.0, t);
+            let opacity = node_prop(node, "opacity", 1.0, t);
+            let dx = node_prop(node, "x", 0.0, t);
+            let dy = node_prop(node, "y", 0.0, t);
+            let scale = node_prop(node, "scale", 1.0, t);
             match node.kind.as_str() {
                 "text" => {
                     let content = match &node.text {
@@ -376,6 +437,7 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
                                     h: None,
                                     radius: None,
                                     d: Some(glyph.path.clone()),
+                                    blur: None,
                                     color,
                                     opacity: opacity * o,
                                     scale,
@@ -391,6 +453,7 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
                                 h: None,
                                 radius: None,
                                 d: Some(word.path.clone()),
+                                blur: None,
                                 color,
                                 opacity: opacity * o,
                                 scale,
@@ -399,6 +462,24 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
                     }
                 }
                 "rect" => {
+                    let fill = node.fill.clone().unwrap_or_else(|| "#000000".into());
+                    if let Some(g) = &node.glow {
+                        let sigma = node_prop(node, "glow_sigma", g.sigma, t);
+                        let glow_opacity = node_prop(node, "glow_opacity", g.opacity, t);
+                        cmds.push(DrawCmd {
+                            op: "rect".into(),
+                            x: node.x + dx,
+                            y: node.y + dy,
+                            w: node.w,
+                            h: node.h,
+                            radius: node.radius,
+                            d: None,
+                            blur: Some(sigma),
+                            color: g.color.clone().unwrap_or_else(|| fill.clone()),
+                            opacity: opacity * glow_opacity,
+                            scale,
+                        });
+                    }
                     cmds.push(DrawCmd {
                         op: "rect".into(),
                         x: node.x + dx,
@@ -407,7 +488,8 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
                         h: node.h,
                         radius: node.radius,
                         d: None,
-                        color: node.fill.clone().unwrap_or_else(|| "#000000".into()),
+                        blur: None,
+                        color: fill,
                         opacity,
                         scale,
                     });
@@ -491,22 +573,58 @@ mod tests {
     fn reveal_staggers_and_settles() {
         // before the track starts every word is hidden
         let f0 = frame(0.0);
-        assert_eq!(f0.len(), 6, "5 words + pill");
-        assert_eq!(f0[0]["opacity"], 0.0);
+        assert_eq!(f0.len(), 7, "clear + 5 words + pill");
+        assert_eq!(f0[0]["op"], "clear");
+        assert_eq!(f0[1]["opacity"], 0.0);
 
         // mid-reveal the first word leads the last
         let mid = frame(0.35);
-        let first = mid[0]["opacity"].as_f64().unwrap();
-        let last = mid[4]["opacity"].as_f64().unwrap();
+        let first = mid[1]["opacity"].as_f64().unwrap();
+        let last = mid[5]["opacity"].as_f64().unwrap();
         assert!(first > last, "stagger: first {first} last {last}");
 
         // settled: full opacity, ink color, except the kept accent word
         let done = frame(1.0);
-        for w in &done[0..4] {
+        for w in &done[1..5] {
             assert_eq!(w["opacity"], 1.0);
             assert_eq!(w["color"], "#161616");
         }
-        assert_eq!(done[4]["color"], "#e8671f", "scale keeps the accent");
+        assert_eq!(done[5]["color"], "#e8671f", "scale keeps the accent");
+    }
+
+    #[test]
+    fn looped_track_wraps_time() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1920,1080],"scenes":[{"id":"s","bg":"#050505",
+          "nodes":[{"id":"pill","type":"rect","x":960,"y":540,"w":700,"h":110,
+                    "radius":55,"fill":"#4a21d5","glow":{"sigma":40,"opacity":0.9}}]}]}"##;
+        let overlay = r##"{"tracks":[{"target":"pill","loop":true,"keys":{
+          "glow_opacity":[{"t":0,"v":0.8},{"t":0.725,"v":1.0,"ease":"inOutCubic"},
+                          {"t":1.45,"v":0.8,"ease":"inOutCubic"}]}}]}"##;
+        let probe = |t: f32| -> f64 {
+            let cmds: Vec<Value> =
+                serde_json::from_str(&render_frame(stage, overlay, t)).unwrap();
+            cmds[1]["opacity"].as_f64().unwrap()
+        };
+        let a = probe(0.3);
+        let b = probe(0.3 + 1.45);
+        let c = probe(0.3 + 2.0 * 1.45);
+        assert!((a - b).abs() < 1e-5 && (b - c).abs() < 1e-5, "{a} {b} {c}");
+        assert!(probe(0.725) > probe(0.05), "breath peaks mid-cycle");
+    }
+
+    #[test]
+    fn glow_emits_echo_before_shape() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1920,1080],"scenes":[{"id":"s","bg":"#050505",
+          "nodes":[{"id":"pill","type":"rect","x":960,"y":540,"w":700,"h":110,
+                    "radius":55,"fill":"#4a21d5","glow":{"sigma":40,"opacity":0.9}}]}]}"##;
+        let cmds: Vec<Value> = serde_json::from_str(&render_frame(stage, "", 0.5)).unwrap();
+        assert_eq!(cmds[0]["op"], "clear");
+        assert_eq!(cmds[0]["color"], "#050505");
+        assert_eq!(cmds[1]["blur"], 40.0, "echo first, blurred");
+        assert_eq!(cmds[1]["opacity"], 0.9);
+        assert!(cmds[2]["blur"].is_null(), "crisp shape second");
     }
 
     #[test]
