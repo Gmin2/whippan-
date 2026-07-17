@@ -46,6 +46,8 @@ pub struct Node {
     pub keys: HashMap<String, Vec<Key>>,
     #[serde(default)]
     pub glow: Option<Glow>,
+    #[serde(default)]
+    pub gradient: Option<Gradient>,
     #[serde(skip)]
     reveal: Option<(f32, Reveal)>,
     /// property name -> (loop start, loop period), set by looped overlay tracks
@@ -64,12 +66,45 @@ pub struct Glow {
     pub opacity: f32,
     #[serde(default)]
     pub color: Option<String>,
+    /// displaces the echo, e.g. negative dy for a top-heavy bloom
+    #[serde(default)]
+    pub dx: f32,
+    #[serde(default)]
+    pub dy: f32,
 }
 fn d_sigma() -> f32 {
     32.0
 }
 fn d_glow_opacity() -> f32 {
     0.85
+}
+
+/// linear gradient fill. angle in degrees: 0 = left to right, 90 = top to
+/// bottom. the engine projects the node's box onto the angle and hands the
+/// painter finished line endpoints.
+#[derive(Deserialize, Clone)]
+pub struct Gradient {
+    #[serde(default = "d_angle")]
+    pub angle: f32,
+    pub stops: Vec<Stop>,
+}
+fn d_angle() -> f32 {
+    90.0
+}
+
+#[derive(Deserialize, Clone)]
+pub struct Stop {
+    pub at: f32,
+    pub color: String,
+}
+
+#[derive(Serialize)]
+pub struct Grad {
+    pub x0: f32,
+    pub y0: f32,
+    pub x1: f32,
+    pub y1: f32,
+    pub stops: Vec<(f32, String)>,
 }
 
 #[derive(Deserialize)]
@@ -184,9 +219,26 @@ pub struct DrawCmd {
     pub d: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub blur: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub grad: Option<Grad>,
     pub color: String,
     pub opacity: f32,
     pub scale: f32,
+}
+
+/// gradient line for a node's box at the given angle, endpoints relative to
+/// the node origin
+fn grad_for(g: &Gradient, w: f32, h: f32) -> Grad {
+    let a = g.angle.to_radians();
+    let (dx, dy) = (a.cos(), a.sin());
+    let r = (w * dx.abs() + h * dy.abs()) / 2.0;
+    Grad {
+        x0: -r * dx,
+        y0: -r * dy,
+        x1: r * dx,
+        y1: r * dy,
+        stops: g.stops.iter().map(|s| (s.at, s.color.clone())).collect(),
+    }
 }
 
 fn bezier_sample(a: f32, b: f32, u: f32) -> f32 {
@@ -366,6 +418,7 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
             radius: None,
             d: None,
             blur: None,
+            grad: None,
             color: scene.bg.clone().unwrap_or_else(|| "#ffffff".into()),
             opacity: 1.0,
             scale: 1.0,
@@ -438,6 +491,7 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
                                     radius: None,
                                     d: Some(glyph.path.clone()),
                                     blur: None,
+                                    grad: None,
                                     color,
                                     opacity: opacity * o,
                                     scale,
@@ -454,6 +508,7 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
                                 radius: None,
                                 d: Some(word.path.clone()),
                                 blur: None,
+                                grad: None,
                                 color,
                                 opacity: opacity * o,
                                 scale,
@@ -466,20 +521,31 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
                     if let Some(g) = &node.glow {
                         let sigma = node_prop(node, "glow_sigma", g.sigma, t);
                         let glow_opacity = node_prop(node, "glow_opacity", g.opacity, t);
+                        let echo_color = g.color.clone().unwrap_or_else(|| {
+                            node.gradient
+                                .as_ref()
+                                .and_then(|gr| gr.stops.get(gr.stops.len() / 2))
+                                .map(|s| s.color.clone())
+                                .unwrap_or_else(|| fill.clone())
+                        });
                         cmds.push(DrawCmd {
                             op: "rect".into(),
-                            x: node.x + dx,
-                            y: node.y + dy,
+                            x: node.x + dx + g.dx,
+                            y: node.y + dy + g.dy,
                             w: node.w,
                             h: node.h,
                             radius: node.radius,
                             d: None,
                             blur: Some(sigma),
-                            color: g.color.clone().unwrap_or_else(|| fill.clone()),
+                            grad: None,
+                            color: echo_color,
                             opacity: opacity * glow_opacity,
                             scale,
                         });
                     }
+                    let grad = node.gradient.as_ref().map(|g| {
+                        grad_for(g, node.w.unwrap_or(0.0), node.h.unwrap_or(0.0))
+                    });
                     cmds.push(DrawCmd {
                         op: "rect".into(),
                         x: node.x + dx,
@@ -489,6 +555,7 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
                         radius: node.radius,
                         d: None,
                         blur: None,
+                        grad,
                         color: fill,
                         opacity,
                         scale,
@@ -649,6 +716,28 @@ mod tests {
             assert_eq!(g["color"], "#e8671f", "scale glyphs keep accent");
         }
         assert_eq!(settled[0]["color"], "#161616");
+    }
+
+    #[test]
+    fn gradient_line_and_offset_echo() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1920,1080],"scenes":[{"id":"s","bg":"#050505",
+          "nodes":[{"id":"pill","type":"rect","x":960,"y":520,"w":760,"h":116,"radius":58,
+            "fill":"#4a21d5",
+            "gradient":{"angle":90,"stops":[
+              {"at":0,"color":"#6a44f0"},{"at":0.55,"color":"#4a21d5"},{"at":1,"color":"#341786"}]},
+            "glow":{"sigma":46,"opacity":0.9,"dy":-18}}]}]}"##;
+        let cmds: Vec<Value> = serde_json::from_str(&render_frame(stage, "", 0.0)).unwrap();
+        let echo = &cmds[1];
+        let shape = &cmds[2];
+        assert_eq!(echo["y"], 502.0, "echo displaced up by dy");
+        assert_eq!(shape["y"], 520.0, "crisp shape stays put");
+        assert_eq!(echo["color"], "#4a21d5", "echo takes the middle stop");
+        let g = &shape["grad"];
+        assert!((g["y0"].as_f64().unwrap() + 58.0).abs() < 1e-3);
+        assert!((g["y1"].as_f64().unwrap() - 58.0).abs() < 1e-3);
+        assert!((g["x0"].as_f64().unwrap()).abs() < 1e-3);
+        assert_eq!(g["stops"][0][1], "#6a44f0");
     }
 
     #[test]

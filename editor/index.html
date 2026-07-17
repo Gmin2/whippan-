@@ -31,7 +31,13 @@
       fps: 30, size: [1920, 1080],
       scenes: [{ id: 's1', bg: '#050505', nodes: [
         { id: 'pill', type: 'rect', x: 960, y: 520, w: 760, h: 116,
-          radius: 58, fill: '#4a21d5', glow: { sigma: 46, opacity: 0.9 } },
+          radius: 58, fill: '#4a21d5',
+          gradient: { angle: 90, stops: [
+            { at: 0, color: '#6a44f0' },
+            { at: 0.55, color: '#4a21d5' },
+            { at: 1, color: '#341786' }
+          ] },
+          glow: { sigma: 46, opacity: 0.9, dy: -18 } },
         { id: 'cmd', type: 'text', text: '$ npm init @shopify/shop-mini@latest',
           x: 960, y: 520,
           font: { family: 'inter', weight: 450, size: 34 }, color: '#d4bcfe' }
@@ -77,9 +83,23 @@
           skc.clear(CK.parseColorString(c.color));
           continue;
         }
-        const col = CK.parseColorString(c.color);
-        col[3] = c.opacity;
-        paint.setColor(col);
+        let shader = null;
+        if (c.grad) {
+          const colors = c.grad.stops.map(([, hex]) => {
+            const sc = CK.parseColorString(hex);
+            sc[3] *= c.opacity;
+            return sc;
+          });
+          shader = CK.Shader.MakeLinearGradient(
+            [c.grad.x0, c.grad.y0], [c.grad.x1, c.grad.y1],
+            colors, c.grad.stops.map(([at]) => at), CK.TileMode.Clamp);
+          paint.setShader(shader);
+        } else {
+          const col = CK.parseColorString(c.color);
+          col[3] = c.opacity;
+          paint.setColor(col);
+          paint.setShader(null);
+        }
         paint.setMaskFilter(c.blur
           ? CK.MaskFilter.MakeBlur(CK.BlurStyle.Normal, c.blur, true)
           : null);
@@ -96,6 +116,7 @@
           skc.drawRRect(rr, paint);
         }
         skc.restore();
+        if (shader) shader.delete();
       }
       surface.flush();
       tv.textContent = t.toFixed(2) + 's';
