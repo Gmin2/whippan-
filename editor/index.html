@@ -9,6 +9,8 @@
     canvas { width: 100%; border-radius: 8px; display: block; background: #000; }
     .row { display: flex; gap: 12px; align-items: center; margin-top: 16px; }
     input[type=range] { flex: 1; }
+    button { background: #f02900; color: #fff; border: 0; border-radius: 6px;
+             padding: 6px 18px; font: inherit; cursor: pointer; }
     code { color: #f02900; }
   </style>
   <script src="./vendor/canvaskit/canvaskit.js"></script>
@@ -17,8 +19,8 @@
   <main>
     <canvas id="c" width="1920" height="1080"></canvas>
     <div class="row">
-      <span>t</span>
-      <input id="t" type="range" min="0" max="2.5" step="0.01" value="0" />
+      <button id="play">play</button>
+      <input id="t" type="range" min="0" max="6.8" step="0.01" value="0" />
       <span id="tv" style="width:52px">0.00s</span>
     </div>
     <p>engine: <code id="status">loading…</code></p>
@@ -29,24 +31,46 @@
 
     const stage = JSON.stringify({
       fps: 30, size: [1920, 1080],
-      scenes: [{ id: 's1', bg: '#050505', nodes: [
-        { id: 'pill', type: 'rect', x: 960, y: 520, w: 760, h: 116,
-          radius: 58, fill: '#4a21d5',
-          gradient: { angle: 90, stops: [
-            { at: 0, color: '#6a44f0' },
-            { at: 0.55, color: '#4a21d5' },
-            { at: 1, color: '#341786' }
-          ] },
-          glow: { sigma: 46, opacity: 0.9, dy: -18 } },
-        { id: 'cmd', type: 'text', text: '$ npm init @shopify/shop-mini@latest',
-          x: 960, y: 520,
-          font: { family: 'inter', weight: 450, size: 34 }, color: '#d4bcfe' }
-      ] }]
+      scenes: [
+        { id: 'hook', bg: '#fafafa', dur: 2.2, nodes: [
+          { id: 'title', type: 'text', text: 'The fastest way to scale',
+            x: 960, y: 540,
+            font: { family: 'inter', weight: 600, size: 72 }, color: '#161616' }
+        ] },
+        { id: 'pill-beat', bg: '#fafafa', dur: 2.0,
+          transition: { kind: 'fade', dur: 0.4 }, nodes: [
+          { id: 'claim', type: 'text', text: 'Pro motion by default',
+            x: 960, y: 470,
+            font: { family: 'inter', weight: 600, size: 56 }, color: '#161616' },
+          { id: 'pill', type: 'rect', x: 960, y: 610, w: 480, h: 96,
+            radius: 48, fill: '#ea752f' }
+        ] },
+        { id: 'terminal', bg: '#050505', dur: 2.6,
+          transition: { kind: 'fade', dur: 0.35 }, nodes: [
+          { id: 'tpill', type: 'rect', x: 960, y: 520, w: 760, h: 116,
+            radius: 58, fill: '#4a21d5',
+            gradient: { angle: 90, stops: [
+              { at: 0, color: '#6a44f0' },
+              { at: 0.55, color: '#4a21d5' },
+              { at: 1, color: '#341786' }
+            ] },
+            glow: { sigma: 46, opacity: 0.9, dy: -18 } },
+          { id: 'cmd', type: 'text', text: '$ npm init @shopify/shop-mini@latest',
+            x: 960, y: 520,
+            font: { family: 'inter', weight: 450, size: 34 }, color: '#d4bcfe' }
+        ] }
+      ]
     });
 
     const overlay = JSON.stringify({
       tracks: [
-        { target: 'pill', loop: true, keys: {
+        { target: 'title', at: 0.2, reveal: { unit: 'glyph', stagger: 0.03, keep: ['scale'] } },
+        { target: 'claim', at: 0.35, reveal: { unit: 'word', keep: ['default'] } },
+        { target: 'pill', at: 0.75, keys: {
+            opacity: [{ t: 0, v: 0 }, { t: 0.05, v: 1 }],
+            scale:   [{ t: 0, v: 0.96 }, { t: 0.17, v: 1, ease: [0.22, 1, 0.36, 1] }]
+        } },
+        { target: 'tpill', loop: true, keys: {
             glow_opacity: [
               { t: 0, v: 0.78 },
               { t: 0.725, v: 1.0, ease: 'inOutCubic' },
@@ -75,6 +99,8 @@
 
     const slider = document.getElementById('t');
     const tv = document.getElementById('tv');
+    const playBtn = document.getElementById('play');
+    const DUR = 6.8;
 
     function frame(t) {
       const cmds = JSON.parse(render(stage, overlay, t));
@@ -122,8 +148,34 @@
       tv.textContent = t.toFixed(2) + 's';
     }
 
+    let playing = false;
+    let t0 = 0;
+    let base = 0;
+    function tick(now) {
+      if (!playing) return;
+      let t = base + (now - t0) / 1000;
+      if (t > DUR) { t = 0; base = 0; t0 = now; }
+      slider.value = t;
+      frame(t);
+      requestAnimationFrame(tick);
+    }
+    playBtn.addEventListener('click', () => {
+      playing = !playing;
+      playBtn.textContent = playing ? 'pause' : 'play';
+      if (playing) {
+        base = parseFloat(slider.value);
+        if (base >= DUR) base = 0;
+        t0 = performance.now();
+        requestAnimationFrame(tick);
+      }
+    });
+    slider.addEventListener('input', () => {
+      playing = false;
+      playBtn.textContent = 'play';
+      frame(parseFloat(slider.value));
+    });
+
     document.getElementById('status').textContent = 'whippan-engine (wasm) + skia ready';
-    slider.addEventListener('input', () => frame(parseFloat(slider.value)));
     frame(0);
   </script>
 </body>

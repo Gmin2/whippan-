@@ -16,7 +16,30 @@ pub struct Scene {
     pub id: String,
     #[serde(default)]
     pub bg: Option<String>,
+    /// seconds this scene owns on the timeline
+    #[serde(default = "d_dur_scene")]
+    pub dur: f32,
+    /// how this scene enters (from the previous one)
+    #[serde(default)]
+    pub transition: Option<Transition>,
     pub nodes: Vec<Node>,
+}
+fn d_dur_scene() -> f32 {
+    5.0
+}
+
+#[derive(Deserialize, Clone)]
+pub struct Transition {
+    #[serde(default = "d_trans_kind")]
+    pub kind: String,
+    #[serde(default = "d_trans_dur")]
+    pub dur: f32,
+}
+fn d_trans_kind() -> String {
+    "fade".into()
+}
+fn d_trans_dur() -> f32 {
+    0.4
 }
 
 #[derive(Deserialize)]
@@ -408,23 +431,66 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
         }
     }
     let mut cmds: Vec<DrawCmd> = Vec::new();
-    if let Some(scene) = stage.scenes.first() {
-        cmds.push(DrawCmd {
-            op: "clear".into(),
-            x: 0.0,
-            y: 0.0,
-            w: None,
-            h: None,
-            radius: None,
-            d: None,
-            blur: None,
-            grad: None,
-            color: scene.bg.clone().unwrap_or_else(|| "#ffffff".into()),
-            opacity: 1.0,
-            scale: 1.0,
-        });
+    if stage.scenes.is_empty() {
+        return "[]".into();
+    }
+    let mut starts = Vec::with_capacity(stage.scenes.len());
+    let mut acc = 0.0f32;
+    for s in &stage.scenes {
+        starts.push(acc);
+        acc += s.dur;
+    }
+    let mut active = stage.scenes.len() - 1;
+    for (i, start) in starts.iter().enumerate() {
+        if t < start + stage.scenes[i].dur {
+            active = i;
+            break;
+        }
+    }
+    let scene = &stage.scenes[active];
+    let tl = (t - starts[active]).max(0.0);
+    let scene_bg = |s: &Scene| s.bg.clone().unwrap_or_else(|| "#ffffff".into());
+    let mut clear_color = scene_bg(scene);
+    let mut fading = None;
+    if let Some(tr) = &scene.transition {
+        if tr.kind == "fade" && active > 0 && tl < tr.dur {
+            let p = (tl / tr.dur).clamp(0.0, 1.0);
+            clear_color = mix_hex(&scene_bg(&stage.scenes[active - 1]), &clear_color, p);
+            fading = Some(p);
+        }
+    }
+    cmds.push(DrawCmd {
+        op: "clear".into(),
+        x: 0.0,
+        y: 0.0,
+        w: None,
+        h: None,
+        radius: None,
+        d: None,
+        blur: None,
+        grad: None,
+        color: clear_color,
+        opacity: 1.0,
+        scale: 1.0,
+    });
+    match fading {
+        Some(p) => {
+            let prev = &stage.scenes[active - 1];
+            render_scene(prev, t - starts[active - 1], 1.0 - p, &mut cmds);
+            render_scene(scene, tl, p, &mut cmds);
+        }
+        None => render_scene(scene, tl, 1.0, &mut cmds),
+    }
+    serde_json::to_string(&cmds).unwrap_or_else(|_| "[]".into())
+}
+
+/// draw one scene's nodes at scene-local time `tl`, all opacities scaled by
+/// `fade` (crossfades hand in a partial fade)
+fn render_scene(scene: &Scene, tl: f32, fade: f32, cmds: &mut Vec<DrawCmd>) {
+    let t = tl;
+    {
         for node in &scene.nodes {
-            let opacity = node_prop(node, "opacity", 1.0, t);
+            let opacity = node_prop(node, "opacity", 1.0, t) * fade;
             let dx = node_prop(node, "x", 0.0, t);
             let dy = node_prop(node, "y", 0.0, t);
             let scale = node_prop(node, "scale", 1.0, t);
@@ -454,8 +520,7 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
                                 let p = ((t - start) / r.dur).clamp(0.0, 1.0);
                                 let rise = r.rise * (1.0 - out_cubic(p));
                                 let o = out_cubic((p * 2.0).min(1.0));
-                                let q =
-                                    ((t - start - r.color_delay) / r.color_dur).clamp(0.0, 1.0);
+                                let q = ((t - start - r.color_delay) / r.color_dur).clamp(0.0, 1.0);
                                 let color = if kept {
                                     r.accent.clone()
                                 } else {
@@ -543,9 +608,10 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
                             scale,
                         });
                     }
-                    let grad = node.gradient.as_ref().map(|g| {
-                        grad_for(g, node.w.unwrap_or(0.0), node.h.unwrap_or(0.0))
-                    });
+                    let grad = node
+                        .gradient
+                        .as_ref()
+                        .map(|g| grad_for(g, node.w.unwrap_or(0.0), node.h.unwrap_or(0.0)));
                     cmds.push(DrawCmd {
                         op: "rect".into(),
                         x: node.x + dx,
@@ -565,7 +631,6 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
             }
         }
     }
-    serde_json::to_string(&cmds).unwrap_or_else(|_| "[]".into())
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -615,6 +680,74 @@ mod tests {
     fn frame(t: f32) -> Vec<Value> {
         load_font();
         serde_json::from_str(&render_frame(STAGE, OVERLAY, t)).unwrap()
+    }
+
+    #[test]
+    fn scenes_timeline_and_crossfade() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1920,1080],"scenes":[
+          {"id":"a","bg":"#fafafa","dur":1.0,"nodes":[
+            {"id":"t1","type":"text","text":"hello there","x":960,"y":500,
+             "font":{"weight":600,"size":72},"color":"#161616"}]},
+          {"id":"b","bg":"#050505","dur":1.0,"transition":{"kind":"fade","dur":0.4},"nodes":[
+            {"id":"p1","type":"rect","x":960,"y":540,"w":400,"h":100,"radius":50,"fill":"#4a21d5"}]},
+          {"id":"c","bg":"#ffffff","dur":1.0,"nodes":[
+            {"id":"p2","type":"rect","x":960,"y":540,"w":100,"h":100,"radius":10,"fill":"#e8671f"}]}
+        ]}"##;
+        let overlay = r##"{"tracks":[
+          {"target":"p2","at":0.05,"keys":{"opacity":[{"t":0,"v":0},{"t":0.3,"v":1}]}}
+        ]}"##;
+        let f = |t: f32| -> Vec<Value> {
+            serde_json::from_str(&render_frame(stage, overlay, t)).unwrap()
+        };
+
+        // scene a alone
+        let a = f(0.5);
+        assert_eq!(a[0]["color"], "#fafafa");
+        assert!(a.iter().any(|c| c["op"] == "path"));
+        assert!(!a.iter().any(|c| c["op"] == "rect"));
+
+        // mid-crossfade: mixed bg, both scenes present at half strength
+        let mid = f(1.2);
+        assert_eq!(mid[0]["color"], "#7f7f7f");
+        let path_op = mid
+            .iter()
+            .find(|c| c["op"] == "path")
+            .unwrap()["opacity"]
+            .as_f64()
+            .unwrap();
+        let rect_op = mid
+            .iter()
+            .find(|c| c["op"] == "rect")
+            .unwrap()["opacity"]
+            .as_f64()
+            .unwrap();
+        assert!((path_op - 0.5).abs() < 1e-3, "outgoing at {path_op}");
+        assert!((rect_op - 0.5).abs() < 1e-3, "incoming at {rect_op}");
+
+        // after the window: scene b alone
+        let b = f(1.9);
+        assert_eq!(b[0]["color"], "#050505");
+        assert!(!b.iter().any(|c| c["op"] == "path"));
+
+        // scene c: local clock restarted, overlay mid-ramp
+        let c = f(2.2);
+        assert_eq!(c[0]["color"], "#ffffff");
+        let o = c
+            .iter()
+            .find(|x| x["op"] == "rect")
+            .unwrap()["opacity"]
+            .as_f64()
+            .unwrap();
+        assert!(o > 0.0 && o < 1.0, "scene-local ramp mid-flight: {o}");
+
+        // past the end: last scene holds settled
+        let hold = f(9.0);
+        assert_eq!(hold[0]["color"], "#ffffff");
+        assert_eq!(
+            hold.iter().find(|x| x["op"] == "rect").unwrap()["opacity"],
+            1.0
+        );
     }
 
     #[test]
@@ -669,8 +802,7 @@ mod tests {
           "glow_opacity":[{"t":0,"v":0.8},{"t":0.725,"v":1.0,"ease":"inOutCubic"},
                           {"t":1.45,"v":0.8,"ease":"inOutCubic"}]}}]}"##;
         let probe = |t: f32| -> f64 {
-            let cmds: Vec<Value> =
-                serde_json::from_str(&render_frame(stage, overlay, t)).unwrap();
+            let cmds: Vec<Value> = serde_json::from_str(&render_frame(stage, overlay, t)).unwrap();
             cmds[1]["opacity"].as_f64().unwrap()
         };
         let a = probe(0.3);
@@ -701,16 +833,14 @@ mod tests {
           {"target":"title","at":0.2,
            "reveal":{"unit":"glyph","stagger":0.03,"keep":["scale"]}}
         ]}"##;
-        let cmds: Vec<Value> =
-            serde_json::from_str(&render_frame(STAGE, overlay, 0.5)).unwrap();
+        let cmds: Vec<Value> = serde_json::from_str(&render_frame(STAGE, overlay, 0.5)).unwrap();
         let paths: Vec<&Value> = cmds.iter().filter(|c| c["op"] == "path").collect();
         assert_eq!(paths.len(), 20, "one cmd per glyph");
         let first = paths[0]["opacity"].as_f64().unwrap();
         let last = paths[19]["opacity"].as_f64().unwrap();
         assert!(first > last, "first glyph {first} leads last {last}");
 
-        let done: Vec<Value> =
-            serde_json::from_str(&render_frame(STAGE, overlay, 2.0)).unwrap();
+        let done: Vec<Value> = serde_json::from_str(&render_frame(STAGE, overlay, 2.0)).unwrap();
         let settled: Vec<&Value> = done.iter().filter(|c| c["op"] == "path").collect();
         for g in &settled[15..20] {
             assert_eq!(g["color"], "#e8671f", "scale glyphs keep accent");

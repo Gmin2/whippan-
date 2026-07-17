@@ -47,10 +47,20 @@ struct PathBuilder {
 
 impl ttf_parser::OutlineBuilder for PathBuilder {
     fn move_to(&mut self, x: f32, y: f32) {
-        let _ = write!(self.d, "M{:.1} {:.1}", self.ox + x * self.scale, -y * self.scale);
+        let _ = write!(
+            self.d,
+            "M{:.1} {:.1}",
+            self.ox + x * self.scale,
+            -y * self.scale
+        );
     }
     fn line_to(&mut self, x: f32, y: f32) {
-        let _ = write!(self.d, "L{:.1} {:.1}", self.ox + x * self.scale, -y * self.scale);
+        let _ = write!(
+            self.d,
+            "L{:.1} {:.1}",
+            self.ox + x * self.scale,
+            -y * self.scale
+        );
     }
     fn quad_to(&mut self, x1: f32, y1: f32, x: f32, y: f32) {
         let _ = write!(
