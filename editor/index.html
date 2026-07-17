@@ -39,10 +39,12 @@
         ] },
         { id: 'pill-beat', bg: '#fafafa', dur: 2.0,
           transition: { kind: 'fade', dur: 0.4 }, nodes: [
+          { id: 'mark', type: 'image', src: 'assets/demo/mark.png',
+            x: 960, y: 340, w: 170, h: 170, radius: 34 },
           { id: 'claim', type: 'text', text: 'Pro motion by default',
-            x: 960, y: 470,
+            x: 960, y: 520,
             font: { family: 'inter', weight: 600, size: 56 }, color: '#161616' },
-          { id: 'pill', type: 'rect', x: 960, y: 610, w: 480, h: 96,
+          { id: 'pill', type: 'rect', x: 960, y: 660, w: 480, h: 96,
             radius: 48, fill: '#ea752f' }
         ] },
         { id: 'terminal', bg: '#050505', dur: 2.6,
@@ -65,7 +67,12 @@
     const overlay = JSON.stringify({
       tracks: [
         { target: 'title', at: 0.2, reveal: { unit: 'glyph', stagger: 0.03, keep: ['scale'] } },
-        { target: 'claim', at: 0.35, reveal: { unit: 'word', keep: ['default'] } },
+        { target: 'mark', at: 0.35, keys: {
+            opacity: [{ t: 0, v: 0 }, { t: 0.12, v: 1 }],
+            scale:   [{ t: 0, v: 0.9 }, { t: 0.3, v: 1, ease: [0.22, 1, 0.36, 1] }],
+            y:       [{ t: 0, v: 24 }, { t: 0.3, v: 0, ease: 'outCubic' }]
+        } },
+        { target: 'claim', at: 0.55, reveal: { unit: 'word', keep: ['default'] } },
         { target: 'pill', at: 0.75, keys: {
             opacity: [{ t: 0, v: 0 }, { t: 0.05, v: 1 }],
             scale:   [{ t: 0, v: 0.96 }, { t: 0.17, v: 1, ease: [0.22, 1, 0.36, 1] }]
@@ -91,6 +98,17 @@
       fetch('./assets/fonts/Inter-Variable.ttf').then(r => r.arrayBuffer()),
     ]);
     init_font(new Uint8Array(fontBytes));
+
+    // load every bitmap the stage references, keyed by src
+    const images = new Map();
+    const srcs = [...new Set(
+      JSON.parse(stage).scenes.flatMap(s => s.nodes)
+        .filter(n => n.type === 'image' && n.src).map(n => n.src)
+    )];
+    await Promise.all(srcs.map(async src => {
+      const buf = await fetch(src).then(r => r.arrayBuffer());
+      images.set(src, CK.MakeImageFromEncoded(new Uint8Array(buf)));
+    }));
 
     const surface = CK.MakeCanvasSurface('c');
     const skc = surface.getCanvas();
@@ -140,6 +158,22 @@
             CK.LTRBRect(-c.w / 2, -c.h / 2, c.w / 2, c.h / 2),
             c.radius, c.radius);
           skc.drawRRect(rr, paint);
+        } else if (c.op === 'image') {
+          const img = images.get(c.src);
+          if (img) {
+            const dst = CK.LTRBRect(-c.w / 2, -c.h / 2, c.w / 2, c.h / 2);
+            const ip = new CK.Paint();
+            ip.setAlphaf(c.opacity);
+            if (c.radius) {
+              skc.save();
+              skc.clipRRect(CK.RRectXY(dst, c.radius, c.radius), CK.ClipOp.Intersect, true);
+              skc.drawImageRect(img, CK.LTRBRect(0, 0, img.width(), img.height()), dst, ip);
+              skc.restore();
+            } else {
+              skc.drawImageRect(img, CK.LTRBRect(0, 0, img.width(), img.height()), dst, ip);
+            }
+            ip.delete();
+          }
         }
         skc.restore();
         if (shader) shader.delete();

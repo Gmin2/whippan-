@@ -61,6 +61,9 @@ pub struct Node {
     pub radius: Option<f32>,
     #[serde(default)]
     pub fill: Option<String>,
+    /// image nodes: name the painter resolves to a loaded bitmap
+    #[serde(default)]
+    pub src: Option<String>,
     #[serde(default)]
     pub font: Option<Font>,
     #[serde(default)]
@@ -244,6 +247,8 @@ pub struct DrawCmd {
     pub blur: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub grad: Option<Grad>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub src: Option<String>,
     pub color: String,
     pub opacity: f32,
     pub scale: f32,
@@ -469,6 +474,7 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
         d: None,
         blur: None,
         grad: None,
+        src: None,
         color: clear_color,
         opacity: 1.0,
         scale: 1.0,
@@ -557,6 +563,7 @@ fn render_scene(scene: &Scene, tl: f32, fade: f32, cmds: &mut Vec<DrawCmd>) {
                                     d: Some(glyph.path.clone()),
                                     blur: None,
                                     grad: None,
+                                    src: None,
                                     color,
                                     opacity: opacity * o,
                                     scale,
@@ -574,6 +581,7 @@ fn render_scene(scene: &Scene, tl: f32, fade: f32, cmds: &mut Vec<DrawCmd>) {
                                 d: Some(word.path.clone()),
                                 blur: None,
                                 grad: None,
+                                src: None,
                                 color,
                                 opacity: opacity * o,
                                 scale,
@@ -603,6 +611,7 @@ fn render_scene(scene: &Scene, tl: f32, fade: f32, cmds: &mut Vec<DrawCmd>) {
                             d: None,
                             blur: Some(sigma),
                             grad: None,
+                            src: None,
                             color: echo_color,
                             opacity: opacity * glow_opacity,
                             scale,
@@ -622,7 +631,25 @@ fn render_scene(scene: &Scene, tl: f32, fade: f32, cmds: &mut Vec<DrawCmd>) {
                         d: None,
                         blur: None,
                         grad,
+                        src: None,
                         color: fill,
+                        opacity,
+                        scale,
+                    });
+                }
+                "image" => {
+                    cmds.push(DrawCmd {
+                        op: "image".into(),
+                        x: node.x + dx,
+                        y: node.y + dy,
+                        w: node.w,
+                        h: node.h,
+                        radius: node.radius,
+                        d: None,
+                        blur: None,
+                        grad: None,
+                        src: node.src.clone(),
+                        color: "#000000".into(),
                         opacity,
                         scale,
                     });
@@ -683,6 +710,29 @@ mod tests {
     }
 
     #[test]
+    fn image_nodes_carry_src_and_animate() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1920,1080],"scenes":[{"id":"s","bg":"#fafafa",
+          "nodes":[{"id":"shot","type":"image","src":"assets/demo/mark.png",
+                    "x":960,"y":540,"w":300,"h":300,"radius":40}]}]}"##;
+        let overlay = r##"{"tracks":[{"target":"shot","at":0.1,"keys":{
+          "opacity":[{"t":0,"v":0},{"t":0.2,"v":1}],
+          "scale":[{"t":0,"v":0.9},{"t":0.25,"v":1,"ease":"outCubic"}]}}]}"##;
+        let cmds: Vec<Value> = serde_json::from_str(&render_frame(stage, overlay, 1.0)).unwrap();
+        let img = cmds.iter().find(|c| c["op"] == "image").unwrap();
+        assert_eq!(img["src"], "assets/demo/mark.png");
+        assert_eq!(img["w"], 300.0);
+        assert_eq!(img["radius"], 40.0);
+        assert_eq!(img["opacity"], 1.0);
+        assert_eq!(img["scale"], 1.0);
+        let early: Vec<Value> = serde_json::from_str(&render_frame(stage, overlay, 0.1)).unwrap();
+        assert_eq!(
+            early.iter().find(|c| c["op"] == "image").unwrap()["opacity"],
+            0.0
+        );
+    }
+
+    #[test]
     fn scenes_timeline_and_crossfade() {
         load_font();
         let stage = r##"{"fps":30,"size":[1920,1080],"scenes":[
@@ -710,16 +760,10 @@ mod tests {
         // mid-crossfade: mixed bg, both scenes present at half strength
         let mid = f(1.2);
         assert_eq!(mid[0]["color"], "#7f7f7f");
-        let path_op = mid
-            .iter()
-            .find(|c| c["op"] == "path")
-            .unwrap()["opacity"]
+        let path_op = mid.iter().find(|c| c["op"] == "path").unwrap()["opacity"]
             .as_f64()
             .unwrap();
-        let rect_op = mid
-            .iter()
-            .find(|c| c["op"] == "rect")
-            .unwrap()["opacity"]
+        let rect_op = mid.iter().find(|c| c["op"] == "rect").unwrap()["opacity"]
             .as_f64()
             .unwrap();
         assert!((path_op - 0.5).abs() < 1e-3, "outgoing at {path_op}");
@@ -733,10 +777,7 @@ mod tests {
         // scene c: local clock restarted, overlay mid-ramp
         let c = f(2.2);
         assert_eq!(c[0]["color"], "#ffffff");
-        let o = c
-            .iter()
-            .find(|x| x["op"] == "rect")
-            .unwrap()["opacity"]
+        let o = c.iter().find(|x| x["op"] == "rect").unwrap()["opacity"]
             .as_f64()
             .unwrap();
         assert!(o > 0.0 && o < 1.0, "scene-local ramp mid-flight: {o}");
