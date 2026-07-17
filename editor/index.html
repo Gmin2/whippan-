@@ -25,7 +25,7 @@
   </main>
 
   <script type="module">
-    import init, { render } from './src/engine-pkg/whippan_engine.js';
+    import init, { render, init_font } from './src/engine-pkg/whippan_engine.js';
 
     const stage = JSON.stringify({
       fps: 30, size: [1920, 1080],
@@ -40,10 +40,7 @@
 
     const overlay = JSON.stringify({
       tracks: [
-        { target: 'title', at: 0, keys: {
-            opacity: [{ t: 0, v: 0 }, { t: 0.27, v: 1, ease: 'outCubic' }],
-            y:       [{ t: 0, v: 40 }, { t: 0.27, v: 0, ease: 'outCubic' }]
-        } },
+        { target: 'title', at: 0.2, reveal: { unit: 'word', keep: ['scale'] } },
         { target: 'pill', at: 1.1, keys: {
             opacity: [{ t: 0, v: 0 }, { t: 0.05, v: 1 }],
             scale:   [{ t: 0, v: 0.96 }, { t: 0.17, v: 1, ease: [0.22, 1, 0.36, 1] }]
@@ -56,17 +53,12 @@
       init(),
       fetch('./assets/fonts/Inter-Variable.ttf').then(r => r.arrayBuffer()),
     ]);
+    init_font(new Uint8Array(fontBytes));
 
     const surface = CK.MakeCanvasSurface('c');
     const skc = surface.getCanvas();
-    const typeface = CK.Typeface.MakeFreeTypeFaceFromData(fontBytes);
     const paint = new CK.Paint();
     paint.setAntiAlias(true);
-    const fonts = new Map();
-    const fontFor = size => {
-      if (!fonts.has(size)) fonts.set(size, new CK.Font(typeface, size));
-      return fonts.get(size);
-    };
 
     const slider = document.getElementById('t');
     const tv = document.getElementById('tv');
@@ -81,13 +73,9 @@
         skc.save();
         skc.translate(c.x, c.y);
         skc.scale(c.scale, c.scale);
-        if (c.op === 'text') {
-          const font = fontFor(c.size);
-          const ids = font.getGlyphIDs(c.text);
-          const width = font.getGlyphWidths(ids).reduce((a, b) => a + b, 0);
-          const m = font.getMetrics();
-          const baseline = -(m.ascent + m.descent) / 2;
-          skc.drawText(c.text, -width / 2, baseline, paint, font);
+        if (c.op === 'path') {
+          const p = CK.Path.MakeFromSVGString(c.d);
+          if (p) { skc.drawPath(p, paint); p.delete(); }
         } else if (c.op === 'rect') {
           const rr = CK.RRectXY(
             CK.LTRBRect(-c.w / 2, -c.h / 2, c.w / 2, c.h / 2),

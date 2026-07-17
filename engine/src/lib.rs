@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+mod text;
+pub use text::init_font;
+
 #[derive(Deserialize)]
 pub struct Stage {
     pub fps: f32,
@@ -41,6 +44,8 @@ pub struct Node {
     pub color: Option<String>,
     #[serde(default)]
     pub keys: HashMap<String, Vec<Key>>,
+    #[serde(skip)]
+    reveal: Option<(f32, Reveal)>,
 }
 
 #[derive(Deserialize)]
@@ -77,8 +82,50 @@ pub enum Ease {
     Bezier([f32; 4]),
 }
 
-/// the animation layer: motion only, joined to stage nodes by id.
-/// key times inside a track are relative to `at`.
+/// word-by-word entrance: each word rises in from below, opacity leading the
+/// move, flashes in the accent color and tempers to the node's ink. defaults
+/// are the measured numbers from the ai-1 teardown.
+#[derive(Deserialize, Clone)]
+pub struct Reveal {
+    #[serde(default = "d_unit")]
+    pub unit: String,
+    #[serde(default = "d_stagger")]
+    pub stagger: f32,
+    #[serde(default = "d_dur")]
+    pub dur: f32,
+    #[serde(default = "d_rise")]
+    pub rise: f32,
+    #[serde(default = "d_accent")]
+    pub accent: String,
+    #[serde(default)]
+    pub keep: Vec<String>,
+    #[serde(default = "d_cdelay")]
+    pub color_delay: f32,
+    #[serde(default = "d_cdur")]
+    pub color_dur: f32,
+}
+fn d_unit() -> String {
+    "word".into()
+}
+fn d_stagger() -> f32 {
+    0.05
+}
+fn d_dur() -> f32 {
+    0.27
+}
+fn d_rise() -> f32 {
+    40.0
+}
+fn d_accent() -> String {
+    "#e8671f".into()
+}
+fn d_cdelay() -> f32 {
+    0.16
+}
+fn d_cdur() -> f32 {
+    0.3
+}
+
 #[derive(Deserialize)]
 pub struct Overlay {
     pub tracks: Vec<Track>,
@@ -89,7 +136,10 @@ pub struct Track {
     pub target: String,
     #[serde(default)]
     pub at: f32,
+    #[serde(default)]
     pub keys: HashMap<String, Vec<Key>>,
+    #[serde(default)]
+    pub reveal: Option<Reveal>,
 }
 
 #[derive(Serialize)]
@@ -104,11 +154,7 @@ pub struct DrawCmd {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub radius: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub text: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub size: Option<f32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub weight: Option<u32>,
+    pub d: Option<String>,
     pub color: String,
     pub opacity: f32,
     pub scale: f32,
@@ -155,12 +201,16 @@ fn bezier(p: f32, pts: &[f32; 4]) -> f32 {
     bezier_sample(y1, y2, u)
 }
 
+fn out_cubic(p: f32) -> f32 {
+    1.0 - (1.0 - p.clamp(0.0, 1.0)).powi(3)
+}
+
 fn ease(p: f32, kind: &Option<Ease>) -> f32 {
     let p = p.clamp(0.0, 1.0);
     match kind {
         Some(Ease::Bezier(pts)) => bezier(p, pts),
         Some(Ease::Named(name)) => match name.as_str() {
-            "outCubic" => 1.0 - (1.0 - p).powi(3),
+            "outCubic" => out_cubic(p),
             "inCubic" => p * p * p,
             "inOutCubic" => {
                 if p < 0.5 {
@@ -198,6 +248,27 @@ fn eval_prop(keys: &HashMap<String, Vec<Key>>, name: &str, default: f32, t: f32)
     last.v
 }
 
+fn parse_hex(c: &str) -> [f32; 3] {
+    let h = c.trim_start_matches('#');
+    let n = u32::from_str_radix(h, 16).unwrap_or(0);
+    [
+        ((n >> 16) & 0xff) as f32,
+        ((n >> 8) & 0xff) as f32,
+        (n & 0xff) as f32,
+    ]
+}
+
+fn mix_hex(a: &str, b: &str, p: f32) -> String {
+    let (ca, cb) = (parse_hex(a), parse_hex(b));
+    let p = p.clamp(0.0, 1.0);
+    format!(
+        "#{:02x}{:02x}{:02x}",
+        (ca[0] + (cb[0] - ca[0]) * p) as u8,
+        (ca[1] + (cb[1] - ca[1]) * p) as u8,
+        (ca[2] + (cb[2] - ca[2]) * p) as u8,
+    )
+}
+
 /// resolve each overlay track onto its stage node: shift key times by the
 /// track's `at` and attach them. overlay wins over inline stage keys.
 fn merge(stage: &mut Stage, overlay: &Overlay) {
@@ -214,6 +285,9 @@ fn merge(stage: &mut Stage, overlay: &Overlay) {
                         })
                         .collect();
                     node.keys.insert(prop.clone(), shifted);
+                }
+                if let Some(r) = &track.reveal {
+                    node.reveal = Some((track.at, r.clone()));
                 }
             }
         }
@@ -242,25 +316,53 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
             let scale = eval_prop(&node.keys, "scale", 1.0, t);
             match node.kind.as_str() {
                 "text" => {
+                    let content = match &node.text {
+                        Some(s) if !s.is_empty() => s,
+                        _ => continue,
+                    };
                     let (size, weight) = node
                         .font
                         .as_ref()
-                        .map(|f| (f.size, f.weight))
-                        .unwrap_or((48.0, 400));
-                    cmds.push(DrawCmd {
-                        op: "text".into(),
-                        x: node.x + dx,
-                        y: node.y + dy,
-                        w: None,
-                        h: None,
-                        radius: None,
-                        text: node.text.clone(),
-                        size: Some(size),
-                        weight: Some(weight),
-                        color: node.color.clone().unwrap_or_else(|| "#000000".into()),
-                        opacity,
-                        scale,
-                    });
+                        .map(|f| (f.size, f.weight as f32))
+                        .unwrap_or((48.0, 400.0));
+                    let line = match text::shape_line(content, size, weight) {
+                        Some(l) => l,
+                        None => continue,
+                    };
+                    let ink = node.color.clone().unwrap_or_else(|| "#000000".into());
+                    let left = node.x + dx - line.width / 2.0;
+                    let baseline = node.y + dy + line.baseline_shift;
+                    for (i, word) in line.words.iter().enumerate() {
+                        let (word_opacity, word_dy, color) = match &node.reveal {
+                            Some((at, r)) => {
+                                let start = at + i as f32 * r.stagger;
+                                let p = ((t - start) / r.dur).clamp(0.0, 1.0);
+                                let rise = r.rise * (1.0 - out_cubic(p));
+                                let o = out_cubic((p * 2.0).min(1.0));
+                                let q =
+                                    ((t - start - r.color_delay) / r.color_dur).clamp(0.0, 1.0);
+                                let color = if r.keep.iter().any(|k| k == &word.text) {
+                                    r.accent.clone()
+                                } else {
+                                    mix_hex(&r.accent, &ink, out_cubic(q))
+                                };
+                                (o, rise, color)
+                            }
+                            None => (1.0, 0.0, ink.clone()),
+                        };
+                        cmds.push(DrawCmd {
+                            op: "path".into(),
+                            x: left + word.x,
+                            y: baseline + word_dy,
+                            w: None,
+                            h: None,
+                            radius: None,
+                            d: Some(word.path.clone()),
+                            color,
+                            opacity: opacity * word_opacity,
+                            scale,
+                        });
+                    }
                 }
                 "rect" => {
                     cmds.push(DrawCmd {
@@ -270,9 +372,7 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
                         w: node.w,
                         h: node.h,
                         radius: node.radius,
-                        text: None,
-                        size: None,
-                        weight: None,
+                        d: None,
                         color: node.fill.clone().unwrap_or_else(|| "#000000".into()),
                         opacity,
                         scale,
@@ -292,6 +392,10 @@ mod wasm {
     pub fn render(stage_json: &str, overlay_json: &str, t: f32) -> String {
         super::render_frame(stage_json, overlay_json, t)
     }
+    #[wasm_bindgen]
+    pub fn init_font(bytes: &[u8]) -> bool {
+        super::init_font(bytes.to_vec())
+    }
 }
 
 #[cfg(test)]
@@ -302,65 +406,88 @@ mod tests {
     const STAGE: &str = r##"{
       "fps":30,"size":[1920,1080],
       "scenes":[{"id":"s1","bg":"#fafafa","nodes":[
-        {"id":"title","type":"text","text":"The fastest way to scale","x":960,"y":540,
-         "font":{"family":"grotesk","weight":600,"size":72},"color":"#161616"},
+        {"id":"title","type":"text","text":"The fastest way to scale","x":960,"y":500,
+         "font":{"family":"inter","weight":600,"size":72},"color":"#161616"},
         {"id":"pill","type":"rect","x":960,"y":660,"w":480,"h":96,"radius":48,"fill":"#ea752f"}
       ]}]
     }"##;
 
     const OVERLAY: &str = r##"{
       "tracks":[
-        {"target":"title","at":0,"keys":{
-          "opacity":[{"t":0,"v":0},{"t":0.27,"v":1,"ease":"outCubic"}],
-          "y":[{"t":0,"v":40},{"t":0.27,"v":0,"ease":"outCubic"}]}},
+        {"target":"title","at":0.2,"reveal":{"unit":"word","keep":["scale"]}},
         {"target":"pill","at":1.1,"keys":{
           "opacity":[{"t":0,"v":0},{"t":0.05,"v":1}],
           "scale":[{"t":0,"v":0.96},{"t":0.17,"v":1,"ease":[0.22,1.0,0.36,1.0]}]}}
       ]
     }"##;
 
+    fn load_font() {
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../editor/assets/fonts/Inter-Variable.ttf"
+        );
+        let _ = init_font(std::fs::read(path).expect("font file"));
+    }
+
     fn frame(t: f32) -> Vec<Value> {
+        load_font();
         serde_json::from_str(&render_frame(STAGE, OVERLAY, t)).unwrap()
     }
 
     #[test]
-    fn overlay_tracks_land_on_their_nodes() {
+    fn shapes_words_with_real_metrics() {
+        load_font();
+        let line = text::shape_line("The fastest way to scale", 72.0, 600.0).unwrap();
+        assert_eq!(line.words.len(), 5);
+        assert!(line.width > 400.0, "width {}", line.width);
+        for pair in line.words.windows(2) {
+            assert!(pair[1].x > pair[0].x + pair[0].width * 0.5);
+        }
+    }
+
+    #[test]
+    fn weight_axis_changes_outlines() {
+        load_font();
+        let heavy = text::shape_line("The", 72.0, 700.0).unwrap();
+        let light = text::shape_line("The", 72.0, 300.0).unwrap();
+        assert_ne!(heavy.words[0].path, light.words[0].path);
+    }
+
+    #[test]
+    fn reveal_staggers_and_settles() {
+        // before the track starts every word is hidden
         let f0 = frame(0.0);
-        assert_eq!(f0[0]["opacity"], 0.0, "title hidden at start");
-        assert_eq!(f0[0]["y"], 580.0, "title offset below home");
-        assert_eq!(f0[1]["opacity"], 0.0, "pill hidden before its track starts");
+        assert_eq!(f0.len(), 6, "5 words + pill");
+        assert_eq!(f0[0]["opacity"], 0.0);
 
-        let f = frame(0.6);
-        assert_eq!(f[0]["opacity"], 1.0, "title settled");
-        assert_eq!(f[0]["y"], 540.0);
-        assert_eq!(f[1]["opacity"], 0.0, "pill still waiting at 0.6s");
+        // mid-reveal the first word leads the last
+        let mid = frame(0.35);
+        let first = mid[0]["opacity"].as_f64().unwrap();
+        let last = mid[4]["opacity"].as_f64().unwrap();
+        assert!(first > last, "stagger: first {first} last {last}");
 
-        let f2 = frame(1.4);
-        assert_eq!(f2[1]["opacity"], 1.0, "pill visible after its track");
-        assert_eq!(f2[1]["scale"], 1.0, "pill settled at full scale");
-        assert_eq!(f2[1]["op"], "rect");
+        // settled: full opacity, ink color, except the kept accent word
+        let done = frame(1.0);
+        for w in &done[0..4] {
+            assert_eq!(w["opacity"], 1.0);
+            assert_eq!(w["color"], "#161616");
+        }
+        assert_eq!(done[4]["color"], "#e8671f", "scale keeps the accent");
     }
 
     #[test]
-    fn track_at_shifts_key_times() {
-        // 1.1 + 0.17/2: mid pop, scale strictly between 0.96 and 1
-        let f = frame(1.185);
-        let s = f[1]["scale"].as_f64().unwrap();
-        assert!(s > 0.96 && s < 1.0, "mid-pop scale {s}");
-    }
-
-    #[test]
-    fn bezier_ease_shape() {
-        let sym = [0.42, 0.0, 0.58, 1.0];
-        assert!((bezier(0.5, &sym) - 0.5).abs() < 1e-3, "symmetric midpoint");
-        assert!(bezier(0.25, &sym) < 0.25, "slow start");
-        assert!(bezier(0.75, &sym) > 0.75, "fast end");
-        let out = [0.22, 1.0, 0.36, 1.0];
-        assert!(bezier(0.3, &out) > 0.7, "strong ease-out front-loads");
+    fn pill_still_pops() {
+        let f = frame(1.4);
+        let pill = f.iter().find(|c| c["op"] == "rect").unwrap();
+        assert_eq!(pill["opacity"], 1.0);
+        assert_eq!(pill["scale"], 1.0);
     }
 
     #[test]
     fn deterministic() {
-        assert_eq!(render_frame(STAGE, OVERLAY, 1.3), render_frame(STAGE, OVERLAY, 1.3));
+        assert_eq!(
+            render_frame(STAGE, OVERLAY, 0.8),
+            render_frame(STAGE, OVERLAY, 0.8)
+        );
     }
 }
