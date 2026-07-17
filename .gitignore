@@ -1,0 +1,7 @@
+/target
+/editor/src/engine-pkg/
+/analysis
+/reference
+/tmp
+.DS_Store
+/research
