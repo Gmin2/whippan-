@@ -19,6 +19,8 @@
     nav a.active { color: #171717; }
     nav a.active .tick { width: 52px; background: #f02900; }
     nav a .num { font-family: ui-monospace, monospace; font-size: 10px; opacity: 0.55; }
+    nav .group { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+                 color: #c2c2bf; margin: 16px 0 4px; }
     main { position: absolute; inset: 0 0 0 280px; display: grid;
            place-items: center; }
     .stagebox { display: flex; flex-direction: column; align-items: center; gap: 14px; }
@@ -36,6 +38,10 @@
     .dock input[type=range] { width: 260px; accent-color: #f02900; }
     .dock .tv { font-family: ui-monospace, monospace; font-size: 11px;
             color: #8a8a88; width: 68px; }
+    .dock .edit { font-size: 12px; color: #8a8a88; text-decoration: none;
+            border: 1px solid rgba(0,0,0,0.12); border-radius: 999px;
+            padding: 4px 12px; }
+    .dock .edit:hover { color: #171717; border-color: rgba(0,0,0,0.3); }
     .status { position: fixed; bottom: 8px; left: 32px; font-size: 11px;
               color: #b0b0ad; }
   </style>
@@ -56,6 +62,7 @@
     <button id="play">play</button>
     <input id="t" type="range" min="0" max="1" step="0.01" value="0" />
     <span class="tv" id="tv">0.00s</span>
+    <a class="edit" id="editlink" href="/editor/edit.html">edit</a>
   </div>
   <div class="status" id="status">engine loading…</div>
 
@@ -91,12 +98,21 @@
     let cur = null;   // { stage, anim, dur, images }
     let playing = false, t0 = 0, base = 0;
 
-    registry.forEach((e, i) => {
+    let lastGroup = null, num = 0;
+    registry.forEach(e => {
+      const g = e.group || 'examples';
+      if (g !== lastGroup) {
+        const h = document.createElement('div');
+        h.className = 'group';
+        h.textContent = g;
+        rail.append(h);
+        lastGroup = g; num = 0;
+      }
       const a = document.createElement('a');
       a.href = '#' + e.slug;
       a.dataset.slug = e.slug;
       a.innerHTML = `<span class="tick"></span><span>${e.title}</span>` +
-        `<span class="num">${String(i + 1).padStart(2, '0')}</span>`;
+        `<span class="num">${String(++num).padStart(2, '0')}</span>`;
       a.addEventListener('click', ev => { ev.preventDefault(); load(e.slug); });
       rail.append(a);
     });
@@ -118,6 +134,8 @@
       playing = false; playBtn.textContent = 'play';
       for (const a of rail.querySelectorAll('a'))
         a.classList.toggle('active', a.dataset.slug === entry.slug);
+      document.getElementById('editlink').href =
+        '/editor/edit.html?doc=' + entry.slug;
       const stageUrl = entry.stage || `/docs/examples/${entry.slug}.stage.json`;
       const animUrl = entry.anim || `/docs/examples/${entry.slug}.anim.json`;
       const [stage, anim] = await Promise.all([

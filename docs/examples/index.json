@@ -8,7 +8,8 @@
    712
   ],
   "stage": "/docs/terminal.stage.json",
-  "anim": "/docs/terminal.anim.json"
+  "anim": "/docs/terminal.anim.json",
+  "group": "reproductions"
  },
  {
   "slug": "chatgpt",
@@ -19,7 +20,20 @@
    1618
   ],
   "stage": "/docs/chatgpt.stage.json",
-  "anim": "/docs/chatgpt.anim.json"
+  "anim": "/docs/chatgpt.anim.json",
+  "group": "reproductions"
+ },
+ {
+  "slug": "atlas",
+  "title": "atlas (repro)",
+  "dur": 6.8,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/atlas.stage.json",
+  "anim": "/docs/atlas.anim.json"
  },
  {
   "slug": "reveal",
@@ -28,7 +42,8 @@
   "size": [
    1920,
    1080
-  ]
+  ],
+  "group": "primitives"
  },
  {
   "slug": "click",
@@ -37,7 +52,8 @@
   "size": [
    1920,
    1080
-  ]
+  ],
+  "group": "primitives"
  },
  {
   "slug": "goo",
@@ -46,7 +62,8 @@
   "size": [
    1920,
    1080
-  ]
+  ],
+  "group": "primitives"
  },
  {
   "slug": "magic-move",
@@ -55,7 +72,8 @@
   "size": [
    1920,
    1080
-  ]
+  ],
+  "group": "primitives"
  },
  {
   "slug": "transitions",
@@ -64,6 +82,7 @@
   "size": [
    1920,
    1080
-  ]
+  ],
+  "group": "primitives"
  }
 ]

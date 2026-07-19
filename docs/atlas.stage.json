@@ -1,0 +1,1626 @@
+{
+ "fps": 30,
+ "size": [
+  1920,
+  1080
+ ],
+ "scenes": [
+  {
+   "id": "s1",
+   "bg": "#000000",
+   "dur": 3.0,
+   "transition": {
+    "kind": "cut"
+   },
+   "nodes": [
+    {
+     "id": "dollar",
+     "type": "text",
+     "text": "$",
+     "x": 692,
+     "y": 542,
+     "color": "#565656",
+     "font": {
+      "size": 96,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "cmd",
+     "type": "text",
+     "text": "git push",
+     "x": 1030.4,
+     "y": 545,
+     "color": "#ffffff",
+     "font": {
+      "size": 96,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "caret",
+     "type": "rect",
+     "x": 1410,
+     "y": 540,
+     "w": 48,
+     "h": 92,
+     "radius": 2,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "out1",
+     "type": "text",
+     "text": "[feat/login-redesign 3f8a2c1] update auth flow for chrome.",
+     "x": 1072.4,
+     "y": 620,
+     "color": "#c2c2c2",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "out2",
+     "type": "text",
+     "text": "11 files changed, 142 insertions(+), 38 deletions(-)",
+     "x": 1025.6,
+     "y": 662,
+     "color": "#9a9a9a",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "out3",
+     "type": "text",
+     "text": "create mode 100644 src/auth/session.ts",
+     "x": 916.4,
+     "y": 704,
+     "color": "#8a8a8a",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "out4",
+     "type": "text",
+     "text": "create mode 100644 src/auth/tokens.ts",
+     "x": 908.6,
+     "y": 746,
+     "color": "#8a8a8a",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "out5",
+     "type": "text",
+     "text": "delete mode 100644 src/auth/legacy.ts",
+     "x": 908.6,
+     "y": 788,
+     "color": "#8a8a8a",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "out6",
+     "type": "text",
+     "text": "To github.com:dokedu/dokedu.git",
+     "x": 861.8,
+     "y": 830,
+     "color": "#6b6b6b",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "chipdot1",
+     "type": "rect",
+     "x": 765,
+     "y": 540,
+     "w": 30,
+     "h": 30,
+     "radius": 15,
+     "fill": "#b55b01",
+     "glow": {
+      "sigma": 9,
+      "opacity": 0.8,
+      "color": "#b55b01"
+     }
+    },
+    {
+     "id": "chipb1",
+     "type": "text",
+     "text": "Building",
+     "x": 985,
+     "y": 540,
+     "color": "#f2f2f2",
+     "font": {
+      "size": 62,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "chipd0",
+     "type": "text",
+     "text": "0",
+     "x": 1168,
+     "y": 540,
+     "color": "#8a8a8a",
+     "font": {
+      "size": 54,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "chipd1_1",
+     "type": "text",
+     "text": "1",
+     "x": 1168,
+     "y": 540,
+     "color": "#8a8a8a",
+     "font": {
+      "size": 54,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "chips1",
+     "type": "text",
+     "text": "s",
+     "x": 1202,
+     "y": 541,
+     "color": "#8a8a8a",
+     "font": {
+      "size": 54,
+      "weight": 400,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s2",
+   "bg": "#0a0a0c",
+   "dur": 2.0,
+   "transition": {
+    "kind": "cut"
+   },
+   "nodes": [
+    {
+     "id": "plum",
+     "type": "rect",
+     "x": 960,
+     "y": 100,
+     "w": 1300,
+     "h": 520,
+     "radius": 260,
+     "fill": "#241722",
+     "blur": 140
+    },
+    {
+     "id": "chipdot2",
+     "type": "rect",
+     "x": 765,
+     "y": 540,
+     "w": 30,
+     "h": 30,
+     "radius": 15,
+     "fill": "#b55b01",
+     "glow": {
+      "sigma": 9,
+      "opacity": 0.8,
+      "color": "#b55b01"
+     }
+    },
+    {
+     "id": "chipb2",
+     "type": "text",
+     "text": "Building",
+     "x": 985,
+     "y": 540,
+     "color": "#f2f2f2",
+     "font": {
+      "size": 62,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "chipd1",
+     "type": "text",
+     "text": "1",
+     "x": 1168,
+     "y": 540,
+     "color": "#8a8a8a",
+     "font": {
+      "size": 54,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "chipd2",
+     "type": "text",
+     "text": "2",
+     "x": 1168,
+     "y": 540,
+     "color": "#8a8a8a",
+     "font": {
+      "size": 54,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "chipd3",
+     "type": "text",
+     "text": "3",
+     "x": 1168,
+     "y": 540,
+     "color": "#8a8a8a",
+     "font": {
+      "size": 54,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "chips2",
+     "type": "text",
+     "text": "s",
+     "x": 1202,
+     "y": 541,
+     "color": "#8a8a8a",
+     "font": {
+      "size": 54,
+      "weight": 400,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "bg": "#0a0a0c",
+   "dur": 1.8,
+   "transition": {
+    "kind": "cut"
+   },
+   "nodes": [
+    {
+     "id": "plum3",
+     "type": "rect",
+     "x": 960,
+     "y": 100,
+     "w": 1300,
+     "h": 520,
+     "radius": 260,
+     "fill": "#241722",
+     "blur": 140
+    },
+    {
+     "id": "bc_tile",
+     "type": "rect",
+     "x": 190,
+     "y": 300,
+     "w": 36,
+     "h": 36,
+     "radius": 9,
+     "fill": "#f2f2f2"
+    },
+    {
+     "id": "bc_glyph",
+     "type": "text",
+     "text": "a",
+     "x": 190,
+     "y": 300,
+     "color": "#141014",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "bc_org",
+     "type": "text",
+     "text": "Dokedu",
+     "x": 269,
+     "y": 300,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 28,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "bc_sep",
+     "type": "text",
+     "text": "/",
+     "x": 367,
+     "y": 300,
+     "color": "#5a5a5a",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "bc_proj",
+     "type": "text",
+     "text": "Dokedu Backend",
+     "x": 492,
+     "y": 298,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 28,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "tab_pill",
+     "type": "rect",
+     "x": 259,
+     "y": 375,
+     "w": 200,
+     "h": 52,
+     "radius": 11,
+     "fill": "#211f23"
+    },
+    {
+     "id": "tab_dep",
+     "type": "text",
+     "text": "Deployments",
+     "x": 280,
+     "y": 374,
+     "color": "#f0f0f0",
+     "font": {
+      "size": 26,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "tab_logs",
+     "type": "text",
+     "text": "Logs",
+     "x": 450,
+     "y": 373,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "tab_set",
+     "type": "text",
+     "text": "Settings",
+     "x": 596,
+     "y": 373,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "hd_t",
+     "type": "text",
+     "text": "Deployments",
+     "x": 241,
+     "y": 449,
+     "color": "#d0d0d0",
+     "font": {
+      "size": 26,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "hd_sub",
+     "type": "text",
+     "text": "Automatically created for pushes to",
+     "x": 549,
+     "y": 449,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "hd_gh",
+     "type": "rect",
+     "x": 795,
+     "y": 448,
+     "w": 26,
+     "h": 26,
+     "radius": 13,
+     "fill": "#2c2c2e"
+    },
+    {
+     "id": "hd_repo",
+     "type": "text",
+     "text": "dokedu/dokedu",
+     "x": 915,
+     "y": 447,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 26,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "btn_create",
+     "type": "rect",
+     "x": 1775,
+     "y": 444,
+     "w": 240,
+     "h": 58,
+     "radius": 13,
+     "fill": "#fafafa"
+    },
+    {
+     "id": "btn_create_t",
+     "type": "text",
+     "text": "Create Deployment",
+     "x": 1775,
+     "y": 444,
+     "color": "#161616",
+     "font": {
+      "size": 24,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r0_hash",
+     "type": "text",
+     "text": "a4d9c3f",
+     "x": 249,
+     "y": 523,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r0_msg",
+     "type": "text",
+     "text": "Fix issue with user login timeout caus...",
+     "x": 534.6,
+     "y": 523,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r0_env",
+     "type": "text",
+     "text": "Production",
+     "x": 1126,
+     "y": 523,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r0_br",
+     "type": "text",
+     "text": "feat/login-red...",
+     "x": 1420,
+     "y": 523,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r0_av",
+     "type": "rect",
+     "x": 1556,
+     "y": 523,
+     "w": 28,
+     "h": 28,
+     "radius": 14,
+     "fill": "#2c2c2e"
+    },
+    {
+     "id": "r0_auth",
+     "type": "text",
+     "text": "aaronmahlke",
+     "x": 1658,
+     "y": 523,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r1_hash",
+     "type": "text",
+     "text": "b7e2a1d",
+     "x": 249,
+     "y": 599,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r1_msg",
+     "type": "text",
+     "text": "Add new feature to export reports in P...",
+     "x": 534.6,
+     "y": 599,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r1_env",
+     "type": "text",
+     "text": "Production",
+     "x": 1126,
+     "y": 599,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r1_br",
+     "type": "text",
+     "text": "main",
+     "x": 1420,
+     "y": 599,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r1_av",
+     "type": "rect",
+     "x": 1556,
+     "y": 599,
+     "w": 28,
+     "h": 28,
+     "radius": 14,
+     "fill": "#2c2c2e"
+    },
+    {
+     "id": "r1_auth",
+     "type": "text",
+     "text": "aaronmahlke",
+     "x": 1658,
+     "y": 599,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r1_age",
+     "type": "text",
+     "text": "13 seconds ago",
+     "x": 1868,
+     "y": 599,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r1_sep",
+     "type": "rect",
+     "x": 1000,
+     "y": 561,
+     "w": 1700,
+     "h": 2,
+     "radius": 1,
+     "fill": "#232226"
+    },
+    {
+     "id": "r1_dot",
+     "type": "rect",
+     "x": 770,
+     "y": 599,
+     "w": 16,
+     "h": 16,
+     "radius": 8,
+     "fill": "#1fc133"
+    },
+    {
+     "id": "r1_st",
+     "type": "text",
+     "text": "Ready",
+     "x": 835,
+     "y": 599,
+     "color": "#e0e0e0",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r1_dur",
+     "type": "text",
+     "text": "34s (5m ago)",
+     "x": 998,
+     "y": 599,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r2_hash",
+     "type": "text",
+     "text": "c8f4b2e",
+     "x": 249,
+     "y": 675,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r2_msg",
+     "type": "text",
+     "text": "Improve loading speed on the dashbo...",
+     "x": 517.8,
+     "y": 675,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r2_env",
+     "type": "text",
+     "text": "Development",
+     "x": 1126,
+     "y": 675,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r2_br",
+     "type": "text",
+     "text": "feat/primary-f...",
+     "x": 1420,
+     "y": 675,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r2_av",
+     "type": "rect",
+     "x": 1556,
+     "y": 675,
+     "w": 28,
+     "h": 28,
+     "radius": 14,
+     "fill": "#2c2c2e"
+    },
+    {
+     "id": "r2_auth",
+     "type": "text",
+     "text": "aaronmahlke",
+     "x": 1658,
+     "y": 675,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r2_age",
+     "type": "text",
+     "text": "2 min ago",
+     "x": 1868,
+     "y": 675,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r2_sep",
+     "type": "rect",
+     "x": 1000,
+     "y": 637,
+     "w": 1700,
+     "h": 2,
+     "radius": 1,
+     "fill": "#232226"
+    },
+    {
+     "id": "r2_dot",
+     "type": "rect",
+     "x": 770,
+     "y": 675,
+     "w": 16,
+     "h": 16,
+     "radius": 8,
+     "fill": "#525252"
+    },
+    {
+     "id": "r2_st",
+     "type": "text",
+     "text": "Stopped",
+     "x": 849,
+     "y": 675,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r2_dur",
+     "type": "text",
+     "text": "34s",
+     "x": 958,
+     "y": 675,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r3_hash",
+     "type": "text",
+     "text": "d1a3c5b",
+     "x": 249,
+     "y": 751,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r3_msg",
+     "type": "text",
+     "text": "Update user profile page layout to en...",
+     "x": 529.0,
+     "y": 751,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r3_env",
+     "type": "text",
+     "text": "Development",
+     "x": 1126,
+     "y": 751,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r3_br",
+     "type": "text",
+     "text": "chore/default...",
+     "x": 1420,
+     "y": 751,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r3_av",
+     "type": "rect",
+     "x": 1556,
+     "y": 751,
+     "w": 28,
+     "h": 28,
+     "radius": 14,
+     "fill": "#2c2c2e"
+    },
+    {
+     "id": "r3_auth",
+     "type": "text",
+     "text": "aaronmahlke",
+     "x": 1658,
+     "y": 751,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r3_age",
+     "type": "text",
+     "text": "1 day ago",
+     "x": 1868,
+     "y": 751,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r3_sep",
+     "type": "rect",
+     "x": 1000,
+     "y": 713,
+     "w": 1700,
+     "h": 2,
+     "radius": 1,
+     "fill": "#232226"
+    },
+    {
+     "id": "r3_dot",
+     "type": "rect",
+     "x": 770,
+     "y": 751,
+     "w": 16,
+     "h": 16,
+     "radius": 8,
+     "fill": "#e3133d"
+    },
+    {
+     "id": "r3_st",
+     "type": "text",
+     "text": "Failed",
+     "x": 842,
+     "y": 751,
+     "color": "#e0e0e0",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r3_dur",
+     "type": "text",
+     "text": "34s",
+     "x": 958,
+     "y": 751,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r4_hash",
+     "type": "text",
+     "text": "e6b7d8f",
+     "x": 249,
+     "y": 827,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r4_msg",
+     "type": "text",
+     "text": "Refactor notification system to suppo...",
+     "x": 529.0,
+     "y": 827,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r4_env",
+     "type": "text",
+     "text": "Development",
+     "x": 1126,
+     "y": 827,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r4_br",
+     "type": "text",
+     "text": "feat/central-h...",
+     "x": 1420,
+     "y": 827,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r4_av",
+     "type": "rect",
+     "x": 1556,
+     "y": 827,
+     "w": 28,
+     "h": 28,
+     "radius": 14,
+     "fill": "#2c2c2e"
+    },
+    {
+     "id": "r4_auth",
+     "type": "text",
+     "text": "aaronmahlke",
+     "x": 1658,
+     "y": 827,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r4_age",
+     "type": "text",
+     "text": "1 day ago",
+     "x": 1868,
+     "y": 827,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r4_sep",
+     "type": "rect",
+     "x": 1000,
+     "y": 789,
+     "w": 1700,
+     "h": 2,
+     "radius": 1,
+     "fill": "#232226"
+    },
+    {
+     "id": "r4_dot",
+     "type": "rect",
+     "x": 770,
+     "y": 827,
+     "w": 16,
+     "h": 16,
+     "radius": 8,
+     "fill": "#525252"
+    },
+    {
+     "id": "r4_st",
+     "type": "text",
+     "text": "Stopped",
+     "x": 849,
+     "y": 827,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r4_dur",
+     "type": "text",
+     "text": "34s",
+     "x": 958,
+     "y": 827,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r5_hash",
+     "type": "text",
+     "text": "f3c9e4a",
+     "x": 249,
+     "y": 903,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r5_msg",
+     "type": "text",
+     "text": "Fix typo in settings menu and update...",
+     "x": 523.4,
+     "y": 903,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r5_env",
+     "type": "text",
+     "text": "Production",
+     "x": 1126,
+     "y": 903,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r5_br",
+     "type": "text",
+     "text": "main",
+     "x": 1420,
+     "y": 903,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r5_av",
+     "type": "rect",
+     "x": 1556,
+     "y": 903,
+     "w": 28,
+     "h": 28,
+     "radius": 14,
+     "fill": "#2c2c2e"
+    },
+    {
+     "id": "r5_auth",
+     "type": "text",
+     "text": "aaronmahlke",
+     "x": 1658,
+     "y": 903,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r5_age",
+     "type": "text",
+     "text": "1 day ago",
+     "x": 1868,
+     "y": 903,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r5_sep",
+     "type": "rect",
+     "x": 1000,
+     "y": 865,
+     "w": 1700,
+     "h": 2,
+     "radius": 1,
+     "fill": "#232226"
+    },
+    {
+     "id": "r5_dot",
+     "type": "rect",
+     "x": 770,
+     "y": 903,
+     "w": 16,
+     "h": 16,
+     "radius": 8,
+     "fill": "#525252"
+    },
+    {
+     "id": "r5_st",
+     "type": "text",
+     "text": "Stopped",
+     "x": 849,
+     "y": 903,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r5_dur",
+     "type": "text",
+     "text": "34s",
+     "x": 958,
+     "y": 903,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r6_hash",
+     "type": "text",
+     "text": "a7d5f2c",
+     "x": 249,
+     "y": 979,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r6_msg",
+     "type": "text",
+     "text": "Implement dark mode option for bett...",
+     "x": 517.8,
+     "y": 979,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r6_env",
+     "type": "text",
+     "text": "Production",
+     "x": 1126,
+     "y": 979,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r6_br",
+     "type": "text",
+     "text": "main",
+     "x": 1420,
+     "y": 979,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r6_av",
+     "type": "rect",
+     "x": 1556,
+     "y": 979,
+     "w": 28,
+     "h": 28,
+     "radius": 14,
+     "fill": "#2c2c2e"
+    },
+    {
+     "id": "r6_auth",
+     "type": "text",
+     "text": "aaronmahlke",
+     "x": 1658,
+     "y": 979,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r6_age",
+     "type": "text",
+     "text": "1 day ago",
+     "x": 1868,
+     "y": 979,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r6_sep",
+     "type": "rect",
+     "x": 1000,
+     "y": 941,
+     "w": 1700,
+     "h": 2,
+     "radius": 1,
+     "fill": "#232226"
+    },
+    {
+     "id": "r6_dot",
+     "type": "rect",
+     "x": 770,
+     "y": 979,
+     "w": 16,
+     "h": 16,
+     "radius": 8,
+     "fill": "#e3133d"
+    },
+    {
+     "id": "r6_st",
+     "type": "text",
+     "text": "Failed",
+     "x": 842,
+     "y": 979,
+     "color": "#e0e0e0",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r6_dur",
+     "type": "text",
+     "text": "34s",
+     "x": 958,
+     "y": 979,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r7_hash",
+     "type": "text",
+     "text": "b2e8c6d",
+     "x": 249,
+     "y": 1055,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r7_msg",
+     "type": "text",
+     "text": "Add unit tests for payment processi...",
+     "x": 517.8,
+     "y": 1055,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r7_env",
+     "type": "text",
+     "text": "Production",
+     "x": 1126,
+     "y": 1055,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r7_br",
+     "type": "text",
+     "text": "main",
+     "x": 1420,
+     "y": 1055,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r7_av",
+     "type": "rect",
+     "x": 1556,
+     "y": 1055,
+     "w": 28,
+     "h": 28,
+     "radius": 14,
+     "fill": "#2c2c2e"
+    },
+    {
+     "id": "r7_auth",
+     "type": "text",
+     "text": "aaronmahlke",
+     "x": 1658,
+     "y": 1055,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r7_age",
+     "type": "text",
+     "text": "1 day ago",
+     "x": 1868,
+     "y": 1055,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r7_sep",
+     "type": "rect",
+     "x": 1000,
+     "y": 1017,
+     "w": 1700,
+     "h": 2,
+     "radius": 1,
+     "fill": "#232226"
+    },
+    {
+     "id": "r7_dot",
+     "type": "rect",
+     "x": 770,
+     "y": 1055,
+     "w": 16,
+     "h": 16,
+     "radius": 8,
+     "fill": "#525252"
+    },
+    {
+     "id": "r7_st",
+     "type": "text",
+     "text": "Stopped",
+     "x": 849,
+     "y": 1055,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r7_dur",
+     "type": "text",
+     "text": "34s",
+     "x": 958,
+     "y": 1055,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r0_dot_b",
+     "type": "rect",
+     "x": 770,
+     "y": 523,
+     "w": 12,
+     "h": 12,
+     "radius": 6,
+     "fill": "#b55b01",
+     "glow": {
+      "sigma": 5,
+      "opacity": 0.8,
+      "color": "#b55b01"
+     }
+    },
+    {
+     "id": "r0_st_b",
+     "type": "text",
+     "text": "Building",
+     "x": 852,
+     "y": 523,
+     "color": "#e0e0e0",
+     "font": {
+      "size": 26,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r0_d3",
+     "type": "text",
+     "text": "3",
+     "x": 927,
+     "y": 523,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r0_d4",
+     "type": "text",
+     "text": "4",
+     "x": 927,
+     "y": 523,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r0_s",
+     "type": "text",
+     "text": "s",
+     "x": 944,
+     "y": 524,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r0_dot_r",
+     "type": "rect",
+     "x": 770,
+     "y": 523,
+     "w": 12,
+     "h": 12,
+     "radius": 6,
+     "fill": "#1fc133",
+     "glow": {
+      "sigma": 5,
+      "opacity": 0.7,
+      "color": "#1fc133"
+     }
+    },
+    {
+     "id": "r0_st_r",
+     "type": "text",
+     "text": "Running",
+     "x": 850,
+     "y": 523,
+     "color": "#e0e0e0",
+     "font": {
+      "size": 26,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r0_age",
+     "type": "text",
+     "text": "now",
+     "x": 1868,
+     "y": 523,
+     "color": "#8f8f8f",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    }
+   ]
+  }
+ ]
+}

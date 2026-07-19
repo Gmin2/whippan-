@@ -100,6 +100,10 @@ pub struct Node {
     /// rotation in degrees about the node center, keyable as "rot"
     #[serde(default)]
     pub rot: Option<f32>,
+    /// gaussian blur sigma on the node body, keyable as "blur" (defocus,
+    /// soft light pools)
+    #[serde(default)]
+    pub blur: Option<f32>,
     #[serde(default)]
     pub fill: Option<String>,
     /// image nodes: name the painter resolves to a loaded bitmap
@@ -1483,6 +1487,7 @@ fn render_scene(
                         .gradient
                         .as_ref()
                         .map(|g| grad_for(g, gw.unwrap_or(0.0), gh.unwrap_or(0.0)));
+                    let blurv = node_prop(node, "blur", node.blur.unwrap_or(0.0), t);
                     cmds.push(DrawCmd {
                         op: "rect".into(),
                         x: gx,
@@ -1491,7 +1496,7 @@ fn render_scene(
                         h: gh,
                         radius: gr,
                         d: None,
-                        blur: None,
+                        blur: (blurv > 0.0).then_some(blurv),
                         grad,
                         src: None,
                         goo: node.goo.clone(),
