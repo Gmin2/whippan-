@@ -105,6 +105,9 @@ pub struct Node {
     /// image nodes: name the painter resolves to a loaded bitmap
     #[serde(default)]
     pub src: Option<String>,
+    /// path nodes: svg outline data filled with `fill`, drawn at (x,y)
+    #[serde(default)]
+    pub d: Option<String>,
     #[serde(default)]
     pub font: Option<Font>,
     #[serde(default)]
@@ -1533,6 +1536,26 @@ fn render_scene(
                             scale,
                         });
                     }
+                }
+                "path" => {
+                    let rotv = node_prop(node, "rot", node.rot.unwrap_or(0.0), t);
+                    cmds.push(DrawCmd {
+                        op: "path".into(),
+                        x: node.x + dx,
+                        y: node.y + dy,
+                        w: None,
+                        h: None,
+                        radius: None,
+                        d: node.d.clone(),
+                        blur: None,
+                        grad: None,
+                        src: None,
+                        goo: node.goo.clone(),
+                        rot: (rotv != 0.0).then_some(rotv),
+                        color: node.fill.clone().unwrap_or_else(|| "#000000".into()),
+                        opacity,
+                        scale,
+                    });
                 }
                 "image" => {
                     let rotv = node_prop(node, "rot", node.rot.unwrap_or(0.0), t);
