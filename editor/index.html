@@ -20,7 +20,7 @@
     <canvas id="c" width="1920" height="1080"></canvas>
     <div class="row">
       <button id="play">play</button>
-      <input id="t" type="range" min="0" max="9.8" step="0.01" value="0" />
+      <input id="t" type="range" min="0" max="12.2" step="0.01" value="0" />
       <span id="tv" style="width:52px">0.00s</span>
     </div>
     <p>engine: <code id="status">loading…</code></p>
@@ -62,6 +62,13 @@
             x: 960, y: 780,
             font: { family: 'inter', weight: 600, size: 40 }, color: '#161616' },
           { id: 'cur', type: 'cursor', x: 620, y: 800, w: 30 }
+        ] },
+        { id: 'goo', bg: '#050505', dur: 2.4,
+          transition: { kind: 'fade', dur: 0.3 }, nodes: [
+          { id: 'gmark', type: 'rect', x: 700, y: 540, w: 130, h: 130, radius: 30,
+            fill: '#ffffff', goo: 'g1' },
+          { id: 'gpill', type: 'rect', x: 700, y: 540, w: 60, h: 110, radius: 55,
+            fill: '#ffffff', goo: 'g1' }
         ] },
         { id: 'terminal', bg: '#050505', dur: 2.6,
           transition: { kind: 'push', dur: 0.55, dir: 'up', ease: { spring: [8, 0.5] } }, nodes: [
@@ -110,6 +117,11 @@
             opacity: [{ t: 0, v: 0 }, { t: 0.15, v: 1 }],
             y: [{ t: 0, v: 20 }, { t: 0.3, v: 0, ease: 'outCubic' }]
         } },
+        { target: 'gpill', at: 0.3, keys: {
+            w: [{ t: 0, v: 60 }, { t: 0.8, v: 340, ease: 'outCubic' }],
+            x: [{ t: 0, v: 0 }, { t: 0.8, v: 170, ease: 'outCubic' },
+                { t: 1.1, v: 170 }, { t: 1.8, v: 480, ease: 'inOutCubic' }]
+        } },
         { target: 'tpill', loop: true, keys: {
             glow_opacity: [
               { t: 0, v: 0.78 },
@@ -153,7 +165,7 @@
     const slider = document.getElementById('t');
     const tv = document.getElementById('tv');
     const playBtn = document.getElementById('play');
-    const DUR = 9.8;
+    const DUR = 12.2;
 
     function frame(t) {
       const cmds = JSON.parse(render(stage, overlay, t));

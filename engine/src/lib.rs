@@ -97,6 +97,10 @@ pub struct Node {
     /// previous scene and interpolates into its own geometry
     #[serde(default)]
     pub morph: Option<Morph>,
+    /// gooey group: shapes sharing a group render through a blur +
+    /// alpha-threshold layer, fusing into metaballs
+    #[serde(default)]
+    pub goo: Option<String>,
 }
 
 #[derive(Deserialize, Clone)]
@@ -312,6 +316,8 @@ pub struct DrawCmd {
     pub grad: Option<Grad>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub src: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub goo: Option<String>,
     pub color: String,
     pub opacity: f32,
     pub scale: f32,
@@ -634,6 +640,7 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
         blur: None,
         grad: None,
         src: None,
+        goo: None,
         color: clear_color,
         opacity: 1.0,
         scale: 1.0,
@@ -775,6 +782,7 @@ fn render_scene(
                                     blur: None,
                                     grad: None,
                                     src: None,
+                                    goo: None,
                                     color,
                                     opacity: opacity * o,
                                     scale,
@@ -793,6 +801,7 @@ fn render_scene(
                                 blur: None,
                                 grad: None,
                                 src: None,
+                                goo: None,
                                 color,
                                 opacity: opacity * o,
                                 scale,
@@ -813,8 +822,14 @@ fn render_scene(
                     };
                     let mut gx = node.x + dx;
                     let mut gy = node.y + dy;
-                    let mut gw = node.w;
-                    let mut gh = node.h;
+                    let mut gw = node
+                        .w
+                        .map(|base| node_prop(node, "w", base, t))
+                        .or(node.w);
+                    let mut gh = node
+                        .h
+                        .map(|base| node_prop(node, "h", base, t))
+                        .or(node.h);
                     let mut gr = node.radius;
                     let mut fill = fill;
                     if let Some(m) = &node.morph {
@@ -855,6 +870,7 @@ fn render_scene(
                             blur: Some(sigma),
                             grad: None,
                             src: None,
+                            goo: None,
                             color: echo_color,
                             opacity: opacity * glow_opacity,
                             scale,
@@ -875,6 +891,7 @@ fn render_scene(
                         blur: None,
                         grad,
                         src: None,
+                        goo: node.goo.clone(),
                         color: fill,
                         opacity,
                         scale,
@@ -908,6 +925,7 @@ fn render_scene(
                             blur,
                             grad: None,
                             src: None,
+                            goo: None,
                             color,
                             opacity: opacity * alpha,
                             scale,
@@ -926,6 +944,7 @@ fn render_scene(
                         blur: None,
                         grad: None,
                         src: node.src.clone(),
+                        goo: node.goo.clone(),
                         color: "#000000".into(),
                         opacity,
                         scale,
@@ -1022,8 +1041,7 @@ mod tests {
         let in_x = rects[1]["x"].as_f64().unwrap();
         assert!(out_x < 200.0, "outgoing pushed off left: {out_x}");
         assert!(in_x > 500.0 && in_x < 1400.0, "incoming arriving: {in_x}");
-        let settled: Vec<Value> =
-            serde_json::from_str(&render_frame(stage, "", 1.9)).unwrap();
+        let settled: Vec<Value> = serde_json::from_str(&render_frame(stage, "", 1.9)).unwrap();
         let r: Vec<&Value> = settled.iter().filter(|c| c["op"] == "rect").collect();
         assert_eq!(r.len(), 1);
         assert_eq!(r[0]["x"], 500.0);
