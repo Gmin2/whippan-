@@ -1,0 +1,330 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>whippan — edit</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #ececea; color: #171717;
+           font: 13px/1.4 system-ui, sans-serif; overflow: hidden;
+           user-select: none; }
+    header { position: fixed; inset: 0 0 auto 0; height: 48px; z-index: 20;
+             display: flex; align-items: center; gap: 14px; padding: 0 18px;
+             background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
+             border-bottom: 1px solid rgba(0,0,0,0.07); }
+    header .brand { font-weight: 650; }
+    header .brand small { color: #f02900; }
+    header .doc { color: #8a8a88; font-family: ui-monospace, monospace; font-size: 11px; }
+    header button { border: 0; background: #f02900; color: #fff; border-radius: 7px;
+             padding: 6px 14px; font: inherit; cursor: pointer; }
+    header button.ghost { background: #f1f1ef; color: #444; }
+    #field { position: absolute; inset: 48px 260px 64px 0; overflow: hidden;
+             cursor: grab; }
+    #boards { position: absolute; transform-origin: 0 0; display: flex;
+              gap: 60px; padding: 60px; align-items: flex-start; }
+    .board { display: flex; flex-direction: column; gap: 8px; }
+    .board .cap { font-size: 11px; color: #9a9a97;
+                  font-family: ui-monospace, monospace; }
+    .board canvas { border-radius: 6px; background: #000;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 10px 30px rgba(0,0,0,0.08); }
+    .board.sel canvas { outline: 2px solid #f02900; outline-offset: 3px; }
+    #inspector { position: fixed; inset: 48px 0 64px auto; width: 260px;
+                 background: #fff; border-left: 1px solid rgba(0,0,0,0.07);
+                 padding: 16px; overflow-y: auto; z-index: 15; }
+    #inspector h3 { margin: 0 0 4px; font-size: 12px; }
+    #inspector .muted { color: #a0a09d; font-size: 11px; }
+    #inspector label { display: flex; align-items: center; justify-content: space-between;
+                       gap: 8px; margin-top: 8px; font-size: 11px; color: #6a6a68; }
+    #inspector input { width: 130px; border: 1px solid #e2e2e0; border-radius: 6px;
+                       padding: 4px 8px; font: inherit; font-size: 12px; }
+    #inspector input[type=color] { padding: 1px; height: 26px; }
+    footer { position: fixed; inset: auto 260px 0 0; height: 64px; z-index: 20;
+             display: flex; align-items: center; gap: 12px; padding: 0 22px;
+             background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
+             border-top: 1px solid rgba(0,0,0,0.07); }
+    footer input[type=range] { flex: 1; accent-color: #f02900; }
+    footer .tv { font-family: ui-monospace, monospace; font-size: 11px;
+                 color: #8a8a88; width: 62px; }
+    #status { position: fixed; bottom: 70px; left: 22px; font-size: 11px;
+              color: #b0b0ad; z-index: 20; }
+  </style>
+  <script src="/assets/canvaskit/canvaskit.js"></script>
+</head>
+<body>
+  <header>
+    <span class="brand">whippan <small>edit</small></span>
+    <span class="doc" id="docname"></span>
+    <span style="flex:1"></span>
+    <button class="ghost" id="gallery">gallery</button>
+    <button id="save">save</button>
+  </header>
+  <div id="field"><div id="boards"></div></div>
+  <aside id="inspector">
+    <h3 id="selname">nothing selected</h3>
+    <div class="muted" id="selkind">click a node on any board</div>
+    <div id="fields"></div>
+  </aside>
+  <footer>
+    <button id="play" style="border:0;background:#f02900;color:#fff;border-radius:999px;padding:5px 16px;font:inherit;cursor:pointer">play</button>
+    <input id="t" type="range" min="0" max="1" step="0.01" value="0" />
+    <span class="tv" id="tv">0.00s</span>
+  </footer>
+  <div id="status">loading…</div>
+
+  <script type="module">
+    import init, { render, register_font } from './src/engine-pkg/whippan_engine.js';
+    import { paintFrame } from './src/painter.js';
+
+    const params = new URLSearchParams(location.search);
+    const slug = params.get('doc') || 'click';
+
+    const [CK, , inter, mono, registry] = await Promise.all([
+      CanvasKitInit({ locateFile: f => '/assets/canvaskit/' + f }),
+      init(),
+      fetch('/assets/fonts/Inter-Variable.ttf').then(r => r.arrayBuffer()),
+      fetch('/assets/fonts/JetBrainsMono-Regular.ttf').then(r => r.arrayBuffer()),
+      fetch('/docs/examples/index.json').then(r => r.json()),
+    ]);
+    register_font('inter', new Uint8Array(inter));
+    register_font('mono', new Uint8Array(mono));
+
+    const entry = registry.find(e => e.slug === slug) || registry[0];
+    const stagePath = entry.stage || `/docs/examples/${entry.slug}.stage.json`;
+    const animPath = entry.anim || `/docs/examples/${entry.slug}.anim.json`;
+    document.getElementById('docname').textContent = stagePath;
+
+    let doc = await fetch(stagePath).then(r => r.json());
+    const anim = await fetch(animPath).then(r => r.text());
+
+    const images = new Map();
+    for (const src of new Set(doc.scenes.flatMap(s => s.nodes)
+        .filter(n => n.type === 'image' && n.src).map(n => n.src))) {
+      const buf = await fetch(src).then(r => r.arrayBuffer());
+      images.set(src, CK.MakeImageFromEncoded(new Uint8Array(buf)));
+    }
+
+    const [W, H] = doc.size;
+    const BW = 460;
+    const scale = BW / W;
+    const BH = Math.round(H * scale);
+    const boardsEl = document.getElementById('boards');
+    const paint = new CK.Paint();
+    paint.setAntiAlias(true);
+
+    const boards = doc.scenes.map((scene, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'board';
+      wrap.dataset.index = i;
+      const cap = document.createElement('div');
+      cap.className = 'cap';
+      const canvas = document.createElement('canvas');
+      canvas.width = W; canvas.height = H;
+      canvas.style.width = BW + 'px';
+      canvas.style.height = BH + 'px';
+      wrap.append(cap, canvas);
+      boardsEl.append(wrap);
+      const surface = CK.MakeCanvasSurface(canvas);
+      return { wrap, cap, canvas, surface, skc: surface.getCanvas(), index: i };
+    });
+
+    const sceneStart = i => doc.scenes.slice(0, i).reduce((s, sc) => s + sc.dur, 0);
+    const total = () => doc.scenes.reduce((s, sc) => s + sc.dur, 0);
+
+    // each board is its own single-scene doc so the engine renders it in
+    // isolation; transitions are stripped since a lone scene has no previous
+    function boardDoc(i) {
+      const sc = { ...doc.scenes[i] };
+      delete sc.transition;
+      return JSON.stringify({ ...doc, scenes: [sc] });
+    }
+
+    function drawBoard(b, tl) {
+      const cmds = JSON.parse(render(boardDoc(b.index), anim, tl));
+      paintFrame(CK, b.skc, paint, cmds, images);
+      b.surface.flush();
+      const sc = doc.scenes[b.index];
+      b.cap.textContent = `${String(b.index + 1).padStart(2, '0')}  ${sc.id}  ·  ${sc.dur.toFixed(1)}s`;
+    }
+
+    function drawAll(t) {
+      for (const b of boards) {
+        const tl = Math.max(0, Math.min(t - sceneStart(b.index), doc.scenes[b.index].dur));
+        drawBoard(b, tl);
+      }
+      tv.textContent = t.toFixed(2) + 's';
+    }
+
+    // pan/zoom the board field
+    const field = document.getElementById('field');
+    let fz = 1, fx = 0, fy = 0;
+    const applyField = () => {
+      boardsEl.style.transform = `translate(${fx}px, ${fy}px) scale(${fz})`;
+    };
+    field.addEventListener('wheel', e => {
+      e.preventDefault();
+      if (e.ctrlKey || Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        fz = Math.min(3, Math.max(0.25, fz * Math.exp(-e.deltaY * 0.0014)));
+      } else {
+        fx -= e.deltaX;
+      }
+      applyField();
+    }, { passive: false });
+    let fieldDrag = null;
+    field.addEventListener('pointerdown', e => {
+      if (e.target.tagName === 'CANVAS') return;
+      fieldDrag = { x: e.clientX, y: e.clientY };
+      field.setPointerCapture(e.pointerId);
+    });
+    field.addEventListener('pointermove', e => {
+      if (!fieldDrag) return;
+      fx += e.clientX - fieldDrag.x;
+      fy += e.clientY - fieldDrag.y;
+      fieldDrag = { x: e.clientX, y: e.clientY };
+      applyField();
+    });
+    field.addEventListener('pointerup', () => { fieldDrag = null; });
+
+    // selection + hit testing on declared geometry (approximate for text)
+    let sel = null;   // { scene, node }
+    function nodeBox(n) {
+      if (n.type === 'text') {
+        const size = n.font?.size ?? 48;
+        const w = (n.text?.length ?? 1) * size * 0.54;
+        return { x: n.x - w / 2, y: n.y - size * 0.7, w, h: size * 1.4 };
+      }
+      const w = n.w ?? 40, h = n.h ?? 40;
+      return { x: n.x - w / 2, y: n.y - h / 2, w, h };
+    }
+    function hit(sceneIdx, px, py) {
+      const nodes = doc.scenes[sceneIdx].nodes;
+      for (let i = nodes.length - 1; i >= 0; i--) {
+        const b = nodeBox(nodes[i]);
+        if (px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h)
+          return nodes[i];
+      }
+      return null;
+    }
+
+    const fieldsEl = document.getElementById('fields');
+    function showInspector() {
+      const nameEl = document.getElementById('selname');
+      const kindEl = document.getElementById('selkind');
+      fieldsEl.innerHTML = '';
+      if (!sel) {
+        nameEl.textContent = 'nothing selected';
+        kindEl.textContent = 'click a node on any board';
+        return;
+      }
+      const n = sel.node;
+      nameEl.textContent = n.id;
+      kindEl.textContent = `${n.type} · scene ${doc.scenes[sel.scene].id}`;
+      const fields = [
+        ['x', 'number'], ['y', 'number'],
+        ...(n.w !== undefined ? [['w', 'number'], ['h', 'number']] : []),
+        ...(n.radius !== undefined ? [['radius', 'number']] : []),
+        ...(n.fill !== undefined ? [['fill', 'color']] : []),
+        ...(n.color !== undefined ? [['color', 'color']] : []),
+        ...(n.text !== undefined ? [['text', 'text']] : []),
+        ...(n.font ? [['font.size', 'number'], ['font.weight', 'number']] : []),
+      ];
+      for (const [key, kind] of fields) {
+        const label = document.createElement('label');
+        label.textContent = key;
+        const input = document.createElement('input');
+        input.type = kind === 'number' ? 'number' : kind === 'color' ? 'color' : 'text';
+        const get = () => key.includes('.')
+          ? n[key.split('.')[0]][key.split('.')[1]]
+          : n[key];
+        const set = v => {
+          if (key.includes('.')) n[key.split('.')[0]][key.split('.')[1]] = v;
+          else n[key] = v;
+        };
+        input.value = get();
+        input.addEventListener('input', () => {
+          const v = kind === 'number' ? parseFloat(input.value) || 0 : input.value;
+          set(v);
+          drawAll(parseFloat(slider.value));
+          status.textContent = 'edited (unsaved)';
+        });
+        label.append(input);
+        fieldsEl.append(label);
+      }
+    }
+
+    // click to select, drag to move, on each board canvas
+    for (const b of boards) {
+      let drag = null;
+      b.canvas.addEventListener('pointerdown', e => {
+        const r = b.canvas.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width * W;
+        const py = (e.clientY - r.top) / r.height * H;
+        const n = hit(b.index, px, py);
+        for (const bb of boards) bb.wrap.classList.toggle('sel', bb === b && !!n);
+        sel = n ? { scene: b.index, node: n } : null;
+        showInspector();
+        if (n) {
+          drag = { px, py, nx: n.x, ny: n.y };
+          b.canvas.setPointerCapture(e.pointerId);
+        }
+        e.stopPropagation();
+      });
+      b.canvas.addEventListener('pointermove', e => {
+        if (!drag || !sel) return;
+        const r = b.canvas.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width * W;
+        const py = (e.clientY - r.top) / r.height * H;
+        sel.node.x = Math.round(drag.nx + px - drag.px);
+        sel.node.y = Math.round(drag.ny + py - drag.py);
+        drawAll(parseFloat(slider.value));
+        showInspector();
+        status.textContent = 'edited (unsaved)';
+      });
+      b.canvas.addEventListener('pointerup', () => { drag = null; });
+    }
+
+    // timeline
+    const slider = document.getElementById('t');
+    const tv = document.getElementById('tv');
+    const status = document.getElementById('status');
+    const playBtn = document.getElementById('play');
+    slider.max = total();
+    slider.addEventListener('input', () => {
+      playing = false; playBtn.textContent = 'play';
+      drawAll(parseFloat(slider.value));
+    });
+    let playing = false, t0 = 0, base = 0;
+    function tick(now) {
+      if (!playing) return;
+      let t = base + (now - t0) / 1000;
+      if (t > total()) { t = 0; base = 0; t0 = now; }
+      slider.value = t;
+      drawAll(t);
+      requestAnimationFrame(tick);
+    }
+    playBtn.addEventListener('click', () => {
+      playing = !playing;
+      playBtn.textContent = playing ? 'pause' : 'play';
+      if (playing) {
+        base = parseFloat(slider.value);
+        t0 = performance.now();
+        requestAnimationFrame(tick);
+      }
+    });
+
+    document.getElementById('save').addEventListener('click', async () => {
+      const res = await fetch('/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: stagePath, doc }),
+      }).then(r => r.json()).catch(() => null);
+      status.textContent = res?.ok ? 'saved' : 'save failed (dev server running?)';
+    });
+    document.getElementById('gallery').addEventListener('click', () => {
+      location.href = '/editor/gallery.html#' + entry.slug;
+    });
+
+    drawAll(0);
+    status.textContent = `${doc.scenes.length} scenes · ${total().toFixed(1)}s`;
+  </script>
+</body>
+</html>

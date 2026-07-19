@@ -53,7 +53,8 @@ cargo build --release -p whippan-engine --bin export
 run the tracer page:
 
 ```sh
-python3 -m http.server 8777   # from the repo root
+python3 scripts/dev-server.py   # static serving + the editor's save endpoint
+# editor:   http://localhost:8777/editor/edit.html?doc=<slug>
 # gallery:  http://localhost:8777/editor/gallery.html
 # tracer:   http://localhost:8777/editor/index.html
 # conform:  http://localhost:8777/editor/conform.html
