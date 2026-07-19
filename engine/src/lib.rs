@@ -158,6 +158,17 @@ struct MorphSrc {
     fill: String,
     dur: f32,
     ease: Option<Ease>,
+    tsrc: Option<TextSrc>,
+}
+
+/// the frozen source side of a text morph: its glyphs get drawn under a
+/// uniform scale toward the target size, colors lerping (open-slide model)
+struct TextSrc {
+    text: String,
+    size: f32,
+    weight: f32,
+    family: String,
+    color: String,
 }
 
 #[derive(Deserialize, Clone, Default)]
@@ -652,49 +663,8 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
     let tl = (t - starts[active]).max(0.0);
     let scene_bg = |s: &Scene| s.bg.clone().unwrap_or_else(|| "#ffffff".into());
     let mut clear_color = scene_bg(scene);
-    let mut fading = None;
-    let mut pushing: Option<(f32, f32, f32, f32)> = None;
-    if let Some(tr) = &scene.transition {
-        if active > 0 && tl < tr.dur {
-            let p = (tl / tr.dur).clamp(0.0, 1.0);
-            match tr.kind.as_str() {
-                "fade" => {
-                    clear_color = mix_hex(&scene_bg(&stage.scenes[active - 1]), &clear_color, p);
-                    fading = Some(p);
-                }
-                "push" => {
-                    let e = ease(p, &tr.ease.clone().or(Some(Ease::Named("outCubic".into()))));
-                    let (w, h) = (stage.size[0], stage.size[1]);
-                    // (out dx, out dy, in dx, in dy): incoming travels from `dir`
-                    let (odx, ody, idx, idy) = match tr.dir.as_str() {
-                        "right" => (e * w, 0.0, (e - 1.0) * w, 0.0),
-                        "up" => (0.0, -e * h, 0.0, (1.0 - e) * h),
-                        "down" => (0.0, e * h, 0.0, (e - 1.0) * h),
-                        _ => (-e * w, 0.0, (1.0 - e) * w, 0.0),
-                    };
-                    clear_color = mix_hex(&scene_bg(&stage.scenes[active - 1]), &clear_color, p);
-                    pushing = Some((odx, ody, idx, idy));
-                }
-                _ => {}
-            }
-        }
-    }
-    cmds.push(DrawCmd {
-        op: "clear".into(),
-        x: 0.0,
-        y: 0.0,
-        w: None,
-        h: None,
-        radius: None,
-        d: None,
-        blur: None,
-        grad: None,
-        src: None,
-        goo: None,
-        color: clear_color,
-        opacity: 1.0,
-        scale: 1.0,
-    });
+    // magic-move pairing: explicit node.morph, or same-id auto pairs when the
+    // incoming transition asks for morph
     let mut morphs: HashMap<String, MorphSrc> = HashMap::new();
     let mut sources: std::collections::HashSet<String> = std::collections::HashSet::new();
     if active > 0 {
@@ -724,6 +694,24 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
                         fill: srcn.fill.clone().unwrap_or_else(|| "#000000".into()),
                         dur,
                         ease,
+                        tsrc: if srcn.kind == "text" {
+                            srcn.text.as_ref().map(|txt| {
+                                let (size, weight, family) = srcn
+                                    .font
+                                    .as_ref()
+                                    .map(|f| (f.size, f.weight as f32, f.family.clone()))
+                                    .unwrap_or((48.0, 400.0, "inter".into()));
+                                TextSrc {
+                                    text: txt.clone(),
+                                    size,
+                                    weight,
+                                    family,
+                                    color: srcn.color.clone().unwrap_or_else(|| "#000000".into()),
+                                }
+                            })
+                        } else {
+                            None
+                        },
                     },
                 );
             }
@@ -731,92 +719,242 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
     }
     let none: HashMap<String, MorphSrc> = HashMap::new();
     let no_skip: std::collections::HashSet<String> = std::collections::HashSet::new();
-    if let Some(p) = fading {
+
+    // transition dispatch: a draw pass per scene plus the frame clear color
+    let mut prev_pass: Option<Pass> = None;
+    let mut cur_pass = Pass::plain(tl);
+    if let Some(tr) = &scene.transition {
+        if active > 0 && tl < tr.dur {
+            let prev_bg = scene_bg(&stage.scenes[active - 1]);
+            let p = (tl / tr.dur).clamp(0.0, 1.0);
+            let prev_tl = t - starts[active - 1];
+            match tr.kind.as_str() {
+                "fade" => {
+                    clear_color = mix_hex(&prev_bg, &clear_color, p);
+                    let mut pp = Pass::plain(prev_tl);
+                    pp.fade = 1.0 - p;
+                    prev_pass = Some(pp);
+                    cur_pass.fade = p;
+                }
+                "push" | "whip" => {
+                    let whip = tr.kind == "whip";
+                    let default_ease = if whip { "inOutCubic" } else { "outCubic" };
+                    let e = ease(
+                        p,
+                        &tr.ease.clone().or(Some(Ease::Named(default_ease.into()))),
+                    );
+                    let (w, h) = (stage.size[0], stage.size[1]);
+                    let (odx, ody, idx, idy) = match tr.dir.as_str() {
+                        "right" => (e * w, 0.0, (e - 1.0) * w, 0.0),
+                        "up" => (0.0, -e * h, 0.0, (1.0 - e) * h),
+                        "down" => (0.0, e * h, 0.0, (e - 1.0) * h),
+                        _ => (-e * w, 0.0, (1.0 - e) * w, 0.0),
+                    };
+                    clear_color = mix_hex(&prev_bg, &clear_color, p);
+                    let blur = if whip {
+                        // blur follows the slide's instantaneous speed
+                        let dp = 0.01f32;
+                        let e2 = ease(
+                            (p + dp).min(1.0),
+                            &tr.ease.clone().or(Some(Ease::Named(default_ease.into()))),
+                        );
+                        ((e2 - e).abs() / dp * 18.0).min(60.0)
+                    } else {
+                        0.0
+                    };
+                    let mut pp = Pass::plain(prev_tl);
+                    pp.ox = odx;
+                    pp.oy = ody;
+                    pp.add_blur = blur;
+                    prev_pass = Some(pp);
+                    cur_pass.ox = idx;
+                    cur_pass.oy = idy;
+                    cur_pass.add_blur = blur;
+                }
+                "dip" => {
+                    // out through a solid color, then in from it. dir doubles
+                    // as the dip color when it holds a hex
+                    let dip = if tr.dir.starts_with('#') {
+                        tr.dir.clone()
+                    } else {
+                        "#000000".into()
+                    };
+                    if p < 0.5 {
+                        let q = p * 2.0;
+                        clear_color = mix_hex(&prev_bg, &dip, q);
+                        let mut pp = Pass::plain(prev_tl);
+                        pp.fade = 1.0 - q;
+                        prev_pass = Some(pp);
+                        cur_pass.fade = 0.0;
+                    } else {
+                        let q = (p - 0.5) * 2.0;
+                        clear_color = mix_hex(&dip, &clear_color, q);
+                        cur_pass.fade = q;
+                    }
+                }
+                "zoom" => {
+                    let e = ease(
+                        p,
+                        &tr.ease.clone().or(Some(Ease::Named("inOutCubic".into()))),
+                    );
+                    clear_color = mix_hex(&prev_bg, &clear_color, e);
+                    let mut pp = Pass::plain(prev_tl);
+                    pp.tzoom = 1.0 + e * 0.7;
+                    pp.fade = 1.0 - e;
+                    prev_pass = Some(pp);
+                    cur_pass.tzoom = 1.14 - 0.14 * e;
+                    cur_pass.fade = e;
+                }
+                "rise" | "dissolve" | "settle" | "bloom" => {
+                    // open-slide phase choreography: exit ease-in through the
+                    // first ~44%, enter ease-out from ~22%, always overlapped
+                    let qe = (p / 0.44).clamp(0.0, 1.0);
+                    let qn = ((p - 0.22) / 0.78).clamp(0.0, 1.0);
+                    let ein = qe * qe * qe;
+                    let eout = out_cubic(qn);
+                    clear_color = mix_hex(&prev_bg, &clear_color, p);
+                    let mut pp = Pass::plain(prev_tl);
+                    pp.fade = 1.0 - ein;
+                    cur_pass.fade = eout;
+                    match tr.kind.as_str() {
+                        "rise" => {
+                            pp.oy = -10.0 * ein;
+                            cur_pass.oy = 14.0 * (1.0 - eout);
+                        }
+                        "settle" => {
+                            pp.oy = -8.0 * ein;
+                            cur_pass.oy = 16.0 * (1.0 - eout);
+                            cur_pass.add_blur = 5.0 * (1.0 - eout);
+                        }
+                        "bloom" => {
+                            pp.tzoom = 1.0 + 0.012 * ein;
+                            cur_pass.tzoom = 0.97 + 0.03 * eout;
+                        }
+                        _ => {}
+                    }
+                    prev_pass = Some(pp);
+                }
+                "wipe" => {
+                    let e = ease(
+                        p,
+                        &tr.ease.clone().or(Some(Ease::Named("inOutCubic".into()))),
+                    );
+                    let (w, h) = (stage.size[0], stage.size[1]);
+                    let clip = match tr.dir.as_str() {
+                        "right" => [w * (1.0 - e), 0.0, w * e, h],
+                        "up" => [0.0, h * (1.0 - e), w, h * e],
+                        "down" => [0.0, 0.0, w, h * e],
+                        _ => [0.0, 0.0, w * e, h],
+                    };
+                    prev_pass = Some(Pass::plain(prev_tl));
+                    cur_pass.clip = Some(clip);
+                }
+                _ => {}
+            }
+        }
+    }
+    cmds.push(DrawCmd {
+        op: "clear".into(),
+        x: 0.0,
+        y: 0.0,
+        w: None,
+        h: None,
+        radius: None,
+        d: None,
+        blur: None,
+        grad: None,
+        src: None,
+        goo: None,
+        color: clear_color,
+        opacity: 1.0,
+        scale: 1.0,
+    });
+    if let Some(pp) = prev_pass {
         let prev = &stage.scenes[active - 1];
         render_scene(
             prev,
-            t - starts[active - 1],
-            1.0 - p,
-            0.0,
-            0.0,
+            &pp,
             stage.size[0],
             stage.size[1],
             &none,
             &sources,
-            &mut cmds,
-        );
-        render_scene(
-            scene,
-            tl,
-            p,
-            0.0,
-            0.0,
-            stage.size[0],
-            stage.size[1],
-            &morphs,
-            &no_skip,
-            &mut cmds,
-        );
-    } else if let Some((odx, ody, idx, idy)) = pushing {
-        let prev = &stage.scenes[active - 1];
-        render_scene(
-            prev,
-            t - starts[active - 1],
-            1.0,
-            odx,
-            ody,
-            stage.size[0],
-            stage.size[1],
-            &none,
-            &sources,
-            &mut cmds,
-        );
-        render_scene(
-            scene,
-            tl,
-            1.0,
-            idx,
-            idy,
-            stage.size[0],
-            stage.size[1],
-            &morphs,
-            &no_skip,
-            &mut cmds,
-        );
-    } else {
-        render_scene(
-            scene,
-            tl,
-            1.0,
-            0.0,
-            0.0,
-            stage.size[0],
-            stage.size[1],
-            &morphs,
-            &no_skip,
             &mut cmds,
         );
     }
+    render_scene(
+        scene,
+        &cur_pass,
+        stage.size[0],
+        stage.size[1],
+        &morphs,
+        &no_skip,
+        &mut cmds,
+    );
     serde_json::to_string(&cmds).unwrap_or_else(|_| "[]".into())
 }
 
 /// draw one scene's nodes at scene-local time `tl`, all opacities scaled by
 /// `fade` (crossfades hand in a partial fade); ox/oy shift the whole scene
 /// (push transitions)
-fn render_scene(
-    scene: &Scene,
+/// per-scene draw parameters a transition hands to render_scene
+struct Pass {
     tl: f32,
     fade: f32,
     ox: f32,
     oy: f32,
+    /// extra zoom about canvas center on top of the scene camera
+    tzoom: f32,
+    /// blur added to every command (whip pans)
+    add_blur: f32,
+    /// clip rect [x, y, w, h] wrapped around the scene (wipes)
+    clip: Option<[f32; 4]>,
+}
+
+impl Pass {
+    fn plain(tl: f32) -> Self {
+        Pass {
+            tl,
+            fade: 1.0,
+            ox: 0.0,
+            oy: 0.0,
+            tzoom: 1.0,
+            add_blur: 0.0,
+            clip: None,
+        }
+    }
+}
+
+fn render_scene(
+    scene: &Scene,
+    pass: &Pass,
     cw: f32,
     ch: f32,
     morphs: &HashMap<String, MorphSrc>,
     skip: &std::collections::HashSet<String>,
     cmds: &mut Vec<DrawCmd>,
 ) {
-    let t = tl;
+    let t = pass.tl;
+    let fade = pass.fade;
+    let (ox, oy) = (pass.ox, pass.oy);
     let first = cmds.len();
+    if let Some(c) = pass.clip {
+        cmds.push(DrawCmd {
+            op: "clip".into(),
+            x: c[0],
+            y: c[1],
+            w: Some(c[2]),
+            h: Some(c[3]),
+            radius: None,
+            d: None,
+            blur: None,
+            grad: None,
+            src: None,
+            goo: None,
+            color: "#000000".into(),
+            opacity: 1.0,
+            scale: 1.0,
+        });
+    }
     {
         for node in &scene.nodes {
             if skip.contains(&node.id) {
@@ -835,6 +973,54 @@ fn render_scene(
             let scale = node_prop(node, "scale", 1.0, t) * sb.scale;
             match node.kind.as_str() {
                 "text" => {
+                    if let Some(src) = morphs.get(&node.id) {
+                        if let Some(ts) = &src.tsrc {
+                            if t < src.dur {
+                                let p = ease(
+                                    t / src.dur,
+                                    &src.ease.clone().or(Some(Ease::Named("outCubic".into()))),
+                                );
+                                let (to_size, _, _) = node
+                                    .font
+                                    .as_ref()
+                                    .map(|f| (f.size, 0.0, 0.0))
+                                    .unwrap_or((48.0, 0.0, 0.0));
+                                let k = 1.0 + (to_size / ts.size - 1.0) * p;
+                                let line = match text::shape_line(
+                                    &ts.text, ts.size, ts.weight, &ts.family,
+                                ) {
+                                    Some(l) => l,
+                                    None => continue,
+                                };
+                                let ink = node.color.clone().unwrap_or_else(|| "#000000".into());
+                                let color = mix_hex(&ts.color, &ink, p);
+                                let l = |a: f32, b: f32| a + (b - a) * p;
+                                let cx = l(src.x, node.x + dx);
+                                let cy = l(src.y, node.y + dy);
+                                let left = cx - line.width * k / 2.0;
+                                let baseline = cy + line.baseline_shift * k;
+                                for word in &line.words {
+                                    cmds.push(DrawCmd {
+                                        op: "path".into(),
+                                        x: left + word.x * k,
+                                        y: baseline,
+                                        w: None,
+                                        h: None,
+                                        radius: None,
+                                        d: Some(word.path.clone()),
+                                        blur: None,
+                                        grad: None,
+                                        src: None,
+                                        goo: None,
+                                        color: color.clone(),
+                                        opacity,
+                                        scale: scale * k,
+                                    });
+                                }
+                                continue;
+                            }
+                        }
+                    }
                     let content = match &node.text {
                         Some(s) if !s.is_empty() => s,
                         _ => continue,
@@ -1099,6 +1285,9 @@ fn render_scene(
     let cam_x = eval_prop(&scene.keys, "cam_x", 0.0, t);
     let cam_y = eval_prop(&scene.keys, "cam_y", 0.0, t);
     for c in &mut cmds[first..] {
+        if c.op == "clip" {
+            continue;
+        }
         if zoom != 1.0 || cam_x != 0.0 || cam_y != 0.0 {
             c.x = (c.x - cam_x - cw / 2.0) * zoom + cw / 2.0;
             c.y = (c.y - cam_y - ch / 2.0) * zoom + ch / 2.0;
@@ -1107,8 +1296,37 @@ fn render_scene(
                 *b *= zoom;
             }
         }
+        if pass.tzoom != 1.0 {
+            c.x = (c.x - cw / 2.0) * pass.tzoom + cw / 2.0;
+            c.y = (c.y - ch / 2.0) * pass.tzoom + ch / 2.0;
+            c.scale *= pass.tzoom;
+            if let Some(b) = c.blur.as_mut() {
+                *b *= pass.tzoom;
+            }
+        }
+        if pass.add_blur > 0.1 {
+            c.blur = Some(c.blur.unwrap_or(0.0) + pass.add_blur);
+        }
         c.x += ox;
         c.y += oy;
+    }
+    if pass.clip.is_some() {
+        cmds.push(DrawCmd {
+            op: "unclip".into(),
+            x: 0.0,
+            y: 0.0,
+            w: None,
+            h: None,
+            radius: None,
+            d: None,
+            blur: None,
+            grad: None,
+            src: None,
+            goo: None,
+            color: "#000000".into(),
+            opacity: 1.0,
+            scale: 1.0,
+        });
     }
 }
 
@@ -1258,6 +1476,59 @@ mod tests {
         let r: Vec<&Value> = settled.iter().filter(|c| c["op"] == "rect").collect();
         assert_eq!(r.len(), 1);
         assert_eq!(r[0]["x"], 500.0);
+    }
+
+    #[test]
+    fn text_morph_scales_source_glyphs() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1000,700],"scenes":[
+          {"id":"a","bg":"#ffffff","dur":1.0,"nodes":[
+            {"id":"hero","type":"text","text":"whippan","x":500,"y":200,
+             "font":{"weight":600,"size":120},"color":"#161616"}]},
+          {"id":"b","bg":"#ffffff","dur":1.0,
+           "transition":{"kind":"fade","dur":0.3,"morph":true},"nodes":[
+            {"id":"hero","type":"text","text":"whippan","x":300,"y":600,
+             "font":{"weight":600,"size":40},"color":"#e8671f"}]}
+        ]}"##;
+        let f = |t: f32| -> Vec<Value> {
+            serde_json::from_str(&render_frame(stage, "", t)).unwrap()
+        };
+        // mid-morph: one path per source word, uniform scale between 1.0
+        // and 40/120, color between ink and accent, full opacity
+        let mid = f(1.3);
+        let paths: Vec<&Value> = mid.iter().filter(|c| c["op"] == "path").collect();
+        assert_eq!(paths.len(), 1, "one word, one clone");
+        let sc = paths[0]["scale"].as_f64().unwrap();
+        assert!(sc < 1.0 && sc > 40.0 / 120.0, "uniform scale mid-lerp: {sc}");
+        assert_eq!(paths[0]["opacity"], 1.0);
+        assert_ne!(paths[0]["color"], "#161616");
+        assert_ne!(paths[0]["color"], "#e8671f");
+        // past the window: target text at scale 1
+        let done = f(1.9);
+        let p2: Vec<&Value> = done.iter().filter(|c| c["op"] == "path").collect();
+        assert_eq!(p2[0]["scale"], 1.0);
+        assert_eq!(p2[0]["color"], "#e8671f");
+    }
+
+    #[test]
+    fn rise_family_choreographs_phases() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1000,700],"scenes":[
+          {"id":"a","bg":"#ffffff","dur":1.0,"nodes":[
+            {"id":"r1","type":"rect","x":500,"y":350,"w":100,"h":100,"fill":"#111111"}]},
+          {"id":"b","bg":"#ffffff","dur":1.0,
+           "transition":{"kind":"rise","dur":0.36},"nodes":[
+            {"id":"r2","type":"rect","x":500,"y":350,"w":100,"h":100,"fill":"#e8671f"}]}
+        ]}"##;
+        let cmds: Vec<Value> = serde_json::from_str(&render_frame(stage, "", 1.1)).unwrap();
+        let outr = cmds.iter().find(|c| c["color"] == "#111111").unwrap();
+        let inr = cmds.iter().find(|c| c["color"] == "#e8671f").unwrap();
+        let oo = outr["opacity"].as_f64().unwrap();
+        let io = inr["opacity"].as_f64().unwrap();
+        assert!(oo < 1.0, "outgoing fading: {oo}");
+        assert!(io > 0.0 && io < 1.0, "incoming entering: {io}");
+        assert!(outr["y"].as_f64().unwrap() < 350.0, "outgoing lifted");
+        assert!(inr["y"].as_f64().unwrap() > 350.0, "incoming rising from below");
     }
 
     #[test]
