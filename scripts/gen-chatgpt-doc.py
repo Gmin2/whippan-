@@ -199,8 +199,12 @@ tracks.append({"target": "typed", "at": 0.07, "reveal": {
 # four spec cards crash in from the corners with echo trails (f147-152,
 # settled f158), "Just" pops at -55deg, cards shrink to their centers on
 # exit (f174-177) while "Just" starts crossfading toward "and".
+# f160 positions are mid-settle; the crash decelerates through them and
+# rests at the f168 layout, fully inside the frame
 CARDS = {"lang": (1900, 234, 150, -900), "gauge": (974, 641, -1300, 0),
          "ctx": (1110, 1300, -500, 1000), "pers": (2122, 941, 1200, 300)}
+REST = {"lang": (2011, 387), "gauge": (1085, 512),
+        "ctx": (1025, 1155), "pers": (2010, 1088)}
 STREAK = {"samples": 5, "window": 0.06, "gain": 0.5}
 sc3_members = {
     "lang": [
@@ -257,13 +261,18 @@ sc3_members = {
 sc3_nodes = []
 for cid, members in sc3_members.items():
     cx, cy, edx, edy = CARDS[cid]
+    rx, ry = REST[cid]
     for n in members:
+        off_x, off_y = n["x"] - cx, n["y"] - cy
+        n["x"], n["y"] = rx + off_x, ry + off_y
         sc3_nodes.append(n)
         tracks.append(track(n["id"], n["x"], n["y"],
-                            x=[(0, n["x"] + edx), (0.30, n["x"], "outCubic"),
-                               (0.92, n["x"]), (1.06, cx, "inCubic")],
-                            y=[(0, n["y"] + edy), (0.30, n["y"], "outCubic"),
-                               (0.92, n["y"]), (1.06, cy, "inCubic")],
+                            x=[(0, cx + off_x + edx), (0.40, cx + off_x, "outCubic"),
+                               (0.70, rx + off_x, "outCubic"), (0.92, rx + off_x),
+                               (1.06, rx, "inCubic")],
+                            y=[(0, cy + off_y + edy), (0.40, cy + off_y, "outCubic"),
+                               (0.70, ry + off_y, "outCubic"), (0.92, ry + off_y),
+                               (1.06, ry, "inCubic")],
                             scale=[(0.92, 1), (1.06, 0.1, "inCubic")]))
 sc3_nodes += [
     text("just", "Just", 1365, 843, 95, color="#ffffff", weight=500),
@@ -271,11 +280,15 @@ sc3_nodes += [
 ]
 tracks += [
     track("just", 1365, 843,
+          x=[(0.44, 1365), (0.80, 1372)],
+          y=[(0.44, 843), (0.80, 818)],
           opacity=[(0.10, 0), (0.13, 1), (0.92, 1), (1.06, 0.35)],
-          rot=[(0.10, -55), (0.44, -12, "outCubic"), (1.06, -8)]),
+          rot=[(0.10, -55), (0.44, -12, "outCubic"), (0.80, -4, "outCubic")]),
     track("type", 1594, 794,
+          x=[(0.44, 1594), (0.80, 1600)],
+          y=[(0.44, 794), (0.80, 772)],
           opacity=[(0.37, 0), (0.40, 1)],
-          rot=[(0.37, -12), (1.02, -8)]),
+          rot=[(0.37, -12), (0.80, -4, "outCubic")]),
 ]
 
 # ---------------------------------------------------------------- scene 4
