@@ -1,0 +1,75 @@
+{
+  "fps": 30,
+  "size": [
+    1920,
+    1080
+  ],
+  "scenes": [
+    {
+      "id": "click",
+      "bg": "#fafafa",
+      "dur": 3.2,
+      "nodes": [
+        {
+          "id": "btn",
+          "type": "rect",
+          "x": 960,
+          "y": 500,
+          "w": 340,
+          "h": 92,
+          "radius": 46,
+          "fill": "#ea752f",
+          "states": {
+            "pressed": {
+              "fill": "#c85a1a",
+              "scale": 0.96
+            }
+          }
+        },
+        {
+          "id": "btnlabel",
+          "type": "text",
+          "text": "Generate",
+          "x": 960,
+          "y": 500,
+          "font": {
+            "family": "inter",
+            "weight": 600,
+            "size": 38
+          },
+          "color": "#ffffff"
+        },
+        {
+          "id": "card",
+          "type": "rect",
+          "x": 960,
+          "y": 740,
+          "w": 620,
+          "h": 150,
+          "radius": 24,
+          "fill": "#ffffff"
+        },
+        {
+          "id": "cardtext",
+          "type": "text",
+          "text": "Launch video ready",
+          "x": 960,
+          "y": 740,
+          "font": {
+            "family": "inter",
+            "weight": 600,
+            "size": 40
+          },
+          "color": "#161616"
+        },
+        {
+          "id": "cur",
+          "type": "cursor",
+          "x": 600,
+          "y": 780,
+          "w": 30
+        }
+      ]
+    }
+  ]
+}

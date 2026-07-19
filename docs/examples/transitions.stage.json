@@ -1,0 +1,152 @@
+{
+  "fps": 30,
+  "size": [
+    1920,
+    1080
+  ],
+  "scenes": [
+    {
+      "id": "s1",
+      "bg": "#fafafa",
+      "dur": 1.4,
+      "nodes": [
+        {
+          "id": "t1",
+          "type": "text",
+          "text": "rise",
+          "x": 960,
+          "y": 540,
+          "font": {
+            "family": "inter",
+            "weight": 600,
+            "size": 110
+          },
+          "color": "#161616"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "bg": "#fafafa",
+      "dur": 1.4,
+      "transition": {
+        "kind": "rise",
+        "dur": 0.36
+      },
+      "nodes": [
+        {
+          "id": "t2",
+          "type": "text",
+          "text": "dip",
+          "x": 960,
+          "y": 540,
+          "font": {
+            "family": "inter",
+            "weight": 600,
+            "size": 110
+          },
+          "color": "#161616"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "bg": "#111114",
+      "dur": 1.4,
+      "transition": {
+        "kind": "dip",
+        "dur": 0.5,
+        "dir": "#000000"
+      },
+      "nodes": [
+        {
+          "id": "t3",
+          "type": "text",
+          "text": "zoom",
+          "x": 960,
+          "y": 540,
+          "font": {
+            "family": "inter",
+            "weight": 600,
+            "size": 110
+          },
+          "color": "#fafafa"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "bg": "#fafafa",
+      "dur": 1.4,
+      "transition": {
+        "kind": "zoom",
+        "dur": 0.55
+      },
+      "nodes": [
+        {
+          "id": "t4",
+          "type": "text",
+          "text": "whip",
+          "x": 960,
+          "y": 540,
+          "font": {
+            "family": "inter",
+            "weight": 600,
+            "size": 110
+          },
+          "color": "#161616"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "bg": "#ea752f",
+      "dur": 1.4,
+      "transition": {
+        "kind": "whip",
+        "dur": 0.5,
+        "dir": "left"
+      },
+      "nodes": [
+        {
+          "id": "t5",
+          "type": "text",
+          "text": "wipe",
+          "x": 960,
+          "y": 540,
+          "font": {
+            "family": "inter",
+            "weight": 600,
+            "size": 110
+          },
+          "color": "#ffffff"
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "bg": "#161616",
+      "dur": 1.6,
+      "transition": {
+        "kind": "wipe",
+        "dur": 0.5,
+        "dir": "up"
+      },
+      "nodes": [
+        {
+          "id": "t6",
+          "type": "text",
+          "text": "settle",
+          "x": 960,
+          "y": 540,
+          "font": {
+            "family": "inter",
+            "weight": 600,
+            "size": 110
+          },
+          "color": "#fafafa"
+        }
+      ]
+    }
+  ]
+}

@@ -42,8 +42,10 @@ $CARGO_HOME/bin/wasm-bindgen target/wasm32-unknown-unknown/debug/whippan_engine.
 run the tracer page:
 
 ```sh
-cd editor && python3 -m http.server 8777
-# open http://localhost:8777/index.html
+python3 -m http.server 8777   # from the repo root
+# gallery:  http://localhost:8777/editor/gallery.html
+# tracer:   http://localhost:8777/editor/index.html
+# conform:  http://localhost:8777/editor/conform.html
 ```
 
 ## engine features so far

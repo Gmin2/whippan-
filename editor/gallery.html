@@ -1,0 +1,185 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>whippan — gallery</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f4f4f3; color: #171717;
+           font: 14px/1.4 system-ui, sans-serif; overflow: hidden; }
+    nav { position: fixed; inset: 0 auto 0 0; width: 280px; padding: 28px 0 28px 32px;
+          display: flex; flex-direction: column; gap: 2px; z-index: 10; }
+    nav .brand { font-weight: 650; letter-spacing: -0.01em; margin-bottom: 18px; }
+    nav .brand small { color: #f02900; }
+    nav a { display: flex; align-items: center; gap: 10px; padding: 5px 0;
+            color: #9a9a97; text-decoration: none; transition: color 0.15s; }
+    nav a .tick { width: 28px; height: 1px; background: currentColor;
+                  transition: width 0.25s cubic-bezier(0.2, 0.9, 0.25, 1); }
+    nav a:hover { color: #444; }
+    nav a.active { color: #171717; }
+    nav a.active .tick { width: 52px; background: #f02900; }
+    nav a .num { font-family: ui-monospace, monospace; font-size: 10px; opacity: 0.55; }
+    main { position: absolute; inset: 0 0 0 280px; display: grid;
+           place-items: center; }
+    .stagebox { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    .hint { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+            color: #b0b0ad; }
+    .rule { width: 520px; height: 1px; background: #e2e2e0; }
+    canvas { border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.06),
+             0 12px 40px rgba(0,0,0,0.08); background: #000; }
+    .dock { position: fixed; bottom: 26px; left: 50%; transform: translateX(calc(-50% + 140px));
+            display: flex; align-items: center; gap: 10px; background: #fff;
+            border: 1px solid rgba(0,0,0,0.08); border-radius: 999px;
+            padding: 8px 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); z-index: 10; }
+    .dock button { border: 0; background: #f02900; color: #fff; border-radius: 999px;
+            padding: 5px 16px; font: inherit; font-size: 13px; cursor: pointer; }
+    .dock input[type=range] { width: 260px; accent-color: #f02900; }
+    .dock .tv { font-family: ui-monospace, monospace; font-size: 11px;
+            color: #8a8a88; width: 68px; }
+    .status { position: fixed; bottom: 8px; left: 32px; font-size: 11px;
+              color: #b0b0ad; }
+  </style>
+  <script src="/assets/canvaskit/canvaskit.js"></script>
+</head>
+<body>
+  <nav id="rail">
+    <div class="brand">whippan <small>gallery</small></div>
+  </nav>
+  <main>
+    <div class="stagebox">
+      <div class="hint" id="hint">loading</div>
+      <div class="rule"></div>
+      <canvas id="c" width="1920" height="1080"></canvas>
+    </div>
+  </main>
+  <div class="dock">
+    <button id="play">play</button>
+    <input id="t" type="range" min="0" max="1" step="0.01" value="0" />
+    <span class="tv" id="tv">0.00s</span>
+  </div>
+  <div class="status" id="status">engine loading…</div>
+
+  <script type="module">
+    import init, { render, register_font } from './src/engine-pkg/whippan_engine.js';
+    import { paintFrame } from './src/painter.js';
+
+    const [CK, , inter, mono, registry] = await Promise.all([
+      CanvasKitInit({ locateFile: f => '/assets/canvaskit/' + f }),
+      init(),
+      fetch('/assets/fonts/Inter-Variable.ttf').then(r => r.arrayBuffer()),
+      fetch('/assets/fonts/JetBrainsMono-Regular.ttf').then(r => r.arrayBuffer()),
+      fetch('/docs/examples/index.json').then(r => r.json()),
+    ]).then(async all => {
+      const reg = await fetch('/docs/examples/index.json').then(r => r.json());
+      return [all[0], all[1], all[2], all[3], reg];
+    });
+    register_font('inter', new Uint8Array(inter));
+    register_font('mono', new Uint8Array(mono));
+
+    const rail = document.getElementById('rail');
+    const canvas = document.getElementById('c');
+    const hint = document.getElementById('hint');
+    const slider = document.getElementById('t');
+    const tv = document.getElementById('tv');
+    const playBtn = document.getElementById('play');
+    const status = document.getElementById('status');
+
+    let surface = null, skc = null;
+    const paint = new CK.Paint();
+    paint.setAntiAlias(true);
+
+    let cur = null;   // { stage, anim, dur, images }
+    let playing = false, t0 = 0, base = 0;
+
+    registry.forEach((e, i) => {
+      const a = document.createElement('a');
+      a.href = '#' + e.slug;
+      a.dataset.slug = e.slug;
+      a.innerHTML = `<span class="tick"></span><span>${e.title}</span>` +
+        `<span class="num">${String(i + 1).padStart(2, '0')}</span>`;
+      a.addEventListener('click', ev => { ev.preventDefault(); load(e.slug); });
+      rail.append(a);
+    });
+
+    function fitCanvas(w, h) {
+      canvas.width = w; canvas.height = h;
+      const maxW = window.innerWidth - 280 - 120;
+      const maxH = window.innerHeight - 200;
+      const sc = Math.min(maxW / w, maxH / h, 1);
+      canvas.style.width = Math.round(w * sc) + 'px';
+      canvas.style.height = Math.round(h * sc) + 'px';
+      surface = CK.MakeCanvasSurface('c');
+      skc = surface.getCanvas();
+    }
+
+    async function load(slug) {
+      const entry = registry.find(e => e.slug === slug) || registry[0];
+      location.hash = entry.slug;
+      playing = false; playBtn.textContent = 'play';
+      for (const a of rail.querySelectorAll('a'))
+        a.classList.toggle('active', a.dataset.slug === entry.slug);
+      const stageUrl = entry.stage || `/docs/examples/${entry.slug}.stage.json`;
+      const animUrl = entry.anim || `/docs/examples/${entry.slug}.anim.json`;
+      const [stage, anim] = await Promise.all([
+        fetch(stageUrl).then(r => r.text()),
+        fetch(animUrl).then(r => r.text()),
+      ]);
+      const parsed = JSON.parse(stage);
+      const images = new Map();
+      const srcs = [...new Set(parsed.scenes.flatMap(s => s.nodes)
+        .filter(n => n.type === 'image' && n.src).map(n => n.src))];
+      await Promise.all(srcs.map(async src => {
+        const buf = await fetch(src).then(r => r.arrayBuffer());
+        images.set(src, CK.MakeImageFromEncoded(new Uint8Array(buf)));
+      }));
+      fitCanvas(parsed.size[0], parsed.size[1]);
+      cur = { stage, anim, dur: entry.dur, images };
+      slider.max = entry.dur;
+      slider.value = 0;
+      hint.textContent = `${entry.title} — ${entry.dur.toFixed(1)}s`;
+      status.textContent = 'whippan-engine (wasm) + skia';
+      frame(0);
+    }
+
+    function frame(t) {
+      if (!cur) return;
+      paintFrame(CK, skc, paint, JSON.parse(render(cur.stage, cur.anim, t)), cur.images);
+      surface.flush();
+      tv.textContent = t.toFixed(2) + 's';
+    }
+
+    function tick(now) {
+      if (!playing) return;
+      let t = base + (now - t0) / 1000;
+      if (t > cur.dur) { t = 0; base = 0; t0 = now; }
+      slider.value = t;
+      frame(t);
+      requestAnimationFrame(tick);
+    }
+    playBtn.addEventListener('click', () => {
+      playing = !playing;
+      playBtn.textContent = playing ? 'pause' : 'play';
+      if (playing) {
+        base = parseFloat(slider.value);
+        if (base >= cur.dur) base = 0;
+        t0 = performance.now();
+        requestAnimationFrame(tick);
+      }
+    });
+    slider.addEventListener('input', () => {
+      playing = false; playBtn.textContent = 'play';
+      frame(parseFloat(slider.value));
+    });
+    addEventListener('keydown', e => {
+      const idx = registry.findIndex(x => x.slug === (location.hash.slice(1) || registry[0].slug));
+      if (e.key === 'ArrowDown' || e.key === 'j')
+        load(registry[Math.min(idx + 1, registry.length - 1)].slug);
+      if (e.key === 'ArrowUp' || e.key === 'k')
+        load(registry[Math.max(idx - 1, 0)].slug);
+      if (e.key === ' ') { e.preventDefault(); playBtn.click(); }
+    });
+
+    load(location.hash.slice(1) || registry[0].slug);
+  </script>
+</body>
+</html>
