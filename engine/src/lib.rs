@@ -9,6 +9,24 @@ pub struct Stage {
     pub fps: f32,
     pub size: [f32; 2],
     pub scenes: Vec<Scene>,
+    /// music bed mixed in at export
+    #[serde(default)]
+    pub audio: Option<Audio>,
+}
+
+#[derive(Deserialize, Clone)]
+pub struct Audio {
+    pub src: String,
+    #[serde(default = "d_gain")]
+    pub gain: f32,
+    #[serde(default = "d_fade_out")]
+    pub fade_out: f32,
+}
+fn d_gain() -> f32 {
+    0.8
+}
+fn d_fade_out() -> f32 {
+    0.6
 }
 
 #[derive(Deserialize)]

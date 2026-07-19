@@ -149,7 +149,7 @@ fn main() {
     }
     let stage = std::fs::read_to_string(&args[1]).expect("stage json");
     let anim = std::fs::read_to_string(&args[2]).expect("anim json");
-    let out = &args[3];
+    let out = args[3].clone();
     let fps: f32 = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(30.0);
 
     let root = std::env::current_dir().unwrap();
@@ -188,6 +188,19 @@ fn main() {
     let dur = doc_duration(&stage).expect("duration");
     let frames = (dur * fps).round() as u32;
 
+    let audio = parsed.get("audio").filter(|a| !a.is_null()).map(|a| {
+        (
+            a["src"].as_str().unwrap_or("").to_string(),
+            a["gain"].as_f64().unwrap_or(0.8) as f32,
+            a["fade_out"].as_f64().unwrap_or(0.6) as f32,
+        )
+    });
+    let video_out = if audio.is_some() {
+        format!("{out}.video.mp4")
+    } else {
+        out.clone()
+    };
+
     let mut ffmpeg = Command::new("ffmpeg")
         .args([
             "-y",
@@ -200,7 +213,7 @@ fn main() {
             "-crf", "18",
             "-pix_fmt", "yuv420p",
             "-movflags", "+faststart",
-            out,
+            &video_out,
         ])
         .stdin(Stdio::piped())
         .stderr(Stdio::null())
@@ -226,8 +239,39 @@ fn main() {
     drop(pipe);
     let status = ffmpeg.wait().expect("ffmpeg wait");
     let secs = start.elapsed().as_secs_f32();
-    println!(
-        "{out}: {frames} frames at {wi}x{hi} in {secs:.1}s ({:.0} fps), ffmpeg {status}",
-        frames as f32 / secs
-    );
+
+    if let Some((src, gain, fade)) = audio {
+        let bed = root.join(src.trim_start_matches('/'));
+        let filter = format!(
+            "[1:a]atrim=0:{dur},volume={gain},afade=t=out:st={}:d={fade}[a]",
+            (dur - fade).max(0.0)
+        );
+        let mux = Command::new("ffmpeg")
+            .args([
+                "-y",
+                "-i", &video_out,
+                "-i", bed.to_str().unwrap(),
+                "-filter_complex", &filter,
+                "-map", "0:v",
+                "-map", "[a]",
+                "-c:v", "copy",
+                "-c:a", "aac",
+                "-b:a", "192k",
+                "-movflags", "+faststart",
+                &out,
+            ])
+            .stderr(Stdio::null())
+            .status()
+            .expect("mux");
+        let _ = std::fs::remove_file(&video_out);
+        println!(
+            "{out}: {frames} frames + audio in {secs:.1}s ({:.0} fps), mux {mux}",
+            frames as f32 / secs
+        );
+    } else {
+        println!(
+            "{out}: {frames} frames at {wi}x{hi} in {secs:.1}s ({:.0} fps), ffmpeg {status}",
+            frames as f32 / secs
+        );
+    }
 }

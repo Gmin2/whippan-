@@ -46,6 +46,8 @@ cargo build --release -p whippan-engine --bin export
 ./target/release/export docs/examples/reveal.stage.json \
   docs/examples/reveal.anim.json out/reveal.mp4
 # 1080p renders at ~150-500 fps including encode
+# docs with an `audio` block get the music bed mixed in (trim, gain, fade)
+./scripts/export-examples.sh   # every gallery example -> out/*.mp4
 ```
 
 run the tracer page:

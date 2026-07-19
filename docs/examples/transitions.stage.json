@@ -148,5 +148,10 @@
         }
       ]
     }
-  ]
+  ],
+  "audio": {
+    "src": "/assets/audio/pad.m4a",
+    "gain": 0.7,
+    "fade_out": 0.8
+  }
 }
