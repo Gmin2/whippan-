@@ -94,7 +94,9 @@
     document.getElementById('docname').textContent = stagePath;
 
     let doc = await fetch(stagePath).then(r => r.json());
-    const anim = await fetch(animPath).then(r => r.text());
+    const animDoc = await fetch(animPath).then(r => r.json());
+    if (!animDoc.tracks) animDoc.tracks = [];
+    const anim = () => JSON.stringify(animDoc);
 
     const images = new Map();
     for (const src of new Set(doc.scenes.flatMap(s => s.nodes)
@@ -139,7 +141,7 @@
     }
 
     function drawBoard(b, tl) {
-      const cmds = JSON.parse(render(boardDoc(b.index), anim, tl));
+      const cmds = JSON.parse(render(boardDoc(b.index), anim(), tl));
       paintFrame(CK, b.skc, paint, cmds, images);
       b.surface.flush();
       const sc = doc.scenes[b.index];
@@ -227,6 +229,7 @@
         ...(n.text !== undefined ? [['text', 'text']] : []),
         ...(n.font ? [['font.size', 'number'], ['font.weight', 'number']] : []),
       ];
+      const PRESETS = ['', 'pop', 'rise-fade', 'drop', 'slide-left', 'slide-right', 'spring-in', 'fade'];
       for (const [key, kind] of fields) {
         const label = document.createElement('label');
         label.textContent = key;
@@ -249,6 +252,81 @@
         label.append(input);
         fieldsEl.append(label);
       }
+
+      // animation section: this node's overlay tracks
+      const h = document.createElement('h3');
+      h.textContent = 'animation';
+      h.style.marginTop = '18px';
+      fieldsEl.append(h);
+      const tracks = animDoc.tracks.filter(tr => tr.target === n.id);
+      const refresh = () => {
+        drawAll(parseFloat(slider.value));
+        status.textContent = 'edited (unsaved)';
+      };
+      tracks.forEach(tr => {
+        const atLabel = document.createElement('label');
+        atLabel.textContent = 'at (s)';
+        const atInput = document.createElement('input');
+        atInput.type = 'number';
+        atInput.step = '0.05';
+        atInput.value = tr.at ?? 0;
+        atInput.addEventListener('input', () => {
+          tr.at = parseFloat(atInput.value) || 0;
+          refresh();
+        });
+        atLabel.append(atInput);
+        fieldsEl.append(atLabel);
+
+        const enLabel = document.createElement('label');
+        enLabel.textContent = 'enter';
+        const sel2 = document.createElement('select');
+        sel2.style.width = '130px';
+        for (const pname of PRESETS) {
+          const o = document.createElement('option');
+          o.value = pname;
+          o.textContent = pname || 'none';
+          sel2.append(o);
+        }
+        sel2.value = typeof tr.enter === 'string' ? tr.enter : (tr.enter?.preset ?? '');
+        sel2.addEventListener('change', () => {
+          if (sel2.value) tr.enter = sel2.value;
+          else delete tr.enter;
+          refresh();
+        });
+        enLabel.append(sel2);
+        fieldsEl.append(enLabel);
+
+        if (tr.reveal) {
+          const rvLabel = document.createElement('label');
+          rvLabel.textContent = 'reveal unit';
+          const rv = document.createElement('select');
+          rv.style.width = '130px';
+          for (const u of ['word', 'glyph']) {
+            const o = document.createElement('option');
+            o.value = u; o.textContent = u;
+            rv.append(o);
+          }
+          rv.value = tr.reveal.unit ?? 'word';
+          rv.addEventListener('change', () => { tr.reveal.unit = rv.value; refresh(); });
+          rvLabel.append(rv);
+          fieldsEl.append(rvLabel);
+        }
+      });
+      const addBtn = document.createElement('button');
+      addBtn.textContent = tracks.length ? 'replay scene' : 'add track';
+      addBtn.style.cssText = 'margin-top:10px;border:0;background:#f1f1ef;color:#444;border-radius:6px;padding:6px 12px;font:inherit;cursor:pointer';
+      addBtn.addEventListener('click', () => {
+        if (!tracks.length) {
+          animDoc.tracks.push({ target: n.id, at: 0.3, enter: 'pop' });
+          refresh();
+          showInspector();
+          return;
+        }
+        playing = false;
+        slider.value = sceneStart(sel.scene);
+        playBtn.click();
+      });
+      fieldsEl.append(addBtn);
     }
 
     // click to select, drag to move, on each board canvas
@@ -312,12 +390,19 @@
     });
 
     document.getElementById('save').addEventListener('click', async () => {
-      const res = await fetch('/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ path: stagePath, doc }),
-      }).then(r => r.json()).catch(() => null);
-      status.textContent = res?.ok ? 'saved' : 'save failed (dev server running?)';
+      const [a, b] = await Promise.all([
+        fetch('/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path: stagePath, doc }),
+        }).then(r => r.json()).catch(() => null),
+        fetch('/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path: animPath, doc: animDoc }),
+        }).then(r => r.json()).catch(() => null),
+      ]);
+      status.textContent = a?.ok && b?.ok ? 'saved (stage + anim)' : 'save failed (dev server running?)';
     });
     document.getElementById('gallery').addEventListener('click', () => {
       location.href = '/editor/gallery.html#' + entry.slug;

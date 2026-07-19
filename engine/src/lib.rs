@@ -354,6 +354,9 @@ pub struct Track {
     pub keys: HashMap<String, Vec<Key>>,
     #[serde(default)]
     pub reveal: Option<Reveal>,
+    /// named entrance preset, expanded into keys at merge
+    #[serde(default)]
+    pub enter: Option<Enter>,
     /// flip the target node to this named state at `at`
     #[serde(default)]
     pub state: Option<String>,
@@ -594,6 +597,70 @@ fn mix_hex(a: &str, b: &str, p: f32) -> String {
     )
 }
 
+#[derive(Deserialize, Clone)]
+#[serde(untagged)]
+pub enum Enter {
+    Name(String),
+    Cfg {
+        preset: String,
+        #[serde(default)]
+        dur: Option<f32>,
+    },
+}
+
+fn key(t: f32, v: f32, ease: Option<Ease>) -> Key {
+    Key { t, v, ease }
+}
+
+/// expand a named entrance into keyframes. numbers measured from the
+/// reference teardowns; dur scales the whole gesture.
+fn preset_keys(name: &str, dur: Option<f32>) -> HashMap<String, Vec<Key>> {
+    let oc = || Some(Ease::Named("outCubic".into()));
+    let popbz = || Some(Ease::Bezier([0.22, 1.0, 0.36, 1.0]));
+    let mut m = HashMap::new();
+    match name {
+        "pop" => {
+            let d = dur.unwrap_or(0.17);
+            m.insert("opacity".into(), vec![key(0.0, 0.0, None), key(0.05, 1.0, None)]);
+            m.insert("scale".into(), vec![key(0.0, 0.96, None), key(d, 1.0, popbz())]);
+        }
+        "rise-fade" => {
+            let d = dur.unwrap_or(0.3);
+            m.insert("opacity".into(), vec![key(0.0, 0.0, None), key(d * 0.4, 1.0, None)]);
+            m.insert("y".into(), vec![key(0.0, 24.0, None), key(d, 0.0, oc())]);
+        }
+        "drop" => {
+            let d = dur.unwrap_or(0.3);
+            m.insert("opacity".into(), vec![key(0.0, 0.0, None), key(d * 0.4, 1.0, None)]);
+            m.insert("y".into(), vec![key(0.0, -40.0, None), key(d, 0.0, oc())]);
+        }
+        "slide-left" => {
+            let d = dur.unwrap_or(0.35);
+            m.insert("opacity".into(), vec![key(0.0, 0.0, None), key(d * 0.4, 1.0, None)]);
+            m.insert("x".into(), vec![key(0.0, 80.0, None), key(d, 0.0, oc())]);
+        }
+        "slide-right" => {
+            let d = dur.unwrap_or(0.35);
+            m.insert("opacity".into(), vec![key(0.0, 0.0, None), key(d * 0.4, 1.0, None)]);
+            m.insert("x".into(), vec![key(0.0, -80.0, None), key(d, 0.0, oc())]);
+        }
+        "spring-in" => {
+            let d = dur.unwrap_or(0.55);
+            m.insert("opacity".into(), vec![key(0.0, 0.0, None), key(0.08, 1.0, None)]);
+            m.insert(
+                "scale".into(),
+                vec![key(0.0, 0.8, None), key(d, 1.0, Some(Ease::Spring { spring: [7.0, 1.0] }))],
+            );
+        }
+        _ => {
+            // "fade" and anything unknown
+            let d = dur.unwrap_or(0.25);
+            m.insert("opacity".into(), vec![key(0.0, 0.0, None), key(d, 1.0, oc())]);
+        }
+    }
+    m
+}
+
 /// resolve each overlay track onto its stage node: shift key times by the
 /// track's `at` and attach them. overlay wins over inline stage keys.
 fn merge(stage: &mut Stage, overlay: &Overlay) {
@@ -614,6 +681,23 @@ fn merge(stage: &mut Stage, overlay: &Overlay) {
                 continue;
             }
             if let Some(node) = scene.nodes.iter_mut().find(|n| n.id == track.target) {
+                if let Some(e) = &track.enter {
+                    let (name, dur) = match e {
+                        Enter::Name(n) => (n.as_str(), None),
+                        Enter::Cfg { preset, dur } => (preset.as_str(), *dur),
+                    };
+                    for (prop, keys) in preset_keys(name, dur) {
+                        let shifted = keys
+                            .iter()
+                            .map(|k| Key {
+                                t: k.t + track.at,
+                                v: k.v,
+                                ease: k.ease.clone(),
+                            })
+                            .collect();
+                        node.keys.insert(prop, shifted);
+                    }
+                }
                 for (prop, keys) in &track.keys {
                     let shifted = keys
                         .iter()
@@ -1515,6 +1599,32 @@ mod tests {
         let r: Vec<&Value> = settled.iter().filter(|c| c["op"] == "rect").collect();
         assert_eq!(r.len(), 1);
         assert_eq!(r[0]["x"], 500.0);
+    }
+
+    #[test]
+    fn enter_presets_expand_to_measured_keys() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1000,700],"scenes":[{"id":"s","bg":"#ffffff",
+          "nodes":[{"id":"p","type":"rect","x":500,"y":350,"w":200,"h":80,"radius":40,"fill":"#ea752f"}]}]}"##;
+        let overlay = r##"{"tracks":[{"target":"p","at":0.5,"enter":"pop"}]}"##;
+        let f = |t: f32| -> Value {
+            let cmds: Vec<Value> = serde_json::from_str(&render_frame(stage, overlay, t)).unwrap();
+            cmds.iter().find(|c| c["op"] == "rect").unwrap().clone()
+        };
+        assert_eq!(f(0.2)["opacity"], 0.0, "hidden before at");
+        let mid = f(0.58);
+        assert_eq!(mid["opacity"], 1.0, "opacity leads");
+        let ms = mid["scale"].as_f64().unwrap();
+        assert!(ms > 0.96 && ms < 1.0, "mid pop scale {ms}");
+        assert_eq!(f(1.0)["scale"], 1.0, "settled");
+
+        let spring_overlay = r##"{"tracks":[{"target":"p","at":0.2,"enter":{"preset":"spring-in","dur":0.6}}]}"##;
+        let cmds: Vec<Value> =
+            serde_json::from_str(&render_frame(stage, spring_overlay, 0.5)).unwrap();
+        let sc = cmds.iter().find(|c| c["op"] == "rect").unwrap()["scale"]
+            .as_f64()
+            .unwrap();
+        assert!(sc > 0.9, "spring well past start: {sc}");
     }
 
     #[test]

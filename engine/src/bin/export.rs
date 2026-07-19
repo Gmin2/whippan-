@@ -1,3 +1,6 @@
+#![allow(clippy::too_many_arguments)]
+#[cfg(not(target_arch = "wasm32"))]
+mod app {
 use skia_safe::image_filters;
 use skia_safe::utils::parse_path::from_svg;
 use skia_safe::{
@@ -141,7 +144,7 @@ fn paint_frame(
     }
 }
 
-fn main() {
+pub fn run() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() < 4 {
         eprintln!("usage: export <stage.json> <anim.json> <out.mp4> [fps]");
@@ -275,3 +278,13 @@ fn main() {
         );
     }
 }
+
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn main() {
+    app::run();
+}
+
+#[cfg(target_arch = "wasm32")]
+fn main() {}
