@@ -15,6 +15,39 @@ MONO_W = 0.6  # jetbrains mono advance per char, em fraction
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
+
+NUCLEO = "/Users/mintu/coding/portfolio/ui/tools/icons"
+
+
+def icon(id, svg_file, cx, cy, size, color, stroke=2.0, filled=False):
+    """inline a nucleo svg as one path node. paths keep their viewBox
+    coords; the node anchors at the icon's top-left so (cx,cy) is the
+    optical center after scaling."""
+    import re as _re
+    src = open(f"{NUCLEO}/{svg_file}").read()
+    vb = float(_re.search(r'viewBox="0 0 (\d+)', src).group(1))
+    parts = []
+    for m in _re.finditer(r'<path[^>]*? d="([^"]+)"', src):
+        parts.append(m.group(1))
+    for m in _re.finditer(r'<line[^>]*?x1="([\d.]+)"[^>]*?y1="([\d.]+)"[^>]*?x2="([\d.]+)"[^>]*?y2="([\d.]+)"', src):
+        x1, y1, x2, y2 = m.groups()
+        parts.append(f"M{x1} {y1}L{x2} {y2}")
+    for m in _re.finditer(r'<circle[^>]*?cx="([\d.]+)"[^>]*?cy="([\d.]+)"[^>]*?r="([\d.]+)"', src):
+        x, y, r = (float(v) for v in m.groups())
+        parts.append(f"M{x - r} {y}a{r} {r} 0 1 0 {2 * r} 0"
+                     f"a{r} {r} 0 1 0 {-2 * r} 0")
+    for m in _re.finditer(r'<polyline[^>]*?points="([^"]+)"', src):
+        pts = m.group(1).split()
+        parts.append("M" + "L".join(pts))
+    k = size / vb
+    n = {"id": id, "type": "path", "x": round(cx - size / 2, 1),
+         "y": round(cy - size / 2, 1), "fill": color,
+         "d": "".join(parts), "keys": {"scale": [{"t": 0, "v": k}]}}
+    if not filled:
+        n["stroke"] = stroke
+    return n
+
+
 def text(id, s, x, y, size, color, weight=400, family="inter"):
     return {"id": id, "type": "text", "text": s, "x": x, "y": y,
             "color": color, "font": {"size": size, "weight": weight,
@@ -131,7 +164,7 @@ tracks.append(keyed("chipd1_1",
 # 2.7s of loaded stillness: the chip alone on the plum-washed black,
 # odometer rolls 1->2 at 0.85 and 2->3 at 1.83 (real seconds).
 sc2_nodes = [
-    rect("plum", 960, 100, 1300, 520, 260, "#241722", blur=140),
+    rect("plum", 960, 60, 1200, 460, 230, "#120b10", blur=150),
     rect("chipdot2", 765, 540, 30, 30, 15, "#b55b01",
          glow={"sigma": 9, "opacity": 0.8, "color": "#b55b01"}),
     text("chipb2", "Building", 985, 540, 62, "#f2f2f2", weight=500),
@@ -174,7 +207,7 @@ ROWS = [
      "#525252", "Production", "main", "1 day ago"),
 ]
 sc3_nodes = [
-    rect("plum3", 960, 100, 1300, 520, 260, "#241722", blur=140),
+    rect("plum3", 960, 60, 1200, 460, 230, "#120b10", blur=150),
     # breadcrumb
     rect("bc_tile", 190, 300, 36, 36, 9, "#f2f2f2"),
     text("bc_glyph", "a", 190, 300, 24, "#141014", weight=600),
@@ -182,15 +215,18 @@ sc3_nodes = [
     text("bc_sep", "/", 367, 300, 26, "#5a5a5a"),
     text("bc_proj", "Dokedu Backend", 492, 298, 28, "#e6e6e6", weight=500),
     # tabs
-    rect("tab_pill", 259, 375, 200, 52, 11, "#211f23"),
-    text("tab_dep", "Deployments", 280, 374, 26, "#f0f0f0", weight=500),
-    text("tab_logs", "Logs", 450, 373, 26, "#8f8f8f"),
-    text("tab_set", "Settings", 596, 373, 26, "#8f8f8f"),
+    rect("tab_pill", 259, 375, 216, 52, 11, "#211f23"),
+    icon("tab_dep_i", "core/grid-2.svg", 189, 375, 22, "#f0f0f0"),
+    text("tab_dep", "Deployments", 290, 374, 26, "#f0f0f0", weight=500),
+    icon("tab_logs_i", "micro-bold/bars-filter.svg", 402, 373, 20, "#8f8f8f"),
+    text("tab_logs", "Logs", 460, 373, 26, "#8f8f8f"),
+    icon("tab_set_i", "core/gear-3.svg", 530, 373, 22, "#8f8f8f"),
+    text("tab_set", "Settings", 606, 373, 26, "#8f8f8f"),
     # header
     text("hd_t", "Deployments", 241, 449, 26, "#d0d0d0", weight=500),
     text("hd_sub", "Automatically created for pushes to", 549, 449, 24,
          "#8f8f8f"),
-    rect("hd_gh", 795, 448, 26, 26, 13, "#2c2c2e"),
+    icon("hd_gh", "social/logo-github.svg", 795, 448, 28, "#c9c9c9", filled=True),
     text("hd_repo", "dokedu/dokedu", 915, 447, 26, "#e6e6e6", weight=500),
     rect("btn_create", 1775, 444, 240, 58, 13, "#fafafa"),
     text("btn_create_t", "Create Deployment", 1775, 444, 24, "#161616",
@@ -200,11 +236,20 @@ for i, (h, msg, st, stc, env, br, age) in enumerate(ROWS):
     y = 523 + i * 76
     p = f"r{i}_"
     sc3_nodes += [
+        {"id": p + "ci", "type": "path", "x": 187, "y": y, "fill": "#6f6f6f",
+         "stroke": 2.0,
+         "d": "M-9 0L-5 0M5 0L9 0M-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0"},
         text(p + "hash", h, 249, y, 24, "#8f8f8f"),
         text(p + "msg", msg, 305 + len(msg) * 5.6, y, 24, "#e6e6e6"),
         text(p + "env", env, 1126, y, 26, "#c9c9c9"),
+        {"id": p + "bi", "type": "path", "x": 1310, "y": y, "fill": "#6f6f6f",
+         "stroke": 2.0,
+         "d": "M-4 -3L-4 6M-4 -6a2.8 2.8 0 1 0 0.02 0M-4 6a2.8 2.8 0 1 0 0.02 "
+              "0M6 -6a2.8 2.8 0 1 0 0.02 0M6 -3C6 2 -1 0 -4 3"},
         text(p + "br", br, 1420, y, 26, "#c9c9c9"),
         rect(p + "av", 1556, y, 28, 28, 14, "#2c2c2e"),
+        {"id": p + "avp", "type": "path", "x": 1556, "y": y, "fill": "#8f8f8f",
+         "stroke": 1.8, "d": "M-4 0L4 0M0 -4L0 4"},
         text(p + "auth", "aaronmahlke", 1658, y, 26, "#c9c9c9"),
     ]
     if age:

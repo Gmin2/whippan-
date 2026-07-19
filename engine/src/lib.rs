@@ -109,9 +109,12 @@ pub struct Node {
     /// image nodes: name the painter resolves to a loaded bitmap
     #[serde(default)]
     pub src: Option<String>,
-    /// path nodes: svg outline data filled with `fill`, drawn at (x,y)
+    /// path nodes: svg outline data filled with `fill`, drawn at (x,y).
+    /// with `stroke` the path is stroked at that width instead (round caps)
     #[serde(default)]
     pub d: Option<String>,
+    #[serde(default)]
+    pub stroke: Option<f32>,
     #[serde(default)]
     pub font: Option<Font>,
     #[serde(default)]
@@ -425,6 +428,9 @@ pub struct DrawCmd {
     /// degrees, applied about the command anchor after translate
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rot: Option<f32>,
+    /// stroke width: draw the path as a stroked line instead of a fill
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stroke: Option<f32>,
     pub color: String,
     pub opacity: f32,
     pub scale: f32,
@@ -1016,6 +1022,7 @@ pub fn render_cmds(
         src: None,
         goo: None,
         rot: None,
+        stroke: None,
         color: clear_color,
         opacity: 1.0,
         scale: 1.0,
@@ -1114,6 +1121,7 @@ fn render_scene(
             src: None,
             goo: None,
             rot: None,
+            stroke: None,
             color: "#000000".into(),
             opacity: 1.0,
             scale: 1.0,
@@ -1177,6 +1185,7 @@ fn render_scene(
                                         src: None,
                                         goo: None,
                                         rot: None,
+                                        stroke: None,
                                         color: color.clone(),
                                         opacity,
                                         scale: scale * k,
@@ -1261,6 +1270,7 @@ fn render_scene(
                                     src: None,
                                     goo: None,
                                     rot,
+                                    stroke: None,
                                     color: ink.clone(),
                                     opacity: opacity * o,
                                     scale,
@@ -1301,6 +1311,7 @@ fn render_scene(
                                     src: None,
                                     goo: None,
                                     rot,
+                                    stroke: None,
                                     color: ink.clone(),
                                     opacity,
                                     scale,
@@ -1358,6 +1369,7 @@ fn render_scene(
                                     src: None,
                                     goo: None,
                                     rot,
+                                    stroke: None,
                                     color,
                                     opacity: opacity * o,
                                     scale,
@@ -1379,6 +1391,7 @@ fn render_scene(
                                 src: None,
                                 goo: None,
                                 rot,
+                                stroke: None,
                                 color,
                                 opacity: opacity * o,
                                 scale,
@@ -1447,6 +1460,7 @@ fn render_scene(
                                 src: None,
                                 goo: None,
                                 rot: None,
+                                stroke: None,
                                 color: fill.clone(),
                                 opacity: opacity * st.gain * fadeout,
                                 scale,
@@ -1478,6 +1492,7 @@ fn render_scene(
                             src: None,
                             goo: None,
                             rot,
+                            stroke: None,
                             color: echo_color,
                             opacity: opacity * glow_opacity,
                             scale,
@@ -1501,6 +1516,7 @@ fn render_scene(
                         src: None,
                         goo: node.goo.clone(),
                         rot,
+                        stroke: None,
                         color: fill,
                         opacity,
                         scale,
@@ -1536,6 +1552,7 @@ fn render_scene(
                             src: None,
                             goo: None,
                             rot: None,
+                            stroke: None,
                             color,
                             opacity: opacity * alpha,
                             scale,
@@ -1557,6 +1574,7 @@ fn render_scene(
                         src: None,
                         goo: node.goo.clone(),
                         rot: (rotv != 0.0).then_some(rotv),
+                        stroke: node.stroke,
                         color: node.fill.clone().unwrap_or_else(|| "#000000".into()),
                         opacity,
                         scale,
@@ -1577,6 +1595,7 @@ fn render_scene(
                         src: node.src.clone(),
                         goo: node.goo.clone(),
                         rot: (rotv != 0.0).then_some(rotv),
+                        stroke: None,
                         color: "#000000".into(),
                         opacity,
                         scale,
@@ -1629,6 +1648,7 @@ fn render_scene(
             src: None,
             goo: None,
             rot: None,
+            stroke: None,
             color: "#000000".into(),
             opacity: 1.0,
             scale: 1.0,

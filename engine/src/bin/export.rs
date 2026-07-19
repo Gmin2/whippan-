@@ -43,6 +43,12 @@ fn draw_one(canvas: &skia_safe::Canvas, c: &DrawCmd, images: &HashMap<String, sk
     if let Some(b) = c.blur {
         paint.set_mask_filter(MaskFilter::blur(BlurStyle::Normal, b, true));
     }
+    if let Some(sw) = c.stroke {
+        paint.set_style(skia_safe::PaintStyle::Stroke);
+        paint.set_stroke_width(sw);
+        paint.set_stroke_cap(skia_safe::PaintCap::Round);
+        paint.set_stroke_join(skia_safe::PaintJoin::Round);
+    }
     canvas.save();
     canvas.translate((c.x, c.y));
     if let Some(r) = c.rot {

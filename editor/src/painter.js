@@ -23,6 +23,14 @@ function drawOne(CK, skc, paint, c, images) {
   paint.setMaskFilter(c.blur
     ? CK.MaskFilter.MakeBlur(CK.BlurStyle.Normal, c.blur, true)
     : null);
+  if (c.stroke) {
+    paint.setStyle(CK.PaintStyle.Stroke);
+    paint.setStrokeWidth(c.stroke);
+    paint.setStrokeCap(CK.StrokeCap.Round);
+    paint.setStrokeJoin(CK.StrokeJoin.Round);
+  } else {
+    paint.setStyle(CK.PaintStyle.Fill);
+  }
   skc.save();
   skc.translate(c.x, c.y);
   if (c.rot) skc.rotate(c.rot, 0, 0);
