@@ -344,6 +344,12 @@ pub struct Reveal {
     pub caret_blink: f32,
     #[serde(default = "d_caret_typing")]
     pub caret_typing: String,
+    /// unit "scramble" only: how many unlocked slots churn random glyphs
+    /// ahead of the locked prefix, and the glyph pool they draw from
+    #[serde(default = "d_churn")]
+    pub churn: usize,
+    #[serde(default = "d_charset")]
+    pub charset: String,
 }
 fn d_unit() -> String {
     "word".into()
@@ -377,6 +383,12 @@ fn d_caret_blink() -> f32 {
 }
 fn d_caret_typing() -> String {
     "solid".into()
+}
+fn d_churn() -> usize {
+    4
+}
+fn d_charset() -> String {
+    "#$%&*+?=ACDEFGHKMNPRSTUVWXYZ023456789abcdefghkmnprstuvwxyz".into()
 }
 
 #[derive(Deserialize)]
@@ -1320,6 +1332,75 @@ fn render_scene(
                         }
                         continue;
                     }
+                    // decoder ritual: chars lock left-to-right at `cadence`,
+                    // a few trailing slots churn deterministic scramble
+                    // glyphs every tick, everything hard-swaps (no fades)
+                    if let Some((at, r)) = node.reveal.clone().filter(|(_, r)| r.unit == "scramble") {
+                        let tick = 0.034_f32;
+                        let tick_idx = ((t - at) / tick).floor().max(0.0) as u32;
+                        let pool = text::shape_line(&r.charset, size, weight, &family);
+                        let pool_glyphs: Vec<&text::ShapedGlyph> = pool
+                            .as_ref()
+                            .map(|l| l.words.iter().flat_map(|w| w.glyphs.iter()).collect())
+                            .unwrap_or_default();
+                        let mut slot = 0usize;
+                        for word in &line.words {
+                            for glyph in &word.glyphs {
+                                let lock = at + slot as f32 * r.cadence;
+                                let gx = left + word.x + glyph.x;
+                                if t >= lock {
+                                    cmds.push(DrawCmd {
+                                        op: "path".into(),
+                                        x: gx,
+                                        y: baseline,
+                                        w: None,
+                                        h: None,
+                                        radius: None,
+                                        d: Some(glyph.path.clone()),
+                                        blur: None,
+                                        grad: None,
+                                        src: None,
+                                        goo: None,
+                                        rot: None,
+                                        stroke: None,
+                                        color: ink.clone(),
+                                        opacity,
+                                        scale,
+                                    });
+                                } else if t >= at
+                                    && lock - t < r.churn as f32 * r.cadence
+                                    && !pool_glyphs.is_empty()
+                                {
+                                    let pick = (slot as u32)
+                                        .wrapping_mul(2654435761)
+                                        .wrapping_add(tick_idx.wrapping_mul(40503))
+                                        as usize
+                                        % pool_glyphs.len();
+                                    cmds.push(DrawCmd {
+                                        op: "path".into(),
+                                        x: gx,
+                                        y: baseline,
+                                        w: None,
+                                        h: None,
+                                        radius: None,
+                                        d: Some(pool_glyphs[pick].path.clone()),
+                                        blur: None,
+                                        grad: None,
+                                        src: None,
+                                        goo: None,
+                                        rot: None,
+                                        stroke: None,
+                                        color: ink.clone(),
+                                        opacity,
+                                        scale,
+                                    });
+                                }
+                                slot += 1;
+                            }
+                            slot += 1;
+                        }
+                        continue;
+                    }
                     // one clock per piece: a word, or a single glyph
                     let piece = |idx: f32, kept: bool| -> (f32, f32, String) {
                         match &node.reveal {
@@ -2217,6 +2298,35 @@ mod tests {
         assert_eq!(paths(3.0), 7);
         assert_eq!(carets(3.2), 1, "post-typing blink on");
         assert_eq!(carets(3.7), 0, "post-typing blink off");
+    }
+
+    #[test]
+    fn scramble_locks_left_to_right_and_settles() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1920,1080],"scenes":[{"id":"s","bg":"#000000",
+          "nodes":[{"id":"line","type":"text","text":"Every AI product","x":960,"y":540,
+                    "color":"#ffffff","font":{"size":44}}]}]}"##;
+        let overlay = r##"{"tracks":[{"target":"line","at":0.2,"reveal":{
+          "unit":"scramble","cadence":0.05,"churn":3}}]}"##;
+        let paths = |t: f32| -> Vec<String> {
+            let cmds: Vec<Value> = serde_json::from_str(&render_frame(stage, overlay, t)).unwrap();
+            cmds.iter()
+                .filter(|c| c["op"] == "path")
+                .map(|c| c["d"].as_str().unwrap().to_string())
+                .collect()
+        };
+        assert!(paths(0.1).is_empty(), "nothing before at");
+        // mid-decode: some glyphs drawn, fewer than the full line
+        let mid = paths(0.4);
+        assert!(!mid.is_empty() && mid.len() < 15, "partial churn, got {}", mid.len());
+        // the churn re-rolls between ticks while the locked prefix holds
+        let a = paths(0.40);
+        let b = paths(0.44);
+        assert_eq!(a[0], b[0], "locked prefix stable");
+        assert_ne!(a.last(), b.last(), "trailing slot churns");
+        // fully locked: every glyph of "Every AI product" drawn, no churn
+        assert_eq!(paths(1.2).len(), 14, "settled to the real line");
+        assert_eq!(paths(1.2), paths(1.5), "stable after settle");
     }
 
     #[test]
