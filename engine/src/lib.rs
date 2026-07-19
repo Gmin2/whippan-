@@ -34,12 +34,20 @@ pub struct Transition {
     pub kind: String,
     #[serde(default = "d_trans_dur")]
     pub dur: f32,
+    /// push direction: which way the incoming scene travels from
+    #[serde(default = "d_trans_dir")]
+    pub dir: String,
+    #[serde(default)]
+    pub ease: Option<Ease>,
 }
 fn d_trans_kind() -> String {
     "fade".into()
 }
 fn d_trans_dur() -> f32 {
     0.4
+}
+fn d_trans_dir() -> String {
+    "left".into()
 }
 
 #[derive(Deserialize)]
@@ -85,6 +93,31 @@ pub struct Node {
     /// property name -> (loop start, loop period), set by looped overlay tracks
     #[serde(skip)]
     loops: HashMap<String, (f32, f32)>,
+    /// morph continuity: this node starts as the named node from the
+    /// previous scene and interpolates into its own geometry
+    #[serde(default)]
+    pub morph: Option<Morph>,
+}
+
+#[derive(Deserialize, Clone)]
+pub struct Morph {
+    pub from: String,
+    #[serde(default = "d_morph_dur")]
+    pub dur: f32,
+    #[serde(default)]
+    pub ease: Option<Ease>,
+}
+fn d_morph_dur() -> f32 {
+    0.5
+}
+
+struct MorphSrc {
+    x: f32,
+    y: f32,
+    w: f32,
+    h: f32,
+    radius: f32,
+    fill: String,
 }
 
 #[derive(Deserialize, Clone, Default)]
@@ -183,6 +216,15 @@ pub struct Key {
 pub enum Ease {
     Named(String),
     Bezier([f32; 4]),
+    Spring { spring: [f32; 2] },
+}
+
+/// damped spring normalized to [0,1]: overshoots, oscillates `cycles` times,
+/// settled by p=1. damping controls how fast the bounce dies.
+fn spring(p: f32, damping: f32, cycles: f32) -> f32 {
+    let p = p.clamp(0.0, 1.0);
+    let w = cycles * std::f32::consts::PI * 2.0 + std::f32::consts::FRAC_PI_2;
+    1.0 - (-damping * p).exp() * (w * p).cos()
 }
 
 /// word-by-word entrance: each word rises in from below, opacity leading the
@@ -339,6 +381,7 @@ fn ease(p: f32, kind: &Option<Ease>) -> f32 {
     let p = p.clamp(0.0, 1.0);
     match kind {
         Some(Ease::Bezier(pts)) => bezier(p, pts),
+        Some(Ease::Spring { spring: s }) => spring(p, s[0], s[1]),
         Some(Ease::Named(name)) => match name.as_str() {
             "outCubic" => out_cubic(p),
             "inCubic" => p * p * p,
@@ -349,6 +392,7 @@ fn ease(p: f32, kind: &Option<Ease>) -> f32 {
                     1.0 - (-2.0 * p + 2.0).powi(3) / 2.0
                 }
             }
+            "spring" => spring(p, 6.0, 1.0),
             _ => p,
         },
         None => p,
@@ -553,11 +597,30 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
     let scene_bg = |s: &Scene| s.bg.clone().unwrap_or_else(|| "#ffffff".into());
     let mut clear_color = scene_bg(scene);
     let mut fading = None;
+    let mut pushing: Option<(f32, f32, f32, f32)> = None;
     if let Some(tr) = &scene.transition {
-        if tr.kind == "fade" && active > 0 && tl < tr.dur {
+        if active > 0 && tl < tr.dur {
             let p = (tl / tr.dur).clamp(0.0, 1.0);
-            clear_color = mix_hex(&scene_bg(&stage.scenes[active - 1]), &clear_color, p);
-            fading = Some(p);
+            match tr.kind.as_str() {
+                "fade" => {
+                    clear_color = mix_hex(&scene_bg(&stage.scenes[active - 1]), &clear_color, p);
+                    fading = Some(p);
+                }
+                "push" => {
+                    let e = ease(p, &tr.ease.clone().or(Some(Ease::Named("outCubic".into()))));
+                    let (w, h) = (stage.size[0], stage.size[1]);
+                    // (out dx, out dy, in dx, in dy): incoming travels from `dir`
+                    let (odx, ody, idx, idy) = match tr.dir.as_str() {
+                        "right" => (e * w, 0.0, (e - 1.0) * w, 0.0),
+                        "up" => (0.0, -e * h, 0.0, (1.0 - e) * h),
+                        "down" => (0.0, e * h, 0.0, (e - 1.0) * h),
+                        _ => (-e * w, 0.0, (1.0 - e) * w, 0.0),
+                    };
+                    clear_color = mix_hex(&scene_bg(&stage.scenes[active - 1]), &clear_color, p);
+                    pushing = Some((odx, ody, idx, idy));
+                }
+                _ => {}
+            }
         }
     }
     cmds.push(DrawCmd {
@@ -575,21 +638,72 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
         opacity: 1.0,
         scale: 1.0,
     });
-    match fading {
-        Some(p) => {
-            let prev = &stage.scenes[active - 1];
-            render_scene(prev, t - starts[active - 1], 1.0 - p, &mut cmds);
-            render_scene(scene, tl, p, &mut cmds);
+    let mut morphs: HashMap<String, MorphSrc> = HashMap::new();
+    if active > 0 {
+        let prev = &stage.scenes[active - 1];
+        for node in &scene.nodes {
+            if let Some(m) = &node.morph {
+                if let Some(srcn) = prev.nodes.iter().find(|n| n.id == m.from) {
+                    morphs.insert(
+                        node.id.clone(),
+                        MorphSrc {
+                            x: srcn.x + node_prop(srcn, "x", 0.0, prev.dur),
+                            y: srcn.y + node_prop(srcn, "y", 0.0, prev.dur),
+                            w: srcn.w.unwrap_or(0.0),
+                            h: srcn.h.unwrap_or(0.0),
+                            radius: srcn.radius.unwrap_or(0.0),
+                            fill: srcn.fill.clone().unwrap_or_else(|| "#000000".into()),
+                        },
+                    );
+                }
+            }
         }
-        None => render_scene(scene, tl, 1.0, &mut cmds),
+    }
+    let none: HashMap<String, MorphSrc> = HashMap::new();
+    if let Some(p) = fading {
+        let prev = &stage.scenes[active - 1];
+        render_scene(
+            prev,
+            t - starts[active - 1],
+            1.0 - p,
+            0.0,
+            0.0,
+            &none,
+            &mut cmds,
+        );
+        render_scene(scene, tl, p, 0.0, 0.0, &morphs, &mut cmds);
+    } else if let Some((odx, ody, idx, idy)) = pushing {
+        let prev = &stage.scenes[active - 1];
+        render_scene(
+            prev,
+            t - starts[active - 1],
+            1.0,
+            odx,
+            ody,
+            &none,
+            &mut cmds,
+        );
+        render_scene(scene, tl, 1.0, idx, idy, &morphs, &mut cmds);
+    } else {
+        render_scene(scene, tl, 1.0, 0.0, 0.0, &morphs, &mut cmds);
     }
     serde_json::to_string(&cmds).unwrap_or_else(|_| "[]".into())
 }
 
 /// draw one scene's nodes at scene-local time `tl`, all opacities scaled by
-/// `fade` (crossfades hand in a partial fade)
-fn render_scene(scene: &Scene, tl: f32, fade: f32, cmds: &mut Vec<DrawCmd>) {
+/// `fade` (crossfades hand in a partial fade); ox/oy shift the whole scene
+/// (push transitions)
+fn render_scene(
+    scene: &Scene,
+    tl: f32,
+    fade: f32,
+    ox: f32,
+    oy: f32,
+    morphs: &HashMap<String, MorphSrc>,
+    cmds: &mut Vec<DrawCmd>,
+) {
     let t = tl;
+    let first = cmds.len();
     {
         for node in &scene.nodes {
             let sb = state_blend(node, t);
@@ -697,6 +811,29 @@ fn render_scene(scene: &Scene, tl: f32, fade: f32, cmds: &mut Vec<DrawCmd>) {
                             sb.p,
                         )
                     };
+                    let mut gx = node.x + dx;
+                    let mut gy = node.y + dy;
+                    let mut gw = node.w;
+                    let mut gh = node.h;
+                    let mut gr = node.radius;
+                    let mut fill = fill;
+                    if let Some(m) = &node.morph {
+                        if let Some(src) = morphs.get(&node.id) {
+                            if t < m.dur {
+                                let p = ease(
+                                    t / m.dur,
+                                    &m.ease.clone().or(Some(Ease::Named("outCubic".into()))),
+                                );
+                                let l = |a: f32, b: f32| a + (b - a) * p;
+                                gx = l(src.x, gx);
+                                gy = l(src.y, gy);
+                                gw = Some(l(src.w, gw.unwrap_or(0.0)));
+                                gh = Some(l(src.h, gh.unwrap_or(0.0)));
+                                gr = Some(l(src.radius, gr.unwrap_or(0.0)));
+                                fill = mix_hex(&src.fill, &fill, p);
+                            }
+                        }
+                    }
                     if let Some(g) = &node.glow {
                         let sigma = node_prop(node, "glow_sigma", g.sigma, t);
                         let glow_opacity = node_prop(node, "glow_opacity", g.opacity, t);
@@ -709,11 +846,11 @@ fn render_scene(scene: &Scene, tl: f32, fade: f32, cmds: &mut Vec<DrawCmd>) {
                         });
                         cmds.push(DrawCmd {
                             op: "rect".into(),
-                            x: node.x + dx + g.dx,
-                            y: node.y + dy + g.dy,
-                            w: node.w,
-                            h: node.h,
-                            radius: node.radius,
+                            x: gx + g.dx,
+                            y: gy + g.dy,
+                            w: gw,
+                            h: gh,
+                            radius: gr,
                             d: None,
                             blur: Some(sigma),
                             grad: None,
@@ -726,14 +863,14 @@ fn render_scene(scene: &Scene, tl: f32, fade: f32, cmds: &mut Vec<DrawCmd>) {
                     let grad = node
                         .gradient
                         .as_ref()
-                        .map(|g| grad_for(g, node.w.unwrap_or(0.0), node.h.unwrap_or(0.0)));
+                        .map(|g| grad_for(g, gw.unwrap_or(0.0), gh.unwrap_or(0.0)));
                     cmds.push(DrawCmd {
                         op: "rect".into(),
-                        x: node.x + dx,
-                        y: node.y + dy,
-                        w: node.w,
-                        h: node.h,
-                        radius: node.radius,
+                        x: gx,
+                        y: gy,
+                        w: gw,
+                        h: gh,
+                        radius: gr,
                         d: None,
                         blur: None,
                         grad,
@@ -759,11 +896,11 @@ fn render_scene(scene: &Scene, tl: f32, fade: f32, cmds: &mut Vec<DrawCmd>) {
                             1.0,
                         ),
                     ];
-                    for (ox, oy, ps, color, blur, alpha) in layers {
+                    for (lx, ly, ps, color, blur, alpha) in layers {
                         cmds.push(DrawCmd {
                             op: "path".into(),
-                            x: cx + ox,
-                            y: cy + oy,
+                            x: cx + lx,
+                            y: cy + ly,
                             w: None,
                             h: None,
                             radius: None,
@@ -797,6 +934,10 @@ fn render_scene(scene: &Scene, tl: f32, fade: f32, cmds: &mut Vec<DrawCmd>) {
                 _ => {}
             }
         }
+    }
+    for c in &mut cmds[first..] {
+        c.x += ox;
+        c.y += oy;
     }
 }
 
@@ -851,6 +992,72 @@ mod tests {
     fn frame(t: f32) -> Vec<Value> {
         load_font();
         serde_json::from_str(&render_frame(STAGE, OVERLAY, t)).unwrap()
+    }
+
+    #[test]
+    fn spring_overshoots_and_settles() {
+        assert!(spring(0.0, 6.0, 1.0).abs() < 1e-4, "starts at rest");
+        let mut peak = 0.0f32;
+        for i in 1..100 {
+            peak = peak.max(spring(i as f32 / 100.0, 6.0, 1.0));
+        }
+        assert!(peak > 1.05, "overshoots: peak {peak}");
+        assert!((spring(1.0, 6.0, 1.0) - 1.0).abs() < 0.01, "settled by end");
+    }
+
+    #[test]
+    fn push_slides_both_scenes() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1000,700],"scenes":[
+          {"id":"a","bg":"#ffffff","dur":1.0,"nodes":[
+            {"id":"r1","type":"rect","x":500,"y":350,"w":100,"h":100,"fill":"#ea752f"}]},
+          {"id":"b","bg":"#000000","dur":1.0,
+           "transition":{"kind":"push","dur":0.4,"dir":"left"},"nodes":[
+            {"id":"r2","type":"rect","x":500,"y":350,"w":100,"h":100,"fill":"#4a21d5"}]}
+        ]}"##;
+        let cmds: Vec<Value> = serde_json::from_str(&render_frame(stage, "", 1.2)).unwrap();
+        let rects: Vec<&Value> = cmds.iter().filter(|c| c["op"] == "rect").collect();
+        assert_eq!(rects.len(), 2, "both scenes drawn in the window");
+        let out_x = rects[0]["x"].as_f64().unwrap();
+        let in_x = rects[1]["x"].as_f64().unwrap();
+        assert!(out_x < 200.0, "outgoing pushed off left: {out_x}");
+        assert!(in_x > 500.0 && in_x < 1400.0, "incoming arriving: {in_x}");
+        let settled: Vec<Value> =
+            serde_json::from_str(&render_frame(stage, "", 1.9)).unwrap();
+        let r: Vec<&Value> = settled.iter().filter(|c| c["op"] == "rect").collect();
+        assert_eq!(r.len(), 1);
+        assert_eq!(r[0]["x"], 500.0);
+    }
+
+    #[test]
+    fn morph_carries_geometry_across_the_cut() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1000,700],"scenes":[
+          {"id":"a","bg":"#ffffff","dur":1.0,"nodes":[
+            {"id":"pill","type":"rect","x":300,"y":200,"w":400,"h":80,"radius":40,"fill":"#ea752f"}]},
+          {"id":"b","bg":"#ffffff","dur":1.0,"nodes":[
+            {"id":"btn","type":"rect","x":700,"y":500,"w":200,"h":100,"radius":16,"fill":"#4a21d5",
+             "morph":{"from":"pill","dur":0.5,"ease":"outCubic"}}]}
+        ]}"##;
+        let f = |t: f32| -> Value {
+            let cmds: Vec<Value> = serde_json::from_str(&render_frame(stage, "", t)).unwrap();
+            cmds.iter().find(|c| c["op"] == "rect").unwrap().clone()
+        };
+        // just after the cut: still nearly the pill
+        let early = f(1.01);
+        let ex = early["x"].as_f64().unwrap();
+        assert!(ex < 380.0, "starts near source: {ex}");
+        assert_ne!(early["color"], "#4a21d5");
+        // midway: strictly between
+        let mid = f(1.15);
+        let mx = mid["x"].as_f64().unwrap();
+        assert!(mx > 320.0 && mx < 690.0, "mid morph: {mx}");
+        // after the window: exactly the target
+        let done = f(1.6);
+        assert_eq!(done["x"], 700.0);
+        assert_eq!(done["w"], 200.0);
+        assert_eq!(done["radius"], 16.0);
+        assert_eq!(done["color"], "#4a21d5");
     }
 
     #[test]
