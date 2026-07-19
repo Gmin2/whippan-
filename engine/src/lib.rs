@@ -43,6 +43,14 @@ pub struct Transition {
     pub dir: String,
     #[serde(default)]
     pub ease: Option<Ease>,
+    /// magic move: nodes sharing an id across the cut glide as one object
+    /// while unmatched nodes ride the crossfade
+    #[serde(default)]
+    pub morph: bool,
+    #[serde(default)]
+    pub morph_dur: Option<f32>,
+    #[serde(default)]
+    pub morph_ease: Option<Ease>,
 }
 fn d_trans_kind() -> String {
     "fade".into()
@@ -148,6 +156,8 @@ struct MorphSrc {
     h: f32,
     radius: f32,
     fill: String,
+    dur: f32,
+    ease: Option<Ease>,
 }
 
 #[derive(Deserialize, Clone, Default)]
@@ -686,27 +696,41 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
         scale: 1.0,
     });
     let mut morphs: HashMap<String, MorphSrc> = HashMap::new();
+    let mut sources: std::collections::HashSet<String> = std::collections::HashSet::new();
     if active > 0 {
         let prev = &stage.scenes[active - 1];
+        let auto = scene.transition.as_ref().filter(|tr| tr.morph);
         for node in &scene.nodes {
-            if let Some(m) = &node.morph {
-                if let Some(srcn) = prev.nodes.iter().find(|n| n.id == m.from) {
-                    morphs.insert(
-                        node.id.clone(),
-                        MorphSrc {
-                            x: srcn.x + node_prop(srcn, "x", 0.0, prev.dur),
-                            y: srcn.y + node_prop(srcn, "y", 0.0, prev.dur),
-                            w: srcn.w.unwrap_or(0.0),
-                            h: srcn.h.unwrap_or(0.0),
-                            radius: srcn.radius.unwrap_or(0.0),
-                            fill: srcn.fill.clone().unwrap_or_else(|| "#000000".into()),
-                        },
-                    );
-                }
+            let (from, dur, ease) = match (&node.morph, auto) {
+                (Some(m), _) => (Some(m.from.clone()), m.dur, m.ease.clone()),
+                (None, Some(tr)) if prev.nodes.iter().any(|n| n.id == node.id) => (
+                    Some(node.id.clone()),
+                    tr.morph_dur.unwrap_or(tr.dur * 2.5),
+                    tr.morph_ease.clone(),
+                ),
+                _ => (None, 0.0, None),
+            };
+            let Some(from) = from else { continue };
+            if let Some(srcn) = prev.nodes.iter().find(|n| n.id == from) {
+                sources.insert(from.clone());
+                morphs.insert(
+                    node.id.clone(),
+                    MorphSrc {
+                        x: srcn.x + node_prop(srcn, "x", 0.0, prev.dur),
+                        y: srcn.y + node_prop(srcn, "y", 0.0, prev.dur),
+                        w: srcn.w.unwrap_or(0.0),
+                        h: srcn.h.unwrap_or(0.0),
+                        radius: srcn.radius.unwrap_or(0.0),
+                        fill: srcn.fill.clone().unwrap_or_else(|| "#000000".into()),
+                        dur,
+                        ease,
+                    },
+                );
             }
         }
     }
     let none: HashMap<String, MorphSrc> = HashMap::new();
+    let no_skip: std::collections::HashSet<String> = std::collections::HashSet::new();
     if let Some(p) = fading {
         let prev = &stage.scenes[active - 1];
         render_scene(
@@ -718,6 +742,7 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
             stage.size[0],
             stage.size[1],
             &none,
+            &sources,
             &mut cmds,
         );
         render_scene(
@@ -729,6 +754,7 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
             stage.size[0],
             stage.size[1],
             &morphs,
+            &no_skip,
             &mut cmds,
         );
     } else if let Some((odx, ody, idx, idy)) = pushing {
@@ -742,6 +768,7 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
             stage.size[0],
             stage.size[1],
             &none,
+            &sources,
             &mut cmds,
         );
         render_scene(
@@ -753,6 +780,7 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
             stage.size[0],
             stage.size[1],
             &morphs,
+            &no_skip,
             &mut cmds,
         );
     } else {
@@ -765,6 +793,7 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
             stage.size[0],
             stage.size[1],
             &morphs,
+            &no_skip,
             &mut cmds,
         );
     }
@@ -783,14 +812,24 @@ fn render_scene(
     cw: f32,
     ch: f32,
     morphs: &HashMap<String, MorphSrc>,
+    skip: &std::collections::HashSet<String>,
     cmds: &mut Vec<DrawCmd>,
 ) {
     let t = tl;
     let first = cmds.len();
     {
         for node in &scene.nodes {
+            if skip.contains(&node.id) {
+                continue;
+            }
             let sb = state_blend(node, t);
-            let opacity = node_prop(node, "opacity", 1.0, t) * fade * sb.opacity;
+            // a morphing clone is a solid object: it never rides the crossfade
+            let node_fade = if morphs.contains_key(&node.id) {
+                1.0
+            } else {
+                fade
+            };
+            let opacity = node_prop(node, "opacity", 1.0, t) * node_fade * sb.opacity;
             let dx = node_prop(node, "x", 0.0, t);
             let dy = node_prop(node, "y", 0.0, t) + sb.dy;
             let scale = node_prop(node, "scale", 1.0, t) * sb.scale;
@@ -902,12 +941,12 @@ fn render_scene(
                     let mut gh = node.h.map(|base| node_prop(node, "h", base, t)).or(node.h);
                     let mut gr = node.radius;
                     let mut fill = fill;
-                    if let Some(m) = &node.morph {
-                        if let Some(src) = morphs.get(&node.id) {
-                            if t < m.dur {
+                    if let Some(src) = morphs.get(&node.id) {
+                        {
+                            if t < src.dur {
                                 let p = ease(
-                                    t / m.dur,
-                                    &m.ease.clone().or(Some(Ease::Named("outCubic".into()))),
+                                    t / src.dur,
+                                    &src.ease.clone().or(Some(Ease::Named("outCubic".into()))),
                                 );
                                 let l = |a: f32, b: f32| a + (b - a) * p;
                                 gx = l(src.x, gx);
@@ -1166,12 +1205,20 @@ mod tests {
         let rects: Vec<&Value> = mid.iter().filter(|c| c["op"] == "rect").collect();
         assert_eq!(rects.len(), 4, "3 echoes + body");
         let xs: Vec<f64> = rects.iter().map(|r| r["x"].as_f64().unwrap()).collect();
-        assert!(xs.windows(2).all(|w| w[0] < w[1]), "trail behind motion: {xs:?}");
-        let os: Vec<f64> = rects.iter().map(|r| r["opacity"].as_f64().unwrap()).collect();
-        assert!(os.windows(2).all(|w| w[0] < w[1]), "opacity ramps to body: {os:?}");
+        assert!(
+            xs.windows(2).all(|w| w[0] < w[1]),
+            "trail behind motion: {xs:?}"
+        );
+        let os: Vec<f64> = rects
+            .iter()
+            .map(|r| r["opacity"].as_f64().unwrap())
+            .collect();
+        assert!(
+            os.windows(2).all(|w| w[0] < w[1]),
+            "opacity ramps to body: {os:?}"
+        );
 
-        let settled: Vec<Value> =
-            serde_json::from_str(&render_frame(stage, overlay, 1.0)).unwrap();
+        let settled: Vec<Value> = serde_json::from_str(&render_frame(stage, overlay, 1.0)).unwrap();
         assert_eq!(
             settled.iter().filter(|c| c["op"] == "rect").count(),
             1,
@@ -1211,6 +1258,54 @@ mod tests {
         let r: Vec<&Value> = settled.iter().filter(|c| c["op"] == "rect").collect();
         assert_eq!(r.len(), 1);
         assert_eq!(r[0]["x"], 500.0);
+    }
+
+    #[test]
+    fn magic_move_pairs_by_id_and_fades_the_rest() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1000,700],"scenes":[
+          {"id":"a","bg":"#ffffff","dur":1.0,"nodes":[
+            {"id":"pill","type":"rect","x":300,"y":300,"w":300,"h":80,"radius":40,"fill":"#ea752f"},
+            {"id":"old","type":"rect","x":700,"y":500,"w":100,"h":100,"fill":"#111111"}]},
+          {"id":"b","bg":"#ffffff","dur":1.0,
+           "transition":{"kind":"fade","dur":0.3,"morph":true},"nodes":[
+            {"id":"pill","type":"rect","x":700,"y":300,"w":180,"h":100,"radius":20,"fill":"#4a21d5"},
+            {"id":"new","type":"rect","x":300,"y":500,"w":100,"h":100,"fill":"#222222"}]}
+        ]}"##;
+        let cmds: Vec<Value> = serde_json::from_str(&render_frame(stage, "", 1.1)).unwrap();
+        let rects: Vec<&Value> = cmds.iter().filter(|c| c["op"] == "rect").collect();
+        assert_eq!(
+            rects.len(),
+            3,
+            "leaver + joiner + one clone, no double pill"
+        );
+
+        let leaver = rects.iter().find(|r| r["color"] == "#111111").unwrap();
+        let lo = leaver["opacity"].as_f64().unwrap();
+        assert!(lo > 0.5 && lo < 0.8, "leaver fading out: {lo}");
+
+        let joiner = rects.iter().find(|r| r["color"] == "#222222").unwrap();
+        let jo = joiner["opacity"].as_f64().unwrap();
+        assert!(jo > 0.2 && jo < 0.5, "joiner fading in: {jo}");
+
+        let clone = rects
+            .iter()
+            .find(|r| r["color"] != "#111111" && r["color"] != "#222222")
+            .unwrap();
+        assert_eq!(clone["opacity"], 1.0, "clone is a solid object");
+        let cx = clone["x"].as_f64().unwrap();
+        assert!(cx > 320.0 && cx < 680.0, "clone mid-glide: {cx}");
+        assert_ne!(clone["color"], "#ea752f");
+        assert_ne!(clone["color"], "#4a21d5");
+
+        // past the morph window (0.3 * 2.5 = 0.75) the pill is the target
+        let done: Vec<Value> = serde_json::from_str(&render_frame(stage, "", 1.9)).unwrap();
+        let pill = done
+            .iter()
+            .find(|c| c["op"] == "rect" && c["color"] == "#4a21d5")
+            .unwrap();
+        assert_eq!(pill["x"], 700.0);
+        assert_eq!(pill["radius"], 20.0);
     }
 
     #[test]
