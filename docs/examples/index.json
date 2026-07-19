@@ -36,6 +36,18 @@
   "anim": "/docs/atlas.anim.json"
  },
  {
+  "slug": "launch-quick4",
+  "title": "launch-quick4 (repro)",
+  "dur": 1.7,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/launch-quick4.stage.json",
+  "anim": "/docs/launch-quick4.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,
