@@ -97,6 +97,9 @@ pub struct Node {
     pub h: Option<f32>,
     #[serde(default)]
     pub radius: Option<f32>,
+    /// rotation in degrees about the node center, keyable as "rot"
+    #[serde(default)]
+    pub rot: Option<f32>,
     #[serde(default)]
     pub fill: Option<String>,
     /// image nodes: name the painter resolves to a loaded bitmap
@@ -412,6 +415,9 @@ pub struct DrawCmd {
     pub src: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub goo: Option<String>,
+    /// degrees, applied about the command anchor after translate
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rot: Option<f32>,
     pub color: String,
     pub opacity: f32,
     pub scale: f32,
@@ -1002,6 +1008,7 @@ pub fn render_cmds(
         grad: None,
         src: None,
         goo: None,
+        rot: None,
         color: clear_color,
         opacity: 1.0,
         scale: 1.0,
@@ -1099,6 +1106,7 @@ fn render_scene(
             grad: None,
             src: None,
             goo: None,
+            rot: None,
             color: "#000000".into(),
             opacity: 1.0,
             scale: 1.0,
@@ -1161,6 +1169,7 @@ fn render_scene(
                                         grad: None,
                                         src: None,
                                         goo: None,
+                                        rot: None,
                                         color: color.clone(),
                                         opacity,
                                         scale: scale * k,
@@ -1186,6 +1195,21 @@ fn render_scene(
                     let ink = node.color.clone().unwrap_or_else(|| "#000000".into());
                     let left = node.x + dx - line.width / 2.0;
                     let baseline = node.y + dy + line.baseline_shift;
+                    let rotv = node_prop(node, "rot", node.rot.unwrap_or(0.0), t);
+                    let rot = (rotv != 0.0).then_some(rotv);
+                    // glyph anchors orbit the node center so the whole line
+                    // rotates as one piece; the outline itself gets cmd.rot
+                    let (ncx, ncy) = (node.x + dx, node.y + dy);
+                    let place = move |px: f32, py: f32| -> (f32, f32) {
+                        match rot {
+                            Some(deg) => {
+                                let (sa, ca) = deg.to_radians().sin_cos();
+                                let (rx, ry) = (px - ncx, py - ncy);
+                                (ncx + rx * ca - ry * sa, ncy + rx * sa + ry * ca)
+                            }
+                            None => (px, py),
+                        }
+                    };
                     // typewriter: chars appear at their keystroke time in the
                     // final layout (no rise, no reflow), born dim and
                     // sharpening; a caret rides the newest glyph and blinks
@@ -1216,10 +1240,11 @@ fn render_scene(
                                 }
                                 let p = ((t - st) / r.dur.max(1e-4)).clamp(0.0, 1.0);
                                 let o = 0.55 + 0.45 * out_cubic(p);
+                                let (ax, ay) = place(left + word.x + glyph.x, baseline);
                                 cmds.push(DrawCmd {
                                     op: "path".into(),
-                                    x: left + word.x + glyph.x,
-                                    y: baseline,
+                                    x: ax,
+                                    y: ay,
                                     w: None,
                                     h: None,
                                     radius: None,
@@ -1228,6 +1253,7 @@ fn render_scene(
                                     grad: None,
                                     src: None,
                                     goo: None,
+                                    rot,
                                     color: ink.clone(),
                                     opacity: opacity * o,
                                     scale,
@@ -1253,10 +1279,12 @@ fn render_scene(
                                 } else {
                                     (size * 0.07, size * 1.0)
                                 };
+                                let (ax, ay) =
+                                    place(caret_x + size * 0.08 + cw / 2.0, baseline - size * 0.32);
                                 cmds.push(DrawCmd {
                                     op: "rect".into(),
-                                    x: caret_x + size * 0.08 + cw / 2.0,
-                                    y: baseline - size * 0.32,
+                                    x: ax,
+                                    y: ay,
                                     w: Some(cw),
                                     h: Some(ch),
                                     radius: Some(1.0),
@@ -1265,6 +1293,7 @@ fn render_scene(
                                     grad: None,
                                     src: None,
                                     goo: None,
+                                    rot,
                                     color: ink.clone(),
                                     opacity,
                                     scale,
@@ -1308,10 +1337,11 @@ fn render_scene(
                             for glyph in &word.glyphs {
                                 let (o, rise, color) = piece(gi as f32, kept);
                                 gi += 1;
+                                let (ax, ay) = place(left + word.x + glyph.x, baseline + rise);
                                 cmds.push(DrawCmd {
                                     op: "path".into(),
-                                    x: left + word.x + glyph.x,
-                                    y: baseline + rise,
+                                    x: ax,
+                                    y: ay,
                                     w: None,
                                     h: None,
                                     radius: None,
@@ -1320,6 +1350,7 @@ fn render_scene(
                                     grad: None,
                                     src: None,
                                     goo: None,
+                                    rot,
                                     color,
                                     opacity: opacity * o,
                                     scale,
@@ -1327,10 +1358,11 @@ fn render_scene(
                             }
                         } else {
                             let (o, rise, color) = piece(wi as f32, kept);
+                            let (ax, ay) = place(left + word.x, baseline + rise);
                             cmds.push(DrawCmd {
                                 op: "path".into(),
-                                x: left + word.x,
-                                y: baseline + rise,
+                                x: ax,
+                                y: ay,
                                 w: None,
                                 h: None,
                                 radius: None,
@@ -1339,6 +1371,7 @@ fn render_scene(
                                 grad: None,
                                 src: None,
                                 goo: None,
+                                rot,
                                 color,
                                 opacity: opacity * o,
                                 scale,
@@ -1406,12 +1439,15 @@ fn render_scene(
                                 grad: None,
                                 src: None,
                                 goo: None,
+                                rot: None,
                                 color: fill.clone(),
                                 opacity: opacity * st.gain * fadeout,
                                 scale,
                             });
                         }
                     }
+                    let rotv = node_prop(node, "rot", node.rot.unwrap_or(0.0), t);
+                    let rot = (rotv != 0.0).then_some(rotv);
                     if let Some(g) = &node.glow {
                         let sigma = node_prop(node, "glow_sigma", g.sigma, t);
                         let glow_opacity = node_prop(node, "glow_opacity", g.opacity, t);
@@ -1434,6 +1470,7 @@ fn render_scene(
                             grad: None,
                             src: None,
                             goo: None,
+                            rot,
                             color: echo_color,
                             opacity: opacity * glow_opacity,
                             scale,
@@ -1455,6 +1492,7 @@ fn render_scene(
                         grad,
                         src: None,
                         goo: node.goo.clone(),
+                        rot,
                         color: fill,
                         opacity,
                         scale,
@@ -1489,6 +1527,7 @@ fn render_scene(
                             grad: None,
                             src: None,
                             goo: None,
+                            rot: None,
                             color,
                             opacity: opacity * alpha,
                             scale,
@@ -1496,6 +1535,7 @@ fn render_scene(
                     }
                 }
                 "image" => {
+                    let rotv = node_prop(node, "rot", node.rot.unwrap_or(0.0), t);
                     cmds.push(DrawCmd {
                         op: "image".into(),
                         x: node.x + dx,
@@ -1508,6 +1548,7 @@ fn render_scene(
                         grad: None,
                         src: node.src.clone(),
                         goo: node.goo.clone(),
+                        rot: (rotv != 0.0).then_some(rotv),
                         color: "#000000".into(),
                         opacity,
                         scale,
@@ -1559,6 +1600,7 @@ fn render_scene(
             grad: None,
             src: None,
             goo: None,
+            rot: None,
             color: "#000000".into(),
             opacity: 1.0,
             scale: 1.0,
@@ -2058,6 +2100,39 @@ mod tests {
             assert_eq!(w["color"], "#161616");
         }
         assert_eq!(done[5]["color"], "#e8671f", "scale keeps the accent");
+    }
+
+    #[test]
+    fn rotation_spins_rects_and_text_about_center() {
+        load_font();
+        let stage = |rot: &str| {
+            format!(
+                r##"{{"fps":30,"size":[1920,1080],"scenes":[{{"id":"s","bg":"#ffffff",
+              "nodes":[{{"id":"card","type":"rect","x":600,"y":400,"w":300,"h":200{rot},
+                        "fill":"#222222","keys":{{"rot":[{{"t":0,"v":-55}},{{"t":1,"v":0}}]}}}},
+                       {{"id":"word","type":"text","text":"Just","x":1200,"y":500{rot},
+                        "color":"#111111","font":{{"size":90}}}}]}}]}}"##
+            )
+        };
+        let frame = |doc: &str, t: f32| -> Vec<Value> {
+            serde_json::from_str(&render_frame(doc, r#"{"tracks":[]}"#, t)).unwrap()
+        };
+        // keyed rot animates and settles to zero (absent when 0)
+        let flat = stage("");
+        let mid = frame(&flat, 0.5);
+        let v = mid[1]["rot"].as_f64().unwrap();
+        assert!(v < 0.0 && v > -55.0, "keyed rot mid-flight, got {v}");
+        assert!(frame(&flat, 1.5)[1].get("rot").is_none(), "settled rot omitted");
+        // static rot rides every glyph and moves the anchors about the center
+        let tilted = stage(r#","rot":-12"#);
+        let a = frame(&stage(""), 2.0);
+        let b = frame(&tilted, 2.0);
+        assert_eq!(b[2]["rot"].as_f64().unwrap(), -12.0);
+        assert!(
+            (a[2]["x"].as_f64().unwrap() - b[2]["x"].as_f64().unwrap()).abs() > 1.0
+                || (a[2]["y"].as_f64().unwrap() - b[2]["y"].as_f64().unwrap()).abs() > 1.0,
+            "glyph anchor should orbit the node center"
+        );
     }
 
     #[test]

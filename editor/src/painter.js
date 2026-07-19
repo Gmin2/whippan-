@@ -25,6 +25,7 @@ function drawOne(CK, skc, paint, c, images) {
     : null);
   skc.save();
   skc.translate(c.x, c.y);
+  if (c.rot) skc.rotate(c.rot, 0, 0);
   skc.scale(c.scale, c.scale);
   if (c.op === 'path') {
     const p = CK.Path.MakeFromSVGString(c.d);

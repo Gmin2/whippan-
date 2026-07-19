@@ -45,6 +45,9 @@ fn draw_one(canvas: &skia_safe::Canvas, c: &DrawCmd, images: &HashMap<String, sk
     }
     canvas.save();
     canvas.translate((c.x, c.y));
+    if let Some(r) = c.rot {
+        canvas.rotate(r, None);
+    }
     canvas.scale((c.scale, c.scale));
     match c.op.as_str() {
         "path" => {
