@@ -317,6 +317,20 @@ pub struct Reveal {
     pub color_delay: f32,
     #[serde(default = "d_cdur")]
     pub color_dur: f32,
+    /// unit "type" only: seconds per keystroke, optionally ramping to
+    /// cadence_end over the line (decelerating burst typing)
+    #[serde(default = "d_cadence")]
+    pub cadence: f32,
+    #[serde(default)]
+    pub cadence_end: Option<f32>,
+    /// unit "type" only: "bar" | "block" | "none". blinks while idle
+    /// (before and after typing), caret_typing says what it does mid-type
+    #[serde(default = "d_caret")]
+    pub caret: String,
+    #[serde(default = "d_caret_blink")]
+    pub caret_blink: f32,
+    #[serde(default = "d_caret_typing")]
+    pub caret_typing: String,
 }
 fn d_unit() -> String {
     "word".into()
@@ -338,6 +352,18 @@ fn d_cdelay() -> f32 {
 }
 fn d_cdur() -> f32 {
     0.3
+}
+fn d_cadence() -> f32 {
+    0.067
+}
+fn d_caret() -> String {
+    "none".into()
+}
+fn d_caret_blink() -> f32 {
+    1.0
+}
+fn d_caret_typing() -> String {
+    "solid".into()
 }
 
 #[derive(Deserialize)]
@@ -1160,6 +1186,93 @@ fn render_scene(
                     let ink = node.color.clone().unwrap_or_else(|| "#000000".into());
                     let left = node.x + dx - line.width / 2.0;
                     let baseline = node.y + dy + line.baseline_shift;
+                    // typewriter: chars appear at their keystroke time in the
+                    // final layout (no rise, no reflow), born dim and
+                    // sharpening; a caret rides the newest glyph and blinks
+                    // while idle. spaces cost a keystroke slot too.
+                    if let Some((at, r)) = node.reveal.clone().filter(|(_, r)| r.unit == "type") {
+                        let total = line.words.iter().map(|w| w.glyphs.len()).sum::<usize>()
+                            + line.words.len().saturating_sub(1);
+                        let mut appear = Vec::with_capacity(total);
+                        let mut acc = at;
+                        for i in 0..total {
+                            appear.push(acc);
+                            acc += match r.cadence_end {
+                                Some(e) if total > 1 => {
+                                    r.cadence + (e - r.cadence) * i as f32 / (total - 1) as f32
+                                }
+                                _ => r.cadence,
+                            };
+                        }
+                        let done = appear.last().copied().unwrap_or(at);
+                        let mut slot = 0usize;
+                        let mut caret_x = left;
+                        for word in &line.words {
+                            for (gi, glyph) in word.glyphs.iter().enumerate() {
+                                let st = appear[slot];
+                                slot += 1;
+                                if t < st {
+                                    continue;
+                                }
+                                let p = ((t - st) / r.dur.max(1e-4)).clamp(0.0, 1.0);
+                                let o = 0.55 + 0.45 * out_cubic(p);
+                                cmds.push(DrawCmd {
+                                    op: "path".into(),
+                                    x: left + word.x + glyph.x,
+                                    y: baseline,
+                                    w: None,
+                                    h: None,
+                                    radius: None,
+                                    d: Some(glyph.path.clone()),
+                                    blur: None,
+                                    grad: None,
+                                    src: None,
+                                    goo: None,
+                                    color: ink.clone(),
+                                    opacity: opacity * o,
+                                    scale,
+                                });
+                                caret_x = left
+                                    + word.x
+                                    + word.glyphs.get(gi + 1).map(|g| g.x).unwrap_or(word.width);
+                            }
+                            slot += 1;
+                        }
+                        if r.caret != "none" {
+                            let typing = t >= at && t < done + r.dur;
+                            let visible = if typing {
+                                r.caret_typing != "hidden"
+                            } else if r.caret_blink <= 0.0 {
+                                true
+                            } else {
+                                (t / r.caret_blink).fract() < 0.5
+                            };
+                            if visible {
+                                let (cw, ch) = if r.caret == "block" {
+                                    (size * 0.55, size * 1.05)
+                                } else {
+                                    (size * 0.07, size * 1.0)
+                                };
+                                cmds.push(DrawCmd {
+                                    op: "rect".into(),
+                                    x: caret_x + size * 0.08 + cw / 2.0,
+                                    y: baseline - size * 0.32,
+                                    w: Some(cw),
+                                    h: Some(ch),
+                                    radius: Some(1.0),
+                                    d: None,
+                                    blur: None,
+                                    grad: None,
+                                    src: None,
+                                    goo: None,
+                                    color: ink.clone(),
+                                    opacity,
+                                    scale,
+                                });
+                            }
+                        }
+                        continue;
+                    }
                     // one clock per piece: a word, or a single glyph
                     let piece = |idx: f32, kept: bool| -> (f32, f32, String) {
                         match &node.reveal {
@@ -1945,6 +2058,42 @@ mod tests {
             assert_eq!(w["color"], "#161616");
         }
         assert_eq!(done[5]["color"], "#e8671f", "scale keeps the accent");
+    }
+
+    #[test]
+    fn typewriter_types_chars_and_blinks_caret() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1920,1080],"scenes":[{"id":"s","bg":"#000000",
+          "nodes":[{"id":"cmd","type":"text","text":"git push","x":960,"y":540,
+                    "color":"#ffffff","font":{"size":44,"family":"mono"}}]}]}"##;
+        let overlay = r##"{"tracks":[{"target":"cmd","at":1.0,"reveal":{
+          "unit":"type","cadence":0.1,"dur":0.1,"caret":"block","caret_typing":"hidden"}}]}"##;
+        let paths = |t: f32| -> usize {
+            let cmds: Vec<Value> = serde_json::from_str(&render_frame(stage, overlay, t)).unwrap();
+            cmds.iter().filter(|c| c["op"] == "path").count()
+        };
+        let carets = |t: f32| -> usize {
+            let cmds: Vec<Value> = serde_json::from_str(&render_frame(stage, overlay, t)).unwrap();
+            cmds.iter().filter(|c| c["op"] == "rect").count()
+        };
+        // before typing: no glyphs, caret blinking (on in the first half period)
+        assert_eq!(paths(0.2), 0);
+        assert_eq!(carets(0.2), 1, "idle caret on");
+        assert_eq!(carets(0.7), 0, "idle caret off");
+        // mid-typing: some chars in, cursor hidden (caret_typing)
+        let mid = paths(1.35);
+        assert!(mid > 0 && mid < 7, "partial line, got {mid}");
+        assert_eq!(carets(1.35), 0, "caret hidden while typing");
+        // newest char is born dim, first char is settled
+        let cmds: Vec<Value> = serde_json::from_str(&render_frame(stage, overlay, 1.22)).unwrap();
+        let glyphs: Vec<&Value> = cmds.iter().filter(|c| c["op"] == "path").collect();
+        let first = glyphs.first().unwrap()["opacity"].as_f64().unwrap();
+        let newest = glyphs.last().unwrap()["opacity"].as_f64().unwrap();
+        assert!(first > 0.99 && newest < 0.9, "dim birth: {first} {newest}");
+        // done: all 7 glyphs (space costs a slot, draws nothing), blink resumes
+        assert_eq!(paths(3.0), 7);
+        assert_eq!(carets(3.2), 1, "post-typing blink on");
+        assert_eq!(carets(3.7), 0, "post-typing blink off");
     }
 
     #[test]
