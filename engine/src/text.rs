@@ -4,11 +4,21 @@ use std::collections::HashMap;
 use std::fmt::Write;
 use std::sync::{Mutex, OnceLock};
 
-static FONT: OnceLock<Vec<u8>> = OnceLock::new();
+static FONTS: OnceLock<Mutex<HashMap<String, Vec<u8>>>> = OnceLock::new();
 static CACHE: OnceLock<Mutex<HashMap<String, ShapedLine>>> = OnceLock::new();
 
+pub fn register_font(name: &str, bytes: Vec<u8>) {
+    FONTS
+        .get_or_init(|| Mutex::new(HashMap::new()))
+        .lock()
+        .unwrap()
+        .insert(name.into(), bytes);
+}
+
+/// kept for the first fonts loaded before the registry existed
 pub fn init_font(bytes: Vec<u8>) -> bool {
-    FONT.set(bytes).is_ok()
+    register_font("inter", bytes);
+    true
 }
 
 #[derive(Clone)]
@@ -127,15 +137,22 @@ fn shape_word(face: &Face, outline_face: &ttf_parser::Face, word: &str, scale: f
 }
 
 /// shape one line of text into positioned words with outline paths.
-/// cached: shaping runs once per (text, size, weight), not per frame.
-pub fn shape_line(text: &str, size: f32, weight: f32) -> Option<ShapedLine> {
-    let key = format!("{text}|{size}|{weight}");
+/// cached: shaping runs once per (family, text, size, weight), not per frame.
+pub fn shape_line(text: &str, size: f32, weight: f32, family: &str) -> Option<ShapedLine> {
+    let key = format!("{family}|{text}|{size}|{weight}");
     let cache = CACHE.get_or_init(|| Mutex::new(HashMap::new()));
     if let Some(hit) = cache.lock().unwrap().get(&key) {
         return Some(hit.clone());
     }
 
-    let bytes = FONT.get()?;
+    let fonts = FONTS.get()?.lock().unwrap();
+    let bytes = fonts
+        .get(family)
+        .or_else(|| fonts.get("inter"))
+        .or_else(|| fonts.values().next())?
+        .clone();
+    drop(fonts);
+    let bytes = &bytes;
     let wght = Variation {
         tag: Tag::from_bytes(b"wght"),
         value: weight,

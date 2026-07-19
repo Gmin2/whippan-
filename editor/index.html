@@ -27,7 +27,7 @@
   </main>
 
   <script type="module">
-    import init, { render, init_font } from './src/engine-pkg/whippan_engine.js';
+    import init, { render, register_font } from './src/engine-pkg/whippan_engine.js';
 
     const stage = JSON.stringify({
       fps: 30, size: [1920, 1080],
@@ -74,7 +74,7 @@
             glow: { sigma: 46, opacity: 0.9, dy: -18 } },
           { id: 'cmd', type: 'text', text: '$ npm init @shopify/shop-mini@latest',
             x: 960, y: 520,
-            font: { family: 'inter', weight: 450, size: 34 }, color: '#d4bcfe' }
+            font: { family: 'mono', weight: 400, size: 32 }, color: '#d4bcfe' }
         ] }
       ]
     });
@@ -124,12 +124,14 @@
       ]
     });
 
-    const [CK, , fontBytes] = await Promise.all([
+    const [CK, , interBytes, monoBytes] = await Promise.all([
       CanvasKitInit({ locateFile: f => './vendor/canvaskit/' + f }),
       init(),
       fetch('./assets/fonts/Inter-Variable.ttf').then(r => r.arrayBuffer()),
+      fetch('./assets/fonts/JetBrainsMono-Regular.ttf').then(r => r.arrayBuffer()),
     ]);
-    init_font(new Uint8Array(fontBytes));
+    register_font('inter', new Uint8Array(interBytes));
+    register_font('mono', new Uint8Array(monoBytes));
 
     // load every bitmap the stage references, keyed by src
     const images = new Map();

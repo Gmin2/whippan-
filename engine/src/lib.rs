@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 mod text;
-pub use text::init_font;
+pub use text::{init_font, register_font};
 
 #[derive(Deserialize)]
 pub struct Stage {
@@ -603,12 +603,12 @@ fn render_scene(scene: &Scene, tl: f32, fade: f32, cmds: &mut Vec<DrawCmd>) {
                         Some(s) if !s.is_empty() => s,
                         _ => continue,
                     };
-                    let (size, weight) = node
+                    let (size, weight, family) = node
                         .font
                         .as_ref()
-                        .map(|f| (f.size, f.weight as f32))
-                        .unwrap_or((48.0, 400.0));
-                    let line = match text::shape_line(content, size, weight) {
+                        .map(|f| (f.size, f.weight as f32, f.family.clone()))
+                        .unwrap_or((48.0, 400.0, "inter".into()));
+                    let line = match text::shape_line(content, size, weight, &family) {
                         Some(l) => l,
                         None => continue,
                     };
@@ -811,6 +811,10 @@ mod wasm {
     pub fn init_font(bytes: &[u8]) -> bool {
         super::init_font(bytes.to_vec())
     }
+    #[wasm_bindgen]
+    pub fn register_font(name: &str, bytes: &[u8]) {
+        super::register_font(name, bytes.to_vec());
+    }
 }
 
 #[cfg(test)]
@@ -847,6 +851,30 @@ mod tests {
     fn frame(t: f32) -> Vec<Value> {
         load_font();
         serde_json::from_str(&render_frame(STAGE, OVERLAY, t)).unwrap()
+    }
+
+    #[test]
+    fn mono_family_shapes_monospaced() {
+        load_font();
+        let mono_path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../editor/assets/fonts/JetBrainsMono-Regular.ttf"
+        );
+        register_font("mono", std::fs::read(mono_path).expect("mono font"));
+        let narrow = text::shape_line("iiii", 40.0, 400.0, "mono").unwrap();
+        let wide = text::shape_line("wwww", 40.0, 400.0, "mono").unwrap();
+        assert!(
+            (narrow.width - wide.width).abs() < 0.01,
+            "mono advances equal: {} vs {}",
+            narrow.width,
+            wide.width
+        );
+        let inter_narrow = text::shape_line("iiii", 40.0, 400.0, "inter").unwrap();
+        let inter_wide = text::shape_line("wwww", 40.0, 400.0, "inter").unwrap();
+        assert!(
+            (inter_narrow.width - inter_wide.width).abs() > 5.0,
+            "inter is proportional"
+        );
     }
 
     #[test]
@@ -974,7 +1002,7 @@ mod tests {
     #[test]
     fn shapes_words_with_real_metrics() {
         load_font();
-        let line = text::shape_line("The fastest way to scale", 72.0, 600.0).unwrap();
+        let line = text::shape_line("The fastest way to scale", 72.0, 600.0, "inter").unwrap();
         assert_eq!(line.words.len(), 5);
         assert!(line.width > 400.0, "width {}", line.width);
         for pair in line.words.windows(2) {
@@ -985,8 +1013,8 @@ mod tests {
     #[test]
     fn weight_axis_changes_outlines() {
         load_font();
-        let heavy = text::shape_line("The", 72.0, 700.0).unwrap();
-        let light = text::shape_line("The", 72.0, 300.0).unwrap();
+        let heavy = text::shape_line("The", 72.0, 700.0, "inter").unwrap();
+        let light = text::shape_line("The", 72.0, 300.0, "inter").unwrap();
         assert_ne!(heavy.words[0].path, light.words[0].path);
     }
 
