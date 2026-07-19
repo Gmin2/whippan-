@@ -13,7 +13,7 @@
              padding: 6px 18px; font: inherit; cursor: pointer; }
     code { color: #f02900; }
   </style>
-  <script src="./vendor/canvaskit/canvaskit.js"></script>
+  <script src="/assets/canvaskit/canvaskit.js"></script>
 </head>
 <body>
   <main>
@@ -126,7 +126,7 @@
     });
 
     const [CK, , interBytes, monoBytes] = await Promise.all([
-      CanvasKitInit({ locateFile: f => './vendor/canvaskit/' + f }),
+      CanvasKitInit({ locateFile: f => '/assets/canvaskit/' + f }),
       init(),
       fetch('/assets/fonts/Inter-Variable.ttf').then(r => r.arrayBuffer()),
       fetch('/assets/fonts/JetBrainsMono-Regular.ttf').then(r => r.arrayBuffer()),

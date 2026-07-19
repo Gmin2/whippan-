@@ -13,7 +13,7 @@
     table { border-collapse: collapse; margin-top: 12px; }
     td, th { padding: 2px 12px; text-align: right; font-variant-numeric: tabular-nums; }
   </style>
-  <script src="./vendor/canvaskit/canvaskit.js"></script>
+  <script src="/assets/canvaskit/canvaskit.js"></script>
 </head>
 <body>
   <h3>terminal conformance</h3>
@@ -29,7 +29,7 @@
     const status = m => document.getElementById('status').textContent = m;
 
     const [CK, , inter, mono, stage, anim, ptsRaw] = await Promise.all([
-      CanvasKitInit({ locateFile: f => './vendor/canvaskit/' + f }),
+      CanvasKitInit({ locateFile: f => '/assets/canvaskit/' + f }),
       init(),
       fetch('/assets/fonts/Inter-Variable.ttf').then(r => r.arrayBuffer()),
       fetch('/assets/fonts/JetBrainsMono-Regular.ttf').then(r => r.arrayBuffer()),
