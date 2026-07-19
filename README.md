@@ -39,6 +39,15 @@ $CARGO_HOME/bin/wasm-bindgen target/wasm32-unknown-unknown/debug/whippan_engine.
   --target web --out-dir editor/src/engine-pkg
 ```
 
+export any doc to mp4 (same engine, native skia, frames piped to ffmpeg):
+
+```sh
+cargo build --release -p whippan-engine --bin export
+./target/release/export docs/examples/reveal.stage.json \
+  docs/examples/reveal.anim.json out/reveal.mp4
+# 1080p renders at ~150-500 fps including encode
+```
+
 run the tracer page:
 
 ```sh

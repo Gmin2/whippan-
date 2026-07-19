@@ -632,19 +632,28 @@ fn merge(stage: &mut Stage, overlay: &Overlay) {
 /// evaluate stage + overlay at time `t` into a flat list of draw commands.
 /// deterministic: same inputs always yield the same output.
 pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
-    let mut stage: Stage = match serde_json::from_str(stage_json) {
-        Ok(s) => s,
-        Err(e) => return format!("{{\"error\":{:?}}}", e.to_string()),
-    };
+    match render_cmds(stage_json, overlay_json, t) {
+        Ok(cmds) => serde_json::to_string(&cmds).unwrap_or_else(|_| "[]".into()),
+        Err(e) => format!("{{\"error\":{:?}}}", e),
+    }
+}
+
+/// native entry point: the same evaluation returning structured commands
+pub fn render_cmds(
+    stage_json: &str,
+    overlay_json: &str,
+    t: f32,
+) -> Result<Vec<DrawCmd>, String> {
+    let mut stage: Stage =
+        serde_json::from_str(stage_json).map_err(|e| e.to_string())?;
     if !overlay_json.trim().is_empty() {
-        match serde_json::from_str::<Overlay>(overlay_json) {
-            Ok(o) => merge(&mut stage, &o),
-            Err(e) => return format!("{{\"error\":{:?}}}", e.to_string()),
-        }
+        let o: Overlay =
+            serde_json::from_str(overlay_json).map_err(|e| e.to_string())?;
+        merge(&mut stage, &o);
     }
     let mut cmds: Vec<DrawCmd> = Vec::new();
     if stage.scenes.is_empty() {
-        return "[]".into();
+        return Ok(cmds);
     }
     let mut starts = Vec::with_capacity(stage.scenes.len());
     let mut acc = 0.0f32;
@@ -890,7 +899,19 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
         &no_skip,
         &mut cmds,
     );
-    serde_json::to_string(&cmds).unwrap_or_else(|_| "[]".into())
+    Ok(cmds)
+}
+
+/// total timeline length of a stage doc in seconds
+pub fn doc_duration(stage_json: &str) -> Result<f32, String> {
+    let stage: Stage = serde_json::from_str(stage_json).map_err(|e| e.to_string())?;
+    Ok(stage.scenes.iter().map(|s| s.dur).sum())
+}
+
+/// canvas size of a stage doc
+pub fn doc_size(stage_json: &str) -> Result<(f32, f32), String> {
+    let stage: Stage = serde_json::from_str(stage_json).map_err(|e| e.to_string())?;
+    Ok((stage.size[0], stage.size[1]))
 }
 
 /// draw one scene's nodes at scene-local time `tl`, all opacities scaled by
