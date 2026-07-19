@@ -843,7 +843,7 @@ mod tests {
     fn load_font() {
         let path = concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/../editor/assets/fonts/Inter-Variable.ttf"
+            "/../assets/fonts/Inter-Variable.ttf"
         );
         let _ = init_font(std::fs::read(path).expect("font file"));
     }
@@ -858,7 +858,7 @@ mod tests {
         load_font();
         let mono_path = concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/../editor/assets/fonts/JetBrainsMono-Regular.ttf"
+            "/../assets/fonts/JetBrainsMono-Regular.ttf"
         );
         register_font("mono", std::fs::read(mono_path).expect("mono font"));
         let narrow = text::shape_line("iiii", 40.0, 400.0, "mono").unwrap();

@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>whippan — conform</title>
+  <style>
+    body { margin: 0; background: #16171d; color: #eee; font: 14px system-ui; padding: 24px; }
+    canvas { image-rendering: pixelated; border-radius: 4px; }
+    .strip { display: flex; gap: 12px; margin-top: 16px; }
+    .strip figure { margin: 0; }
+    .strip figcaption { font-size: 12px; color: #999; margin-top: 4px; }
+    code { color: #f02900; }
+    table { border-collapse: collapse; margin-top: 12px; }
+    td, th { padding: 2px 12px; text-align: right; font-variant-numeric: tabular-nums; }
+  </style>
+  <script src="./vendor/canvaskit/canvaskit.js"></script>
+</head>
+<body>
+  <h3>terminal conformance</h3>
+  <p id="status">loading…</p>
+  <div id="report"></div>
+  <div class="strip" id="strip"></div>
+  <canvas id="work" width="1148" height="712" style="display:none"></canvas>
+
+  <script type="module">
+    import init, { render, register_font } from './src/engine-pkg/whippan_engine.js';
+    import { paintFrame } from './src/painter.js';
+
+    const status = m => document.getElementById('status').textContent = m;
+
+    const [CK, , inter, mono, stage, anim, ptsRaw] = await Promise.all([
+      CanvasKitInit({ locateFile: f => './vendor/canvaskit/' + f }),
+      init(),
+      fetch('/assets/fonts/Inter-Variable.ttf').then(r => r.arrayBuffer()),
+      fetch('/assets/fonts/JetBrainsMono-Regular.ttf').then(r => r.arrayBuffer()),
+      fetch('/docs/terminal.stage.json').then(r => r.text()),
+      fetch('/docs/terminal.anim.json').then(r => r.text()),
+      fetch('/ref/terminal/pts.txt').then(r => r.text()),
+    ]);
+    register_font('inter', new Uint8Array(inter));
+    register_font('mono', new Uint8Array(mono));
+
+    const pts = ptsRaw.trim().split('\n').map(parseFloat);
+    const size = JSON.parse(stage).size;
+    const W = size[0], H = size[1];
+
+    const surface = CK.MakeCanvasSurface('work');
+    const skc = surface.getCanvas();
+    const paint = new CK.Paint();
+    paint.setAntiAlias(true);
+
+    const ours2d = document.createElement('canvas');
+    ours2d.width = W; ours2d.height = H;
+    const ourCtx = ours2d.getContext('2d', { willReadFrequently: true });
+    const real2d = document.createElement('canvas');
+    real2d.width = W; real2d.height = H;
+    const realCtx = real2d.getContext('2d', { willReadFrequently: true });
+
+    const loadFrame = i => new Promise((ok, err) => {
+      const img = new Image();
+      img.onload = () => ok(img);
+      img.onerror = err;
+      img.src = `/ref/terminal/frames/f${String(i).padStart(4, '0')}.jpg`;
+    });
+
+    const results = [];
+    let worst = { diff: -1 };
+    for (let i = 1; i <= pts.length; i++) {
+      const t = pts[i - 1];
+      paintFrame(CK, skc, paint, JSON.parse(render(stage, anim, t)), null);
+      surface.flush();
+      ourCtx.clearRect(0, 0, W, H);
+      ourCtx.drawImage(document.getElementById('work'), 0, 0);
+      const img = await loadFrame(i);
+      realCtx.drawImage(img, 0, 0, W, H);
+      const a = ourCtx.getImageData(0, 0, W, H).data;
+      const b = realCtx.getImageData(0, 0, W, H).data;
+      let sum = 0;
+      for (let p = 0; p < a.length; p += 4) {
+        sum += Math.abs(a[p] - b[p]) + Math.abs(a[p + 1] - b[p + 1]) + Math.abs(a[p + 2] - b[p + 2]);
+      }
+      const diff = sum / (W * H * 3 * 255) * 100;
+      results.push({ frame: i, t, diff });
+      if (diff > worst.diff) {
+        worst = { frame: i, t, diff,
+          ours: ourCtx.getImageData(0, 0, W, H),
+          real: realCtx.getImageData(0, 0, W, H) };
+      }
+      if (i % 10 === 0) status(`frame ${i}/${pts.length}…`);
+      await new Promise(r => setTimeout(r, 0));
+    }
+
+    const mean = results.reduce((s, r) => s + r.diff, 0) / results.length;
+    const sorted = [...results].sort((x, y) => y.diff - x.diff);
+    document.getElementById('report').innerHTML = `
+      <p>mean diff: <code>${mean.toFixed(2)}%</code> over ${results.length} frames</p>
+      <table><tr><th>worst frames</th><th>t</th><th>diff</th></tr>
+      ${sorted.slice(0, 5).map(r =>
+        `<tr><td>f${String(r.frame).padStart(4, '0')}</td><td>${r.t.toFixed(3)}s</td><td>${r.diff.toFixed(2)}%</td></tr>`).join('')}
+      </table>`;
+
+    const show = (data, label, transform) => {
+      const c = document.createElement('canvas');
+      c.width = W; c.height = H;
+      c.style.width = '360px';
+      const out = c.getContext('2d').createImageData(W, H);
+      transform(out.data, data);
+      c.getContext('2d').putImageData(out, 0, 0);
+      const fig = document.createElement('figure');
+      fig.append(c);
+      const cap = document.createElement('figcaption');
+      cap.textContent = label;
+      fig.append(cap);
+      document.getElementById('strip').append(fig);
+    };
+    show(worst.ours.data, `ours f${worst.frame}`, (o, d) => o.set(d));
+    show(worst.real.data, `real f${worst.frame}`, (o, d) => o.set(d));
+    show(null, 'diff heatmap', (o) => {
+      const a = worst.ours.data, b = worst.real.data;
+      for (let p = 0; p < o.length; p += 4) {
+        const e = (Math.abs(a[p] - b[p]) + Math.abs(a[p + 1] - b[p + 1]) + Math.abs(a[p + 2] - b[p + 2])) / 3;
+        o[p] = Math.min(255, e * 4); o[p + 1] = 0; o[p + 2] = 0; o[p + 3] = 255;
+      }
+    });
+
+    status(`done — mean ${mean.toFixed(2)}%, worst f${worst.frame} (${worst.diff.toFixed(2)}%)`);
+  </script>
+</body>
+</html>
