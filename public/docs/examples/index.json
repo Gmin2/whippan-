@@ -276,6 +276,18 @@
   "anim": "/docs/higgsfield.anim.json"
  },
  {
+  "slug": "skipper-ui",
+  "title": "skipper-ui (repro)",
+  "dur": 21.37,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/skipper-ui.stage.json",
+  "anim": "/docs/skipper-ui.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,
