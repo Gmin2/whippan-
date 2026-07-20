@@ -72,6 +72,18 @@
   "anim": "/docs/x-anim.anim.json"
  },
  {
+  "slug": "sunflower",
+  "title": "sunflower (repro)",
+  "dur": 6.85,
+  "size": [
+   1080,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/sunflower.stage.json",
+  "anim": "/docs/sunflower.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,
