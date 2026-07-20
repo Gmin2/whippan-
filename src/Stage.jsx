@@ -70,8 +70,10 @@ export default function Stage({ ck, doc, t, selection, onSelect, onEdit }) {
       drawBox(ck, s.skc, nodeBox(doc, hover, t), 1.5 / scale, false)
     if (selection) {
       const box = nodeBox(doc, selection, t)
-      if (box) drawBox(ck, s.skc, box, 2 / scale, true, UI.handle / scale,
-                       UI.rotOffset / scale)
+      const n = findNode(doc, selection)
+      if (box) drawBox(ck, s.skc, box, 1 / scale, true, 7 / scale,
+                       n && n.w != null && n.radius != null
+                         ? Math.max(n.radius, 12 / scale) : null)
     }
     for (const g of guides) drawGuide(ck, s.skc, g, w, h, 1.5 / scale)
     s.surface.flush()
@@ -136,13 +138,33 @@ export default function Stage({ ck, doc, t, selection, onSelect, onEdit }) {
     const s = displayScale()
     const hs = UI.handle / s
     const { x, y, w: bw, h: bh } = box
-    const pts = {
-      nw: [x - bw / 2, y - bh / 2], n: [x, y - bh / 2], ne: [x + bw / 2, y - bh / 2],
-      e: [x + bw / 2, y], se: [x + bw / 2, y + bh / 2], s: [x, y + bh / 2],
-      sw: [x - bw / 2, y + bh / 2], w: [x - bw / 2, y],
-      rot: [x, y - bh / 2 - UI.rotOffset / s],
+    const n = findNode(doc, selection)
+    // radius nub: inset from the top-left corner along the diagonal
+    if (n && n.w != null && n.radius != null) {
+      const inset = Math.max(n.radius, 12 / s)
+      const rx = x - bw / 2 + inset
+      const ry = y - bh / 2 + inset
+      if (Math.hypot(p[0] - rx, p[1] - ry) <= hs) return 'radius'
     }
-    for (const [id, [hx, hy]] of Object.entries(pts))
+    const corners = {
+      nw: [x - bw / 2, y - bh / 2], ne: [x + bw / 2, y - bh / 2],
+      se: [x + bw / 2, y + bh / 2], sw: [x - bw / 2, y + bh / 2],
+    }
+    for (const [id, [hx, hy]] of Object.entries(corners))
+      if (Math.abs(p[0] - hx) <= hs && Math.abs(p[1] - hy) <= hs) return id
+    // rotate zones live just outside each corner
+    const out = 14 / s
+    for (const [id, [hx, hy]] of Object.entries(corners)) {
+      const ox = hx + (id.includes('w') ? -out : out)
+      const oy = hy + (id.includes('n') ? -out : out)
+      if (Math.hypot(p[0] - ox, p[1] - oy) <= hs * 1.4) return 'rot'
+    }
+    // edges: grabbable but drawn as nothing
+    const edges = {
+      n: [x, y - bh / 2], e: [x + bw / 2, y],
+      s: [x, y + bh / 2], w: [x - bw / 2, y],
+    }
+    for (const [id, [hx, hy]] of Object.entries(edges))
       if (Math.abs(p[0] - hx) <= hs && Math.abs(p[1] - hy) <= hs) return id
     return null
   }
@@ -169,10 +191,11 @@ export default function Stage({ ck, doc, t, selection, onSelect, onEdit }) {
     if (handle) {
       const n = findNode(doc, selection)
       drag.current = {
-        kind: handle === 'rot' ? 'rotate' : 'resize',
+        kind: handle === 'rot' ? 'rotate'
+          : handle === 'radius' ? 'radius' : 'resize',
         handle, start: p,
         orig: { x: n.x, y: n.y, w: n.w, h: n.h, rot: n.rot ?? 0,
-                size: n.font?.size },
+                radius: n.radius ?? 0, size: n.font?.size },
       }
       return
     }
@@ -230,6 +253,18 @@ export default function Stage({ ck, doc, t, selection, onSelect, onEdit }) {
         if (!n) return
         resizeNode(n, d, dx, dy, ev.shiftKey)
       })
+    }
+
+    if (d.kind === 'radius') {
+      const n0 = findNode(doc, selection)
+      const left = n0.x - n0.w / 2
+      const top = n0.y - n0.h / 2
+      const r = Math.max(0, (p[0] - left + p[1] - top) / 2)
+      onEdit(dd => {
+        const n = findNode(dd, selection)
+        if (n) n.radius = Math.round(clamp(r, 0, Math.min(n.w, n.h) / 2))
+      })
+      return
     }
 
     if (d.kind === 'rotate') {
@@ -374,13 +409,13 @@ function handleCursor(h) {
   return {
     n: 'ns-resize', s: 'ns-resize', e: 'ew-resize', w: 'ew-resize',
     ne: 'nesw-resize', sw: 'nesw-resize', nw: 'nwse-resize', se: 'nwse-resize',
-    rot: 'crosshair',
+    rot: 'crosshair', radius: 'pointer',
   }[h] ?? 'default'
 }
 
 /* ---------- overlay drawing (in doc space) ---------- */
 
-function drawBox(ck, skc, box, sw, withHandles, hs = 0, rotOff = 0) {
+function drawBox(ck, skc, box, sw, withHandles, hs = 0, radiusInset = null) {
   if (!box) return
   const { x, y, w, h } = box
   const p = new ck.Paint()
@@ -394,19 +429,24 @@ function drawBox(ck, skc, box, sw, withHandles, hs = 0, rotOff = 0) {
     fill.setAntiAlias(true)
     fill.setColor(ck.Color(255, 255, 255, 1))
     const half = hs / 2
-    const corners = [
-      [x - w / 2, y - h / 2], [x, y - h / 2], [x + w / 2, y - h / 2],
-      [x + w / 2, y], [x + w / 2, y + h / 2], [x, y + h / 2],
-      [x - w / 2, y + h / 2], [x - w / 2, y],
-    ]
-    for (const [cx, cy] of corners) {
+    for (const [cx, cy] of [
+      [x - w / 2, y - h / 2], [x + w / 2, y - h / 2],
+      [x + w / 2, y + h / 2], [x - w / 2, y + h / 2],
+    ]) {
       skc.drawRect(ck.LTRBRect(cx - half, cy - half, cx + half, cy + half), fill)
       skc.drawRect(ck.LTRBRect(cx - half, cy - half, cx + half, cy + half), p)
     }
-    // rotation stem + knob
-    skc.drawLine(x, y - h / 2, x, y - h / 2 - rotOff, p)
-    skc.drawCircle(x, y - h / 2 - rotOff, half, fill)
-    skc.drawCircle(x, y - h / 2 - rotOff, half, p)
+    // corner-radius nub, figma style: drag diagonally to bend the corner
+    if (radiusInset != null) {
+      const rx = x - w / 2 + radiusInset
+      const ry = y - h / 2 + radiusInset
+      const acc = new ck.Paint()
+      acc.setAntiAlias(true)
+      acc.setColor(ck.Color(96, 109, 224, 1))
+      skc.drawCircle(rx, ry, half * 0.9, fill)
+      skc.drawCircle(rx, ry, half * 0.9, p)
+      acc.delete()
+    }
     fill.delete()
   }
   p.delete()

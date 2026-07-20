@@ -149,11 +149,31 @@ function Row({ children }) {
 }
 
 function Num({ label, value, onChange }) {
+  // figma-style scrubby label: drag horizontally to slide the value
+  const scrub = ev => {
+    ev.preventDefault()
+    const startX = ev.clientX
+    const start = value ?? 0
+    const move = e => {
+      const step = e.shiftKey ? 10 : 1
+      onChange(Math.round((start + (e.clientX - startX) * step * 0.5) * 10) / 10)
+    }
+    const up = () => {
+      removeEventListener('mousemove', move)
+      removeEventListener('mouseup', up)
+    }
+    addEventListener('mousemove', move)
+    addEventListener('mouseup', up)
+  }
   return (
-    <Field label={label}>
+    <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <span onMouseDown={scrub}
+            style={{ fontSize: 11, color: '#6a6a68', cursor: 'ew-resize' }}>
+        {label}
+      </span>
       <input type="number" value={value ?? 0}
              onChange={e => onChange(parseFloat(e.target.value) || 0)}
              style={{ ...txt, width: 86 }} />
-    </Field>
+    </label>
   )
 }
