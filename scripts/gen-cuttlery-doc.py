@@ -397,7 +397,7 @@ PLASTICS = [
 for i, (x, y, fill, d, sc, r0) in enumerate(PLASTICS):
     nid = f"pl_o{i}"
     n5.append(path(nid, x, y, d, fill, rot=r0,
-                   keys={"scale": [{"t": 0, "v": sc * 1.45}]}))
+                   keys={"scale": [{"t": 0, "v": sc * 1.2}]}))
     drift(nid, 9 if i % 2 else -9, 6, 6.5, rot0=r0, drot=5)
 VALUES = ["2.5", "2.8", "3.2", "3.4M", "3.6M", "3.9M", "4.1M", "4.3M"]
 for i, v in enumerate(VALUES):

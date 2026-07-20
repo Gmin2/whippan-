@@ -138,7 +138,7 @@ scene_nodes[S1] = []
 
 rect(S1, "ph_body", 539, 540, 438, 902, 92, "#23262b")
 rect(S1, "ph_screen", 539, 540, 418, 882, 80, APP_BG)
-rect(S1, "ph_notch", 539, 127, 160, 34, 17, "#0b0d0f")
+rect(S1, "ph_notch", 539, 127, 136, 33, 16, "#0b0d0f")
 rect(S1, "ph_home", 539, 953, 130, 5, 2, "#16181a")
 
 landing = []
@@ -235,7 +235,7 @@ opacity_steps("q_t2", [(0, 1), (0.95, 1), (1.10, 0)])
 key("q_t1", "y", [(0.95, 0), (1.12, -110, "outCubic")])
 key("q_t2", "y", [(0.95, 0), (1.12, -140, "outCubic")])
 text(S2, "q_t1s", "your favorite", 540, 248, 56, INK, weight=800)
-text(S2, "q_t2s", "frank ocean track", 540, 311, 54, GREY_T, weight=700)
+text(S2, "q_t2s", "frank ocean track", 540, 311, 56, GREY_T, weight=700)
 opacity_steps("q_t1s", [(0, 0), (0.98, 0), (1.12, 1)])
 opacity_steps("q_t2s", [(0, 0), (0.98, 0), (1.12, 1)])
 key("q_t1s", "y", [(0.98, 30), (1.18, 0, "outCubic"),
@@ -307,7 +307,7 @@ player.append(rect(S2, "v_art", 540, 588, 264, 270, 6, "#d8d3cc"))
 player.append(path(S2, "v_hair", 540, 517, circle_d(40), "#5d7742"))
 player.append(path(S2, "v_body", 540, 615,
                    "M-65 70C-65 -20 65 -20 65 70L-65 70Z", "#b98a63"))
-player.append(path(S2, "v_av", 287, 433, circle_d(32), "#a8ad9c"))
+player.append(path(S2, "v_av", 287, 433, circle_d(32), "#8f957f"))
 player.append(path(S2, "v_avr", 287, 433, circle_d(22), None, stroke=2.0))
 scene_nodes[S2][-1]["fill"] = "#7d8272"
 player.append(text(S2, "v_wm", "blond", 541, 408, 28, "#8d938d",

@@ -2053,12 +2053,80 @@
    },
    "nodes": [
     {
+     "id": "wbg10",
+     "type": "rect",
+     "x": 569,
+     "y": 320,
+     "w": 1140,
+     "h": 642,
+     "radius": 0,
+     "fill": "#fcfcfc"
+    },
+    {
      "id": "port10",
      "type": "path",
      "x": 0,
      "y": 0,
      "d": "M307 0h674v8h-674ZM320 14h752v8h-752ZM421 28h817v8h-817ZM423 42h614v8h-614ZM472 56h262v8h-262ZM89 70h365v8h-365ZM168 84h653v8h-653ZM407 98h336v8h-336ZM434 112h798v8h-798ZM394 126h273v8h-273ZM412 140h648v8h-648ZM346 154h708v8h-708ZM187 168h596v8h-596ZM147 182h232v8h-232ZM275 196h421v8h-421ZM293 210h525v8h-525ZM316 224h541v8h-541ZM370 238h529v8h-529ZM406 252h314v8h-314ZM296 266h572v8h-572ZM307 280h530v8h-530ZM305 294h399v8h-399ZM370 308h347v8h-347ZM178 322h397v8h-397ZM216 336h307v8h-307ZM470 350h201v8h-201ZM194 364h380v8h-380ZM273 378h773v8h-773ZM87 392h222v8h-222ZM256 406h316v8h-316ZM457 420h822v8h-822ZM299 434h317v8h-317ZM319 448h629v8h-629ZM90 462h606v8h-606ZM132 476h718v8h-718ZM391 490h339v8h-339ZM184 504h561v8h-561ZM135 518h430v8h-430ZM180 532h222v8h-222ZM279 546h671v8h-671ZM92 560h809v8h-809ZM347 574h502v8h-502ZM90 588h432v8h-432ZM219 602h514v8h-514ZM409 616h522v8h-522ZM277 630h829v8h-829Z",
-     "fill": "#909090"
+     "fill": "#9a9a9a"
+    },
+    {
+     "id": "mbx10",
+     "type": "rect",
+     "x": 866,
+     "y": 201,
+     "w": 422,
+     "h": 183,
+     "radius": 0,
+     "fill": "#fcfcfc"
+    },
+    {
+     "id": "mbxr10_0",
+     "type": "text",
+     "text": "7 5 5 5 2 7 1 1 1 1 1 1",
+     "x": 866,
+     "y": 146,
+     "color": "#0a0a0a",
+     "font": {
+      "size": 26,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "mbxr10_1",
+     "type": "text",
+     "text": "2 6 6 6 5 2 2 7 1 1 1 1",
+     "x": 866,
+     "y": 202,
+     "color": "#0a0a0a",
+     "font": {
+      "size": 26,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "mbxr10_2",
+     "type": "text",
+     "text": "5 6 6 4 5 3 3 5 1 1 1 1",
+     "x": 866,
+     "y": 258,
+     "color": "#0a0a0a",
+     "font": {
+      "size": 26,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "mint10",
+     "type": "text",
+     "text": "End-to-en",
+     "x": 200,
+     "y": 499,
+     "color": "#26f69c",
+     "font": {
+      "size": 12,
+      "family": "mono"
+     }
     },
     {
      "id": "cardb10",

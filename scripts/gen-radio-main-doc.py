@@ -119,7 +119,7 @@ vroll_ids = []    # clip rows that ride the vertical track scroll
 
 # ------------------------------------------------------------ desktop
 rect("desk", 540, 540, 1082, 1082, 0, "#3a3a3a",
-     gradient={"angle": 225, "stops": [
+     gradient={"angle": 135, "stops": [
          {"at": 0.0, "color": "#d6d2d3"}, {"at": 0.45, "color": "#6e6c6d"},
          {"at": 1.0, "color": "#232323"}]})
 rect("win_rim", 524, 522, 988, 876, 26, "#4a4a4a")
