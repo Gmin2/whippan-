@@ -84,6 +84,18 @@
   "anim": "/docs/sunflower.anim.json"
  },
  {
+  "slug": "rezonant",
+  "title": "rezonant (repro)",
+  "dur": 40.07,
+  "size": [
+   1138,
+   640
+  ],
+  "group": "reproductions",
+  "stage": "/docs/rezonant.stage.json",
+  "anim": "/docs/rezonant.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,
