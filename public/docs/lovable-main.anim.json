@@ -3300,6 +3300,17 @@
    }
   },
   {
+   "target": "s13a_veil",
+   "keys": {
+    "opacity": [
+     {
+      "t": 0,
+      "v": 0.42
+     }
+    ]
+   }
+  },
+  {
    "target": "s13_panel",
    "keys": {
     "opacity": [
@@ -3729,6 +3740,17 @@
    }
   },
   {
+   "target": "s14a_veil",
+   "keys": {
+    "opacity": [
+     {
+      "t": 0,
+      "v": 0.42
+     }
+    ]
+   }
+  },
+  {
    "target": "s14_l1",
    "at": 0.1,
    "reveal": {
@@ -3879,6 +3901,17 @@
       "t": 1.5,
       "v": -40,
       "ease": "inOutCubic"
+     }
+    ]
+   }
+  },
+  {
+   "target": "s15a_veil",
+   "keys": {
+    "opacity": [
+     {
+      "t": 0,
+      "v": 0.42
      }
     ]
    }
@@ -5190,6 +5223,17 @@
       "t": 3.4,
       "v": -40,
       "ease": "inOutCubic"
+     }
+    ]
+   }
+  },
+  {
+   "target": "s17a_veil",
+   "keys": {
+    "opacity": [
+     {
+      "t": 0,
+      "v": 0.42
      }
     ]
    }
