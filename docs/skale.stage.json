@@ -1,0 +1,1698 @@
+{
+ "fps": 30,
+ "size": [
+  1280,
+  720
+ ],
+ "scenes": [
+  {
+   "id": "s1",
+   "bg": "#262626",
+   "dur": 3.0,
+   "transition": {
+    "kind": "cut",
+    "dur": 0.3
+   },
+   "nodes": [
+    {
+     "id": "sb",
+     "type": "rect",
+     "x": 640,
+     "y": 360,
+     "w": 1040,
+     "h": 300,
+     "radius": 90,
+     "fill": "#333333",
+     "glow": {
+      "sigma": 40,
+      "opacity": 0.0,
+      "color": "#2fd6f6"
+     }
+    },
+    {
+     "id": "sb_ph",
+     "type": "text",
+     "text": "Search for...",
+     "x": 420,
+     "y": 360,
+     "color": "#6d6d6d",
+     "font": {
+      "size": 44,
+      "weight": 500
+     }
+    },
+    {
+     "id": "wk",
+     "type": "text",
+     "text": "We killed",
+     "x": 470,
+     "y": 360,
+     "color": "#f2f2f2",
+     "font": {
+      "size": 84,
+      "weight": 600
+     }
+    },
+    {
+     "id": "decoy",
+     "type": "rect",
+     "x": 830,
+     "y": 360,
+     "w": 88,
+     "h": 88,
+     "radius": 24,
+     "fill": "#ffffff",
+     "gradient": {
+      "angle": 135,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#5aa2e8"
+       },
+       {
+        "at": 0.55,
+        "color": "#e8a24f"
+       },
+       {
+        "at": 1,
+        "color": "#e85a8f"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "s2",
+   "bg": "#262626",
+   "dur": 2.6,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.3
+   },
+   "nodes": [
+    {
+     "id": "tp",
+     "type": "text",
+     "text": "They promised us to do the work",
+     "x": 640,
+     "y": 300,
+     "color": "#efefef",
+     "font": {
+      "size": 56,
+      "weight": 600
+     }
+    },
+    {
+     "id": "bi0",
+     "type": "rect",
+     "x": 606,
+     "y": 508,
+     "w": 52,
+     "h": 52,
+     "radius": 14,
+     "fill": "#e8a24f",
+     "rot": -14
+    },
+    {
+     "id": "bi1",
+     "type": "rect",
+     "x": 642,
+     "y": 508,
+     "w": 52,
+     "h": 52,
+     "radius": 14,
+     "fill": "#5aa2e8",
+     "rot": 8
+    },
+    {
+     "id": "bi2",
+     "type": "rect",
+     "x": 676,
+     "y": 508,
+     "w": 52,
+     "h": 52,
+     "radius": 14,
+     "fill": "#e85a8f",
+     "rot": 20
+    },
+    {
+     "id": "bin",
+     "type": "rect",
+     "x": 640,
+     "y": 552,
+     "w": 128,
+     "h": 104,
+     "radius": 16,
+     "fill": "#1a1a1a"
+    },
+    {
+     "id": "bin_rim",
+     "type": "rect",
+     "x": 640,
+     "y": 500,
+     "w": 148,
+     "h": 14,
+     "radius": 7,
+     "fill": "#141414"
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "bg": "#262626",
+   "dur": 3.4,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.3
+   },
+   "nodes": [
+    {
+     "id": "ts_t",
+     "type": "text",
+     "text": "Then, they stop when it gets real",
+     "x": 640,
+     "y": 180,
+     "color": "#efefef",
+     "font": {
+      "size": 50,
+      "weight": 600
+     }
+    },
+    {
+     "id": "rf0",
+     "type": "rect",
+     "x": 640,
+     "y": 300,
+     "w": 251.0,
+     "h": 54,
+     "radius": 27,
+     "fill": "#333333"
+    },
+    {
+     "id": "rf0_t",
+     "type": "text",
+     "text": "I can't do that",
+     "x": 640,
+     "y": 300,
+     "color": "#d9d9d9",
+     "font": {
+      "size": 26,
+      "weight": 500
+     }
+    },
+    {
+     "id": "rf1",
+     "type": "rect",
+     "x": 640,
+     "y": 374,
+     "w": 329.0,
+     "h": 54,
+     "radius": 27,
+     "fill": "#333333"
+    },
+    {
+     "id": "rf1_t",
+     "type": "text",
+     "text": "Please approve action",
+     "x": 640,
+     "y": 374,
+     "color": "#d9d9d9",
+     "font": {
+      "size": 26,
+      "weight": 500
+     }
+    },
+    {
+     "id": "rf2",
+     "type": "rect",
+     "x": 640,
+     "y": 448,
+     "w": 407.0,
+     "h": 54,
+     "radius": 27,
+     "fill": "#333333"
+    },
+    {
+     "id": "rf2_t",
+     "type": "text",
+     "text": "I can't sign in to websites",
+     "x": 640,
+     "y": 448,
+     "color": "#d9d9d9",
+     "font": {
+      "size": 26,
+      "weight": 500
+     }
+    },
+    {
+     "id": "intro",
+     "type": "text",
+     "text": "Introducing",
+     "x": 640,
+     "y": 380,
+     "color": "#f2f2f2",
+     "font": {
+      "size": 58,
+      "weight": 600
+     }
+    }
+   ]
+  },
+  {
+   "id": "s4",
+   "bg": "#0b2a38",
+   "dur": 2.2,
+   "transition": {
+    "kind": "push",
+    "dur": 0.5,
+    "dir": "up"
+   },
+   "nodes": [
+    {
+     "id": "wall",
+     "type": "rect",
+     "x": 640,
+     "y": 360,
+     "w": 1280,
+     "h": 720,
+     "radius": 0,
+     "fill": "#038fb2",
+     "gradient": {
+      "angle": 90,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#99c3d1"
+       },
+       {
+        "at": 0.45,
+        "color": "#038fb2"
+       },
+       {
+        "at": 1,
+        "color": "#020b12"
+       }
+      ]
+     }
+    },
+    {
+     "id": "slat0",
+     "type": "rect",
+     "x": 96,
+     "y": 360,
+     "w": 3,
+     "h": 720,
+     "radius": 0,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "slat1",
+     "type": "rect",
+     "x": 232,
+     "y": 360,
+     "w": 3,
+     "h": 720,
+     "radius": 0,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "slat2",
+     "type": "rect",
+     "x": 368,
+     "y": 360,
+     "w": 3,
+     "h": 720,
+     "radius": 0,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "slat3",
+     "type": "rect",
+     "x": 504,
+     "y": 360,
+     "w": 3,
+     "h": 720,
+     "radius": 0,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "slat4",
+     "type": "rect",
+     "x": 640,
+     "y": 360,
+     "w": 3,
+     "h": 720,
+     "radius": 0,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "slat5",
+     "type": "rect",
+     "x": 776,
+     "y": 360,
+     "w": 3,
+     "h": 720,
+     "radius": 0,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "slat6",
+     "type": "rect",
+     "x": 912,
+     "y": 360,
+     "w": 3,
+     "h": 720,
+     "radius": 0,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "slat7",
+     "type": "rect",
+     "x": 1048,
+     "y": 360,
+     "w": 3,
+     "h": 720,
+     "radius": 0,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "slat8",
+     "type": "rect",
+     "x": 1184,
+     "y": 360,
+     "w": 3,
+     "h": 720,
+     "radius": 0,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "aside_hero",
+     "type": "text",
+     "text": "Aside",
+     "x": 640,
+     "y": 360,
+     "color": "#d7e6ec",
+     "font": {
+      "size": 150,
+      "weight": 600
+     }
+    }
+   ]
+  },
+  {
+   "id": "s5",
+   "bg": "#ffffff",
+   "dur": 2.6,
+   "transition": {
+    "kind": "dissolve",
+    "dur": 0.5
+   },
+   "nodes": [
+    {
+     "id": "mk5_c",
+     "type": "path",
+     "x": 435,
+     "y": 300,
+     "d": "M-40 0C-40 -22.092 -22.092 -40 0 -40C22.092 -40 40 -22.092 40 0C40 22.092 22.092 40 0 40C-22.092 40 -40 22.092 -40 0Z",
+     "fill": "#7a94a3",
+     "stroke": 7.0
+    },
+    {
+     "id": "mk5_s",
+     "type": "path",
+     "x": 435,
+     "y": 300,
+     "d": "M0 -30L7.199999999999999 -7.199999999999999L30 0L7.199999999999999 7.199999999999999L0 30L-7.199999999999999 7.199999999999999L-30 0L-7.199999999999999 -7.199999999999999Z",
+     "fill": "#7a94a3",
+     "rot": 24
+    },
+    {
+     "id": "cl1",
+     "type": "text",
+     "text": "A browser that gets",
+     "x": 712,
+     "y": 290,
+     "color": "#93a5ad",
+     "font": {
+      "size": 52,
+      "weight": 600
+     }
+    },
+    {
+     "id": "cl2",
+     "type": "text",
+     "text": "complex work done",
+     "x": 660,
+     "y": 368,
+     "color": "#93a5ad",
+     "font": {
+      "size": 52,
+      "weight": 600
+     }
+    },
+    {
+     "id": "th5",
+     "type": "path",
+     "x": 180,
+     "y": 600,
+     "d": "M0 0L0 -6L0 0Z",
+     "fill": "#0e86c0",
+     "stroke": 3.0,
+     "dseq": [
+      {
+       "at": 0.5,
+       "d": "M0 0L0 -6L0 0Z"
+      },
+      {
+       "at": 1.7,
+       "d": "M0 0L0 -220C0 -244 12 -256 36 -256L120 -256L36 -256C12 -256 0 -244 0 -220L0 0Z"
+      },
+      {
+       "at": 2.3,
+       "d": "M0 0L0 -220C0 -244 12 -256 36 -256L430 -256L36 -256C12 -256 0 -244 0 -220L0 0Z"
+      }
+     ]
+    },
+    {
+     "id": "dot5",
+     "type": "rect",
+     "x": 180,
+     "y": 600,
+     "w": 10,
+     "h": 10,
+     "radius": 5,
+     "fill": "#0e86c0",
+     "glow": {
+      "sigma": 8,
+      "opacity": 0.6,
+      "color": "#0e86c0"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "bg": "#ffffff",
+   "dur": 3.0,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.3
+   },
+   "nodes": [
+    {
+     "id": "wm_c",
+     "type": "path",
+     "x": 640,
+     "y": 208,
+     "d": "M-46 0C-46 -25.4058 -25.4058 -46 0 -46C25.4058 -46 46 -25.4058 46 0C46 25.4058 25.4058 46 0 46C-25.4058 46 -46 25.4058 -46 0Z",
+     "fill": "#e8e8e8",
+     "stroke": 7.0
+    },
+    {
+     "id": "wm_s",
+     "type": "path",
+     "x": 640,
+     "y": 208,
+     "d": "M0 -34L8.16 -8.16L34 0L8.16 8.16L0 34L-8.16 8.16L-34 0L-8.16 -8.16Z",
+     "fill": "#e6e6e6",
+     "rot": 24
+    },
+    {
+     "id": "bar",
+     "type": "rect",
+     "x": 640,
+     "y": 340,
+     "w": 1080,
+     "h": 78,
+     "radius": 26,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 22,
+      "opacity": 0.55,
+      "color": "#c9ced1",
+      "dy": 6
+     }
+    },
+    {
+     "id": "task",
+     "type": "text",
+     "text": "cancel all unused subscriptions and request refunds",
+     "x": 448,
+     "y": 340,
+     "color": "#3c3c3c",
+     "font": {
+      "size": 25,
+      "weight": 500
+     }
+    },
+    {
+     "id": "tab_c",
+     "type": "rect",
+     "x": 800,
+     "y": 340,
+     "w": 46,
+     "h": 30,
+     "radius": 8,
+     "fill": "#f0f0f0"
+    },
+    {
+     "id": "tab_t",
+     "type": "text",
+     "text": "Tab",
+     "x": 800,
+     "y": 340,
+     "color": "#7a7a7a",
+     "font": {
+      "size": 15,
+      "weight": 500
+     }
+    },
+    {
+     "id": "tosw",
+     "type": "text",
+     "text": "to switch",
+     "x": 872,
+     "y": 341,
+     "color": "#9a9a9a",
+     "font": {
+      "size": 15,
+      "weight": 500
+     }
+    },
+    {
+     "id": "srch",
+     "type": "text",
+     "text": "Search",
+     "x": 952,
+     "y": 340,
+     "color": "#9a9a9a",
+     "font": {
+      "size": 19,
+      "weight": 500
+     }
+    },
+    {
+     "id": "askp",
+     "type": "rect",
+     "x": 1058,
+     "y": 340,
+     "w": 104,
+     "h": 46,
+     "radius": 23,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 10,
+      "opacity": 0.6,
+      "color": "#d5d9dc",
+      "dy": 3
+     }
+    },
+    {
+     "id": "askp_t",
+     "type": "text",
+     "text": "Ask AI",
+     "x": 1058,
+     "y": 340,
+     "color": "#161616",
+     "font": {
+      "size": 19,
+      "weight": 600
+     }
+    },
+    {
+     "id": "tools_l",
+     "type": "text",
+     "text": "+    Local    Guard",
+     "x": 250,
+     "y": 404,
+     "color": "#a3a3a3",
+     "font": {
+      "size": 18,
+      "weight": 500
+     }
+    },
+    {
+     "id": "tools_r",
+     "type": "text",
+     "text": "GPT-5.5    High",
+     "x": 1040,
+     "y": 404,
+     "color": "#a3a3a3",
+     "font": {
+      "size": 18,
+      "weight": 500
+     }
+    }
+   ]
+  },
+  {
+   "id": "s7",
+   "bg": "#ffffff",
+   "dur": 7.8,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.3
+   },
+   "nodes": [
+    {
+     "id": "th7",
+     "type": "path",
+     "x": 150,
+     "y": 330,
+     "d": "M0 0L0 8L0 0Z",
+     "fill": "#c7dde6",
+     "stroke": 3.0,
+     "dseq": [
+      {
+       "at": 0.3,
+       "d": "M0 0L0 8L0 0Z"
+      },
+      {
+       "at": 1.4,
+       "d": "M0 0L0 240L0 0Z"
+      },
+      {
+       "at": 2.8,
+       "d": "M0 0L0 700L0 0Z"
+      },
+      {
+       "at": 4.2,
+       "d": "M0 0L0 1050L0 0Z"
+      },
+      {
+       "at": 5.6,
+       "d": "M0 0L0 1180L0 0Z"
+      },
+      {
+       "at": 6.6,
+       "d": "M0 0L0 1330L0 0Z"
+      }
+     ]
+    },
+    {
+     "id": "ub",
+     "type": "rect",
+     "x": 880,
+     "y": 300,
+     "w": 580,
+     "h": 60,
+     "radius": 30,
+     "fill": "#f1f3f4"
+    },
+    {
+     "id": "ub_t",
+     "type": "text",
+     "text": "Cancel unused subscriptions and request refunds",
+     "x": 880,
+     "y": 300,
+     "color": "#3c3c3c",
+     "font": {
+      "size": 21,
+      "weight": 500
+     }
+    },
+    {
+     "id": "plan",
+     "type": "text",
+     "text": "First, I'll check your credit card statement.",
+     "x": 500,
+     "y": 400,
+     "color": "#1c1c1c",
+     "font": {
+      "size": 24,
+      "weight": 500
+     }
+    },
+    {
+     "id": "st1_i",
+     "type": "path",
+     "x": 218,
+     "y": 505,
+     "d": "M-15 0C-15 -8.2845 -8.2845 -15 0 -15C8.2845 -15 15 -8.2845 15 0C15 8.2845 8.2845 15 0 15C-8.2845 15 -15 8.2845 -15 0ZM0 0L0 -9M0 0L6 4",
+     "fill": "#1c1c1c",
+     "stroke": 2.4
+    },
+    {
+     "id": "st1",
+     "type": "text",
+     "text": "searching browsing history",
+     "x": 465,
+     "y": 505,
+     "color": "#1c1c1c",
+     "font": {
+      "size": 30,
+      "weight": 600
+     }
+    },
+    {
+     "id": "d1",
+     "type": "rect",
+     "x": 150,
+     "y": 505,
+     "w": 12,
+     "h": 12,
+     "radius": 6,
+     "fill": "#0e86c0"
+    },
+    {
+     "id": "rr1",
+     "type": "text",
+     "text": "MEMORY.md   User's bank and credit card is Chase.",
+     "x": 485,
+     "y": 575,
+     "color": "#8a8a8a",
+     "font": {
+      "size": 18,
+      "weight": 500
+     }
+    },
+    {
+     "id": "rr2",
+     "type": "text",
+     "text": "Jun's Chase   Passkey",
+     "x": 300,
+     "y": 618,
+     "color": "#8a8a8a",
+     "font": {
+      "size": 18,
+      "weight": 500
+     }
+    },
+    {
+     "id": "st2_i",
+     "type": "path",
+     "x": 218,
+     "y": 720,
+     "d": "M-16 -12L16 -12L16 12L-16 12L-16 -12M-16 -5L16 -5",
+     "fill": "#1c1c1c",
+     "stroke": 2.4
+    },
+    {
+     "id": "st2",
+     "type": "text",
+     "text": "Open Chase.com",
+     "x": 360,
+     "y": 720,
+     "color": "#1c1c1c",
+     "font": {
+      "size": 30,
+      "weight": 600
+     }
+    },
+    {
+     "id": "d2",
+     "type": "rect",
+     "x": 150,
+     "y": 720,
+     "w": 12,
+     "h": 12,
+     "radius": 6,
+     "fill": "#0e86c0"
+    },
+    {
+     "id": "ch_card",
+     "type": "rect",
+     "x": 430,
+     "y": 955,
+     "w": 540,
+     "h": 340,
+     "radius": 16,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 26,
+      "opacity": 0.5,
+      "color": "#c8d4da",
+      "dy": 8
+     }
+    },
+    {
+     "id": "ch_logo",
+     "type": "text",
+     "text": "CHASE",
+     "x": 250,
+     "y": 812,
+     "color": "#117aca",
+     "font": {
+      "size": 20,
+      "weight": 700
+     }
+    },
+    {
+     "id": "ch_nav",
+     "type": "text",
+     "text": "Checking    Savings    Credit cards",
+     "x": 520,
+     "y": 812,
+     "color": "#9fb4c4",
+     "font": {
+      "size": 14,
+      "weight": 500
+     }
+    },
+    {
+     "id": "ch_hero",
+     "type": "rect",
+     "x": 430,
+     "y": 990,
+     "w": 540,
+     "h": 240,
+     "radius": 8,
+     "fill": "#dfeaf3",
+     "gradient": {
+      "angle": 120,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#dbe8f3"
+       },
+       {
+        "at": 1,
+        "color": "#f4f8fb"
+       }
+      ]
+     }
+    },
+    {
+     "id": "ch_400",
+     "type": "text",
+     "text": "Enjoy $400",
+     "x": 350,
+     "y": 925,
+     "color": "#8fb3cd",
+     "font": {
+      "size": 40,
+      "weight": 700
+     }
+    },
+    {
+     "id": "ch_sub",
+     "type": "text",
+     "text": "New Chase checking customers",
+     "x": 388,
+     "y": 968,
+     "color": "#a8bfd0",
+     "font": {
+      "size": 16,
+      "weight": 500
+     }
+    },
+    {
+     "id": "ch_f1",
+     "type": "rect",
+     "x": 340,
+     "y": 1020,
+     "w": 280,
+     "h": 34,
+     "radius": 8,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "ch_f2",
+     "type": "rect",
+     "x": 340,
+     "y": 1062,
+     "w": 280,
+     "h": 34,
+     "radius": 8,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "ch_btn",
+     "type": "rect",
+     "x": 340,
+     "y": 1104,
+     "w": 280,
+     "h": 34,
+     "radius": 17,
+     "fill": "#117aca"
+    },
+    {
+     "id": "ch_btn_t",
+     "type": "text",
+     "text": "Sign in",
+     "x": 340,
+     "y": 1104,
+     "color": "#ffffff",
+     "font": {
+      "size": 15,
+      "weight": 600
+     }
+    },
+    {
+     "id": "st3_i",
+     "type": "path",
+     "x": 218,
+     "y": 1195,
+     "d": "M-15 0C-15 -4.9707 -10.9707 -9 -6 -9C-1.0293 -9 3 -4.9707 3 0C3 4.9707 -1.0293 9 -6 9C-10.9707 9 -15 4.9707 -15 0ZM3 0L20 0M14 -6L14 0",
+     "fill": "#1c1c1c",
+     "stroke": 2.4
+    },
+    {
+     "id": "st3",
+     "type": "text",
+     "text": "Sign in with Jun's Chase Passkey",
+     "x": 505,
+     "y": 1195,
+     "color": "#1c1c1c",
+     "font": {
+      "size": 28,
+      "weight": 600
+     }
+    },
+    {
+     "id": "d3",
+     "type": "rect",
+     "x": 150,
+     "y": 1195,
+     "w": 12,
+     "h": 12,
+     "radius": 6,
+     "fill": "#0e86c0"
+    },
+    {
+     "id": "st4",
+     "type": "text",
+     "text": "Spawning subagents in parallel",
+     "x": 470,
+     "y": 1280,
+     "color": "#1c1c1c",
+     "font": {
+      "size": 28,
+      "weight": 600
+     }
+    },
+    {
+     "id": "d4",
+     "type": "rect",
+     "x": 150,
+     "y": 1280,
+     "w": 12,
+     "h": 12,
+     "radius": 6,
+     "fill": "#0e86c0"
+    },
+    {
+     "id": "li_g",
+     "type": "path",
+     "x": 220,
+     "y": 1370,
+     "d": "M-13 9C-13 -8 13 -8 13 9L13 9L8 5L4 9L0 5L-4 9L-8 5L-13 9Z",
+     "fill": "#c9cdd0"
+    },
+    {
+     "id": "li_s",
+     "type": "text",
+     "text": "Spawned subagent",
+     "x": 340,
+     "y": 1370,
+     "color": "#b9bfc4",
+     "font": {
+      "size": 20,
+      "weight": 500
+     }
+    },
+    {
+     "id": "li_b",
+     "type": "rect",
+     "x": 478,
+     "y": 1370,
+     "w": 42,
+     "h": 42,
+     "radius": 10,
+     "fill": "#0a66c2"
+    },
+    {
+     "id": "li_bt",
+     "type": "text",
+     "text": "in",
+     "x": 478,
+     "y": 1370,
+     "color": "#ffffff",
+     "font": {
+      "size": 21,
+      "weight": 700
+     }
+    },
+    {
+     "id": "li_l",
+     "type": "text",
+     "text": "Checking LinkedIn usage",
+     "x": 660,
+     "y": 1370,
+     "color": "#1c1c1c",
+     "font": {
+      "size": 22,
+      "weight": 600
+     }
+    },
+    {
+     "id": "nf_g",
+     "type": "path",
+     "x": 220,
+     "y": 1448,
+     "d": "M-13 9C-13 -8 13 -8 13 9L13 9L8 5L4 9L0 5L-4 9L-8 5L-13 9Z",
+     "fill": "#c9cdd0"
+    },
+    {
+     "id": "nf_s",
+     "type": "text",
+     "text": "Spawned subagent",
+     "x": 340,
+     "y": 1448,
+     "color": "#b9bfc4",
+     "font": {
+      "size": 20,
+      "weight": 500
+     }
+    },
+    {
+     "id": "nf_b",
+     "type": "rect",
+     "x": 478,
+     "y": 1448,
+     "w": 42,
+     "h": 42,
+     "radius": 10,
+     "fill": "#141414"
+    },
+    {
+     "id": "nf_bt",
+     "type": "text",
+     "text": "N",
+     "x": 478,
+     "y": 1448,
+     "color": "#e50914",
+     "font": {
+      "size": 21,
+      "weight": 700
+     }
+    },
+    {
+     "id": "nf_l",
+     "type": "text",
+     "text": "Checking Netflix usage",
+     "x": 660,
+     "y": 1448,
+     "color": "#1c1c1c",
+     "font": {
+      "size": 22,
+      "weight": 600
+     }
+    },
+    {
+     "id": "am_g",
+     "type": "path",
+     "x": 220,
+     "y": 1526,
+     "d": "M-13 9C-13 -8 13 -8 13 9L13 9L8 5L4 9L0 5L-4 9L-8 5L-13 9Z",
+     "fill": "#c9cdd0"
+    },
+    {
+     "id": "am_s",
+     "type": "text",
+     "text": "Spawned subagent",
+     "x": 340,
+     "y": 1526,
+     "color": "#b9bfc4",
+     "font": {
+      "size": 20,
+      "weight": 500
+     }
+    },
+    {
+     "id": "am_b",
+     "type": "rect",
+     "x": 478,
+     "y": 1526,
+     "w": 42,
+     "h": 42,
+     "radius": 10,
+     "fill": "#232f3e"
+    },
+    {
+     "id": "am_bt",
+     "type": "text",
+     "text": "a",
+     "x": 478,
+     "y": 1526,
+     "color": "#ff9900",
+     "font": {
+      "size": 21,
+      "weight": 700
+     }
+    },
+    {
+     "id": "am_l",
+     "type": "text",
+     "text": "Checking Amazon Prime usage",
+     "x": 660,
+     "y": 1526,
+     "color": "#1c1c1c",
+     "font": {
+      "size": 22,
+      "weight": 600
+     }
+    },
+    {
+     "id": "payoff",
+     "type": "text",
+     "text": "Your $120 refund will be processed this week!",
+     "x": 520,
+     "y": 1660,
+     "color": "#1c1c1c",
+     "font": {
+      "size": 28,
+      "weight": 600
+     }
+    },
+    {
+     "id": "d5",
+     "type": "rect",
+     "x": 150,
+     "y": 1660,
+     "w": 12,
+     "h": 12,
+     "radius": 6,
+     "fill": "#0e86c0"
+    },
+    {
+     "id": "iris",
+     "type": "path",
+     "x": 640,
+     "y": 1670,
+     "d": "M-30 0C-30 -16.569 -16.569 -30 0 -30C16.569 -30 30 -16.569 30 0C30 16.569 16.569 30 0 30C-16.569 30 -30 16.569 -30 0Z",
+     "fill": "#262626"
+    }
+   ]
+  },
+  {
+   "id": "s8",
+   "bg": "#262626",
+   "dur": 4.4,
+   "transition": {
+    "kind": "cut",
+    "dur": 0.3
+   },
+   "nodes": [
+    {
+     "id": "bm_t",
+     "type": "text",
+     "text": "Browsing Agent Benchmark",
+     "x": 288,
+     "y": 150,
+     "color": "#f0f0f0",
+     "font": {
+      "size": 23,
+      "weight": 600
+     }
+    },
+    {
+     "id": "bm_s",
+     "type": "text",
+     "text": "Online-Mind2Web - 300 tasks - Including impossible tasks",
+     "x": 416,
+     "y": 188,
+     "color": "#9aa0a6",
+     "font": {
+      "size": 19,
+      "weight": 500
+     }
+    },
+    {
+     "id": "bb0",
+     "type": "rect",
+     "x": 590.0,
+     "y": 250,
+     "w": 880,
+     "h": 52,
+     "radius": 12,
+     "fill": "#2fd6f6",
+     "glow": {
+      "sigma": 28,
+      "opacity": 0.85,
+      "color": "#2fd6f6"
+     },
+     "streak": {
+      "samples": 5,
+      "window": 0.06,
+      "gain": 0.6
+     }
+    },
+    {
+     "id": "bl0",
+     "type": "text",
+     "text": "Aside GPT 5.5",
+     "x": 240,
+     "y": 250,
+     "color": "#0d3a46",
+     "font": {
+      "size": 21,
+      "weight": 600
+     }
+    },
+    {
+     "id": "bv0",
+     "type": "text",
+     "text": "99%",
+     "x": 1095,
+     "y": 250,
+     "color": "#2fd6f6",
+     "font": {
+      "size": 26,
+      "weight": 600
+     }
+    },
+    {
+     "id": "bb1",
+     "type": "rect",
+     "x": 552.5,
+     "y": 324,
+     "w": 805,
+     "h": 52,
+     "radius": 12,
+     "fill": "#3a3a3a"
+    },
+    {
+     "id": "bl1",
+     "type": "text",
+     "text": "Browser use",
+     "x": 235.5,
+     "y": 324,
+     "color": "#cfcfcf",
+     "font": {
+      "size": 21,
+      "weight": 600
+     }
+    },
+    {
+     "id": "bv1",
+     "type": "text",
+     "text": "97%",
+     "x": 1095,
+     "y": 324,
+     "color": "#e4e4e4",
+     "font": {
+      "size": 24,
+      "weight": 600
+     }
+    },
+    {
+     "id": "bb2",
+     "type": "rect",
+     "x": 490.0,
+     "y": 398,
+     "w": 680,
+     "h": 52,
+     "radius": 12,
+     "fill": "#383838"
+    },
+    {
+     "id": "bl2",
+     "type": "text",
+     "text": "GPT 5.4 | Computer use",
+     "x": 296.0,
+     "y": 398,
+     "color": "#cfcfcf",
+     "font": {
+      "size": 21,
+      "weight": 600
+     }
+    },
+    {
+     "id": "bv2",
+     "type": "text",
+     "text": "92%",
+     "x": 1095,
+     "y": 398,
+     "color": "#e4e4e4",
+     "font": {
+      "size": 24,
+      "weight": 600
+     }
+    },
+    {
+     "id": "bb3",
+     "type": "rect",
+     "x": 397.5,
+     "y": 472,
+     "w": 495,
+     "h": 52,
+     "radius": 12,
+     "fill": "#3a3a3a"
+    },
+    {
+     "id": "bl3",
+     "type": "text",
+     "text": "Claude Opus 4.7",
+     "x": 257.5,
+     "y": 472,
+     "color": "#cfcfcf",
+     "font": {
+      "size": 21,
+      "weight": 600
+     }
+    },
+    {
+     "id": "bv3",
+     "type": "text",
+     "text": "86%",
+     "x": 1095,
+     "y": 472,
+     "color": "#e4e4e4",
+     "font": {
+      "size": 24,
+      "weight": 600
+     }
+    },
+    {
+     "id": "bb4",
+     "type": "rect",
+     "x": 255.0,
+     "y": 546,
+     "w": 210,
+     "h": 52,
+     "radius": 12,
+     "fill": "#383838"
+    },
+    {
+     "id": "bl4",
+     "type": "text",
+     "text": "ChatGPT Atlas",
+     "x": 246.5,
+     "y": 546,
+     "color": "#cfcfcf",
+     "font": {
+      "size": 21,
+      "weight": 600
+     }
+    },
+    {
+     "id": "bv4",
+     "type": "text",
+     "text": "70%",
+     "x": 1095,
+     "y": 546,
+     "color": "#e4e4e4",
+     "font": {
+      "size": 24,
+      "weight": 600
+     }
+    }
+   ]
+  },
+  {
+   "id": "s9",
+   "bg": "#262626",
+   "dur": 3.0,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.4
+   },
+   "nodes": [
+    {
+     "id": "m1",
+     "type": "text",
+     "text": "Anything you can do in a browser",
+     "x": 640,
+     "y": 330,
+     "color": "#f0f0f0",
+     "font": {
+      "size": 46,
+      "weight": 600
+     }
+    },
+    {
+     "id": "mk9_c",
+     "type": "path",
+     "x": 408,
+     "y": 340,
+     "d": "M-30 0C-30 -16.569 -16.569 -30 0 -30C16.569 -30 30 -16.569 30 0C30 16.569 16.569 30 0 30C-16.569 30 -30 16.569 -30 0Z",
+     "fill": "#7a94a3",
+     "stroke": 5.5
+    },
+    {
+     "id": "mk9_s",
+     "type": "path",
+     "x": 408,
+     "y": 340,
+     "d": "M0 -22L5.279999999999999 -5.279999999999999L22 0L5.279999999999999 5.279999999999999L0 22L-5.279999999999999 5.279999999999999L-22 0L-5.279999999999999 -5.279999999999999Z",
+     "fill": "#7a94a3",
+     "rot": 24
+    },
+    {
+     "id": "m2",
+     "type": "text",
+     "text": "Aside can do it for you",
+     "x": 700,
+     "y": 340,
+     "color": "#f0f0f0",
+     "font": {
+      "size": 52,
+      "weight": 600
+     }
+    },
+    {
+     "id": "m3",
+     "type": "text",
+     "text": "sign in  \u00b7  payments  \u00b7  documents  \u00b7  presentations",
+     "x": 640,
+     "y": 434,
+     "color": "#7a7a7a",
+     "font": {
+      "size": 20,
+      "weight": 500
+     }
+    }
+   ]
+  },
+  {
+   "id": "s10",
+   "bg": "#ffffff",
+   "dur": 2.8,
+   "transition": {
+    "kind": "cut",
+    "dur": 0.3
+   },
+   "nodes": [
+    {
+     "id": "lock_b",
+     "type": "path",
+     "x": 362,
+     "y": 268,
+     "d": "M-11 -2L11 -2L11 14L-11 14Z",
+     "fill": "#356279"
+    },
+    {
+     "id": "lock_s",
+     "type": "path",
+     "x": 362,
+     "y": 258,
+     "d": "M-7 8C-7 -8 7 -8 7 8",
+     "fill": "#356279",
+     "stroke": 3.0
+    },
+    {
+     "id": "p1",
+     "type": "text",
+     "text": "everything is private",
+     "x": 660,
+     "y": 262,
+     "color": "#1c1c1c",
+     "font": {
+      "size": 46,
+      "weight": 600
+     }
+    },
+    {
+     "id": "p2",
+     "type": "text",
+     "text": "Data never leaves your device",
+     "x": 640,
+     "y": 348,
+     "color": "#6a6a6a",
+     "font": {
+      "size": 28,
+      "weight": 500
+     }
+    },
+    {
+     "id": "p3a",
+     "type": "text",
+     "text": "Everything runs locally,",
+     "x": 570,
+     "y": 428,
+     "color": "#1c1c1c",
+     "font": {
+      "size": 28,
+      "weight": 500
+     }
+    },
+    {
+     "id": "p3b",
+     "type": "text",
+     "text": "encrypted",
+     "x": 812,
+     "y": 428,
+     "color": "#356279",
+     "font": {
+      "size": 28,
+      "weight": 600
+     }
+    }
+   ]
+  },
+  {
+   "id": "s11",
+   "bg": "#262626",
+   "dur": 2.2,
+   "transition": {
+    "kind": "cut",
+    "dur": 0.3
+   },
+   "nodes": [
+    {
+     "id": "byo",
+     "type": "text",
+     "text": "Bring your own subscription",
+     "x": 640,
+     "y": 300,
+     "color": "#f0f0f0",
+     "font": {
+      "size": 44,
+      "weight": 600
+     }
+    },
+    {
+     "id": "pv0",
+     "type": "rect",
+     "x": 448,
+     "y": 432,
+     "w": 62,
+     "h": 62,
+     "radius": 15,
+     "fill": "#333333"
+    },
+    {
+     "id": "pv0_c",
+     "type": "path",
+     "x": 448,
+     "y": 432,
+     "d": "M-16 0C-16 -8.8368 -8.8368 -16 0 -16C8.8368 -16 16 -8.8368 16 0C16 8.8368 8.8368 16 0 16C-8.8368 16 -16 8.8368 -16 0Z",
+     "fill": "#7a94a3",
+     "stroke": 3.5
+    },
+    {
+     "id": "pv0_s",
+     "type": "path",
+     "x": 448,
+     "y": 432,
+     "d": "M0 -12L2.88 -2.88L12 0L2.88 2.88L0 12L-2.88 2.88L-12 0L-2.88 -2.88Z",
+     "fill": "#7a94a3",
+     "rot": 24
+    },
+    {
+     "id": "pv1",
+     "type": "rect",
+     "x": 544,
+     "y": 432,
+     "w": 62,
+     "h": 62,
+     "radius": 15,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "pv1_g",
+     "type": "path",
+     "x": 544,
+     "y": 432,
+     "d": "M0 -16C4 -6 6 -4 16 0C6 4 4 6 0 16C-4 6 -6 4 -16 0C-6 -4 -4 -6 0 -16Z",
+     "fill": "#5093fe"
+    },
+    {
+     "id": "pv2",
+     "type": "rect",
+     "x": 640,
+     "y": 432,
+     "w": 62,
+     "h": 62,
+     "radius": 15,
+     "fill": "#333333"
+    },
+    {
+     "id": "pv2_k",
+     "type": "path",
+     "x": 640,
+     "y": 432,
+     "d": "M0 -15L4 -4L15 0L4 4L0 15L-4 4L-15 0L-4 -4Z",
+     "fill": "#d97757"
+    },
+    {
+     "id": "pv3",
+     "type": "rect",
+     "x": 736,
+     "y": 432,
+     "w": 62,
+     "h": 62,
+     "radius": 15,
+     "fill": "#333333"
+    },
+    {
+     "id": "pv3_o",
+     "type": "path",
+     "x": 736,
+     "y": 432,
+     "d": "M-14 0C-14 -7.732200000000001 -7.732200000000001 -14 0 -14C7.732200000000001 -14 14 -7.732200000000001 14 0C14 7.732200000000001 7.732200000000001 14 0 14C-7.732200000000001 14 -14 7.732200000000001 -14 0Z",
+     "fill": "#10a37f",
+     "stroke": 3.5
+    },
+    {
+     "id": "pv4",
+     "type": "rect",
+     "x": 832,
+     "y": 432,
+     "w": 62,
+     "h": 62,
+     "radius": 15,
+     "fill": "#333333"
+    },
+    {
+     "id": "pv4_l",
+     "type": "path",
+     "x": 832,
+     "y": 432,
+     "d": "M0 14C-14 6 -12 -10 0 -14C12 -10 14 6 0 14Z",
+     "fill": "#8a9a8a"
+    }
+   ]
+  },
+  {
+   "id": "s12",
+   "bg": "#262626",
+   "dur": 2.4,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.4
+   },
+   "nodes": [
+    {
+     "id": "url",
+     "type": "text",
+     "text": "aside.com",
+     "x": 640,
+     "y": 360,
+     "color": "#f4f4f4",
+     "font": {
+      "size": 66,
+      "weight": 500
+     }
+    }
+   ]
+  }
+ ],
+ "audio": {
+  "src": "/assets/audio/pad.m4a",
+  "gain": 0.6,
+  "fade_out": 0.8
+ }
+}

@@ -96,6 +96,18 @@
   "anim": "/docs/rezonant.anim.json"
  },
  {
+  "slug": "bevel",
+  "title": "bevel (repro)",
+  "dur": 39.0,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/bevel.stage.json",
+  "anim": "/docs/bevel.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,
