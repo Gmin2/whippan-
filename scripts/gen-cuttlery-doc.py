@@ -289,8 +289,7 @@ scene("s1", GREY, 10.8333, n1)
 # ==================================================== scene 3+4: the sky
 n2 = []
 for i, (cx, cy, sc) in enumerate([(140, 640, 1.3), (430, 690, 1.6),
-                                  (760, 660, 1.2), (1060, 700, 1.7),
-                                  (260, 500, 1.0), (930, 560, 1.2)]):
+                                  (760, 660, 1.2), (1060, 700, 1.7)]):
     n2.append(path(f"sk_cl{i}", cx, cy, CLOUD_D, "#ffffff",
                    keys={"scale": [{"t": 0, "v": sc}]}))
     drift(f"sk_cl{i}", 14 if i % 2 else -14, 0, 9.0)
@@ -398,7 +397,7 @@ PLASTICS = [
 for i, (x, y, fill, d, sc, r0) in enumerate(PLASTICS):
     nid = f"pl_o{i}"
     n5.append(path(nid, x, y, d, fill, rot=r0,
-                   keys={"scale": [{"t": 0, "v": sc}]}))
+                   keys={"scale": [{"t": 0, "v": sc * 1.45}]}))
     drift(nid, 9 if i % 2 else -9, 6, 6.5, rot0=r0, drot=5)
 VALUES = ["2.5", "2.8", "3.2", "3.4M", "3.6M", "3.9M", "4.1M", "4.3M"]
 for i, v in enumerate(VALUES):
@@ -536,11 +535,13 @@ n8 = [
     path("sf_bottle", 640, 150, BOTTLE_D, "#2a2d2a", rot=115,
          keys={"scale": [{"t": 0, "v": 3.4}]}),
     rect("sf_stream", 758, 430, 5, 380, 0, "#dfe9f2"),
-    path("sf_fin", 1120, 500, "M-160 280L40 -240C70 -290 120 -290 140 "
-         "-240L160 280Z", "#1f1f1f"),
-    path("sf_fin_s1", 1120, 470, "M-60 40L120 -60L120 -20L-60 80Z",
+    rect("sf_fus", 640, 640, 1280, 170, 0, "#e6e8e8"),
+    rect("sf_fusw", 640, 620, 1280, 26, 13, "#3a3d3a"),
+    path("sf_fin", 1020, 340, "M-250 400L60 -340C100 -410 160 -410 190 "
+         "-340L230 400Z", "#1f1f1f"),
+    path("sf_fin_s1", 1030, 240, "M-90 60L180 -90L180 -30L-90 120Z",
          "#e8e8e8"),
-    path("sf_fin_s2", 1120, 580, "M-80 60L120 -40L120 0L-80 100Z",
+    path("sf_fin_s2", 1030, 470, "M-120 90L180 -60L180 0L-120 150Z",
          "#dadada"),
     text("sf_h1", "Sustainable", 135, 306, 26, "#ffffff"),
     text("sf_h2", "Aviation", 116, 346, 26, "#ffffff"),
@@ -562,7 +563,7 @@ track("sf_blue2", opacity=[(0.5, 0), (0.7, 1)],
       y=[(3.999, 0), (4.0, 126)])
 for nid, at in [("sf_cl1", 0.5), ("sf_cl2", 0.6), ("sf_cl3", 0.7)]:
     fade_in(nid, at, 0.25)
-track("sf_blk", opacity=[(0, 0), (0.001, 0), (2.1, 0), (2.101, 1)],
+track("sf_blk", opacity=[(0, 0), (0.001, 0), (2.5, 0), (2.501, 1)],
       w=[(3.999, 443), (4.0, 848)],
       x=[(3.999, 0), (4.0, 203)])
 track("sf_bottle", opacity=[(0.6, 0), (0.85, 1)],
@@ -570,8 +571,11 @@ track("sf_bottle", opacity=[(0.6, 0), (0.85, 1)],
 track("sf_stream", opacity=[(0.9, 0), (1.2, 0.9)],
       x=[(3.999, 0), (4.0, -346)])
 for nid in ["sf_fin", "sf_fin_s1", "sf_fin_s2"]:
-    track(nid, y=[(0.4, 420), (1.1, 0, "outCubic")],
+    track(nid, y=[(0.4, 480), (1.1, 0, "outCubic")],
           opacity=[(0.4, 0), (0.5, 1), (3.999, 1), (4.0, 0)])
+for nid in ["sf_fus", "sf_fusw"]:
+    track(nid, y=[(1.3, 200), (1.8, 0, "outCubic")],
+          opacity=[(1.3, 0), (1.45, 1), (3.999, 1), (4.0, 0)])
 track("sf_h1", opacity=[(0.25, 0), (0.4, 1)])
 track("sf_h2", opacity=[(0.55, 0), (0.7, 1), (2.1, 1), (2.3, 0)])
 track("sf_h3", opacity=[(0.85, 0), (1.0, 1), (2.1, 1), (2.3, 0)])
@@ -579,15 +583,15 @@ fade_in("sf_ar", 3.6, 0.2)
 SAF_STEPS = [("sf_s1", "S", 97), ("sf_s2", "SA", 145), ("sf_s3", "SAF", 192)]
 for i, (nid, s, cx) in enumerate(SAF_STEPS):
     n8.append(text(nid, s, cx, 480, 190, "#f2f2f2", weight=400))
-    t_on = 2.4 + i * 0.3
-    t_off = 2.4 + (i + 1) * 0.3 if i < 2 else None
+    t_on = 2.6 + i * 0.3
+    t_off = 2.6 + (i + 1) * 0.3 if i < 2 else None
     hardstep(nid, [(t_on, t_off)])
 scene("s8", KELLY, 5.1667, n8, kind="fade", tdur=0.2)
 
 # ========================================= scene 11: the takeaway tarmac
 n9 = [
-    rect("tk_patch1", 300, 620, 700, 260, 0, "#94989a"),
-    rect("tk_patch2", 1000, 150, 620, 340, 0, "#a6a9ab"),
+    rect("tk_patch1", 300, 620, 700, 260, 0, "#878b8d"),
+    rect("tk_patch2", 1000, 150, 620, 340, 0, "#9b9fa1"),
     rect("tk_ln1", 500, 160, 3, 340, 0, "#e6e6e6", rot=38),
     rect("tk_ln2", 940, 210, 3, 280, 0, "#e6e6e6", rot=-24),
     rect("tk_ln3", 210, 590, 3, 320, 0, "#dddddd", rot=14),
@@ -632,7 +636,7 @@ for nid, at in [("tk_pret", 0.35), ("tk_pret2", 0.35), ("tk_t0", 0.35),
 word_reveal("tk_t1", 0.55, rise=0)
 word_reveal("tk_t2", 0.8, stagger=0.12, rise=0)
 word_reveal("tk_t3", 1.15, stagger=0.12, rise=0)
-scene("s9", "#9da0a2", 2.1667, n9)
+scene("s9", "#94989a", 2.1667, n9)
 
 # ================================================== scene 12: the globe
 n10 = [path("gl_e", 640, 360, circle_d(262), "#86b6e6")]

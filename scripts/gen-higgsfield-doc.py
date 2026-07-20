@@ -304,8 +304,9 @@ n1.append(rect("s1_card", 300, 320, 150, 200, 10, "#101014",
 n1.append(rect("s1_dot", 238, 238, 5, 5, 2.5, LIME))
 n1.append(ltext("s1_prog", "In progress", 248, 238, 9, LIME))
 track("s1_card", scale=[(0, 1.0), (1.2, 1.035, "inOutCubic")])
-track("s1_dot", loop=None, opacity=[(0, 1), (0.35, 0.4, "inOutCubic"),
-                                    (0.7, 1, "inOutCubic")])
+tracks.append({"target": "s1_dot", "loop": True, "keys": {"opacity": [
+    {"t": 0, "v": 1}, {"t": 0.35, "v": 0.4, "ease": "inOutCubic"},
+    {"t": 0.7, "v": 1, "ease": "inOutCubic"}]}})
 scenes.append({"id": "s1", "bg": BG, "dur": 1.2,
                "transition": {"kind": "cut"}, "nodes": n1})
 
@@ -794,7 +795,7 @@ n11.append(text("s11_cp", "© 2026 Higgswatch", PX + 150, 1345, 8, "#8a8a90"))
 n11.append(rect("s11_pill", PX, 1560, 150, 44, 22, LIME,
                 glow={"sigma": 26, "opacity": 0.5, "color": LIME}))
 n11.append(text("s11_pt", "Pre-order", PX, 1560, 15, INK, weight=700))
-track("s11_pill", loop=None,
+track("s11_pill",
       glow_opacity=[(3.9, 0.35), (4.25, 0.9, "inOutCubic"),
                     (4.6, 0.35, "inOutCubic")])
 actor("s11_jp", "Jagan96", MAG, MAG_CHIP, "#ffffff", PX + 88, 1588, n11,
@@ -821,11 +822,6 @@ stage = {
     "audio": {"src": "/assets/audio/pad.m4a", "gain": 0.6, "fade_out": 0.8},
     "scenes": scenes,
 }
-
-# strip the accidental loop kwarg artifacts (track() ignores unknown kwargs
-# passed positionally; guard anyway)
-for t in tracks:
-    t.pop("loop", None) if t.get("loop") is None and "loop" in t else None
 
 with open("docs/higgsfield.stage.json", "w") as f:
     json.dump(stage, f, indent=1)

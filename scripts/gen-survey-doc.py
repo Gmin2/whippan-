@@ -136,8 +136,8 @@ def blond_cover(scene, prefix, cx, cy, s, r):
 S1 = "s1"
 scene_nodes[S1] = []
 
-rect(S1, "ph_body", 539, 540, 448, 912, 96, "#23262b")
-rect(S1, "ph_screen", 539, 540, 416, 880, 80, APP_BG)
+rect(S1, "ph_body", 539, 540, 438, 902, 92, "#23262b")
+rect(S1, "ph_screen", 539, 540, 418, 882, 80, APP_BG)
 rect(S1, "ph_notch", 539, 127, 160, 34, 17, "#0b0d0f")
 rect(S1, "ph_home", 539, 953, 130, 5, 2, "#16181a")
 

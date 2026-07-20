@@ -235,7 +235,7 @@ n4 += [
     rect("s4_sq2", 626, 216, 26, 26, 4, "#7fba00"),
     rect("s4_sq3", 596, 246, 26, 26, 4, "#00a4ef"),
     rect("s4_sq4", 626, 246, 26, 26, 4, "#ffb900"),
-    text("s4_bf", "Found", 730, 232, 74, "#ffffff", weight=300),
+    text("s4_bf", "Found", 764, 232, 74, "#ffffff", weight=300),
     rect("s4_bbar", 640, 420, 680, 58, 29, "#ffffff"),
     text("s4_bmic", "", 640, 420, 12, "#ffffff"),
 ]

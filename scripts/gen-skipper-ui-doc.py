@@ -55,9 +55,9 @@ def circle_d(r, cx=0, cy=0, ccw=False):
             f"C{cx-k} {cy-r} {cx-r} {cy-k} {cx-r} {cy}Z")
 
 
-SPHERE_GRAD = {"angle": 135, "stops": [
-    {"at": 0.0, "color": "#111111"},
-    {"at": 0.45, "color": "#1a52b0"},
+SPHERE_GRAD = {"angle": 45, "stops": [
+    {"at": 0.0, "color": "#0f0f0f"},
+    {"at": 0.35, "color": "#12327a"},
     {"at": 1.0, "color": "#27c9f6"}]}
 
 
@@ -190,8 +190,8 @@ scene("s1", "#000000", 1.73, n1)
 # 2 ------------------------------------------------------- headline typing
 n2 = [text("hl", "A whole new era of UI components", 960, 540, 54,
            "#f2f2f2", 500)]
-tracks.append({"target": "hl", "at": 0.05, "reveal": {
-    "unit": "type", "cadence": 0.03, "cadence_end": 0.055, "dur": 0.05}})
+tracks.append({"target": "hl", "at": 0.02, "reveal": {
+    "unit": "type", "cadence": 0.019, "cadence_end": 0.032, "dur": 0.05}})
 scene("s2", "#000000", 0.94, n2)
 
 # 3 ------------------------------------------------------------ gallery
@@ -286,18 +286,18 @@ scene("s9", "#000000", 0.36, fluid_badge("fb_"))
 
 # 10 --------------------------------------------------------------- hands
 n10 = [
-    rect("hd_l1", 260, 700, 760, 200, 100, "#9a9a9a", rot=-16, blur=5,
-         gradient={"angle": 0, "stops": [{"at": 0, "color": "#2c2c2c"},
+    rect("hd_l1", 220, 745, 940, 215, 107, "#9a9a9a", rot=-14, blur=5,
+         gradient={"angle": 0, "stops": [{"at": 0, "color": "#232323"},
                                          {"at": 1, "color": "#cfcfcf"}]}),
-    rect("hd_l2", 640, 792, 250, 64, 32, "#efefef", rot=-28, blur=3),
-    rect("hd_l3", 585, 880, 60, 130, 30, "#e6e6e6", rot=-14, blur=3),
-    rect("hd_l4", 660, 878, 56, 120, 28, "#dddddd", rot=-8, blur=3),
-    rect("hd_r1", 1665, 545, 760, 200, 100, "#9a9a9a", rot=-14, blur=5,
-         gradient={"angle": 180, "stops": [{"at": 0, "color": "#2c2c2c"},
+    rect("hd_l2", 745, 800, 260, 56, 28, "#efefef", rot=-16, blur=3),
+    rect("hd_l3", 620, 905, 56, 140, 28, "#e6e6e6", rot=-10, blur=3),
+    rect("hd_l4", 700, 912, 52, 130, 26, "#dddddd", rot=-4, blur=3),
+    rect("hd_r1", 1700, 480, 940, 210, 105, "#9a9a9a", rot=-12, blur=5,
+         gradient={"angle": 180, "stops": [{"at": 0, "color": "#232323"},
                                            {"at": 1, "color": "#dfdfdf"}]}),
-    rect("hd_r2", 1300, 375, 250, 62, 31, "#f2f2f2", rot=-24, blur=3),
-    rect("hd_r3", 1345, 600, 58, 130, 29, "#e3e3e3", rot=16, blur=3),
-    rect("hd_r4", 1415, 620, 54, 120, 27, "#d8d8d8", rot=8, blur=3),
+    rect("hd_r2", 1215, 420, 260, 54, 27, "#f2f2f2", rot=-22, blur=3),
+    rect("hd_r3", 1330, 610, 54, 140, 27, "#e3e3e3", rot=18, blur=3),
+    rect("hd_r4", 1405, 630, 50, 130, 25, "#d8d8d8", rot=10, blur=3),
     path("hd_ring1", 960, 540, circle_d(102), "#cfcfcf", stroke=2.5),
     path("hd_ring2", 960, 540, circle_d(86), "#cfcfcf", stroke=2.0),
     sphere("hd_sph", 960, 540, 50),
@@ -399,8 +399,8 @@ track("dc_card", at=2.0, scale=[(0, 1.0), (0.55, 0.6, "inOutCubic")],
       x=[(0, 0), (0.55, -500, "inOutCubic")],
       y=[(0, 0), (0.55, 160, "inOutCubic")])
 track("dc_w3", at=2.0, scale=[(0, 1.0), (0.55, 0.6, "inOutCubic")],
-      x=[(0, 0), (0.55, -500, "inOutCubic")],
-      y=[(0, 0), (0.55, 160, "inOutCubic")])
+      x=[(0, 0), (0.55, -430, "inOutCubic")],
+      y=[(0, 0), (0.55, 120, "inOutCubic")])
 for i in range(len(THUMBS)):
     track(f"dc_th{i}", at=2.0,
           x=[(0, 0), (0.55, -500 - (700 + i * 68 - 960) * 0.4,
@@ -419,10 +419,10 @@ for nid in ["wc_sp", "wc_h"]:
     track(nid, at=2.05, opacity=[(0, 0), (0.3, 0), (0.45, 1)],
           x=[(0, 500), (0.6, 0, "outCubic")])
 for i in range(4):
-    show(f"wc_p{i}", 2.5 + i * 0.24, dur=0.15, rise=26)
-    show(f"wc_s{i}", 2.5 + i * 0.24, dur=0.15, rise=26)
-    show(f"wc_pt{i}", 2.5 + i * 0.24, dur=0.15, rise=26)
-show("hdr", 2.15, dur=0.2, rise=20)
+    show(f"wc_p{i}", 2.35 + i * 0.2, dur=0.15, rise=26)
+    show(f"wc_s{i}", 2.35 + i * 0.2, dur=0.15, rise=26)
+    show(f"wc_pt{i}", 2.35 + i * 0.2, dur=0.15, rise=26)
+show("hdr", 2.1, dur=0.2, rise=20)
 scene("s13", "#000000", 3.56, n13)
 
 # 14 ------------------------------------------------------ command mantra
@@ -435,7 +435,7 @@ swap("cm1", 0.0, 1.35)
 swap("cm2", 1.35, 2.35)
 track("cm3", opacity=[(0, 0), (2.35, 0), (2.351, 1)])
 tracks.append({"target": "cm3", "at": 2.35, "reveal": {
-    "unit": "type", "cadence": 0.024, "dur": 0.04}})
+    "unit": "type", "cadence": 0.02, "dur": 0.04}})
 scene("s14", "#000000", 3.40, n14)
 
 # 15a ----------------------------------------------------------- cli 3.0
@@ -631,7 +631,7 @@ n15l = [
          " elit. Nihil, ex", 943, 425, 24, "#3a3a3a"),
     text("ln_p2", "eligendi veniam praesentium temporibus natus quae"
          " laborum nemo", 950, 455, 24, "#3a3a3a"),
-    text("ln_p3", "repellendus cum!", 745, 485, 24, "#3a3a3a"),
+    text("ln_p3", "repellendus cum!", 745, 492, 24, "#3a3a3a"),
     text("ln_p4", "Lorem ipsum dolor sit amet consectetur adipisicing"
          " elit. Nihil, ex", 943, 535, 24, "#8a8a8a"),
     text("ln_p5", "eligendi veniam praesentium temporibus natus quae"

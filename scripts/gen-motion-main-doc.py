@@ -150,8 +150,6 @@ tracks.append(vis("pvgreen", 5.82, 6.12))
 
 # ===================================================== s1: glyph drop-in
 # small white lozenge with the black player glyph, grows on a long ease
-glyph_d = (poly([(-58, -86), (58, -86), (58, 86), (-58, 86)])
-           .replace("M", "M"))
 glyph_d = ("M" + f"{pt(-58, -60)}"
            f"C{pt(-58, -86)} {pt(-40, -92)} {pt(0, -92)}"
            f"C{pt(40, -92)} {pt(58, -86)} {pt(58, -60)}"
@@ -250,22 +248,21 @@ card_chrome = [
     ltext("npartist", "Frank Ocean", 1457, 925, 40, "#d4d4d4"),
     rect("npsc1", 1600, 985, 300, 7, 3, "#f4f4f4"),
     rect("npsc2", 1955, 985, 310, 7, 3, "#8a8377"),
-    ltext("npt0a", "1:36", 1455, 1030, 32, "#efefef"),
     ltext("npt1", "5:34", 2050, 1030, 32, "#efefef"),
 ]
 NP_OP = (2.18, 2.4, 3.8, 4.0)
 for n in card_chrome:
     nodes.append(n)
     tracks.append(vis(n["id"], *NP_OP))
-# live scrubber tick: 1:36 -> 1:52
+# live scrubber time: 1:36 steps to 1:52 mid-hold
+nodes.append(ltext("npt0a", "1:36", 1455, 1030, 32, "#efefef"))
+tracks.append({"target": "npt0a", "keys": {"opacity": [
+    {"t": 0, "v": 0}, {"t": 2.18, "v": 0}, {"t": 2.4, "v": 1},
+    {"t": 3.349, "v": 1}, {"t": 3.35, "v": 0}]}})
 nodes.append(ltext("npt0b", "1:52", 1455, 1030, 32, "#efefef"))
-tracks.append(keyed("npt0b", opacity=steps([(0, 0), (3.35, 1), (3.8, 1)])
-                    + [{"t": 4.0, "v": 0}]))
-tracks[-1]["keys"]["opacity"] = steps([(0, 0), (3.35, 1)]) + [
-    {"t": 3.8, "v": 1}, {"t": 4.0, "v": 0}]
-tracks[-2]["keys"]["opacity"] = steps([(0, 0)]) + [
-    {"t": 2.18, "v": 0}, {"t": 2.4, "v": 1},
-    {"t": 3.349, "v": 1}, {"t": 3.35, "v": 0}]
+tracks.append({"target": "npt0b", "keys": {"opacity": [
+    {"t": 0, "v": 0}, {"t": 3.349, "v": 0}, {"t": 3.35, "v": 1},
+    {"t": 3.8, "v": 1}, {"t": 4.0, "v": 0}]}})
 # canvas mirror card
 m_card = [
     rect("mcard", 620, 780, 600, 600, 36, "#8f8f8f"),

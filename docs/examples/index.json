@@ -168,6 +168,18 @@
   "anim": "/docs/skale.anim.json"
  },
  {
+  "slug": "base44",
+  "title": "base44 (repro)",
+  "dur": 38.2,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/base44.stage.json",
+  "anim": "/docs/base44.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,

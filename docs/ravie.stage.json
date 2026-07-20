@@ -1,0 +1,3625 @@
+{
+ "fps": 30,
+ "size": [
+  1138,
+  640
+ ],
+ "audio": {
+  "src": "/assets/audio/pad.m4a",
+  "gain": 0.55,
+  "fade_out": 0.8
+ },
+ "scenes": [
+  {
+   "id": "s1",
+   "bg": "#f6f9fa",
+   "dur": 3.4,
+   "transition": {
+    "kind": "cut"
+   },
+   "nodes": [
+    {
+     "id": "s1_glow",
+     "type": "rect",
+     "x": 569,
+     "y": 348,
+     "w": 780,
+     "h": 24,
+     "radius": 12,
+     "fill": "#4ebc66",
+     "blur": 18
+    },
+    {
+     "id": "s1_bar",
+     "type": "rect",
+     "x": 569,
+     "y": 285,
+     "w": 1010,
+     "h": 108,
+     "radius": 54,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 14,
+      "opacity": 0.5,
+      "color": "#c8d2d6",
+      "dy": 6
+     }
+    },
+    {
+     "id": "s1_mag",
+     "type": "path",
+     "x": 140,
+     "y": 283,
+     "d": "M-13 0C-13 -7.1799 -7.1799 -13 0 -13C7.1799 -13 13 -7.1799 13 0C13 7.1799 7.1799 13 0 13C-7.1799 13 -13 7.1799 -13 0ZM9.23 9.23L22.099999999999998 22.099999999999998",
+     "fill": "#9aa0a6",
+     "stroke": 2.6
+    },
+    {
+     "id": "s1_caret",
+     "type": "rect",
+     "x": 194,
+     "y": 285,
+     "w": 4,
+     "h": 50,
+     "radius": 1,
+     "fill": "#4285f4"
+    },
+    {
+     "id": "s1_q",
+     "type": "text",
+     "text": "How much is rent in Seattle?",
+     "x": 400.0,
+     "y": 285,
+     "color": "#202124",
+     "font": {
+      "size": 30,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s1_mic",
+     "type": "rect",
+     "x": 950,
+     "y": 282,
+     "w": 11,
+     "h": 18,
+     "radius": 5,
+     "fill": "#4285f4"
+    },
+    {
+     "id": "s1_mica",
+     "type": "path",
+     "x": 950,
+     "y": 288,
+     "d": "M-8 -2a8 8 0 0 0 16 0M0 6L0 11",
+     "fill": "#9aa0a6",
+     "stroke": 2.0
+    },
+    {
+     "id": "s1_lens",
+     "type": "path",
+     "x": 1000,
+     "y": 285,
+     "d": "M-9 0C-9 -4.9707 -4.9707 -9 0 -9C4.9707 -9 9 -4.9707 9 0C9 4.9707 4.9707 9 0 9C-4.9707 9 -9 4.9707 -9 0ZM0 0",
+     "fill": "#9aa0a6",
+     "stroke": 2.2
+    },
+    {
+     "id": "s1_aipill",
+     "type": "rect",
+     "x": 1092,
+     "y": 285,
+     "w": 128,
+     "h": 62,
+     "radius": 31,
+     "fill": "#eef4fe"
+    },
+    {
+     "id": "s1_aisp",
+     "type": "path",
+     "x": 1052,
+     "y": 285,
+     "d": "M0 -9C1.2600000000000002 -1.2600000000000002 1.2600000000000002 -1.2600000000000002 9 0C1.2600000000000002 1.2600000000000002 1.2600000000000002 1.2600000000000002 0 9C-1.2600000000000002 1.2600000000000002 -1.2600000000000002 1.2600000000000002 -9 0C-1.2600000000000002 -1.2600000000000002 -1.2600000000000002 -1.2600000000000002 0 -9Z",
+     "fill": "#4285f4"
+    },
+    {
+     "id": "s1_ait",
+     "type": "text",
+     "text": "AI Mode",
+     "x": 1104,
+     "y": 285,
+     "color": "#4285f4",
+     "font": {
+      "size": 19,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s1_wm0",
+     "type": "text",
+     "text": "G",
+     "x": 445,
+     "y": 128,
+     "color": "#4285f4",
+     "font": {
+      "size": 96,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s1_wm1",
+     "type": "text",
+     "text": "o",
+     "x": 507,
+     "y": 128,
+     "color": "#ea4335",
+     "font": {
+      "size": 96,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s1_wm2",
+     "type": "text",
+     "text": "o",
+     "x": 563,
+     "y": 128,
+     "color": "#fbbc05",
+     "font": {
+      "size": 96,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s1_wm3",
+     "type": "text",
+     "text": "g",
+     "x": 619,
+     "y": 128,
+     "color": "#4285f4",
+     "font": {
+      "size": 96,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s1_wm4",
+     "type": "text",
+     "text": "l",
+     "x": 660,
+     "y": 128,
+     "color": "#34a853",
+     "font": {
+      "size": 96,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s1_wm5",
+     "type": "text",
+     "text": "e",
+     "x": 700,
+     "y": 128,
+     "color": "#ea4335",
+     "font": {
+      "size": 96,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s1_b1",
+     "type": "rect",
+     "x": 465,
+     "y": 435,
+     "w": 180,
+     "h": 52,
+     "radius": 10,
+     "fill": "#f3f6f7"
+    },
+    {
+     "id": "s1_b1t",
+     "type": "text",
+     "text": "Google Search",
+     "x": 465,
+     "y": 435,
+     "color": "#3c4043",
+     "font": {
+      "size": 17,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s1_b2",
+     "type": "rect",
+     "x": 680,
+     "y": 435,
+     "w": 196,
+     "h": 52,
+     "radius": 10,
+     "fill": "#f3f6f7"
+    },
+    {
+     "id": "s1_b2t",
+     "type": "text",
+     "text": "I'm Feeling Lucky",
+     "x": 680,
+     "y": 435,
+     "color": "#3c4043",
+     "font": {
+      "size": 17,
+      "weight": 400,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s2",
+   "bg": "#ffffff",
+   "dur": 3.2,
+   "transition": {
+    "kind": "zoom",
+    "dur": 0.5
+   },
+   "nodes": [
+    {
+     "id": "s2_tb0",
+     "type": "rect",
+     "x": 240,
+     "y": 40,
+     "w": 26,
+     "h": 26,
+     "radius": 6,
+     "fill": "#c8cdd1",
+     "blur": 2
+    },
+    {
+     "id": "s2_tb1",
+     "type": "rect",
+     "x": 310,
+     "y": 40,
+     "w": 26,
+     "h": 26,
+     "radius": 6,
+     "fill": "#c8cdd1",
+     "blur": 2
+    },
+    {
+     "id": "s2_tb2",
+     "type": "rect",
+     "x": 385,
+     "y": 40,
+     "w": 26,
+     "h": 26,
+     "radius": 6,
+     "fill": "#c8cdd1",
+     "blur": 2
+    },
+    {
+     "id": "s2_tb3",
+     "type": "rect",
+     "x": 460,
+     "y": 40,
+     "w": 26,
+     "h": 26,
+     "radius": 6,
+     "fill": "#c8cdd1",
+     "blur": 2
+    },
+    {
+     "id": "s2_col0",
+     "type": "text",
+     "text": "F",
+     "x": 124,
+     "y": 166,
+     "color": "#80868b",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_col1",
+     "type": "text",
+     "text": "G",
+     "x": 336,
+     "y": 166,
+     "color": "#80868b",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_col2",
+     "type": "text",
+     "text": "H",
+     "x": 548,
+     "y": 166,
+     "color": "#80868b",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_col3",
+     "type": "text",
+     "text": "I",
+     "x": 761,
+     "y": 166,
+     "color": "#80868b",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_col4",
+     "type": "text",
+     "text": "J",
+     "x": 973,
+     "y": 166,
+     "color": "#80868b",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_gv0",
+     "type": "rect",
+     "x": 233,
+     "y": 320,
+     "w": 1,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eceff1"
+    },
+    {
+     "id": "s2_gv1",
+     "type": "rect",
+     "x": 444,
+     "y": 320,
+     "w": 1,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eceff1"
+    },
+    {
+     "id": "s2_gv2",
+     "type": "rect",
+     "x": 658,
+     "y": 320,
+     "w": 1,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eceff1"
+    },
+    {
+     "id": "s2_gv3",
+     "type": "rect",
+     "x": 870,
+     "y": 320,
+     "w": 1,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eceff1"
+    },
+    {
+     "id": "s2_gv4",
+     "type": "rect",
+     "x": 1080,
+     "y": 320,
+     "w": 1,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eceff1"
+    },
+    {
+     "id": "s2_hline",
+     "type": "rect",
+     "x": 569,
+     "y": 190,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#e3e7e9"
+    },
+    {
+     "id": "s2_band",
+     "type": "rect",
+     "x": 436,
+     "y": 342,
+     "w": 872,
+     "h": 46,
+     "radius": 0,
+     "fill": "#e8f0fe"
+    },
+    {
+     "id": "s2_rline1",
+     "type": "rect",
+     "x": 569,
+     "y": 319,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#e3e7e9"
+    },
+    {
+     "id": "s2_rline2",
+     "type": "rect",
+     "x": 569,
+     "y": 366,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#e3e7e9"
+    },
+    {
+     "id": "s2_h0",
+     "type": "text",
+     "text": "Monthly Savings",
+     "x": 129,
+     "y": 297,
+     "color": "#202124",
+     "font": {
+      "size": 19,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_h1",
+     "type": "text",
+     "text": "Monthly Expense",
+     "x": 351,
+     "y": 297,
+     "color": "#202124",
+     "font": {
+      "size": 19,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_h2",
+     "type": "text",
+     "text": "Annual Salary",
+     "x": 580,
+     "y": 297,
+     "color": "#202124",
+     "font": {
+      "size": 19,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_h3",
+     "type": "text",
+     "text": "Monthly Rent",
+     "x": 793,
+     "y": 297,
+     "color": "#202124",
+     "font": {
+      "size": 19,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_v1",
+     "type": "text",
+     "text": "$300",
+     "x": 175,
+     "y": 342,
+     "color": "#202124",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_v2",
+     "type": "text",
+     "text": "$1,110",
+     "x": 398,
+     "y": 342,
+     "color": "#202124",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_sal",
+     "type": "text",
+     "text": "$55,000",
+     "x": 595,
+     "y": 342,
+     "color": "#202124",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_rent",
+     "type": "text",
+     "text": "$2,000",
+     "x": 792,
+     "y": 342,
+     "color": "#202124",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_cell",
+     "type": "path",
+     "x": 548,
+     "y": 342,
+     "d": "M-105 -23L105 -23L105 23L-105 23Z",
+     "fill": "#1a73e8",
+     "stroke": 2.4
+    },
+    {
+     "id": "s2_tab_Medical",
+     "type": "text",
+     "text": "Medical",
+     "x": 160,
+     "y": 607,
+     "color": "#9aa0a6",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_tab_Allowance",
+     "type": "text",
+     "text": "Allowance",
+     "x": 366,
+     "y": 607,
+     "color": "#9aa0a6",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_tab_Activities",
+     "type": "text",
+     "text": "Activities",
+     "x": 584,
+     "y": 607,
+     "color": "#9aa0a6",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_tab_Total",
+     "type": "text",
+     "text": "Total",
+     "x": 826,
+     "y": 607,
+     "color": "#9aa0a6",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s2_tab_Average",
+     "type": "text",
+     "text": "Average",
+     "x": 1010,
+     "y": 607,
+     "color": "#9aa0a6",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "bg": "#eaf3fc",
+   "dur": 2.6,
+   "transition": {
+    "kind": "dissolve",
+    "dur": 0.45
+   },
+   "nodes": [
+    {
+     "id": "s3_pill",
+     "type": "rect",
+     "x": 700,
+     "y": 52,
+     "w": 560,
+     "h": 76,
+     "radius": 38,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 10,
+      "opacity": 0.4,
+      "color": "#c5d4e8",
+      "dy": 4
+     }
+    },
+    {
+     "id": "s3_pq",
+     "type": "text",
+     "text": "How long until I can afford to buy?",
+     "x": 700,
+     "y": 52,
+     "color": "#202124",
+     "font": {
+      "size": 22,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s3_spark",
+     "type": "path",
+     "x": 158,
+     "y": 112,
+     "d": "M0 -15C2.1 -2.1 2.1 -2.1 15 0C2.1 2.1 2.1 2.1 0 15C-2.1 2.1 -2.1 2.1 -15 0C-2.1 -2.1 -2.1 -2.1 0 -15Z",
+     "fill": "#4285f4"
+    },
+    {
+     "id": "s3_chev",
+     "type": "path",
+     "x": 160,
+     "y": 207,
+     "d": "M-9 -4L0 5L9 -4",
+     "fill": "#202124",
+     "stroke": 2.4
+    },
+    {
+     "id": "s3_as",
+     "type": "text",
+     "text": "Analysis steps",
+     "x": 294.0,
+     "y": 207,
+     "color": "#202124",
+     "font": {
+      "size": 24,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s3_card",
+     "type": "rect",
+     "x": 570,
+     "y": 455,
+     "w": 892,
+     "h": 372,
+     "radius": 22,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "s3_l0",
+     "type": "text",
+     "text": "The time until you can afford to buy",
+     "x": 403.0,
+     "y": 337,
+     "color": "#202124",
+     "font": {
+      "size": 27,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s3_l1",
+     "type": "text",
+     "text": "is 5 years, based on the current",
+     "x": 376.0,
+     "y": 399,
+     "color": "#202124",
+     "font": {
+      "size": 27,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s3_l2",
+     "type": "text",
+     "text": "financial figures provided.",
+     "x": 342.2,
+     "y": 461,
+     "color": "#202124",
+     "font": {
+      "size": 27,
+      "weight": 400,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s4",
+   "bg": "#f6f9fa",
+   "dur": 2.0,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.4
+   },
+   "nodes": [
+    {
+     "id": "s4_glow",
+     "type": "rect",
+     "x": 600,
+     "y": 482,
+     "w": 900,
+     "h": 28,
+     "radius": 14,
+     "fill": "#4ebc66",
+     "blur": 22
+    },
+    {
+     "id": "s4_bar",
+     "type": "rect",
+     "x": 660,
+     "y": 320,
+     "w": 1240,
+     "h": 320,
+     "radius": 160,
+     "fill": "#eff3f4"
+    },
+    {
+     "id": "s4_top",
+     "type": "rect",
+     "x": 660,
+     "y": 162,
+     "w": 1150,
+     "h": 3,
+     "radius": 1,
+     "fill": "#4285f4",
+     "blur": 1.5
+    },
+    {
+     "id": "s4_mag",
+     "type": "path",
+     "x": 208,
+     "y": 316,
+     "d": "M-26 0C-26 -14.3598 -14.3598 -26 0 -26C14.3598 -26 26 -14.3598 26 0C26 14.3598 14.3598 26 0 26C-14.3598 26 -26 14.3598 -26 0ZM18.46 18.46L44.199999999999996 44.199999999999996",
+     "fill": "#b0b6ba",
+     "stroke": 4.0
+    },
+    {
+     "id": "s4_caret",
+     "type": "rect",
+     "x": 384,
+     "y": 320,
+     "w": 5,
+     "h": 80,
+     "radius": 1,
+     "fill": "#4285f4"
+    },
+    {
+     "id": "s4_q",
+     "type": "text",
+     "text": "How to get a promotion",
+     "x": 688.0,
+     "y": 320,
+     "color": "#202124",
+     "font": {
+      "size": 56,
+      "weight": 400,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s5",
+   "bg": "#fbfdfe",
+   "dur": 2.4,
+   "transition": {
+    "kind": "zoom",
+    "dur": 0.5
+   },
+   "nodes": [
+    {
+     "id": "s5_gv0",
+     "type": "rect",
+     "x": 32,
+     "y": 320,
+     "w": 2,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eef1f3"
+    },
+    {
+     "id": "s5_gv1",
+     "type": "rect",
+     "x": 388,
+     "y": 320,
+     "w": 2,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eef1f3"
+    },
+    {
+     "id": "s5_gv2",
+     "type": "rect",
+     "x": 742,
+     "y": 320,
+     "w": 2,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eef1f3"
+    },
+    {
+     "id": "s5_gv3",
+     "type": "rect",
+     "x": 1096,
+     "y": 320,
+     "w": 2,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eef1f3"
+    },
+    {
+     "id": "s5_gh0",
+     "type": "rect",
+     "x": 569,
+     "y": 90,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#f1f4f5"
+    },
+    {
+     "id": "s5_gh1",
+     "type": "rect",
+     "x": 569,
+     "y": 180,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#f1f4f5"
+    },
+    {
+     "id": "s5_gh2",
+     "type": "rect",
+     "x": 569,
+     "y": 270,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#f1f4f5"
+    },
+    {
+     "id": "s5_gh3",
+     "type": "rect",
+     "x": 569,
+     "y": 360,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#f1f4f5"
+    },
+    {
+     "id": "s5_gh4",
+     "type": "rect",
+     "x": 569,
+     "y": 450,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#f1f4f5"
+    },
+    {
+     "id": "s5_gh5",
+     "type": "rect",
+     "x": 569,
+     "y": 540,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#f1f4f5"
+    },
+    {
+     "id": "s5_b1_r",
+     "type": "rect",
+     "x": 205,
+     "y": 195,
+     "w": 325,
+     "h": 255,
+     "radius": 12,
+     "fill": "#3c88e8"
+    },
+    {
+     "id": "s5_b1_t0",
+     "type": "text",
+     "text": "Project Work",
+     "x": 120.5,
+     "y": 97.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s5_b1_m",
+     "type": "text",
+     "text": "2 - 4:30pm",
+     "x": 100.5,
+     "y": 125.5,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s5_b2_r",
+     "type": "rect",
+     "x": 205,
+     "y": 417,
+     "w": 325,
+     "h": 95,
+     "radius": 12,
+     "fill": "#3462ad"
+    },
+    {
+     "id": "s5_b2_t0",
+     "type": "text",
+     "text": "Emails",
+     "x": 90.5,
+     "y": 399.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s5_b2_m",
+     "type": "text",
+     "text": "5 - 6pm",
+     "x": 88.5,
+     "y": 427.5,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s5_b3_r",
+     "type": "rect",
+     "x": 560,
+     "y": 315,
+     "w": 325,
+     "h": 95,
+     "radius": 12,
+     "fill": "#3c88e8"
+    },
+    {
+     "id": "s5_b3_t0",
+     "type": "text",
+     "text": "Performance Review",
+     "x": 505.5,
+     "y": 297.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s5_b3_m",
+     "type": "text",
+     "text": "4 - 5pm",
+     "x": 443.5,
+     "y": 325.5,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s5_b4_r",
+     "type": "rect",
+     "x": 560,
+     "y": 600,
+     "w": 325,
+     "h": 90,
+     "radius": 12,
+     "fill": "#3c88e8"
+    },
+    {
+     "id": "s5_b4_t0",
+     "type": "text",
+     "text": "Team Meeting",
+     "x": 475.5,
+     "y": 585.0,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s5_b4_m",
+     "type": "text",
+     "text": "7 - 8pm",
+     "x": 443.5,
+     "y": 613.0,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s5_b5_r",
+     "type": "rect",
+     "x": 915,
+     "y": 62,
+     "w": 325,
+     "h": 105,
+     "radius": 12,
+     "fill": "#f5f9ff"
+    },
+    {
+     "id": "s5_b5_t0",
+     "type": "text",
+     "text": "Client Call",
+     "x": 825.5,
+     "y": 39.5,
+     "color": "#3c88e8",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s5_b5_m",
+     "type": "text",
+     "text": "1:30 - 2:30pm",
+     "x": 822.5,
+     "y": 67.5,
+     "color": "#3c88e8",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s5_b6_r",
+     "type": "rect",
+     "x": 915,
+     "y": 141,
+     "w": 325,
+     "h": 40,
+     "radius": 12,
+     "fill": "#3c88e8"
+    },
+    {
+     "id": "s5_b6_t",
+     "type": "text",
+     "text": "Lunch Sync, 2:30pm",
+     "x": 851.5,
+     "y": 141,
+     "color": "#ffffff",
+     "font": {
+      "size": 18,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s5_b7_r",
+     "type": "rect",
+     "x": 915,
+     "y": 219,
+     "w": 325,
+     "h": 85,
+     "radius": 12,
+     "fill": "#4ebc66"
+    },
+    {
+     "id": "s5_b7_t0",
+     "type": "text",
+     "text": "Get Takeout",
+     "x": 825.5,
+     "y": 206.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s5_b7_m",
+     "type": "text",
+     "text": "3 - 4pm",
+     "x": 798.5,
+     "y": 234.5,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s5_b8_r",
+     "type": "rect",
+     "x": 915,
+     "y": 443,
+     "w": 325,
+     "h": 40,
+     "radius": 12,
+     "fill": "#3462ad"
+    },
+    {
+     "id": "s5_b8_t",
+     "type": "text",
+     "text": "Data Entry, 5:30pm",
+     "x": 851.5,
+     "y": 443,
+     "color": "#ffffff",
+     "font": {
+      "size": 18,
+      "weight": 600,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "bg": "#ffffff",
+   "dur": 3.2,
+   "transition": {
+    "kind": "dissolve",
+    "dur": 0.45
+   },
+   "nodes": [
+    {
+     "id": "s6_appicon",
+     "type": "rect",
+     "x": 60,
+     "y": 36,
+     "w": 30,
+     "h": 38,
+     "radius": 6,
+     "fill": "#1e9e5a"
+    },
+    {
+     "id": "s6_appgrid",
+     "type": "path",
+     "x": 60,
+     "y": 38,
+     "d": "M-8 -8L8 -8M-8 0L8 0M-8 8L8 8",
+     "fill": "#ffffff",
+     "stroke": 2.0
+    },
+    {
+     "id": "s6_told",
+     "type": "text",
+     "text": "Personal Savings Plan",
+     "x": 220.5,
+     "y": 36,
+     "color": "#202124",
+     "font": {
+      "size": 22,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_tnew",
+     "type": "text",
+     "text": "Joint Savings Plan",
+     "x": 204.0,
+     "y": 36,
+     "color": "#202124",
+     "font": {
+      "size": 22,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_tbox",
+     "type": "path",
+     "x": 230,
+     "y": 36,
+     "d": "M-135 -21L135 -21L135 21L-135 21Z",
+     "fill": "#1a73e8",
+     "stroke": 2.0
+    },
+    {
+     "id": "s6_col0",
+     "type": "text",
+     "text": "F",
+     "x": 124,
+     "y": 166,
+     "color": "#80868b",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_col1",
+     "type": "text",
+     "text": "G",
+     "x": 336,
+     "y": 166,
+     "color": "#80868b",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_col2",
+     "type": "text",
+     "text": "H",
+     "x": 548,
+     "y": 166,
+     "color": "#80868b",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_col3",
+     "type": "text",
+     "text": "I",
+     "x": 761,
+     "y": 166,
+     "color": "#80868b",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_col4",
+     "type": "text",
+     "text": "J",
+     "x": 973,
+     "y": 166,
+     "color": "#80868b",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_gv0",
+     "type": "rect",
+     "x": 233,
+     "y": 320,
+     "w": 1,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eceff1"
+    },
+    {
+     "id": "s6_gv1",
+     "type": "rect",
+     "x": 444,
+     "y": 320,
+     "w": 1,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eceff1"
+    },
+    {
+     "id": "s6_gv2",
+     "type": "rect",
+     "x": 658,
+     "y": 320,
+     "w": 1,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eceff1"
+    },
+    {
+     "id": "s6_gv3",
+     "type": "rect",
+     "x": 870,
+     "y": 320,
+     "w": 1,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eceff1"
+    },
+    {
+     "id": "s6_gv4",
+     "type": "rect",
+     "x": 1080,
+     "y": 320,
+     "w": 1,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eceff1"
+    },
+    {
+     "id": "s6_band",
+     "type": "rect",
+     "x": 436,
+     "y": 342,
+     "w": 872,
+     "h": 46,
+     "radius": 0,
+     "fill": "#e8f0fe"
+    },
+    {
+     "id": "s6_rline1",
+     "type": "rect",
+     "x": 569,
+     "y": 319,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#e3e7e9"
+    },
+    {
+     "id": "s6_rline2",
+     "type": "rect",
+     "x": 569,
+     "y": 366,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#e3e7e9"
+    },
+    {
+     "id": "s6_h0",
+     "type": "text",
+     "text": "Monthly Savings",
+     "x": 129,
+     "y": 297,
+     "color": "#202124",
+     "font": {
+      "size": 19,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_h1",
+     "type": "text",
+     "text": "Monthly Expense",
+     "x": 351,
+     "y": 297,
+     "color": "#202124",
+     "font": {
+      "size": 19,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_h2",
+     "type": "text",
+     "text": "Annual Salary",
+     "x": 580,
+     "y": 297,
+     "color": "#202124",
+     "font": {
+      "size": 19,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_h3",
+     "type": "text",
+     "text": "Monthly Rent",
+     "x": 793,
+     "y": 297,
+     "color": "#202124",
+     "font": {
+      "size": 19,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_v300",
+     "type": "text",
+     "text": "$300",
+     "x": 175,
+     "y": 342,
+     "color": "#202124",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_v580",
+     "type": "text",
+     "text": "$580",
+     "x": 175,
+     "y": 342,
+     "color": "#202124",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_v2",
+     "type": "text",
+     "text": "$1,110",
+     "x": 398,
+     "y": 342,
+     "color": "#202124",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_sal55",
+     "type": "text",
+     "text": "$55,000",
+     "x": 595,
+     "y": 342,
+     "color": "#202124",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_sal75",
+     "type": "text",
+     "text": "$75,000",
+     "x": 595,
+     "y": 342,
+     "color": "#202124",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_rent",
+     "type": "text",
+     "text": "$2,000",
+     "x": 792,
+     "y": 342,
+     "color": "#202124",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s6_cell",
+     "type": "path",
+     "x": 548,
+     "y": 342,
+     "d": "M-105 -23L105 -23L105 23L-105 23Z",
+     "fill": "#1a73e8",
+     "stroke": 2.4
+    },
+    {
+     "id": "s6_avring",
+     "type": "rect",
+     "x": 1080,
+     "y": 36,
+     "w": 40,
+     "h": 40,
+     "radius": 20,
+     "fill": "#4ebc66",
+     "glow": {
+      "sigma": 7,
+      "opacity": 0.5,
+      "color": "#4ebc66"
+     }
+    },
+    {
+     "id": "s6_av",
+     "type": "rect",
+     "x": 1080,
+     "y": 36,
+     "w": 33,
+     "h": 33,
+     "radius": 16.5,
+     "fill": "#b9bec4"
+    },
+    {
+     "id": "s6_avhead",
+     "type": "path",
+     "x": 1080,
+     "y": 32,
+     "d": "M-6 0C-6 -3.3138 -3.3138 -6 0 -6C3.3138 -6 6 -3.3138 6 0C6 3.3138 3.3138 6 0 6C-3.3138 6 -6 3.3138 -6 0Z",
+     "fill": "#7d838a"
+    },
+    {
+     "id": "s6_avbody",
+     "type": "path",
+     "x": 1080,
+     "y": 46,
+     "d": "M-10 4C-10 -6 10 -6 10 4L-10 4Z",
+     "fill": "#7d838a"
+    }
+   ]
+  },
+  {
+   "id": "s7",
+   "bg": "#eaf3fc",
+   "dur": 2.4,
+   "transition": {
+    "kind": "dissolve",
+    "dur": 0.45
+   },
+   "nodes": [
+    {
+     "id": "s7_pill",
+     "type": "rect",
+     "x": 700,
+     "y": 52,
+     "w": 560,
+     "h": 76,
+     "radius": 38,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 10,
+      "opacity": 0.4,
+      "color": "#c5d4e8",
+      "dy": 4
+     }
+    },
+    {
+     "id": "s7_pq",
+     "type": "text",
+     "text": "How long until I can afford to buy?",
+     "x": 700,
+     "y": 52,
+     "color": "#202124",
+     "font": {
+      "size": 22,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s7_spark",
+     "type": "path",
+     "x": 158,
+     "y": 112,
+     "d": "M0 -15C2.1 -2.1 2.1 -2.1 15 0C2.1 2.1 2.1 2.1 0 15C-2.1 2.1 -2.1 2.1 -15 0C-2.1 -2.1 -2.1 -2.1 0 -15Z",
+     "fill": "#4285f4"
+    },
+    {
+     "id": "s7_chev",
+     "type": "path",
+     "x": 160,
+     "y": 207,
+     "d": "M-9 -4L0 5L9 -4",
+     "fill": "#202124",
+     "stroke": 2.4
+    },
+    {
+     "id": "s7_as",
+     "type": "text",
+     "text": "Analysis steps",
+     "x": 294.0,
+     "y": 207,
+     "color": "#202124",
+     "font": {
+      "size": 24,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s7_card",
+     "type": "rect",
+     "x": 570,
+     "y": 455,
+     "w": 892,
+     "h": 372,
+     "radius": 22,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "s7_l0",
+     "type": "text",
+     "text": "The time until you can afford to buy",
+     "x": 403.0,
+     "y": 337,
+     "color": "#202124",
+     "font": {
+      "size": 27,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s7_l1",
+     "type": "text",
+     "text": "is 6 months, based on the current",
+     "x": 382.8,
+     "y": 399,
+     "color": "#202124",
+     "font": {
+      "size": 27,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s7_l2",
+     "type": "text",
+     "text": "financial figures provided.",
+     "x": 342.2,
+     "y": 461,
+     "color": "#202124",
+     "font": {
+      "size": 27,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s7_pinc",
+     "type": "rect",
+     "x": 1055,
+     "y": 80,
+     "w": 58,
+     "h": 58,
+     "radius": 29,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 9,
+      "opacity": 0.45,
+      "color": "#c5d4e8",
+      "dy": 3
+     }
+    },
+    {
+     "id": "s7_pin",
+     "type": "path",
+     "x": 1055,
+     "y": 76,
+     "d": "M0 16C0 16 -12 3 -12 -5a12 12 0 0 1 24 0C12 3 0 16 0 16Z",
+     "fill": "#ea4335"
+    },
+    {
+     "id": "s7_pind",
+     "type": "path",
+     "x": 1055,
+     "y": 71,
+     "d": "M-4.6 0C-4.6 -2.54058 -2.54058 -4.6 0 -4.6C2.54058 -4.6 4.6 -2.54058 4.6 0C4.6 2.54058 2.54058 4.6 0 4.6C-2.54058 4.6 -4.6 2.54058 -4.6 0Z",
+     "fill": "#ffffff"
+    }
+   ]
+  },
+  {
+   "id": "s8",
+   "bg": "#f6f9fa",
+   "dur": 1.8,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.4
+   },
+   "nodes": [
+    {
+     "id": "s8_glow",
+     "type": "rect",
+     "x": 600,
+     "y": 482,
+     "w": 900,
+     "h": 28,
+     "radius": 14,
+     "fill": "#4ebc66",
+     "blur": 22
+    },
+    {
+     "id": "s8_bar",
+     "type": "rect",
+     "x": 660,
+     "y": 320,
+     "w": 1240,
+     "h": 320,
+     "radius": 160,
+     "fill": "#eff3f4"
+    },
+    {
+     "id": "s8_top",
+     "type": "rect",
+     "x": 660,
+     "y": 162,
+     "w": 1150,
+     "h": 3,
+     "radius": 1,
+     "fill": "#4285f4",
+     "blur": 1.5
+    },
+    {
+     "id": "s8_mag",
+     "type": "path",
+     "x": 208,
+     "y": 316,
+     "d": "M-26 0C-26 -14.3598 -14.3598 -26 0 -26C14.3598 -26 26 -14.3598 26 0C26 14.3598 14.3598 26 0 26C-14.3598 26 -26 14.3598 -26 0ZM18.46 18.46L44.199999999999996 44.199999999999996",
+     "fill": "#b0b6ba",
+     "stroke": 4.0
+    },
+    {
+     "id": "s8_caret",
+     "type": "rect",
+     "x": 384,
+     "y": 320,
+     "w": 5,
+     "h": 80,
+     "radius": 1,
+     "fill": "#4285f4"
+    },
+    {
+     "id": "s8_q",
+     "type": "text",
+     "text": "Baby girl names",
+     "x": 590.0,
+     "y": 320,
+     "color": "#202124",
+     "font": {
+      "size": 56,
+      "weight": 400,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s9",
+   "bg": "#fbfdfe",
+   "dur": 2.2,
+   "transition": {
+    "kind": "zoom",
+    "dur": 0.5
+   },
+   "nodes": [
+    {
+     "id": "s9_spark",
+     "type": "path",
+     "x": 120,
+     "y": 90,
+     "d": "M0 -16C2.24 -2.24 2.24 -2.24 16 0C2.24 2.24 2.24 2.24 0 16C-2.24 2.24 -2.24 2.24 -16 0C-2.24 -2.24 -2.24 -2.24 0 -16Z",
+     "fill": "#4285f4"
+    },
+    {
+     "id": "s9_ait",
+     "type": "text",
+     "text": "AI Overview",
+     "x": 226.5,
+     "y": 90,
+     "color": "#5f6368",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s9_n0",
+     "type": "text",
+     "text": "\u2022 Amelia:",
+     "x": 144.0,
+     "y": 170,
+     "color": "#202124",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s9_d0",
+     "type": "text",
+     "text": "Classic, elegant, and perennially popular.",
+     "x": 462.0,
+     "y": 170,
+     "color": "#3c4043",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s9_n1",
+     "type": "text",
+     "text": "\u2022 Sophia/Sofia:",
+     "x": 180.0,
+     "y": 232,
+     "color": "#202124",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s9_d1",
+     "type": "text",
+     "text": "Timeless and beloved.",
+     "x": 408.0,
+     "y": 232,
+     "color": "#3c4043",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s9_n2",
+     "type": "text",
+     "text": "\u2022 Emma:",
+     "x": 132.0,
+     "y": 294,
+     "color": "#202124",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s9_d2",
+     "type": "text",
+     "text": "A simple, strong classic.",
+     "x": 336.0,
+     "y": 294,
+     "color": "#3c4043",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s9_n3",
+     "type": "text",
+     "text": "\u2022 Isabella:",
+     "x": 156.0,
+     "y": 356,
+     "color": "#202124",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s9_d3",
+     "type": "text",
+     "text": "Graceful and enduring.",
+     "x": 366.0,
+     "y": 356,
+     "color": "#3c4043",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s9_n4",
+     "type": "text",
+     "text": "\u2022 Charlotte:",
+     "x": 162.0,
+     "y": 418,
+     "color": "#202124",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s9_d4",
+     "type": "text",
+     "text": "Royal and popular.",
+     "x": 354.0,
+     "y": 418,
+     "color": "#3c4043",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s9_glowbar",
+     "type": "rect",
+     "x": 569,
+     "y": 630,
+     "w": 1000,
+     "h": 22,
+     "radius": 11,
+     "fill": "#4ebc66",
+     "blur": 20
+    },
+    {
+     "id": "s9_pill",
+     "type": "rect",
+     "x": 930,
+     "y": 566,
+     "w": 300,
+     "h": 58,
+     "radius": 29,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 10,
+      "opacity": 0.4,
+      "color": "#c5d4e8",
+      "dy": 4
+     }
+    },
+    {
+     "id": "s9_psp",
+     "type": "path",
+     "x": 812,
+     "y": 566,
+     "d": "M0 -10C1.4000000000000001 -1.4000000000000001 1.4000000000000001 -1.4000000000000001 10 0C1.4000000000000001 1.4000000000000001 1.4000000000000001 1.4000000000000001 0 10C-1.4000000000000001 1.4000000000000001 -1.4000000000000001 1.4000000000000001 -10 0C-1.4000000000000001 -1.4000000000000001 -1.4000000000000001 -1.4000000000000001 0 -10Z",
+     "fill": "#4285f4"
+    },
+    {
+     "id": "s9_pt",
+     "type": "text",
+     "text": "Dive deeper in AI Mode",
+     "x": 948,
+     "y": 566,
+     "color": "#202124",
+     "font": {
+      "size": 19,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s9_cur",
+     "type": "cursor",
+     "x": 750,
+     "y": 320,
+     "w": 24,
+     "fill": "#111111"
+    }
+   ]
+  },
+  {
+   "id": "s10",
+   "bg": "#fbfdfe",
+   "dur": 2.6,
+   "transition": {
+    "kind": "dissolve",
+    "dur": 0.45
+   },
+   "nodes": [
+    {
+     "id": "s10_gv0",
+     "type": "rect",
+     "x": 32,
+     "y": 320,
+     "w": 2,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eef1f3"
+    },
+    {
+     "id": "s10_gv1",
+     "type": "rect",
+     "x": 388,
+     "y": 320,
+     "w": 2,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eef1f3"
+    },
+    {
+     "id": "s10_gv2",
+     "type": "rect",
+     "x": 742,
+     "y": 320,
+     "w": 2,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eef1f3"
+    },
+    {
+     "id": "s10_gv3",
+     "type": "rect",
+     "x": 1096,
+     "y": 320,
+     "w": 2,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eef1f3"
+    },
+    {
+     "id": "s10_gh0",
+     "type": "rect",
+     "x": 569,
+     "y": 90,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#f1f4f5"
+    },
+    {
+     "id": "s10_gh1",
+     "type": "rect",
+     "x": 569,
+     "y": 180,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#f1f4f5"
+    },
+    {
+     "id": "s10_gh2",
+     "type": "rect",
+     "x": 569,
+     "y": 270,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#f1f4f5"
+    },
+    {
+     "id": "s10_gh3",
+     "type": "rect",
+     "x": 569,
+     "y": 360,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#f1f4f5"
+    },
+    {
+     "id": "s10_gh4",
+     "type": "rect",
+     "x": 569,
+     "y": 450,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#f1f4f5"
+    },
+    {
+     "id": "s10_gh5",
+     "type": "rect",
+     "x": 569,
+     "y": 540,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#f1f4f5"
+    },
+    {
+     "id": "s10_a1_r",
+     "type": "rect",
+     "x": 205,
+     "y": 100,
+     "w": 310,
+     "h": 105,
+     "radius": 12,
+     "fill": "#3c88e8",
+     "streak": {
+      "samples": 4,
+      "window": 0.06,
+      "gain": 0.4
+     }
+    },
+    {
+     "id": "s10_a1_t0",
+     "type": "text",
+     "text": "Quarterly Summary",
+     "x": 153.0,
+     "y": 77.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_a1_m",
+     "type": "text",
+     "text": "3 - 4:30pm",
+     "x": 108.0,
+     "y": 105.5,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_a2_r",
+     "type": "rect",
+     "x": 205,
+     "y": 368,
+     "w": 310,
+     "h": 85,
+     "radius": 12,
+     "fill": "#4ebc66",
+     "streak": {
+      "samples": 4,
+      "window": 0.06,
+      "gain": 0.4
+     }
+    },
+    {
+     "id": "s10_a2_t0",
+     "type": "text",
+     "text": "Dinner w/ In-Laws",
+     "x": 153.0,
+     "y": 355.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_a2_m",
+     "type": "text",
+     "text": "6 - 7pm",
+     "x": 96.0,
+     "y": 383.5,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_a3_r",
+     "type": "rect",
+     "x": 560,
+     "y": 77,
+     "w": 310,
+     "h": 95,
+     "radius": 12,
+     "fill": "#3462ad",
+     "streak": {
+      "samples": 4,
+      "window": 0.06,
+      "gain": 0.4
+     }
+    },
+    {
+     "id": "s10_a3_t0",
+     "type": "text",
+     "text": "Make Cupcakes",
+     "x": 488.0,
+     "y": 59.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_a3_m",
+     "type": "text",
+     "text": "3 - 4pm",
+     "x": 451.0,
+     "y": 87.5,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_a4_r",
+     "type": "rect",
+     "x": 560,
+     "y": 172,
+     "w": 310,
+     "h": 90,
+     "radius": 12,
+     "fill": "#4ebc66",
+     "streak": {
+      "samples": 4,
+      "window": 0.06,
+      "gain": 0.4
+     }
+    },
+    {
+     "id": "s10_a4_t0",
+     "type": "text",
+     "text": "Dinner",
+     "x": 453.0,
+     "y": 157.0,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_a4_m",
+     "type": "text",
+     "text": "4 - 5pm",
+     "x": 451.0,
+     "y": 185.0,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_a5_r",
+     "type": "rect",
+     "x": 560,
+     "y": 318,
+     "w": 310,
+     "h": 185,
+     "radius": 12,
+     "fill": "#3c88e8",
+     "streak": {
+      "samples": 4,
+      "window": 0.06,
+      "gain": 0.4
+     }
+    },
+    {
+     "id": "s10_a5_t0",
+     "type": "text",
+     "text": "Charlotte's 2nd",
+     "x": 498.0,
+     "y": 255.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_a5_t1",
+     "type": "text",
+     "text": "Birthday Party",
+     "x": 493.0,
+     "y": 281.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_a5_m",
+     "type": "text",
+     "text": "5 - 7pm",
+     "x": 451.0,
+     "y": 309.5,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_a6_r",
+     "type": "rect",
+     "x": 915,
+     "y": 100,
+     "w": 310,
+     "h": 105,
+     "radius": 12,
+     "fill": "#3c88e8",
+     "streak": {
+      "samples": 4,
+      "window": 0.06,
+      "gain": 0.4
+     }
+    },
+    {
+     "id": "s10_a6_t0",
+     "type": "text",
+     "text": "Pitch Review",
+     "x": 838.0,
+     "y": 77.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_a6_m",
+     "type": "text",
+     "text": "3 - 4:30pm",
+     "x": 818.0,
+     "y": 105.5,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_a7_r",
+     "type": "rect",
+     "x": 915,
+     "y": 372,
+     "w": 310,
+     "h": 190,
+     "radius": 12,
+     "fill": "#ffffff",
+     "streak": {
+      "samples": 4,
+      "window": 0.06,
+      "gain": 0.4
+     }
+    },
+    {
+     "id": "s10_a7_t0",
+     "type": "text",
+     "text": "Reunion @ Char House",
+     "x": 878.0,
+     "y": 307.0,
+     "color": "#4ebc66",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_a7_m",
+     "type": "text",
+     "text": "5:30 - 7:30pm",
+     "x": 830.0,
+     "y": 335.0,
+     "color": "#4ebc66",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_b1_r",
+     "type": "rect",
+     "x": 205,
+     "y": 120,
+     "w": 310,
+     "h": 95,
+     "radius": 12,
+     "fill": "#3c88e8",
+     "streak": {
+      "samples": 4,
+      "window": 0.06,
+      "gain": 0.4
+     }
+    },
+    {
+     "id": "s10_b1_t0",
+     "type": "text",
+     "text": "Sales Overview Meeting",
+     "x": 178.0,
+     "y": 102.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_b1_m",
+     "type": "text",
+     "text": "10 - 11am",
+     "x": 104.0,
+     "y": 130.5,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_b2_r",
+     "type": "rect",
+     "x": 205,
+     "y": 340,
+     "w": 310,
+     "h": 85,
+     "radius": 12,
+     "fill": "#4ebc66",
+     "streak": {
+      "samples": 4,
+      "window": 0.06,
+      "gain": 0.4
+     }
+    },
+    {
+     "id": "s10_b2_t0",
+     "type": "text",
+     "text": "Drive In-Laws to Airport",
+     "x": 188.0,
+     "y": 327.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_b2_m",
+     "type": "text",
+     "text": "4 - 5pm",
+     "x": 96.0,
+     "y": 355.5,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_b3_r",
+     "type": "rect",
+     "x": 560,
+     "y": 140,
+     "w": 310,
+     "h": 85,
+     "radius": 12,
+     "fill": "#3462ad",
+     "streak": {
+      "samples": 4,
+      "window": 0.06,
+      "gain": 0.4
+     }
+    },
+    {
+     "id": "s10_b3_t0",
+     "type": "text",
+     "text": "Pick Up Birthday Cake",
+     "x": 528.0,
+     "y": 127.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_b3_m",
+     "type": "text",
+     "text": "3 - 4pm",
+     "x": 451.0,
+     "y": 155.5,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_b4_r",
+     "type": "rect",
+     "x": 560,
+     "y": 360,
+     "w": 310,
+     "h": 185,
+     "radius": 12,
+     "fill": "#3c88e8",
+     "streak": {
+      "samples": 4,
+      "window": 0.06,
+      "gain": 0.4
+     }
+    },
+    {
+     "id": "s10_b4_t0",
+     "type": "text",
+     "text": "Charlotte's 18th",
+     "x": 503.0,
+     "y": 297.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_b4_t1",
+     "type": "text",
+     "text": "Birthday Party",
+     "x": 493.0,
+     "y": 323.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_b4_m",
+     "type": "text",
+     "text": "5 - 7pm",
+     "x": 451.0,
+     "y": 351.5,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_b5_r",
+     "type": "rect",
+     "x": 915,
+     "y": 130,
+     "w": 310,
+     "h": 95,
+     "radius": 12,
+     "fill": "#3c88e8",
+     "streak": {
+      "samples": 4,
+      "window": 0.06,
+      "gain": 0.4
+     }
+    },
+    {
+     "id": "s10_b5_t0",
+     "type": "text",
+     "text": "Video Conference",
+     "x": 858.0,
+     "y": 112.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_b5_m",
+     "type": "text",
+     "text": "2 - 3pm",
+     "x": 806.0,
+     "y": 140.5,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_b6_r",
+     "type": "rect",
+     "x": 915,
+     "y": 380,
+     "w": 310,
+     "h": 85,
+     "radius": 12,
+     "fill": "#4ebc66",
+     "streak": {
+      "samples": 4,
+      "window": 0.06,
+      "gain": 0.4
+     }
+    },
+    {
+     "id": "s10_b6_t0",
+     "type": "text",
+     "text": "Yearly Travel Planning",
+     "x": 888.0,
+     "y": 367.5,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s10_b6_m",
+     "type": "text",
+     "text": "6 - 7pm",
+     "x": 806.0,
+     "y": 395.5,
+     "color": "#dbe9fb",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s11",
+   "bg": "#1e2223",
+   "dur": 2.8,
+   "transition": {
+    "kind": "cut"
+   },
+   "nodes": [
+    {
+     "id": "s11_f1_o",
+     "type": "rect",
+     "x": 690,
+     "y": 225,
+     "w": 940,
+     "h": 130,
+     "radius": 12,
+     "fill": "#4a5458"
+    },
+    {
+     "id": "s11_f1_i",
+     "type": "rect",
+     "x": 690,
+     "y": 225,
+     "w": 936,
+     "h": 126,
+     "radius": 10,
+     "fill": "#1e2223"
+    },
+    {
+     "id": "s11_f1_u",
+     "type": "rect",
+     "x": 690,
+     "y": 161,
+     "w": 936,
+     "h": 3,
+     "radius": 1,
+     "fill": "#4285f4",
+     "gradient": {
+      "angle": 0,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#4285f4"
+       },
+       {
+        "at": 1,
+        "color": "#4ebc66"
+       }
+      ]
+     },
+     "glow": {
+      "sigma": 7,
+      "opacity": 0.6,
+      "color": "#4ebc66"
+     }
+    },
+    {
+     "id": "s11_l1bg",
+     "type": "rect",
+     "x": 318,
+     "y": 161,
+     "w": 116,
+     "h": 24,
+     "radius": 2,
+     "fill": "#1e2223"
+    },
+    {
+     "id": "s11_l1",
+     "type": "text",
+     "text": "First name",
+     "x": 318,
+     "y": 161,
+     "color": "#8ab4f8",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s11_first",
+     "type": "text",
+     "text": "Charlotte",
+     "x": 341.0,
+     "y": 225,
+     "color": "#e8eaed",
+     "font": {
+      "size": 36,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s11_f2_o",
+     "type": "rect",
+     "x": 690,
+     "y": 415,
+     "w": 940,
+     "h": 130,
+     "radius": 12,
+     "fill": "#4a5458"
+    },
+    {
+     "id": "s11_f2_i",
+     "type": "rect",
+     "x": 690,
+     "y": 415,
+     "w": 936,
+     "h": 126,
+     "radius": 10,
+     "fill": "#1e2223"
+    },
+    {
+     "id": "s11_f2_u",
+     "type": "rect",
+     "x": 690,
+     "y": 351,
+     "w": 936,
+     "h": 3,
+     "radius": 1,
+     "fill": "#4285f4",
+     "gradient": {
+      "angle": 0,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#4285f4"
+       },
+       {
+        "at": 1,
+        "color": "#4ebc66"
+       }
+      ]
+     },
+     "glow": {
+      "sigma": 7,
+      "opacity": 0.6,
+      "color": "#4ebc66"
+     }
+    },
+    {
+     "id": "s11_ph2",
+     "type": "text",
+     "text": "Last name (optional)",
+     "x": 440.0,
+     "y": 415,
+     "color": "#80868b",
+     "font": {
+      "size": 36,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s11_last",
+     "type": "text",
+     "text": "Garcia",
+     "x": 314.0,
+     "y": 415,
+     "color": "#e8eaed",
+     "font": {
+      "size": 36,
+      "weight": 400,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s12",
+   "bg": "#1b1f20",
+   "dur": 2.6,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.4
+   },
+   "nodes": [
+    {
+     "id": "s12_search",
+     "type": "text",
+     "text": "Search mail",
+     "x": 130.5,
+     "y": 60,
+     "color": "#80868b",
+     "font": {
+      "size": 22,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s12_ref",
+     "type": "path",
+     "x": 46,
+     "y": 145,
+     "d": "M-8 0a8 8 0 1 0 3 -6.5M-5 -9L-5 -6.5L-2.5 -6.5",
+     "fill": "#9aa0a6",
+     "stroke": 2.0
+    },
+    {
+     "id": "s12_dots",
+     "type": "path",
+     "x": 106,
+     "y": 145,
+     "d": "M0 -7L0 -7M0 0L0 0M0 7L0 7",
+     "fill": "#9aa0a6",
+     "stroke": 3.0
+    },
+    {
+     "id": "s12_div",
+     "type": "rect",
+     "x": 569,
+     "y": 200,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#2a3134"
+    },
+    {
+     "id": "s12_nyu",
+     "type": "text",
+     "text": "NYU Admissions",
+     "x": 121.0,
+     "y": 424,
+     "color": "#e8eaed",
+     "font": {
+      "size": 26,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s12_sub",
+     "type": "text",
+     "text": "Welcome to NYU, Charlotte!",
+     "x": 529.0,
+     "y": 424,
+     "color": "#e8eaed",
+     "font": {
+      "size": 26,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s12_pre",
+     "type": "text",
+     "text": "- You've been accepted to New Yo...",
+     "x": 930.0,
+     "y": 424,
+     "color": "#9aa0a6",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s12_sweep",
+     "type": "rect",
+     "x": 569,
+     "y": 458,
+     "w": 1138,
+     "h": 2,
+     "radius": 1,
+     "fill": "#4ebc66",
+     "gradient": {
+      "angle": 0,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#4285f4"
+       },
+       {
+        "at": 1,
+        "color": "#4ebc66"
+       }
+      ]
+     },
+     "glow": {
+      "sigma": 6,
+      "opacity": 0.5,
+      "color": "#4ebc66"
+     }
+    },
+    {
+     "id": "s12_dad",
+     "type": "text",
+     "text": "Dad",
+     "x": 67.5,
+     "y": 266,
+     "color": "#d6f2db",
+     "font": {
+      "size": 26,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s12_share",
+     "type": "text",
+     "text": "Spreadsheet shared with you:",
+     "x": 542.0,
+     "y": 266,
+     "color": "#e8eaed",
+     "font": {
+      "size": 26,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s12_pillo",
+     "type": "rect",
+     "x": 590,
+     "y": 330,
+     "w": 434,
+     "h": 68,
+     "radius": 34,
+     "fill": "#3a5441"
+    },
+    {
+     "id": "s12_pill",
+     "type": "rect",
+     "x": 590,
+     "y": 330,
+     "w": 430,
+     "h": 64,
+     "radius": 32,
+     "fill": "#232b2d"
+    },
+    {
+     "id": "s12_shicon",
+     "type": "rect",
+     "x": 400,
+     "y": 330,
+     "w": 34,
+     "h": 34,
+     "radius": 8,
+     "fill": "#1e9e5a",
+     "glow": {
+      "sigma": 9,
+      "opacity": 0.8,
+      "color": "#4ebc66"
+     }
+    },
+    {
+     "id": "s12_shgrid",
+     "type": "path",
+     "x": 400,
+     "y": 330,
+     "d": "M-8 -6L8 -6M-8 0L8 0M-8 6L8 6",
+     "fill": "#ffffff",
+     "stroke": 1.8
+    },
+    {
+     "id": "s12_pillt",
+     "type": "text",
+     "text": "Copy of Joint Savings Plan",
+     "x": 584.0,
+     "y": 330,
+     "color": "#d6f2db",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s13",
+   "bg": "#ffffff",
+   "dur": 3.8,
+   "transition": {
+    "kind": "cut"
+   },
+   "nodes": [
+    {
+     "id": "s13_appicon",
+     "type": "rect",
+     "x": 60,
+     "y": 38,
+     "w": 30,
+     "h": 38,
+     "radius": 6,
+     "fill": "#1e9e5a"
+    },
+    {
+     "id": "s13_appgrid",
+     "type": "path",
+     "x": 60,
+     "y": 40,
+     "d": "M-8 -8L8 -8M-8 0L8 0M-8 8L8 8",
+     "fill": "#ffffff",
+     "stroke": 2.0
+    },
+    {
+     "id": "s13_told",
+     "type": "text",
+     "text": "Copy of Joint Savings Plan",
+     "x": 248.0,
+     "y": 36,
+     "color": "#202124",
+     "font": {
+      "size": 22,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_tnew",
+     "type": "text",
+     "text": "Charlotte's College Budgeting Plan",
+     "x": 292.0,
+     "y": 36,
+     "color": "#202124",
+     "font": {
+      "size": 22,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_tbox",
+     "type": "path",
+     "x": 300,
+     "y": 36,
+     "d": "M-205 -21L205 -21L205 21L-205 21Z",
+     "fill": "#1a73e8",
+     "stroke": 2.0
+    },
+    {
+     "id": "s13_col0",
+     "type": "text",
+     "text": "G",
+     "x": 13,
+     "y": 166,
+     "color": "#80868b",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_col1",
+     "type": "text",
+     "text": "H",
+     "x": 223,
+     "y": 166,
+     "color": "#80868b",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_col2",
+     "type": "text",
+     "text": "I",
+     "x": 436,
+     "y": 166,
+     "color": "#80868b",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_col3",
+     "type": "text",
+     "text": "J",
+     "x": 648,
+     "y": 166,
+     "color": "#80868b",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_col4",
+     "type": "text",
+     "text": "K",
+     "x": 859,
+     "y": 166,
+     "color": "#80868b",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_col5",
+     "type": "text",
+     "text": "L",
+     "x": 1070,
+     "y": 166,
+     "color": "#80868b",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_gv0",
+     "type": "rect",
+     "x": 118,
+     "y": 320,
+     "w": 1,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eceff1"
+    },
+    {
+     "id": "s13_gv1",
+     "type": "rect",
+     "x": 330,
+     "y": 320,
+     "w": 1,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eceff1"
+    },
+    {
+     "id": "s13_gv2",
+     "type": "rect",
+     "x": 542,
+     "y": 320,
+     "w": 1,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eceff1"
+    },
+    {
+     "id": "s13_gv3",
+     "type": "rect",
+     "x": 754,
+     "y": 320,
+     "w": 1,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eceff1"
+    },
+    {
+     "id": "s13_gv4",
+     "type": "rect",
+     "x": 966,
+     "y": 320,
+     "w": 1,
+     "h": 640,
+     "radius": 0,
+     "fill": "#eceff1"
+    },
+    {
+     "id": "s13_band",
+     "type": "rect",
+     "x": 378,
+     "y": 342,
+     "w": 756,
+     "h": 46,
+     "radius": 0,
+     "fill": "#e8f0fe"
+    },
+    {
+     "id": "s13_rline1",
+     "type": "rect",
+     "x": 569,
+     "y": 319,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#e3e7e9"
+    },
+    {
+     "id": "s13_rline2",
+     "type": "rect",
+     "x": 569,
+     "y": 366,
+     "w": 1138,
+     "h": 1,
+     "radius": 0,
+     "fill": "#e3e7e9"
+    },
+    {
+     "id": "s13_h0",
+     "type": "text",
+     "text": "Scholarship",
+     "x": 53,
+     "y": 297,
+     "color": "#202124",
+     "font": {
+      "size": 19,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_h1",
+     "type": "text",
+     "text": "Monthly Expenses",
+     "x": 233,
+     "y": 297,
+     "color": "#202124",
+     "font": {
+      "size": 19,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_h2",
+     "type": "text",
+     "text": "Monthly Income",
+     "x": 455,
+     "y": 297,
+     "color": "#202124",
+     "font": {
+      "size": 19,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_h3",
+     "type": "text",
+     "text": "Spending Money",
+     "x": 661,
+     "y": 297,
+     "color": "#202124",
+     "font": {
+      "size": 19,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_v0",
+     "type": "text",
+     "text": "$6,000",
+     "x": 66,
+     "y": 342,
+     "color": "#202124",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_v1",
+     "type": "text",
+     "text": "-$900",
+     "x": 287,
+     "y": 342,
+     "color": "#202124",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_v2",
+     "type": "text",
+     "text": "$720",
+     "x": 505,
+     "y": 342,
+     "color": "#202124",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_v3",
+     "type": "text",
+     "text": "$250",
+     "x": 716,
+     "y": 342,
+     "color": "#202124",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_cell",
+     "type": "path",
+     "x": 444,
+     "y": 342,
+     "d": "M-105 -23L105 -23L105 23L-105 23Z",
+     "fill": "#1a73e8",
+     "stroke": 2.4
+    },
+    {
+     "id": "s13_como",
+     "type": "rect",
+     "x": 900,
+     "y": 343,
+     "w": 294,
+     "h": 56,
+     "radius": 5,
+     "fill": "#4ebc66"
+    },
+    {
+     "id": "s13_comi",
+     "type": "rect",
+     "x": 900,
+     "y": 343,
+     "w": 288,
+     "h": 50,
+     "radius": 3,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "s13_dadtag",
+     "type": "rect",
+     "x": 1023,
+     "y": 311,
+     "w": 44,
+     "h": 22,
+     "radius": 3,
+     "fill": "#4ebc66"
+    },
+    {
+     "id": "s13_dadt",
+     "type": "text",
+     "text": "Dad",
+     "x": 1023,
+     "y": 311,
+     "color": "#ffffff",
+     "font": {
+      "size": 13,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_com",
+     "type": "text",
+     "text": "Don't forget to have fun!",
+     "x": 893.0,
+     "y": 343,
+     "color": "#202124",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_tab_Activities",
+     "type": "text",
+     "text": "Activities",
+     "x": 260,
+     "y": 607,
+     "color": "#9aa0a6",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_tab_Total",
+     "type": "text",
+     "text": "Total",
+     "x": 500,
+     "y": 607,
+     "color": "#9aa0a6",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s13_tab_Average",
+     "type": "text",
+     "text": "Average",
+     "x": 686,
+     "y": 607,
+     "color": "#9aa0a6",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s14",
+   "bg": "#ffffff",
+   "dur": 1.8,
+   "transition": {
+    "kind": "dip",
+    "dur": 0.4,
+    "dir": "#ffffff"
+   },
+   "nodes": [
+    {
+     "id": "s14_head",
+     "type": "text",
+     "text": "Tools that grow with you.",
+     "x": 569.0,
+     "y": 318,
+     "color": "#202124",
+     "font": {
+      "size": 42,
+      "weight": 500,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s15",
+   "bg": "#ffffff",
+   "dur": 2.0,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.5
+   },
+   "nodes": [
+    {
+     "id": "s15_g0",
+     "type": "path",
+     "x": 524.0,
+     "y": 273,
+     "d": "M533.5 278.4c0-18.5-1.5-31.9-4.7-45.9H272.1v83.3h150.4c-3 25.2-19.4 63.2-55.8 88.7l81.3 63c48.7-45 76.5-111.2 76.5-189.1",
+     "fill": "#4285f4",
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 0.16544117647058823
+       }
+      ]
+     }
+    },
+    {
+     "id": "s15_g1",
+     "type": "path",
+     "x": 524.0,
+     "y": 273,
+     "d": "M272.1 107.7c46.4 0 77.9 20 95.9 36.7l70-68.3C395.7 33.1 337.8 0 272.1 0 174.8 0 93 51 52.9 130.5l83.9 64.8c19-56.7 72.4-99.1 135.3-99.1",
+     "fill": "#ea4335",
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 0.16544117647058823
+       }
+      ]
+     }
+    },
+    {
+     "id": "s15_g2",
+     "type": "path",
+     "x": 524.0,
+     "y": 273,
+     "d": "M136.8 348.9c-5-14.9-7.9-30.8-7.9-47.2s2.9-32.3 7.7-47.2l-84-64.8c-16.5 32.9-26 69.9-26 112s9.5 79.1 26.1 112z",
+     "fill": "#fbbc05",
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 0.16544117647058823
+       }
+      ]
+     }
+    },
+    {
+     "id": "s15_g3",
+     "type": "path",
+     "x": 524.0,
+     "y": 273,
+     "d": "M272.1 544.3c65.7 0 120.9-21.6 161.2-58.8l-81.3-63c-21.7 15.1-50.8 25.6-79.9 25.6-62.9 0-116.3-42.4-135.3-99.1l-83.9 64.8c40.1 79.5 121.9 130.5 219.2 130.5",
+     "fill": "#34a853",
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 0.16544117647058823
+       }
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

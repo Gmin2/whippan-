@@ -107,6 +107,26 @@ def blob_dot_d(s=1.0):
     return circle_d(5.2 * s) + f"M{-4*s:.1f} {3*s:.1f}L{-7.5*s:.1f} {7.5*s:.1f}L{-1*s:.1f} {5*s:.1f}Z"
 
 
+def ribbon_d(pts, w=2.6):
+    # closed thin band along a 2-segment cubic chain, so dseq morphing (which
+    # closes paths) keeps it a clean single line
+    o = w / 2
+    up = [(x, y - o) for x, y in pts]
+    dn = [(x, y + o) for x, y in pts]
+
+    def seg(p):
+        return (f"M{p[0][0]:.1f} {p[0][1]:.1f}"
+                f"C{p[1][0]:.1f} {p[1][1]:.1f} {p[2][0]:.1f} {p[2][1]:.1f} {p[3][0]:.1f} {p[3][1]:.1f}"
+                f"C{p[4][0]:.1f} {p[4][1]:.1f} {p[5][0]:.1f} {p[5][1]:.1f} {p[6][0]:.1f} {p[6][1]:.1f}")
+
+    d = seg(up)
+    rev = list(reversed(dn))
+    d += (f"L{rev[0][0]:.1f} {rev[0][1]:.1f}"
+          f"C{rev[1][0]:.1f} {rev[1][1]:.1f} {rev[2][0]:.1f} {rev[2][1]:.1f} {rev[3][0]:.1f} {rev[3][1]:.1f}"
+          f"C{rev[4][0]:.1f} {rev[4][1]:.1f} {rev[5][0]:.1f} {rev[5][1]:.1f} {rev[6][0]:.1f} {rev[6][1]:.1f}Z")
+    return d
+
+
 def tail_d(side=1):
     # imessage bubble tail; side=1 points left, -1 points right
     pts = ("M2 -16L2 8C-4 14 -14 18 -25 17C-12 10 -6 2 -6 -16Z")
@@ -127,7 +147,7 @@ node(ed, "e_bg", "rect", 540, 540, w=1084, h=1084, radius=0, fill="#59585e",
          {"at": 0.78, "color": "#1a1a1c"}, {"at": 1.0, "color": "#000000"}]})
 rect(ed, "e_app", 540, 539, 920, 712, 26, "#d4d4d4")
 rect(ed, "e_canvas", 538, 500, 503, 500, 6, "#ffffff")
-text(ed, "e_hello", "hello", 540, 500, 150, "#1287ff", weight=800)
+text(ed, "e_hello", "hello", 540, 500, 156, "#1287ff", weight=800)
 path(ed, "e_sel", 538.5, 497.5, rect_outline_d(205.5, 85.5), "#4a90f8",
      stroke=1.3)
 for i, (hx, hy) in enumerate([(333, 412), (744, 412), (333, 583), (744, 583)]):
@@ -192,7 +212,7 @@ path(ed, "e_phr", 358, 804, circle_d(9), "#ea6f34", stroke=2.0)
 # color wheel: blooms out of the dot f26-40
 WCX, WCY = 205, 487
 rect(ed, "e_disc", WCX, WCY, 127, 127, 63.5, "#ffffff",
-     glow={"sigma": 8, "opacity": 0.25, "color": "#888888", "dy": 3})
+     glow={"sigma": 5, "opacity": 0.15, "color": "#888888", "dy": 2})
 track("e_disc", scale=[(24 * F, 0.0), (25 * F, 0.0), (33 * F, 1.0, "outCubic")],
       opacity=steps([(25 * F, 0), (25.5 * F, 1)]))
 SWATCH = ["#b31217", "#3a3a3a", "#e9e9e6", "#6c6459", "#4a3a2c", "#5b2d8e",
@@ -236,10 +256,10 @@ track("e_ringO",
 track("e_ring", opacity=steps([(0, 0), (21.5 * F, 1)]))
 
 # cursor drifts from the canvas to the dot, presses, fades when sphere lands
-node(ed, "e_cur", "cursor", 213, 505, w=26, fill="#111111")
+node(ed, "e_cur", "cursor", 207.5, 499, w=26, fill="#111111")
 track("e_cur",
-      x=[(0, 32), (20 * F, 0, "outCubic")],
-      y=[(0, 5), (20 * F, 0, "outCubic")],
+      x=[(0, 37.5), (20 * F, 0, "outCubic")],
+      y=[(0, 11), (20 * F, 0, "outCubic")],
       opacity=[(55 * F, 1), (58 * F, 0)])
 
 # the camera: crash zoom f11-25 (blur peak f14), slow drift while the wheel
@@ -318,7 +338,7 @@ rect(mg, "m_b2", 790, 452, 310, 140, 66, "#45a23b", gradient=GREEN_G, glow=GLOW)
 track("m_b2", w=[(29 * F, 150), (40 * F, 220), (58 * F, 310, "outCubic")],
       y=helloy, x=hellox, opacity=helloo)
 path(mg, "m_b2t", 931, 502, tail_d(-1), "#3c9834")
-track("m_b2t", x=[(29 * F, -47), (58 * F, 33, "outCubic")], y=helloy,
+track("m_b2t", x=[(29 * F, -80), (58 * F, 0, "outCubic")], y=helloy,
       opacity=helloo)
 text(mg, "m_b2x", "hello", 790, 452, 66, "#ffffff", weight=800)
 track("m_b2x", y=helloy, x=hellox, opacity=helloo)
@@ -383,11 +403,13 @@ blobs = [("m_n0", 254, 973, "#d8da6c", None),
          ("m_n6", 712, 1011, "#141414", None),
          ("m_n7", 820, 1011, "#141414", None)]
 for bid, bx, by, col, lit in blobs:
-    n = path(mg, bid, bx, by, blob_d(1.0), col)
+    scroll.append(path(mg, bid, bx, by, blob_d(1.0), col))
     if lit is not None:
-        n["states"] = {"lit": {"fill": "#d8da6c"}}
-        tracks.append({"target": bid, "at": round(lit, 3), "state": "lit"})
-    scroll.append(n)
+        # state fill flips only work on rects, so light the pill olive with
+        # an overlay path faded in as the playhead crosses it
+        ov = path(mg, bid + "o", bx, by, blob_d(1.0), "#d8da6c")
+        track(bid + "o", opacity=steps([(0, 0), (round(lit, 3), 1)]))
+        scroll.append(ov)
     scroll.append(path(mg, bid + "d", bx, by, blob_dot_d(1.0), "#8a8a8a"))
 chip = rect(mg, "m_chip", 838, 972, 26, 26, 8, "#1c1c1c")
 scroll.append(chip)
@@ -433,14 +455,22 @@ rect(cv, "c_phk", -253, 905, 10, 24, 4, "#1c1c1c")
 # connectors (under the nodes)
 path(cv, "c_cAB", 130, 849,
      "M0 0C70 8 120 30 150 45C180 58 200 62 215 62", "#b9b9b9", stroke=2.4)
-node(cv, "c_cCD", "path", 410, 830, fill="#b9b9b9", stroke=2.4, dseq=[
-    {"at": 0.0, "d": "M0 0C45 10 70 60 85 90C100 120 118 140 135 145"},
-    {"at": round(8 * F, 3), "d": "M0 0C45 10 70 60 85 90C100 120 118 140 135 145"},
-    {"at": round(20 * F, 3), "d": "M-49 19C0 30 40 80 60 105C85 132 115 143 135 145"}])
-node(cv, "c_cEG", "path", 650, 905, fill="#b9b9b9", stroke=2.4, dseq=[
-    {"at": 0.0, "d": "M0 0C40 -10 80 -30 105 -40C120 -46 135 -52 145 -56"},
-    {"at": round(35 * F, 3), "d": "M0 0C40 -10 80 -30 105 -40C120 -46 135 -52 145 -56"},
-    {"at": round(53 * F, 3), "d": "M0 70C35 45 70 -10 95 -35C110 -48 130 -54 145 -56"}])
+cd1 = ribbon_d([(0, 0), (45, 10), (70, 60), (85, 90), (100, 120), (118, 140),
+                (135, 145)])
+cd2 = ribbon_d([(-49, 19), (0, 30), (40, 80), (60, 105), (85, 132), (115, 143),
+                (135, 145)])
+node(cv, "c_cCD", "path", 410, 830, fill="#b9b9b9", dseq=[
+    {"at": 0.0, "d": cd1},
+    {"at": round(8 * F, 3), "d": cd1},
+    {"at": round(20 * F, 3), "d": cd2}])
+eg1 = ribbon_d([(0, 0), (40, -10), (80, -30), (105, -40), (120, -46),
+                (135, -52), (145, -56)])
+eg2 = ribbon_d([(0, 70), (35, 45), (70, -10), (95, -35), (110, -48),
+                (130, -54), (145, -56)])
+node(cv, "c_cEG", "path", 650, 905, fill="#b9b9b9", dseq=[
+    {"at": 0.0, "d": eg1},
+    {"at": round(35 * F, 3), "d": eg1},
+    {"at": round(53 * F, 3), "d": eg2}])
 path(cv, "c_cF", 845, 975, "M-15 0L65 0", "#b9b9b9", stroke=2.4)
 
 CVN = [("c_nA", 130, 849), ("c_nB", 345, 911), ("c_nC", 361, 849),
