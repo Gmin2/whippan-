@@ -324,6 +324,30 @@
   "anim": "/docs/radio-main.anim.json"
  },
  {
+  "slug": "crab",
+  "title": "crab (repro)",
+  "dur": 4.97,
+  "size": [
+   1080,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/crab.stage.json",
+  "anim": "/docs/crab.anim.json"
+ },
+ {
+  "slug": "motion-main",
+  "title": "motion-main (repro)",
+  "dur": 12.1,
+  "size": [
+   1242,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/motion-main.stage.json",
+  "anim": "/docs/motion-main.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,

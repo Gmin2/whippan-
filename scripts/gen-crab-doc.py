@@ -459,9 +459,9 @@ def handle_pos(t):
 
 DT = 1 / 240
 STEPS = int(2.30 / DT) + 1
-L_REST = 118
-BODY_K = 42.0
-BODY_DAMP = 3.0
+L_REST = 260
+BODY_K = 30.0
+BODY_DAMP = 2.8
 LIMB_OM = 13.5
 LIMB_Z = 0.22
 

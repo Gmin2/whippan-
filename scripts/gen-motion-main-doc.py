@@ -277,10 +277,13 @@ nodes.append(rect("mcard", 560, 760, 240, 240, 30, "#9b9b9b"))
 tracks.append(keyed(
     "mcard",
     w=[(1.05, 240), (1.38, 1000, "outCubic"), (1.95, 1000),
-       (2.3, 600, "inOutCubic"), (2.95, 600), (3.3, 900, "inOutCubic")],
+       (2.3, 600, "inOutCubic"), (2.95, 600), (3.4, 780, "inOutCubic"),
+       (3.55, 780), (3.95, 620, "inOutCubic")],
     h=[(1.05, 240), (1.38, 1030, "outCubic"), (1.95, 1030),
-       (2.3, 600, "inOutCubic"), (2.95, 600), (3.3, 850, "inOutCubic")],
-    opacity=[(0, 0), (1.05, 0), (1.25, 1), (4.0, 1), (4.3, 0)]))
+       (2.3, 600, "inOutCubic"), (2.95, 600), (3.4, 1020, "inOutCubic"),
+       (3.55, 1020), (3.95, 900, "inOutCubic")],
+    y=[(3.55, 0), (3.95, 150, "inOutCubic")],
+    opacity=[(0, 0), (1.05, 0), (1.25, 1), (5.3, 1), (5.58, 0)]))
 m_card = [
     ltext("mct1", "Seigfried", 340, 900, 52, "#f2f2f2", weight=700),
     ltext("mct2", "Frank Ocean", 342, 955, 36, "#dedede"),
@@ -307,31 +310,34 @@ for nid in ("tabbar", "tabicons"):
         scale=[(3.55, 1), (3.95, 0.46, "inOutCubic")],
         opacity=[(0, 0), (2.98, 0), (3.2, 1), (5.3, 1), (5.58, 0)]))
 
-CARD2_Y = [(3.45, -420), (3.9, 0, "outCubic"), (4.8, 0),
+CARD2_Y = [(3.3, -650), (3.75, 0, "outCubic"), (4.8, 0),
            (5.2, 60, "inOutCubic")]
-CARD2_OP = [(0, 0), (3.4, 0), (3.6, 1), (5.3, 1), (5.6, 0)]
-nodes.append(rect("card2", PX, 150, 560, 330, 40, "#a03326",
+CARD2_OP = [(0, 0), (3.3, 0), (3.5, 1), (5.3, 1), (5.6, 0)]
+nodes.append(rect("card2", PX, 260, 570, 560, 46, "#a03326",
                   gradient=grad(40, "#c8402e", "#6f1c14")))
-nodes.append(text("c2t1", "Illegal", PX, 130, 40, "#ffffff", weight=700))
-nodes.append(text("c2t2", "PinkPantheress", PX, 185, 27, "#f0d9d6"))
-for nid in ("card2", "c2t1", "c2t2"):
+nodes.append(text("c2t1", "Illegal", PX, 355, 44, "#ffffff", weight=700))
+nodes.append(text("c2t2", "PinkPantheress", PX, 412, 30, "#f0d9d6"))
+nodes.append(rect("c2sc", PX, 465, 470, 6, 3, "#e8d9d6"))
+for nid in ("card2", "c2t1", "c2t2", "c2sc"):
     tracks.append(keyed(nid, y=CARD2_Y, opacity=CARD2_OP,
                         rot=[(4.8, 0), (5.15, 5, "inOutCubic")]))
 
 # ===================================================== s6: iPod device
-DEV_OP = [(0, 0), (3.9, 0), (4.2, 1), (5.3, 1), (5.58, 0)]
-DEV_SC = [(3.9, 0.92), (4.25, 1.0, "outCubic")]
+# the plain wheel fades onto the settling body
+DEV_OP = [(0, 0), (3.45, 0), (3.75, 1), (5.3, 1), (5.58, 0)]
 dev_parts = [
-    rect("devbody", PX, 800, 700, 880, 90, "#f3f3f4"),
-    rect("devwheel", PX, 950, 420, 420, 210, "#e2e2e4"),
-    rect("devhole", PX, 950, 140, 140, 70, "#f3f3f4"),
-    path("devrew", PX - 150, 950, rew_d, "#bcbcc0"),
-    path("devff", PX + 150, 950, ff_d, "#bcbcc0"),
-    path("devpp", PX, 1100, pp_d, "#bcbcc0"),
+    rect("devwheel", PX, 970, 430, 430, 215, "#f0f0f1"),
+    rect("devhole", PX, 970, 150, 150, 75, "#d7d7d9"),
 ]
 for n in dev_parts:
     nodes.append(n)
-    tracks.append(keyed(n["id"], scale=DEV_SC, opacity=DEV_OP))
+    tracks.append(keyed(n["id"], opacity=DEV_OP))
+# canvas mirror: wheel outline + dark tab pill on the grey slab
+nodes.append(path("mdevwheel", 560, 1000, circle(0, 0, 165), "#4a4a4a",
+                  stroke=1.4))
+nodes.append(rect("mdevtab", 560, 1280, 330, 95, 14, "#2c2c2e"))
+for nid in ("mdevwheel", "mdevtab"):
+    tracks.append(keyed(nid, opacity=DEV_OP))
 # canvas mirror: grey card stack rising
 for i in range(4):
     g = ["#6e6e6e", "#8b8b8b", "#a5a5a5", "#bcbcbc"][i]
