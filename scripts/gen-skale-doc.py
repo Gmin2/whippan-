@@ -170,8 +170,8 @@ scene("s4", "#0b2a38", 2.2, n4, kind="push", dir="up", tdur=0.5)
 
 # 5 ------------------- white flip: the claim + thread draws the frame
 n5 = [
-    path("mk5_c", 435, 300, circle_d(40), STEEL, stroke=7.0),
-    path("mk5_s", 435, 300, star4_d(30), STEEL, rot=24),
+    path("mk5_c", 372, 300, circle_d(40), STEEL, stroke=7.0),
+    path("mk5_s", 372, 300, star4_d(30), STEEL, rot=24),
     text("cl1", "A browser that gets", 712, 290, 52, "#93a5ad", weight=600),
     text("cl2", "complex work done", 660, 368, 52, "#93a5ad", weight=600),
     path("th5", 180, 600,
@@ -194,7 +194,7 @@ reveal("cl2", 0.9, unit="word", stagger=0.14, dur=0.28, rise=14,
        accent="#6fb7c9", color_delay=0.18, color_dur=0.32, keep=["done"])
 track("dot5", opacity=[(0.4, 0), (0.5, 1)],
       y=[(0.5, 0), (1.6, -252, "inOutCubic")],
-      x=[(1.6, 0), (2.3, 420, "outCubic")])
+      x=[(1.6, 0), (1.72, 120), (2.3, 420, "outCubic")])
 scene("s5", "#ffffff", 2.6, n5, kind="dissolve", tdur=0.5)
 
 # 6 --------------------------------- command bar, the task typed in
@@ -329,7 +329,8 @@ for i, (pid, fill, ch, chc, label, b) in enumerate(SUBS):
     n7.append(text(f"{pid}_s", "Spawned subagent", 340, y, 20, "#b9bfc4"))
     n7.append(rect(f"{pid}_b", 478, y, 42, 42, 10, fill))
     n7.append(text(f"{pid}_bt", ch, 478, y, 21, chc, weight=700))
-    n7.append(text(f"{pid}_l", label, 660, y, 22, INK, weight=600))
+    n7.append(text(f"{pid}_l", label, 520 + len(label) * 5.7, y, 22, INK,
+                   weight=600))
     for nid in (f"{pid}_g", f"{pid}_s", f"{pid}_b", f"{pid}_bt", f"{pid}_l"):
         track(nid, at=b, opacity=[(0, 0), (0.18, 1)],
               y=[(0, 12), (0.24, 0, "outCubic")])
@@ -358,9 +359,9 @@ n8 = [
          416, 188, 19, "#9aa0a6"),
 ]
 track("bm_t", opacity=[(0, 0), (0.78, 0), (0.8, 1)])
-reveal("bm_t", 0.8, unit="type", cadence=0.03, dur=0.06, caret="hidden")
+reveal("bm_t", 0.8, unit="type", cadence=0.03, dur=0.06, caret="none")
 track("bm_s", opacity=[(0, 0), (1.18, 0), (1.2, 1)])
-reveal("bm_s", 1.2, unit="type", cadence=0.018, dur=0.05, caret="hidden")
+reveal("bm_s", 1.2, unit="type", cadence=0.018, dur=0.05, caret="none")
 ROWS = [("Aside GPT 5.5", 880, "99%", 250),
         ("Browser use", 805, "97%", 324),
         ("GPT 5.4 | Computer use", 680, "92%", 398),
@@ -370,7 +371,7 @@ for i, (label, wv, val, y) in enumerate(ROWS):
     cx = 150 + wv / 2
     if i == 0:
         n8.append(rect("bb0", cx, y, wv, 52, 12, CYAN,
-                       glow={"sigma": 28, "opacity": 0.85, "color": CYAN},
+                       glow={"sigma": 16, "opacity": 0.55, "color": CYAN},
                        streak={"samples": 5, "window": 0.06, "gain": 0.6}))
         n8.append(text("bl0", label, 240, y, 21, "#0d3a46", weight=600))
         n8.append(text("bv0", val, 1095, y, 26, CYAN, weight=600))
