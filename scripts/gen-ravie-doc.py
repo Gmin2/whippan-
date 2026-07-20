@@ -145,10 +145,10 @@ ZS = [(0.0, 2.9), (1.7, 2.9), (1.95, 2.35, "outCubic"),
       (2.25, 1.6, "outCubic"), (2.6, 1.22, "outCubic"),
       (2.95, 1.05, "outCubic"), (3.3, 1.0, "outCubic")]
 keyed("s1", cam_zoom=ZS,
-      cam_x=[(t, round(-336.2 * (z - 1) / 1.9, 1), *e[2:])
-             for (t, z, *e) in [(k[0], k[1], *k[2:]) for k in ZS]],
-      cam_y=[(t, round(-35.0 * (z - 1) / 1.9, 1), *e[2:])
-             for (t, z, *e) in [(k[0], k[1], *k[2:]) for k in ZS]])
+      cam_x=[(k[0], round(-336.2 * (k[1] - 1) / 1.9, 1), *k[2:])
+             for k in ZS],
+      cam_y=[(k[0], round(-35.0 * (k[1] - 1) / 1.9, 1), *k[2:])
+             for k in ZS])
 typed("s1_q", 0.35, 0.05, cadence_end=0.032)
 keyed("s1_caret", opacity=[(0.0, 1), (0.34, 1), (0.35, 0)])
 keyed("s1_glow", opacity=[(0.0, 0), (0.3, 0.55), (3.0, 0.55), (3.25, 0.9)])
@@ -526,7 +526,7 @@ keyed("s12_sweep", opacity=[(0.55, 0), (0.75, 1)],
 s12.append(ltext("s12_dad", "Dad", 48, 266, 26, "#d6f2db", weight=600))
 s12.append(ltext("s12_share", "Spreadsheet shared with you:", 360, 266, 26,
                  "#e8eaed", weight=500))
-s12.append(rect("s12_pillo", 590, 330, 434, 68, 34, "#3a544171"))
+s12.append(rect("s12_pillo", 590, 330, 434, 68, 34, "#3a5441"))
 s12.append(rect("s12_pill", 590, 330, 430, 64, 32, "#232b2d"))
 s12.append(rect("s12_shicon", 400, 330, 34, 34, 8, SHEETS,
                 glow={"sigma": 9, "opacity": 0.8, "color": GREEN}))

@@ -460,19 +460,19 @@ n10 += [
 ]
 FLIP = 0.85
 track("cardb10", opacity=stepk([(0.04, 0), (0.08, 1), (FLIP, 0)]))
-track("cardw10", opacity=stepk([(0, 0), (FLIP, 1), (3.15, 1), (3.25, 0)]))
+track("cardw10", opacity=stepk([(0, 0), (FLIP, 1), (2.95, 1), (3.05, 0)]))
 reveal("hlw1", 0.12, unit="type", cadence=0.038, dur=0.04, caret="block",
        caret_typing="solid")
 track("hlw1", opacity=stepk([(0.1, 0), (0.12, 1), (FLIP, 0)]))
 reveal("hlw2", 0.5, unit="type", cadence=0.038, dur=0.04, caret="block",
        caret_typing="solid")
 track("hlw2", opacity=stepk([(0, 0), (0.5, 1), (FLIP, 0)]))
-track("hlb1", opacity=stepk([(0, 0), (FLIP, 1), (3.15, 1), (3.2, 0)]))
-track("hlb2", opacity=stepk([(0, 0), (FLIP, 1), (3.05, 1), (3.1, 0)]))
+track("hlb1", opacity=stepk([(0, 0), (FLIP, 1), (2.95, 1), (3.0, 0)]))
+track("hlb2", opacity=stepk([(0, 0), (FLIP, 1), (2.85, 1), (2.9, 0)]))
 for nid, a in [("sub10a", 1.0), ("sub10b", 1.05)]:
-    track(nid, opacity=[(a, 0), (a + 0.25, 1), (3.1, 1), (3.2, 0)])
+    track(nid, opacity=[(a, 0), (a + 0.25, 1), (2.9, 1), (3.0, 0)])
 for nid in ["abox10", "abord10", "plbl10", "plblt10"]:
-    track(nid, opacity=stepk([(0.15, 0), (0.2, 1), (3.2, 1), (3.25, 0)]))
+    track(nid, opacity=stepk([(0.15, 0), (0.2, 1), (2.95, 1), (3.05, 0)]))
 ASCII = [":jYYj!~'  . .", "!JJ5i>>:'  .", ">tcY+>>!'", "=SXY=jc=~"]
 for i, s in enumerate(ASCII):
     nid = f"asc10_{i}"
@@ -480,7 +480,9 @@ for i, s in enumerate(ASCII):
     reveal(nid, 0.25 + i * 0.12, unit="scramble", cadence=0.06, churn=5)
     track(nid, opacity=stepk([(0.22, 0), (0.25 + i * 0.12, 1),
                               (1.6 + i * 0.1, 0.7), (1.7 + i * 0.1, 1),
-                              (2.4, 0.75), (2.5, 1), (3.2, 1), (3.25, 0)]))
+                              (2.4, 0.75), (2.5, 1), (2.95, 1), (3.05, 0)]))
+n10.append(rect("flash10", 569, 320, 1138, 640, 0, WHITE))
+track("flash10", opacity=[(0, 0.95), (0.3, 0, "outCubic")])
 scene("s10", "#000000", 3.3, n10)
 
 # 11 ---------------------------------------- hexagon logo precipitates

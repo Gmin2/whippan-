@@ -303,10 +303,10 @@ opacity_steps("q_query", [(0, 0), (0.033, 1), (1.58, 1), (1.70, 0)])
 # youtube preview player, gooey-expands at its final spot
 player = []
 player.append(rect(S2, "v_card", 540, 558, 616, 366, 44, "#ffffff"))
-player.append(rect(S2, "v_art", 540, 575, 264, 300, 6, "#d8d3cc"))
-player.append(path(S2, "v_hair", 540, 500, circle_d(48), "#5d7742"))
-player.append(path(S2, "v_body", 540, 600,
-                   "M-70 75C-70 -25 70 -25 70 75L-70 75Z", "#b98a63"))
+player.append(rect(S2, "v_art", 540, 588, 264, 270, 6, "#d8d3cc"))
+player.append(path(S2, "v_hair", 540, 517, circle_d(40), "#5d7742"))
+player.append(path(S2, "v_body", 540, 615,
+                   "M-65 70C-65 -20 65 -20 65 70L-65 70Z", "#b98a63"))
 player.append(path(S2, "v_av", 287, 433, circle_d(32), "#a8ad9c"))
 player.append(path(S2, "v_avr", 287, 433, circle_d(22), None, stroke=2.0))
 scene_nodes[S2][-1]["fill"] = "#7d8272"
@@ -347,7 +347,7 @@ for n in player:
 opacity_steps("v_okb", [(0, 0), (1.95, 0), (2.12, 1)])
 
 # cursor: on the field, eases down to the pink+white row, then the player
-n = make(S2, {"id": "q_cur", "type": "cursor", "x": 540, "y": 872,
+n = make(S2, {"id": "q_cur", "type": "cursor", "x": 522, "y": 856,
               "w": 40, "fill": "#111111"})
 opacity_steps("q_cur", [(0, 0), (0.03, 1)])
 key("q_cur", "x", [(1.10, 0), (1.45, -10, "inOutCubic"),
@@ -508,6 +508,7 @@ for n in scene_nodes[S4]:
         continue
     opacity_steps(n["id"], [(0, 0.55), (0.20, 0.55), (0.45, 1)])
 key(S4, "cam_zoom", [(0, 1.0), (0.45, 1.0), (1.167, 1.08)])
+key(S4, "cam_y", [(0, 0), (0.45, 0), (1.167, 24)])
 
 # ============================================================== assemble
 for (nid, prop), ks in keyacc.items():

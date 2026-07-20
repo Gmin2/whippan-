@@ -508,7 +508,7 @@ CHAIN = [
 n11 = []
 for i, (cid, label, cy, at, side) in enumerate(CHAIN):
     orange_node = cid == "ch4"
-    wv = 60 + len(label) * 19
+    wv = 175 + len(label) * 19
     n11 += [
         rect(cid + "_b", 960, cy, wv, 100, 26, MID, blur=16,
              streak={"samples": 5, "window": 0.05, "gain": 0.6},
@@ -518,12 +518,12 @@ for i, (cid, label, cy, at, side) in enumerate(CHAIN):
         rect(cid + "_u", 960, cy, wv, 100, 26, ORANGE),
         rect(cid, 960, cy, wv - 7, 93, 23,
              ORANGE if orange_node else "#ffffff"),
-        rect(cid + "_i", 960 - wv / 2 + 62, cy, 56, 56, 14,
+        rect(cid + "_i", 960 - wv / 2 + 58, cy, 56, 56, 14,
              "#8a76e8" if orange_node else "#f1ece6"),
         text(cid + "_it", "S" if orange_node else "◇",
-             960 - wv / 2 + 62, cy + 1, 30,
+             960 - wv / 2 + 58, cy + 1, 30,
              "#ffffff" if orange_node else "#b0a89e", weight=700),
-        text(cid + "_t", label, 960 + 32, cy, 38,
+        text(cid + "_t", label, 960 + 34, cy, 38,
              "#ffffff" if orange_node else ORANGE, weight=600),
     ]
     # blob slides in with motion blur, then the orange drains out
@@ -577,15 +577,15 @@ scene("s11", "#f6efe9", 3.8, n11)
 n12 = []
 # ghost of the chain at low opacity behind the chips
 for i, (cid, label, cy, at, side) in enumerate(CHAIN):
-    wv = 60 + len(label) * 19
+    wv = 175 + len(label) * 19
     gy = 140 + i * 195
     n12.append(rect(f"gh{i}", 960, gy, wv, 100, 26, "#f0b184"))
     n12.append(text(f"gh{i}_t", label, 960 + 32, gy, 38, "#e5b18c"))
     track(f"gh{i}", opacity=[(0, 0.16)])
     track(f"gh{i}_t", opacity=[(0, 0.35)])
-TRAIN = [("tc1", "Connects", 560, 380, 0.2),
-         ("tc2", "Map Events", 990, 420, 0.75),
-         ("tc3", "Send Postbacks", 1480, 520, 1.3)]
+TRAIN = [("tc1", "Connects", 560, 380, 0.15),
+         ("tc2", "Map Events", 990, 420, 0.6),
+         ("tc3", "Send Postbacks", 1480, 520, 1.05)]
 for tid, label, tx, twv, at in TRAIN:
     n12 += [rect(tid, tx, 540, twv, 130, 32, ORANGE, goo="train"),
             text(tid + "_t", label, tx, 540, 52, "#ffffff", weight=600)]
@@ -625,7 +625,7 @@ track("ec2", opacity=[(1.6, 0), (1.7, 1)],
       w=[(1.6, 80), (1.95, 250, "outCubic")],
       x=[(1.6, -85), (1.95, 0, "outCubic")])
 track("ec2_t", opacity=[(1.8, 0), (1.95, 1)])
-reveal("url", 2.05, unit="word", stagger=0.09, dur=0.25, rise=26,
+reveal("url", 1.85, unit="word", stagger=0.09, dur=0.25, rise=26,
        accent=ORANGE, color_delay=0.14, color_dur=0.3,
        keep=["Datalyr.com"])
 drift("s13", 3.2, 1.01, 1.0)
