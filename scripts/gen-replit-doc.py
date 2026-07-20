@@ -664,7 +664,7 @@ tracks.append({"target": "h12b", "at": 2.35, "reveal": {
 ostep("h12b", [(0, 0), (2.35, 1)])
 # the red wipe: an in-world flood swallows the tree at the scene's end, so
 # the cut into s13 lands on an already-red stage
-ns.append(rect("wipe12", 499, 307, 906, 510, 60, RED))
+ns.append(rect("wipe12", 499, 307, 906, 510, 30, RED))
 track("wipe12",
       w=[(3.15, 90), (3.55, 906, "inCubic")],
       h=[(3.15, 90), (3.55, 510, "inCubic")])
@@ -697,7 +697,7 @@ tracks.append({"target": "t13a", "at": 1.0, "reveal": {
 ostep("t13a", [(0, 0), (1.0, 1), (1.6, 1), (1.75, 0)])
 ostep("t13b", [(0, 0), (1.8, 0), (1.95, 1), (2.3, 1), (2.45, 0)])
 track("t13b", y=[(1.8, 12), (2.05, 0, "outCubic")])
-scene(13, d13, {"kind": "fade", "dur": 0.3}, ns, g0)
+scene(13, d13, {"kind": "cut"}, ns, g0)
 g0 += d13
 
 # ---------------------------------------------------------------- s14 end lockup

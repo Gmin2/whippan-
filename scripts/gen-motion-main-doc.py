@@ -225,14 +225,19 @@ nodes.append(rect("cover", PX, 705, 100, 100, 44,
 tracks.append(keyed(
     "cover",
     w=[(1.05, 240), (1.38, 1410, "outCubic"), (1.95, 1410),
-       (2.3, 760, "inOutCubic"), (4.0, 760), (4.35, 470, "inOutCubic")],
+       (2.3, 760, "inOutCubic")],
     h=[(1.05, 240), (1.38, 1414, "outCubic"), (1.95, 1414),
-       (2.3, 760, "inOutCubic"), (4.0, 760), (4.35, 470, "inOutCubic")],
-    y=[(1.95, 0), (2.3, -15, "inOutCubic"), (4.0, -15),
-       (4.35, -385, "inOutCubic"), (4.9, -385), (5.3, -455, "inOutCubic")],
-    scale=[(2.9, 1), (3.4, 0.95, "inOutCubic"), (3.95, 1.0, "inOutCubic")],
-    rot=[(4.9, 0), (5.25, -5, "inOutCubic")],
-    opacity=[(0, 0), (1.05, 0), (1.22, 1), (5.3, 1), (5.6, 0)]))
+       (2.3, 760, "inOutCubic")],
+    y=[(1.95, 0), (2.3, -15, "inOutCubic")],
+    opacity=[(0, 0), (1.05, 0), (1.22, 1), (2.95, 1), (3.3, 0)]))
+# the card flips away into a big tilted device back: a light slab that
+# owns the preview until the iPod assembles out of it
+nodes.append(rect("devtilt", PX, 660, 1250, 1150, 110, "#d7d7d9"))
+tracks.append(keyed("devtilt",
+                    scale=[(2.95, 0.9), (3.5, 1.02, "outCubic"),
+                           (4.1, 1.0)],
+                    opacity=[(0, 0), (2.95, 0), (3.25, 1), (4.0, 1),
+                             (4.3, 0)]))
 # full-bleed labels, lower left
 nodes.append(ltext("cvt1", "Seigfried", 1210, 1160, 66, "#f5f5f5",
                    weight=700))
@@ -250,7 +255,7 @@ card_chrome = [
     rect("npsc2", 1955, 985, 310, 7, 3, "#8a8377"),
     ltext("npt1", "5:34", 2050, 1030, 32, "#efefef"),
 ]
-NP_OP = (2.18, 2.4, 3.8, 4.0)
+NP_OP = (2.18, 2.4, 2.85, 3.08)
 for n in card_chrome:
     nodes.append(n)
     tracks.append(vis(n["id"], *NP_OP))
@@ -258,21 +263,21 @@ for n in card_chrome:
 nodes.append(ltext("npt0a", "1:36", 1455, 1030, 32, "#efefef"))
 tracks.append({"target": "npt0a", "keys": {"opacity": [
     {"t": 0, "v": 0}, {"t": 2.18, "v": 0}, {"t": 2.4, "v": 1},
-    {"t": 3.349, "v": 1}, {"t": 3.35, "v": 0}]}})
+    {"t": 2.699, "v": 1}, {"t": 2.7, "v": 0}]}})
 nodes.append(ltext("npt0b", "1:52", 1455, 1030, 32, "#efefef"))
 tracks.append({"target": "npt0b", "keys": {"opacity": [
-    {"t": 0, "v": 0}, {"t": 3.349, "v": 0}, {"t": 3.35, "v": 1},
-    {"t": 3.8, "v": 1}, {"t": 4.0, "v": 0}]}})
+    {"t": 0, "v": 0}, {"t": 2.699, "v": 0}, {"t": 2.7, "v": 1},
+    {"t": 2.85, "v": 1}, {"t": 3.08, "v": 0}]}})
 # canvas mirror: the cover reads as a light grey slab that fills the
 # canvas with the expand, then collapses into the card
 nodes.append(rect("mcard", 560, 760, 240, 240, 30, "#9b9b9b"))
 tracks.append(keyed(
     "mcard",
     w=[(1.05, 240), (1.38, 1000, "outCubic"), (1.95, 1000),
-       (2.3, 600, "inOutCubic")],
+       (2.3, 600, "inOutCubic"), (2.95, 600), (3.3, 900, "inOutCubic")],
     h=[(1.05, 240), (1.38, 1030, "outCubic"), (1.95, 1030),
-       (2.3, 600, "inOutCubic")],
-    opacity=[(0, 0), (1.05, 0), (1.25, 1), (3.8, 1), (4.0, 0)]))
+       (2.3, 600, "inOutCubic"), (2.95, 600), (3.3, 850, "inOutCubic")],
+    opacity=[(0, 0), (1.05, 0), (1.25, 1), (4.0, 1), (4.3, 0)]))
 m_card = [
     ltext("mct1", "Seigfried", 340, 900, 52, "#f2f2f2", weight=700),
     ltext("mct2", "Frank Ocean", 342, 955, 36, "#dedede"),
@@ -284,19 +289,20 @@ for n in m_card:
 
 # ===================================================== s5: tab bar + card2
 tab_icons = (
-    lines([[(-170, 8), (-170, -8), (-156, -20), (-142, -8), (-142, 8),
-            (-170, 8)]])
-    + circle(0, 0, 16) + circle(0, 0, 6, ccw=True)
-    + lines([[(146, -12), (178, -12)], [(146, 0), (178, 0)],
-             [(146, 12), (178, 12)]]))
-nodes.append(rect("tabbar", PX, 1180, 560, 96, 48, "#1d1d1f"))
-nodes.append(path("tabicons", PX, 1180, tab_icons, "#d8d8d8", stroke=1.6))
+    lines([[(-216, 14), (-216, -10), (-196, -28), (-176, -10), (-176, 14),
+            (-216, 14)]])
+    + circle(0, -2, 22) + circle(0, -2, 9, ccw=True)
+    + lines([[(180, -16), (222, -16)], [(180, 0), (222, 0)],
+             [(180, 16), (222, 16)]]))
+nodes.append(rect("tabbar", PX, 1035, 680, 130, 65, "#f4f4f5"))
+nodes.append(path("tabicons", PX, 1035, tab_icons, "#3a3a3e", stroke=2.4))
 for nid in ("tabbar", "tabicons"):
     tracks.append(keyed(
         nid,
-        y=[(3.0, 160), (3.4, 0, "outCubic"), (4.4, 0),
-           (4.75, -75, "inOutCubic")],
-        opacity=[(0, 0), (2.98, 0), (3.2, 1), (5.35, 1), (5.6, 0)]))
+        y=[(3.0, 260), (3.4, 0, "outCubic"), (4.4, 0),
+           (4.75, 70, "inOutCubic")],
+        scale=[(4.4, 1), (4.75, 0.78, "inOutCubic")],
+        opacity=[(0, 0), (2.98, 0), (3.2, 1), (5.3, 1), (5.58, 0)]))
 
 CARD2_Y = [(3.45, -420), (3.9, 0, "outCubic"), (4.8, 0),
            (5.2, 60, "inOutCubic")]

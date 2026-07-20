@@ -248,14 +248,14 @@ for nid in ("e_win", "e_drop"):
           opacity=steps([(25 * F, 0), (25.5 * F, 1)]))
 
 # gradient sphere blooms in one frame at f57
-rect(ed, "e_sph", 225.8, 524, 73, 73, 36.5, "#2b7cf0",
+rect(ed, "e_sph", 229, 523, 73, 73, 36.5, "#2b7cf0",
      gradient={"angle": 135, "stops": [
          {"at": 0.0, "color": "#72f7f4"}, {"at": 0.5, "color": "#2f8cf0"},
          {"at": 1.0, "color": "#0535df"}]},
      glow={"sigma": 8, "opacity": 0.3, "color": "#2255cc", "dy": 4})
 track("e_sph", scale=[(55 * F, 0.0), (56 * F, 0.55), (58 * F, 1.0, "outCubic")],
       opacity=steps([(56 * F, 0), (56.5 * F, 1)]))
-path(ed, "e_ringO", 212, 526, circle_d(3.8), "#ffffff", stroke=1.5)
+path(ed, "e_ringO", 218, 528, circle_d(3.8), "#ffffff", stroke=1.5)
 track("e_ringO",
       opacity=steps([(56.5 * F, 0), (57 * F, 1)]),
       x=[(57 * F, 2), (70 * F, 0), (98 * F, -7)],
@@ -278,11 +278,11 @@ track("ed",
                 (25 * F, 2.88, "outCubic"), (56 * F, 3.46, "inOutCubic"),
                 (58 * F, 5.0, "outCubic")],
       cam_x=[(10 * F, 0.0), (14 * F, -150, "inCubic"),
-             (25 * F, -303, "outCubic"), (56 * F, -328.6, "inOutCubic"),
-             (58 * F, -332.4, "outCubic")],
+             (25 * F, -303, "outCubic"), (34 * F, -322, "outCubic"),
+             (56 * F, -325.5, "inOutCubic"), (58 * F, -327.6, "outCubic")],
       cam_y=[(10 * F, 0.0), (14 * F, -21, "inCubic"),
-             (25 * F, -42.8, "outCubic"), (56 * F, -47.5, "inOutCubic"),
-             (58 * F, -50.4, "outCubic")])
+             (25 * F, -42.8, "outCubic"), (56 * F, -48.5, "inOutCubic"),
+             (58 * F, -52.4, "outCubic")])
 
 # ============================================================== scene msg
 # hard cut f99: full-bleed split preview. artboard + ghosts left, live

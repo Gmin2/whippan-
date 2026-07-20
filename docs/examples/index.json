@@ -288,6 +288,18 @@
   "anim": "/docs/skipper-ui.anim.json"
  },
  {
+  "slug": "design",
+  "title": "design (repro)",
+  "dur": 4.6,
+  "size": [
+   1080,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/design.stage.json",
+  "anim": "/docs/design.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,

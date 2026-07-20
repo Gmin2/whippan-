@@ -152,15 +152,15 @@ def wipe(id, fill, t0, t1, anchor):
     return n
 
 
-wipe("wipeA", "#060606", 0.28, 0.42, "left")
-wipe("wipeB", "#c2c2c2", 0.85, 0.97, "left")
+wipe("wipeA", "#060606", 0.25, 0.39, "left")
+wipe("wipeB", "#c2c2c2", 0.85, 0.95, "left")
 wipe("wipeC", "#060606", 1.42, 1.54, "left")
 wipe("wipeW", "#ffffff", 2.92, 3.13, "right")
 
 # ------------------------------------------------------------ countdown
 text("n3", "3", CX, 338, 440, "#c6c6c6", 900)
-track("n3", scale=[(0.36, 1.22), (0.56, 1.0, "outCubic")])
-windows("n3", [(0.36, 0.96)])
+track("n3", scale=[(0.32, 1.22), (0.52, 1.0, "outCubic")])
+windows("n3", [(0.32, 0.94)])
 
 text("n2", "2", CX, 338, 440, "#101010", 900)
 track("n2", scale=[(0.94, 1.22), (1.13, 1.0, "outCubic")])
@@ -246,7 +246,7 @@ text("s_gh3", "it up", 660, 268, 82, "#c4c4c4", 800)
 windows("s_gh3", [(3.58, 3.98), (8.59, 8.99)])
 
 # ------------------------------------------------------------ wooh + alien
-text("t_wooh", "wooh!", CX, 330, 300, "#c2c2c2", 900, rot=-3)
+text("t_wooh", "wooh!", CX, 330, 345, "#c2c2c2", 900, rot=-3)
 track("t_wooh", scale=[(4.28, 1.16), (4.44, 1.0, "outCubic")])
 windows("t_wooh", [(4.28, 4.70)])
 
@@ -314,6 +314,10 @@ for i, (s, y) in enumerate(SPIN_ROWS):
           x=[(0, -amp), (0.575, amp, "inOutCubic"),
              (1.15, -amp, "inOutCubic")])
     windows(f"spin_r{i}", [SPIN_W[0], SPIN_W[1]])
+# leftover wipe edge on the canvas left during the zoomed-in replay
+rect("spin_band", 355, CY, 120, 456, 0, "#060606")
+track("spin_band", x=[(7.60, 40), (8.50, -90)])
+windows("spin_band", [(7.60, 8.52)])
 nodes.append({"id": "spin_cur", "type": "cursor", "x": 640, "y": 430,
               "w": 26, "fill": "#111111"})
 track("spin_cur", x=[(7.7, 0), (8.1, -60, "inOutCubic"), (8.45, 30, "inOutCubic")],
@@ -523,10 +527,10 @@ rect("strip_l", 16, 540, 32, 1082, 0, "#232323",
          {"at": 0.0, "color": "#4c4a4b"}, {"at": 1.0, "color": "#1c1c1c"}]})
 rect("strip_r", 1048, 540, 64, 1082, 0, "#8a8888",
      gradient={"angle": 90, "stops": [
-         {"at": 0.0, "color": "#cac6c7"}, {"at": 1.0, "color": "#4a4a4a"}]})
+         {"at": 0.0, "color": "#cac6c7"}, {"at": 1.0, "color": "#3a3a3a"}]})
 rect("strip_b", 540, 1019, 1082, 122, 0, "#3a3a3a",
      gradient={"angle": 0, "stops": [
-         {"at": 0.0, "color": "#181818"}, {"at": 1.0, "color": "#565454"}]})
+         {"at": 0.0, "color": "#181818"}, {"at": 1.0, "color": "#3e3c3c"}]})
 
 # ------------------------------------------------------------ transport
 rect("tp_pause", 65, 576, 26, 26, 7, "#1c1c1c")

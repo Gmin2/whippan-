@@ -389,7 +389,7 @@ set_static(path("g_grid", 540, 540, grid_d(-1200, 1700, -1200, 1700, 74),
 for i, (dx, dy, op) in enumerate([(-6, 0, 0.22), (6, 3, 0.22), (0, 0, 0.8)]):
     set_static(text(f"g_g{i}", "G", 40 + dx, 790 + dy, 430, "#d5d4d9",
                     weight=900), opacity=op)
-    set_static(text(f"g_ng{i}", "NG", 55 + dx, 85 + dy, 330, "#d5d4d9",
+    set_static(text(f"g_ng{i}", "NG", 30 + dx, 60 + dy, 330, "#d5d4d9",
                     weight=900), opacity=op * 0.9)
     set_static(text(f"g_n{i}", "N", -95 + dx, 480 + dy, 330, "#d5d4d9",
                     weight=900), opacity=op * 0.9)
@@ -397,8 +397,8 @@ for i, (dx, dy, op) in enumerate([(-6, 0, 0.22), (6, 3, 0.22), (0, 0, 0.8)]):
 # page furniture seen when zoomed out: glowing badge + get-notified pill.
 # the badge sits offscreen during the close framing; a parallax slide near
 # the end brings it large into the top-left like the reference close.
-BGX, BGY = -45, 411
-set_static(rect("g_halo", BGX, BGY, 230, 230, 72, "#b9c4fb", blur=32),
+BGX, BGY = -70, 411
+set_static(rect("g_halo", BGX, BGY, 210, 210, 66, "#b9c4fb", blur=30),
            opacity=0.55)
 rect("g_badge", BGX, BGY, 168, 168, 48, "#ffffff",
      glow={"sigma": 22, "opacity": 0.3, "color": "#aeb4cf", "dy": 10})
@@ -431,8 +431,8 @@ HANDLE_WP = [
     (0.00, *close_w(790, 475)),
     (0.14, *close_w(862, 566)),
     (0.28, *close_w(706, 700)),
-    (0.42, *close_w(850, 528)),
-    (0.58, *close_w(858, 522)),
+    (0.42, *close_w(800, 528)),
+    (0.58, *close_w(808, 522)),
     (0.68, *close_w(700, 810)),
     (0.80, *close_w(685, 840)),
     (0.95, *mid_w(700, 560)),
