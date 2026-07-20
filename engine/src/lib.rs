@@ -584,6 +584,10 @@ pub struct Reveal {
     pub churn: usize,
     #[serde(default = "d_charset")]
     pub charset: String,
+    /// unit "type" only: start deleting right-to-left at this time
+    /// (relative to the track's `at`), one char per cadence
+    #[serde(default)]
+    pub untype_at: Option<f32>,
 }
 fn d_unit() -> String {
     "word".into()
@@ -1491,6 +1495,15 @@ fn render_scene(
                             };
                         }
                         let done = appear.last().copied().unwrap_or(at);
+                        // backspace phase: chars vanish right-to-left
+                        let gone_after = r.untype_at.map(|u| {
+                            let elapsed = t - at - u;
+                            if elapsed <= 0.0 {
+                                total
+                            } else {
+                                total.saturating_sub((elapsed / r.cadence) as usize + 1)
+                            }
+                        });
                         let mut slot = 0usize;
                         let mut caret_x = left;
                         for word in &line.words {
@@ -1499,6 +1512,11 @@ fn render_scene(
                                 slot += 1;
                                 if t < st {
                                     continue;
+                                }
+                                if let Some(g) = gone_after {
+                                    if slot > g {
+                                        continue;
+                                    }
                                 }
                                 let p = ((t - st) / r.dur.max(1e-4)).clamp(0.0, 1.0);
                                 let o = 0.55 + 0.45 * out_cubic(p);
@@ -1528,7 +1546,10 @@ fn render_scene(
                             slot += 1;
                         }
                         if r.caret != "none" {
-                            let typing = t >= at && t < done + r.dur;
+                            let untyping = r.untype_at
+                                .map(|u| t >= at + u && gone_after.unwrap_or(1) > 0)
+                                .unwrap_or(false);
+                            let typing = (t >= at && t < done + r.dur) || untyping;
                             let visible = if typing {
                                 r.caret_typing != "hidden"
                             } else if r.caret_blink <= 0.0 {
@@ -2500,6 +2521,24 @@ mod tests {
                 || (a[2]["y"].as_f64().unwrap() - b[2]["y"].as_f64().unwrap()).abs() > 1.0,
             "glyph anchor should orbit the node center"
         );
+    }
+
+    #[test]
+    fn typewriter_backspace_deletes_right_to_left() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1920,1080],"scenes":[{"id":"s","bg":"#000000",
+          "nodes":[{"id":"cmd","type":"text","text":"simply mention","x":960,"y":540,
+                    "color":"#ffffff","font":{"size":44}}]}]}"##;
+        let overlay = r##"{"tracks":[{"target":"cmd","at":0,"reveal":{
+          "unit":"type","cadence":0.05,"dur":0.05,"untype_at":1.0}}]}"##;
+        let paths = |t: f32| -> usize {
+            let cmds: Vec<Value> = serde_json::from_str(&render_frame(stage, overlay, t)).unwrap();
+            cmds.iter().filter(|c| c["op"] == "path").count()
+        };
+        assert_eq!(paths(0.9), 13, "fully typed before untype");
+        let mid = paths(1.3);
+        assert!(mid > 2 && mid < 13, "mid-delete, got {mid}");
+        assert_eq!(paths(2.0), 0, "all deleted");
     }
 
     #[test]
