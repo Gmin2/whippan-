@@ -118,6 +118,21 @@ fn paint_frame(
             "unclip" => {
                 canvas.restore();
             }
+            "camblur" => {
+                let blur = image_filters::blur(
+                    (c.w.unwrap_or(0.0).max(0.01), c.h.unwrap_or(0.0).max(0.01)),
+                    TileMode::Clamp,
+                    None,
+                    None,
+                );
+                let mut lp = Paint::default();
+                lp.set_image_filter(blur);
+                let rec = skia_safe::canvas::SaveLayerRec::default().paint(&lp);
+                canvas.save_layer(&rec);
+            }
+            "camblur_end" => {
+                canvas.restore();
+            }
             _ => {
                 if let Some(g) = &c.goo {
                     let g = g.as_str();

@@ -78,6 +78,20 @@ export function paintFrame(CK, skc, paint, cmds, images) {
       skc.clear(CK.parseColorString(c.color));
       continue;
     }
+    if (c.op === 'camblur') {
+      // camera motion blur: the scene renders through a directional blur
+      const bf = CK.ImageFilter.MakeBlur(Math.max(c.w, 0.01), Math.max(c.h, 0.01),
+        CK.TileMode.Clamp, null);
+      const bp = new CK.Paint();
+      bp.setImageFilter(bf);
+      skc.saveLayer(bp);
+      bp.delete(); bf.delete();
+      continue;
+    }
+    if (c.op === 'camblur_end') {
+      skc.restore();
+      continue;
+    }
     if (c.goo) {
       if (gooDone.has(c.goo)) continue;
       gooDone.add(c.goo);

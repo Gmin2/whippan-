@@ -1,0 +1,9 @@
+{
+ "tracks": [
+  {"target": "c1", "at": 0.7, "cam": {"preset": "crash-zoom", "z": 3.2, "anchor": [1350, 800], "dur": 0.85}},
+  {"target": "c2", "at": 0.9, "cam": {"preset": "whip-pan", "dx": 1800, "dur": 0.55}},
+  {"target": "c3", "at": 1.0, "cam": {"preset": "zoom-promote", "z": 2.05, "anchor": [960, 470], "dur": 0.5}},
+  {"target": "cta", "at": 1.9, "state": "hot"},
+  {"target": "h1", "at": 0.1, "reveal": {"unit": "word", "stagger": 0.06, "dur": 0.28, "rise": 22, "accent": "#1b1b1b"}}
+ ]
+}

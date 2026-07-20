@@ -410,6 +410,73 @@ fn morph_dseq(seq: &[DKey], t: f32) -> String {
     seq.last().unwrap().d.clone()
 }
 
+/// expand a named camera move into cam_* key tracks (times already
+/// shifted by `at`)
+fn cam_keys(cm: &CamMove, at: f32) -> Vec<(String, Vec<Key>)> {
+    let mut out: Vec<(String, Vec<Key>)> = Vec::new();
+    let k = |t: f32, v: f32, e: Option<&str>| Key {
+        t: t + at,
+        v,
+        ease: e.map(|n| Ease::Named(n.into())),
+    };
+    if let Some([ax, ay]) = cm.anchor {
+        out.push(("cam_ax".into(), vec![k(0.0, ax, None)]));
+        out.push(("cam_ay".into(), vec![k(0.0, ay, None)]));
+    }
+    match cm.preset.as_str() {
+        "crash-zoom" => {
+            // accelerate to peak velocity ~40% in, long decel settle
+            out.push(("cam_zoom".into(), vec![
+                k(0.0, 1.0, None),
+                k(cm.dur * 0.4, 1.0 + (cm.z - 1.0) * 0.78, Some("inCubic")),
+                k(cm.dur, cm.z, Some("outCubic")),
+            ]));
+        }
+        "zoom-promote" => {
+            // the radio-main move: dive hard and stay full-bleed
+            out.push(("cam_zoom".into(), vec![
+                k(0.0, 1.0, None),
+                k(cm.dur, cm.z, Some("inOutCubic")),
+            ]));
+        }
+        "whip-pan" => {
+            out.push(("cam_x".into(), vec![
+                k(0.0, 0.0, None),
+                k(cm.dur * 0.4, cm.dx * 0.62, Some("inCubic")),
+                k(cm.dur, cm.dx, Some("outCubic")),
+            ]));
+            if cm.dy != 0.0 {
+                out.push(("cam_y".into(), vec![
+                    k(0.0, 0.0, None),
+                    k(cm.dur * 0.4, cm.dy * 0.62, Some("inCubic")),
+                    k(cm.dur, cm.dy, Some("outCubic")),
+                ]));
+            }
+        }
+        "snap" => {
+            // 1-frame reframe: design's f197/f228 grammar
+            out.push(("cam_zoom".into(), vec![
+                k(0.0, 1.0, None),
+                k(0.034, cm.z, None),
+            ]));
+            if cm.dx != 0.0 {
+                out.push(("cam_x".into(), vec![
+                    k(0.0, 0.0, None),
+                    k(0.034, cm.dx, None),
+                ]));
+            }
+            if cm.dy != 0.0 {
+                out.push(("cam_y".into(), vec![
+                    k(0.0, 0.0, None),
+                    k(0.034, cm.dy, None),
+                ]));
+            }
+        }
+        _ => {}
+    }
+    out
+}
+
 fn d_morph_dur() -> f32 {
     0.5
 }
@@ -634,11 +701,39 @@ pub struct Overlay {
     pub tracks: Vec<Track>,
 }
 
+/// a named camera move on a scene track, expanded into cam keys at merge.
+/// presets carry the measured profiles of the reference films: crash-zoom
+/// (accel-peak-decel onto an anchor), whip-pan (velocity slide), snap
+/// (1-frame reframe), zoom-promote (fast dive that stays).
+#[derive(Deserialize, Clone)]
+pub struct CamMove {
+    pub preset: String,
+    #[serde(default = "d_cam_z")]
+    pub z: f32,
+    #[serde(default)]
+    pub anchor: Option<[f32; 2]>,
+    #[serde(default)]
+    pub dx: f32,
+    #[serde(default)]
+    pub dy: f32,
+    #[serde(default = "d_cam_dur")]
+    pub dur: f32,
+}
+fn d_cam_z() -> f32 {
+    2.5
+}
+fn d_cam_dur() -> f32 {
+    0.9
+}
+
 #[derive(Deserialize)]
 pub struct Track {
     pub target: String,
     #[serde(default)]
     pub at: f32,
+    /// named camera move for scene targets
+    #[serde(default)]
+    pub cam: Option<CamMove>,
     #[serde(default)]
     pub keys: HashMap<String, Vec<Key>>,
     #[serde(default)]
@@ -962,6 +1057,11 @@ fn merge(stage: &mut Stage, overlay: &Overlay) {
     for track in &overlay.tracks {
         for scene in stage.scenes.iter_mut() {
             if scene.id == track.target {
+                if let Some(cm) = &track.cam {
+                    for (prop, keys) in cam_keys(cm, track.at) {
+                        scene.keys.insert(prop, keys);
+                    }
+                }
                 for (prop, keys) in &track.keys {
                     let shifted = keys
                         .iter()
@@ -1948,13 +2048,17 @@ fn render_scene(
     let zoom = eval_prop(&scene.keys, "cam_zoom", 1.0, t);
     let cam_x = eval_prop(&scene.keys, "cam_x", 0.0, t);
     let cam_y = eval_prop(&scene.keys, "cam_y", 0.0, t);
+    // camera anchor: zoom happens about this point (crash zooms aim at a
+    // button, not the canvas center)
+    let cam_ax = eval_prop(&scene.keys, "cam_ax", cw / 2.0, t);
+    let cam_ay = eval_prop(&scene.keys, "cam_ay", ch / 2.0, t);
     for c in &mut cmds[first..] {
         if c.op == "clip" {
             continue;
         }
         if zoom != 1.0 || cam_x != 0.0 || cam_y != 0.0 {
-            c.x = (c.x - cam_x - cw / 2.0) * zoom + cw / 2.0;
-            c.y = (c.y - cam_y - ch / 2.0) * zoom + ch / 2.0;
+            c.x = (c.x - cam_x - cam_ax) * zoom + cam_ax;
+            c.y = (c.y - cam_y - cam_ay) * zoom + cam_ay;
             c.scale *= zoom;
             if let Some(b) = c.blur.as_mut() {
                 *b *= zoom;
@@ -1973,6 +2077,43 @@ fn render_scene(
         }
         c.x += ox;
         c.y += oy;
+    }
+    // camera motion blur: sample the camera a frame earlier and derive a
+    // screen-space velocity; fast moves get wrapped in a directional blur
+    // layer so crash zooms smear and whip pans streak, deterministically.
+    {
+        let dt = 1.0 / 30.0;
+        let tp = (t - dt).max(0.0);
+        let z0 = eval_prop(&scene.keys, "cam_zoom", 1.0, tp);
+        let x0 = eval_prop(&scene.keys, "cam_x", 0.0, tp);
+        let y0 = eval_prop(&scene.keys, "cam_y", 0.0, tp);
+        let vx = (x0 - cam_x).abs() * zoom;
+        let vy = (y0 - cam_y).abs() * zoom;
+        let vz = (zoom - z0).abs() * 220.0;
+        let sigx = (vx * 0.35 + vz * 0.7).min(42.0);
+        let sigy = (vy * 0.35 + vz * 0.7).min(42.0);
+        if sigx + sigy > 2.5 {
+            let mk = |op: &str, w: Option<f32>, h: Option<f32>| DrawCmd {
+                op: op.into(),
+                x: 0.0,
+                y: 0.0,
+                w,
+                h,
+                radius: None,
+                d: None,
+                blur: None,
+                grad: None,
+                src: None,
+                goo: None,
+                rot: None,
+                stroke: None,
+                color: "#000000".into(),
+                opacity: 1.0,
+                scale: 1.0,
+            };
+            cmds.insert(first, mk("camblur", Some(sigx), Some(sigy)));
+            cmds.push(mk("camblur_end", None, None));
+        }
     }
     if pass.clip.is_some() {
         cmds.push(DrawCmd {
@@ -2631,6 +2772,32 @@ mod tests {
         assert!((a - 100.0).abs() < 3.0, "start square, got {a}");
         assert!((b - 200.0).abs() < 3.0, "end wide, got {b}");
         assert!(mid > a + 20.0 && mid < b - 20.0, "mid-flow between: {mid}");
+    }
+
+    #[test]
+    fn camera_anchor_and_presets_and_blur() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1920,1080],"scenes":[{"id":"s","bg":"#101010",
+          "nodes":[{"id":"btn","type":"rect","x":1500,"y":900,"w":200,"h":80,
+                    "radius":40,"fill":"#4185f0"}]}]}"##;
+        let overlay = r##"{"tracks":[{"target":"s","at":0.5,"cam":{
+          "preset":"crash-zoom","z":3.0,"anchor":[1500,900],"dur":0.8}}]}"##;
+        let cmds = |t: f32| -> Vec<Value> {
+            serde_json::from_str(&render_frame(stage, overlay, t)).unwrap()
+        };
+        // before the move: untouched
+        let a = cmds(0.2);
+        assert_eq!(a[1]["x"], 1500.0);
+        // at full zoom the anchored point has not moved
+        let b = cmds(1.5);
+        assert_eq!(b[1]["x"], 1500.0);
+        assert_eq!(b[1]["scale"], 3.0);
+        // mid-move: camera blur layer wraps the scene
+        let mid = cmds(0.85);
+        assert_eq!(mid[1]["op"], "camblur", "blur wrap during fast zoom");
+        assert_eq!(mid.last().unwrap()["op"], "camblur_end");
+        // settled: no blur wrap
+        assert!(cmds(1.6).iter().all(|c| c["op"] != "camblur"));
     }
 
     #[test]
