@@ -536,7 +536,7 @@
       "scale": [
        {
         "t": 0,
-        "v": 0.85
+        "v": 1.2
        }
       ]
      }
@@ -765,7 +765,7 @@
   {
    "id": "s3",
    "bg": "#f1f0eb",
-   "dur": 6.375,
+   "dur": 5.417,
    "transition": {
     "kind": "fade",
     "dur": 0.4
@@ -784,16 +784,24 @@
     {
      "id": "s3_hsun",
      "type": "path",
-     "x": 750,
+     "x": 738,
      "y": 340,
      "d": "M9.0 3.0L30.0 0.0L9.0 -3.0ZM6.3 7.1L26.0 15.0L9.3 1.9ZM1.9 9.3L15.0 26.0L7.1 6.3ZM-3.0 9.0L0.0 30.0L3.0 9.0ZM-7.1 6.3L-15.0 26.0L-1.9 9.3ZM-9.3 1.9L-26.0 15.0L-6.3 7.1ZM-9.0 -3.0L-30.0 0.0L-9.0 3.0ZM-6.3 -7.1L-26.0 -15.0L-9.3 -1.9ZM-1.9 -9.3L-15.0 -26.0L-7.1 -6.3ZM3.0 -9.0L-0.0 -30.0L-3.0 -9.0ZM7.1 -6.3L15.0 -26.0L1.9 -9.3ZM9.3 -1.9L26.0 -15.0L6.3 -7.1Z",
-     "fill": "#d26b58"
+     "fill": "#d26b58",
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 1.35
+       }
+      ]
+     }
     },
     {
      "id": "s3_head",
      "type": "text",
      "text": "Let's knock something off your list",
-     "x": 1105,
+     "x": 1135,
      "y": 342,
      "color": "#241208",
      "font": {
@@ -1192,6 +1200,16 @@
      }
     },
     {
+     "id": "s3_tk0",
+     "type": "rect",
+     "x": 1141,
+     "y": 482,
+     "w": 18,
+     "h": 18,
+     "radius": 9,
+     "fill": "#ffffff"
+    },
+    {
      "id": "s3_tp1",
      "type": "rect",
      "x": 1150,
@@ -1205,6 +1223,16 @@
        "fill": "#5e9ef1"
       }
      }
+    },
+    {
+     "id": "s3_tk1",
+     "type": "rect",
+     "x": 1141,
+     "y": 523,
+     "w": 18,
+     "h": 18,
+     "radius": 9,
+     "fill": "#ffffff"
     },
     {
      "id": "s3_tp2",
@@ -1222,6 +1250,16 @@
      }
     },
     {
+     "id": "s3_tk2",
+     "type": "rect",
+     "x": 1141,
+     "y": 563,
+     "w": 18,
+     "h": 18,
+     "radius": 9,
+     "fill": "#ffffff"
+    },
+    {
      "id": "s3_tp3",
      "type": "rect",
      "x": 1150,
@@ -1235,36 +1273,6 @@
        "fill": "#5e9ef1"
       }
      }
-    },
-    {
-     "id": "s3_tk0",
-     "type": "rect",
-     "x": 1141,
-     "y": 482,
-     "w": 18,
-     "h": 18,
-     "radius": 9,
-     "fill": "#ffffff"
-    },
-    {
-     "id": "s3_tk1",
-     "type": "rect",
-     "x": 1141,
-     "y": 523,
-     "w": 18,
-     "h": 18,
-     "radius": 9,
-     "fill": "#ffffff"
-    },
-    {
-     "id": "s3_tk2",
-     "type": "rect",
-     "x": 1141,
-     "y": 563,
-     "w": 18,
-     "h": 18,
-     "radius": 9,
-     "fill": "#ffffff"
     },
     {
      "id": "s3_tk3",
@@ -1502,6 +1510,350 @@
     },
     {
      "id": "s3c_nxt",
+     "type": "text",
+     "text": "Nexaa",
+     "x": 1745,
+     "y": 1003,
+     "color": "#8f8d86",
+     "font": {
+      "size": 42,
+      "weight": 500,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s3b",
+   "bg": "#f1f0eb",
+   "dur": 0.958,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.3
+   },
+   "nodes": [
+    {
+     "id": "s3b_slide",
+     "type": "rect",
+     "x": 960,
+     "y": 418.5,
+     "w": 1074,
+     "h": 607,
+     "radius": 6,
+     "fill": "#f9f9f9"
+    },
+    {
+     "id": "s3b_card",
+     "type": "rect",
+     "x": 760,
+     "y": 560,
+     "w": 1330,
+     "h": 780,
+     "radius": 50,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 40,
+      "opacity": 0.15,
+      "color": "#8a8378",
+      "dy": 16
+     }
+    },
+    {
+     "id": "s3b_t1",
+     "type": "text",
+     "text": "d with the product script,",
+     "x": 816.9,
+     "y": 345,
+     "color": "#1f1f1f",
+     "font": {
+      "size": 62,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s3b_t2",
+     "type": "text",
+     "text": "arding in Figma?",
+     "x": 668.1,
+     "y": 430,
+     "color": "#1f1f1f",
+     "font": {
+      "size": 62,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s3b_opus",
+     "type": "text",
+     "text": "Opus 4.7",
+     "x": 1120,
+     "y": 665,
+     "color": "#3f3f3f",
+     "font": {
+      "size": 58,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s3b_chev",
+     "type": "path",
+     "x": 1252,
+     "y": 670,
+     "d": "M-13 -7L0 7L13 -7",
+     "fill": "#3f3f3f",
+     "stroke": 4.5
+    },
+    {
+     "id": "s3b_send",
+     "type": "rect",
+     "x": 1355,
+     "y": 662,
+     "w": 116,
+     "h": 116,
+     "radius": 30,
+     "fill": "#d9654a",
+     "states": {
+      "pressed": {
+       "fill": "#c2543b"
+      }
+     }
+    },
+    {
+     "id": "s3b_sendg",
+     "type": "path",
+     "x": 1355,
+     "y": 662,
+     "d": "M0 9L0 -9M-7 -2L0 -9L7 -2",
+     "fill": "#ffffff",
+     "stroke": 3.0,
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 2.4
+       }
+      ]
+     }
+    },
+    {
+     "id": "s3b_cur",
+     "type": "cursor",
+     "x": 1395,
+     "y": 800,
+     "w": 62,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "s3b_wmg",
+     "type": "path",
+     "x": 1384,
+     "y": 681,
+     "d": "M0 22L0 0L7 8L7 0L18 22Z",
+     "fill": "#a09b92",
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 0.62
+       }
+      ]
+     }
+    },
+    {
+     "id": "s3b_wmt",
+     "type": "text",
+     "text": "Nexaa",
+     "x": 1440,
+     "y": 690,
+     "color": "#a09b92",
+     "font": {
+      "size": 26,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s3bc_bandl",
+     "type": "rect",
+     "x": 211.5,
+     "y": 540,
+     "w": 423.0,
+     "h": 1080,
+     "radius": 0,
+     "fill": "#f1f0eb"
+    },
+    {
+     "id": "s3bc_bandr",
+     "type": "rect",
+     "x": 1708.5,
+     "y": 540,
+     "w": 423.0,
+     "h": 1080,
+     "radius": 0,
+     "fill": "#f1f0eb"
+    },
+    {
+     "id": "s3bc_bandt",
+     "type": "rect",
+     "x": 960,
+     "y": 57.5,
+     "w": 1920,
+     "h": 115.0,
+     "radius": 0,
+     "fill": "#f1f0eb"
+    },
+    {
+     "id": "s3bc_bandb",
+     "type": "rect",
+     "x": 960,
+     "y": 901.0,
+     "w": 1920,
+     "h": 358.0,
+     "radius": 0,
+     "fill": "#f1f0eb"
+    },
+    {
+     "id": "s3bc_cell_hook",
+     "type": "rect",
+     "x": 520.5,
+     "y": 825,
+     "w": 201,
+     "h": 144,
+     "radius": 18,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "s3bc_cell_demo",
+     "type": "rect",
+     "x": 838.5,
+     "y": 825,
+     "w": 419,
+     "h": 144,
+     "radius": 18,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "s3bc_act_demo",
+     "type": "rect",
+     "x": 838.5,
+     "y": 825,
+     "w": 419,
+     "h": 144,
+     "radius": 18,
+     "fill": "#bfe3fd"
+    },
+    {
+     "id": "s3bc_cell_end",
+     "type": "rect",
+     "x": 1188.5,
+     "y": 825,
+     "w": 263,
+     "h": 144,
+     "radius": 18,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "s3bc_cell_cta",
+     "type": "rect",
+     "x": 1410.0,
+     "y": 825,
+     "w": 166,
+     "h": 144,
+     "radius": 18,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "s3bc_lbl_hook",
+     "type": "text",
+     "text": "Hook",
+     "x": 514,
+     "y": 824,
+     "color": "#101010",
+     "font": {
+      "size": 30,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s3bc_lbl_demo",
+     "type": "text",
+     "text": "Demo: Use Case",
+     "x": 838,
+     "y": 824,
+     "color": "#101010",
+     "font": {
+      "size": 30,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s3bc_lbl_end",
+     "type": "text",
+     "text": "End result",
+     "x": 1185,
+     "y": 824,
+     "color": "#101010",
+     "font": {
+      "size": 30,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s3bc_lbl_cta",
+     "type": "text",
+     "text": "CTA",
+     "x": 1409,
+     "y": 824,
+     "color": "#101010",
+     "font": {
+      "size": 30,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "s3bc_ruler",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "d": "M443.0 916L443.0 930M472.6 916L472.6 930M502.1 916L502.1 930M531.7 916L531.7 930M561.3 916L561.3 930M590.9 916L590.9 930M620.4 916L620.4 930M650.0 916L650.0 930M679.6 916L679.6 930M709.1 916L709.1 930M738.7 916L738.7 930M768.3 916L768.3 930M797.9 916L797.9 930M827.4 916L827.4 930M857.0 916L857.0 930M886.6 916L886.6 930M916.1 916L916.1 930M945.7 916L945.7 930M975.3 916L975.3 930M1004.9 916L1004.9 930M1034.4 916L1034.4 930M1064.0 916L1064.0 930M1093.6 916L1093.6 930M1123.1 916L1123.1 930M1152.7 916L1152.7 930M1182.3 916L1182.3 930M1211.9 916L1211.9 930M1241.4 916L1241.4 930M1271.0 916L1271.0 930M1300.6 916L1300.6 930M1330.1 916L1330.1 930M1359.7 916L1359.7 930M1389.3 916L1389.3 930M1418.9 916L1418.9 930M1448.4 916L1448.4 930M1478.0 916L1478.0 930",
+     "fill": "#1c1c1c",
+     "stroke": 2.0
+    },
+    {
+     "id": "s3bc_tri",
+     "type": "path",
+     "x": 858.3,
+     "y": 758,
+     "d": "M-17 0L17 0L0 24Z",
+     "fill": "#1c1c1c"
+    },
+    {
+     "id": "s3bc_needle",
+     "type": "rect",
+     "x": 858.3,
+     "y": 826,
+     "w": 3.5,
+     "h": 142,
+     "radius": 1,
+     "fill": "#1c1c1c"
+    },
+    {
+     "id": "s3bc_nxg",
+     "type": "path",
+     "x": 1652,
+     "y": 991,
+     "d": "M0 22L0 0L7 8L7 0L18 22Z",
+     "fill": "#8f8d86"
+    },
+    {
+     "id": "s3bc_nxt",
      "type": "text",
      "text": "Nexaa",
      "x": 1745,
@@ -3354,7 +3706,7 @@
     {
      "id": "s8_sun",
      "type": "path",
-     "x": 1210,
+     "x": 1240,
      "y": 412,
      "d": "M9.0 3.0L30.0 0.0L9.0 -3.0ZM6.3 7.1L26.0 15.0L9.3 1.9ZM1.9 9.3L15.0 26.0L7.1 6.3ZM-3.0 9.0L0.0 30.0L3.0 9.0ZM-7.1 6.3L-15.0 26.0L-1.9 9.3ZM-9.3 1.9L-26.0 15.0L-6.3 7.1ZM-9.0 -3.0L-30.0 0.0L-9.0 3.0ZM-6.3 -7.1L-26.0 -15.0L-9.3 -1.9ZM-1.9 -9.3L-15.0 -26.0L-7.1 -6.3ZM3.0 -9.0L-0.0 -30.0L-3.0 -9.0ZM7.1 -6.3L15.0 -26.0L1.9 -9.3ZM9.3 -1.9L26.0 -15.0L6.3 -7.1Z",
      "fill": "#d26b58"
