@@ -107,6 +107,7 @@ export function paintFrame(CK, skc, paint, cmds, images) {
 // paths churn, so the cache is bounded and evicts oldest-first.
 const pathCache = new Map();
 function cachedPath(CK, d) {
+  if (!d) return null;
   let p = pathCache.get(d);
   if (p) return p;
   p = CK.Path.MakeFromSVGString(d);
