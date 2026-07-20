@@ -1,0 +1,29 @@
+{
+  "fps": 30,
+  "size": [
+    1920,
+    1080
+  ],
+  "scenes": [
+    {
+      "id": "hook",
+      "bg": "#fafafa",
+      "dur": 2.4,
+      "nodes": [
+        {
+          "id": "title",
+          "type": "text",
+          "text": "The fastest way to scale",
+          "x": 960,
+          "y": 540,
+          "font": {
+            "family": "inter",
+            "weight": 600,
+            "size": 72
+          },
+          "color": "#161616"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+[
+ {
+  "slug": "terminal",
+  "title": "terminal",
+  "dur": 4.23,
+  "size": [
+   1148,
+   712
+  ],
+  "stage": "/docs/terminal.stage.json",
+  "anim": "/docs/terminal.anim.json",
+  "group": "reproductions"
+ },
+ {
+  "slug": "chatgpt",
+  "title": "chatgpt (repro)",
+  "dur": 7.6,
+  "size": [
+   2994,
+   1618
+  ],
+  "stage": "/docs/chatgpt.stage.json",
+  "anim": "/docs/chatgpt.anim.json",
+  "group": "reproductions"
+ },
+ {
+  "slug": "atlas",
+  "title": "atlas (repro)",
+  "dur": 6.8,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/atlas.stage.json",
+  "anim": "/docs/atlas.anim.json"
+ },
+ {
+  "slug": "launch-quick4",
+  "title": "launch-quick4 (repro)",
+  "dur": 1.7,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/launch-quick4.stage.json",
+  "anim": "/docs/launch-quick4.anim.json"
+ },
+ {
+  "slug": "base-2",
+  "title": "base-2 (repro)",
+  "dur": 8.77,
+  "size": [
+   1280,
+   720
+  ],
+  "group": "reproductions",
+  "stage": "/docs/base-2.stage.json",
+  "anim": "/docs/base-2.anim.json"
+ },
+ {
+  "slug": "reveal",
+  "title": "reveal",
+  "dur": 2.4,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "primitives"
+ },
+ {
+  "slug": "click",
+  "title": "click",
+  "dur": 3.2,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "primitives"
+ },
+ {
+  "slug": "goo",
+  "title": "goo",
+  "dur": 2.8,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "primitives"
+ },
+ {
+  "slug": "magic-move",
+  "title": "magic move",
+  "dur": 3.8,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "primitives"
+ },
+ {
+  "slug": "transitions",
+  "title": "transitions",
+  "dur": 8.6,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "primitives"
+ }
+]
