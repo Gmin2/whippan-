@@ -1,18 +1,44 @@
-// studio shell: doc rail left, engine canvas center with a floating tool
-// dock, inspector right, narrating timeline below. react renders chrome;
-// the engine renders pixels.
+// studio shell: hash-routed views over one engine boot. '#/<slug>' is the
+// gallery (svg-harness layout); '#/edit/<slug>' is the editor — doc rail,
+// engine canvas with a floating tool dock, inspector, narrating timeline.
 import { useEffect, useRef, useState } from 'react'
 import { boot, loadDoc, timing } from './engine.js'
 import Stage from './Stage.jsx'
 import { Pointer, TextTool, Shapes, Picture, PenNib, Play, Pause, Floppy } from './icons.jsx'
 import Timeline from './Timeline.jsx'
 import Inspector from './Inspector.jsx'
+import Gallery from './Gallery.jsx'
 
 const ACCENT = '#606de0'
 
 export default function App() {
   const [ck, setCk] = useState(null)
   const [registry, setRegistry] = useState([])
+  const [inEditor, setInEditor] = useState(location.hash.startsWith('#/edit/'))
+
+  useEffect(() => {
+    boot().then(({ CK, registry }) => {
+      setCk(CK)
+      setRegistry(registry)
+    })
+    const onHash = () => setInEditor(location.hash.startsWith('#/edit/'))
+    addEventListener('hashchange', onHash)
+    return () => removeEventListener('hashchange', onHash)
+  }, [])
+
+  if (!ck || !registry.length) {
+    return <Center>whippan studio — engine loading</Center>
+  }
+  if (!inEditor) {
+    return <Gallery ck={ck} registry={registry}
+                    onEdit={slug => { location.hash = '/edit/' + slug }} />
+  }
+  const slug = location.hash.replace('#/edit/', '') || registry[0].slug
+  return <Editor ck={ck} registry={registry} slug={slug}
+                 onGallery={s => { location.hash = '/' + s }} />
+}
+
+function Editor({ ck, registry, slug, onGallery }) {
   const [doc, setDoc] = useState(null)
   const [t, setT] = useState(0)
   const [playing, setPlaying] = useState(false)
@@ -20,12 +46,8 @@ export default function App() {
   const raf = useRef(null)
 
   useEffect(() => {
-    boot().then(({ CK, registry }) => {
-      setCk(CK)
-      setRegistry(registry)
-      open(registry[0])
-    })
-  }, [])
+    open(registry.find(e => e.slug === slug) ?? registry[0])
+  }, [slug])
 
   async function open(entry) {
     setPlaying(false)
@@ -78,14 +100,16 @@ export default function App() {
     })
   }
 
-  if (!ck || !doc) {
-    return <Center>whippan studio — engine loading</Center>
+  if (!doc) {
+    return <Center>loading {slug}</Center>
   }
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
-        <Rail registry={registry} current={doc.entry.slug} onOpen={open} />
+        <Rail registry={registry} current={doc.entry.slug}
+              onOpen={e => { location.hash = '/edit/' + e.slug }}
+              onGallery={() => onGallery(doc.entry.slug)} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
           <div style={{
             flex: 1, display: 'grid', placeItems: 'center', minHeight: 0,
@@ -110,7 +134,7 @@ export default function App() {
   )
 }
 
-function Rail({ registry, current, onOpen }) {
+function Rail({ registry, current, onOpen, onGallery }) {
   let group = null
   return (
     <div style={{
@@ -120,6 +144,10 @@ function Rail({ registry, current, onOpen }) {
       <div style={{ padding: '0 16px 12px', fontWeight: 650 }}>
         whippan <span style={{ color: ACCENT }}>studio</span>
       </div>
+      <div onClick={onGallery} style={{
+        padding: '4px 16px 10px', fontSize: 11, color: '#8a8a88',
+        cursor: 'pointer',
+      }}>← gallery</div>
       {registry.map(e => {
         const g = e.group || 'examples'
         const head = g !== group
