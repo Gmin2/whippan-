@@ -115,6 +115,11 @@ pub struct Node {
     pub d: Option<String>,
     #[serde(default)]
     pub stroke: Option<f32>,
+    /// liquid path morphing: scene-local keyframes of whole `d` shapes.
+    /// paths are resampled to fixed point loops and lerped, so any icon
+    /// can flow into any other (authored with absolute M/L/C/Q/Z only)
+    #[serde(default)]
+    pub dseq: Option<Vec<DKey>>,
     #[serde(default)]
     pub font: Option<Font>,
     #[serde(default)]
@@ -169,6 +174,14 @@ fn d_streak_gain() -> f32 {
 }
 
 #[derive(Deserialize, Clone)]
+pub struct DKey {
+    pub at: f32,
+    pub d: String,
+    #[serde(default)]
+    pub ease: Option<Ease>,
+}
+
+#[derive(Deserialize, Clone)]
 pub struct Morph {
     pub from: String,
     #[serde(default = "d_morph_dur")]
@@ -176,6 +189,227 @@ pub struct Morph {
     #[serde(default)]
     pub ease: Option<Ease>,
 }
+
+/// flatten an absolute M/L/C/Q/Z path into subpath polylines
+fn flatten_path(d: &str) -> Vec<Vec<(f32, f32)>> {
+    let mut subs: Vec<Vec<(f32, f32)>> = Vec::new();
+    let mut cur: Vec<(f32, f32)> = Vec::new();
+    let mut nums: Vec<f32> = Vec::new();
+    let mut cmd = ' ';
+    let mut pos = (0.0f32, 0.0f32);
+    let bytes: Vec<char> = d.chars().collect();
+    let mut i = 0;
+    let flush = |cmd: char,
+                 nums: &mut Vec<f32>,
+                 cur: &mut Vec<(f32, f32)>,
+                 subs: &mut Vec<Vec<(f32, f32)>>,
+                 pos: &mut (f32, f32)| {
+        match cmd {
+            'M' => {
+                if cur.len() > 1 {
+                    subs.push(std::mem::take(cur));
+                } else {
+                    cur.clear();
+                }
+                if nums.len() >= 2 {
+                    *pos = (nums[0], nums[1]);
+                    cur.push(*pos);
+                    // implicit lineto for extra pairs
+                    for pair in nums[2..].chunks(2) {
+                        if pair.len() == 2 {
+                            *pos = (pair[0], pair[1]);
+                            cur.push(*pos);
+                        }
+                    }
+                }
+            }
+            'L' => {
+                for pair in nums.chunks(2) {
+                    if pair.len() == 2 {
+                        *pos = (pair[0], pair[1]);
+                        cur.push(*pos);
+                    }
+                }
+            }
+            'Q' => {
+                for q in nums.chunks(4) {
+                    if q.len() == 4 {
+                        let (x0, y0) = *pos;
+                        for k in 1..=12 {
+                            let u = k as f32 / 12.0;
+                            let a = (1.0 - u) * (1.0 - u);
+                            let b = 2.0 * u * (1.0 - u);
+                            let c = u * u;
+                            cur.push((a * x0 + b * q[0] + c * q[2],
+                                      a * y0 + b * q[1] + c * q[3]));
+                        }
+                        *pos = (q[2], q[3]);
+                    }
+                }
+            }
+            'C' => {
+                for cseg in nums.chunks(6) {
+                    if cseg.len() == 6 {
+                        let (x0, y0) = *pos;
+                        for k in 1..=16 {
+                            let u = k as f32 / 16.0;
+                            let v = 1.0 - u;
+                            let a = v * v * v;
+                            let b = 3.0 * v * v * u;
+                            let c = 3.0 * v * u * u;
+                            let e = u * u * u;
+                            cur.push((a * x0 + b * cseg[0] + c * cseg[2] + e * cseg[4],
+                                      a * y0 + b * cseg[1] + c * cseg[3] + e * cseg[5]));
+                        }
+                        *pos = (cseg[4], cseg[5]);
+                    }
+                }
+            }
+            _ => {}
+        }
+        nums.clear();
+    };
+    while i < bytes.len() {
+        let ch = bytes[i];
+        if ch == 'M' || ch == 'L' || ch == 'C' || ch == 'Q' || ch == 'Z' || ch == 'z' {
+            flush(cmd, &mut nums, &mut cur, &mut subs, &mut pos);
+            if ch == 'Z' || ch == 'z' {
+                if cur.len() > 1 {
+                    subs.push(std::mem::take(&mut cur));
+                } else {
+                    cur.clear();
+                }
+                cmd = ' ';
+            } else {
+                cmd = ch;
+            }
+            i += 1;
+        } else if ch.is_ascii_digit() || ch == '-' || ch == '.' {
+            let start = i;
+            i += 1;
+            while i < bytes.len()
+                && (bytes[i].is_ascii_digit() || bytes[i] == '.'
+                    || (bytes[i] == '-' && !bytes[i - 1].is_ascii_digit() && bytes[i - 1] != '.'))
+            {
+                if bytes[i] == '-' { break; }
+                i += 1;
+            }
+            let tok: String = bytes[start..i].iter().collect();
+            if let Ok(v) = tok.parse::<f32>() {
+                nums.push(v);
+            }
+        } else {
+            i += 1;
+        }
+    }
+    flush(cmd, &mut nums, &mut cur, &mut subs, &mut pos);
+    if cur.len() > 1 {
+        subs.push(cur);
+    }
+    subs
+}
+
+/// resample a closed polyline to exactly n points by arclength
+fn resample(poly: &[(f32, f32)], n: usize) -> Vec<(f32, f32)> {
+    let mut pts: Vec<(f32, f32)> = poly.to_vec();
+    if pts.first() != pts.last() {
+        if let Some(&f) = pts.first() {
+            pts.push(f);
+        }
+    }
+    let mut lens = vec![0.0f32];
+    for w in pts.windows(2) {
+        let d = ((w[1].0 - w[0].0).powi(2) + (w[1].1 - w[0].1).powi(2)).sqrt();
+        lens.push(lens.last().unwrap() + d);
+    }
+    let total = *lens.last().unwrap();
+    if total <= 0.0 {
+        return vec![pts[0]; n];
+    }
+    let mut out = Vec::with_capacity(n);
+    let mut seg = 0usize;
+    for k in 0..n {
+        let target = total * k as f32 / n as f32;
+        while seg + 1 < lens.len() - 1 && lens[seg + 1] < target {
+            seg += 1;
+        }
+        let span = (lens[seg + 1] - lens[seg]).max(1e-6);
+        let u = (target - lens[seg]) / span;
+        out.push((pts[seg].0 + (pts[seg + 1].0 - pts[seg].0) * u,
+                  pts[seg].1 + (pts[seg + 1].1 - pts[seg].1) * u));
+    }
+    out
+}
+
+fn centroid(p: &[(f32, f32)]) -> (f32, f32) {
+    let n = p.len().max(1) as f32;
+    (p.iter().map(|q| q.0).sum::<f32>() / n,
+     p.iter().map(|q| q.1).sum::<f32>() / n)
+}
+
+/// interpolate two `d` shapes at progress k: fixed-length loops, cyclic
+/// start alignment, centroid padding for extra subpaths
+fn lerp_paths(da: &str, db: &str, k: f32) -> String {
+    const N: usize = 64;
+    let a = flatten_path(da);
+    let b = flatten_path(db);
+    let count = a.len().max(b.len()).max(1);
+    let mut out = String::new();
+    for i in 0..count {
+        let pa: Vec<(f32, f32)> = match a.get(i) {
+            Some(sp) => resample(sp, N),
+            None => {
+                let c = centroid(&resample(&b[i], N));
+                vec![c; N]
+            }
+        };
+        let pb: Vec<(f32, f32)> = match b.get(i) {
+            Some(sp) => resample(sp, N),
+            None => {
+                let c = centroid(&pa);
+                vec![c; N]
+            }
+        };
+        // best cyclic offset so shapes do not twist mid-morph
+        let mut best = (0usize, f32::MAX);
+        for off in (0..N).step_by(4) {
+            let mut sum = 0.0;
+            for j in (0..N).step_by(8) {
+                let q = pb[(j + off) % N];
+                sum += (pa[j].0 - q.0).powi(2) + (pa[j].1 - q.1).powi(2);
+            }
+            if sum < best.1 {
+                best = (off, sum);
+            }
+        }
+        let off = best.0;
+        for j in 0..N {
+            let q = pb[(j + off) % N];
+            let x = pa[j].0 + (q.0 - pa[j].0) * k;
+            let y = pa[j].1 + (q.1 - pa[j].1) * k;
+            out.push_str(if j == 0 { "M" } else { "L" });
+            out.push_str(&format!("{:.1} {:.1}", x, y));
+        }
+        out.push('Z');
+    }
+    out
+}
+
+/// resolve a dseq timeline at scene-local t
+fn morph_dseq(seq: &[DKey], t: f32) -> String {
+    if t <= seq[0].at {
+        return seq[0].d.clone();
+    }
+    for w in seq.windows(2) {
+        if t < w[1].at {
+            let p = (t - w[0].at) / (w[1].at - w[0].at).max(1e-6);
+            let p = ease(p, &w[1].ease.clone().or(Some(Ease::Named("inOutCubic".into()))));
+            return lerp_paths(&w[0].d, &w[1].d, p.clamp(0.0, 1.0));
+        }
+    }
+    seq.last().unwrap().d.clone()
+}
+
 fn d_morph_dur() -> f32 {
     0.5
 }
@@ -1642,6 +1876,10 @@ fn render_scene(
                 }
                 "path" => {
                     let rotv = node_prop(node, "rot", node.rot.unwrap_or(0.0), t);
+                    let d = match &node.dseq {
+                        Some(seq) if !seq.is_empty() => Some(morph_dseq(seq, t)),
+                        _ => node.d.clone(),
+                    };
                     cmds.push(DrawCmd {
                         op: "path".into(),
                         x: node.x + dx,
@@ -1649,7 +1887,7 @@ fn render_scene(
                         w: None,
                         h: None,
                         radius: None,
-                        d: node.d.clone(),
+                        d,
                         blur: None,
                         grad: None,
                         src: None,
@@ -2327,6 +2565,33 @@ mod tests {
         // fully locked: every glyph of "Every AI product" drawn, no churn
         assert_eq!(paths(1.2).len(), 14, "settled to the real line");
         assert_eq!(paths(1.2), paths(1.5), "stable after settle");
+    }
+
+    #[test]
+    fn dseq_morphs_between_shapes() {
+        load_font();
+        // a square flowing into a wide rectangle, keyed at 0 and 1s
+        let stage = r##"{"fps":30,"size":[1920,1080],"scenes":[{"id":"s","bg":"#ffffff",
+          "nodes":[{"id":"blob","type":"path","x":960,"y":540,"fill":"#f19107",
+            "dseq":[{"at":0,"d":"M-50 -50L50 -50L50 50L-50 50Z"},
+                    {"at":1,"d":"M-100 -20L100 -20L100 20L-100 20Z"}]}]}]}"##;
+        let width_at = |t: f32| -> f32 {
+            let cmds: Vec<Value> =
+                serde_json::from_str(&render_frame(stage, r#"{"tracks":[]}"#, t)).unwrap();
+            let d = cmds[1]["d"].as_str().unwrap();
+            let xs: Vec<f32> = d
+                .split(|c| c == 'M' || c == 'L' || c == 'Z')
+                .filter(|s| !s.is_empty())
+                .filter_map(|p| p.split_whitespace().next()?.parse().ok())
+                .collect();
+            let min = xs.iter().cloned().fold(f32::MAX, f32::min);
+            let max = xs.iter().cloned().fold(f32::MIN, f32::max);
+            max - min
+        };
+        let (a, mid, b) = (width_at(0.0), width_at(0.5), width_at(1.5));
+        assert!((a - 100.0).abs() < 3.0, "start square, got {a}");
+        assert!((b - 200.0).abs() < 3.0, "end wide, got {b}");
+        assert!(mid > a + 20.0 && mid < b - 20.0, "mid-flow between: {mid}");
     }
 
     #[test]
