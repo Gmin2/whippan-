@@ -1,166 +1,304 @@
-// the timeline narrates the canvas: a playhead pinned at a fixed screen x
-// with the ruler and clips scrolling underneath it (radio-main's signature),
-// layer pills that light accent-blue exactly while their scene is on canvas,
-// an orange keyframe lane with diamond markers, and a green audio lane.
-import { useMemo, useRef } from 'react'
+/* ─────────────────────────────────────────────────────────
+ * TIMELINE
+ *
+ * pinned header column (icon + layer + scene) | scrolling lanes
+ * ruler: minor ticks every 0.1s, labeled majors every 1s
+ * rows: clip pill per node per scene, keyframe diamonds inline
+ * below: orange marker lane, green audio lane
+ * playhead: accent line + grab handle, pinned-follow while playing
+ * ───────────────────────────────────────────────────────── */
+import { useMemo, useRef, useState } from 'react'
 import { timing } from './engine.js'
+import { Pointer, TextTool, Shapes, Picture, PenNib, ZoomIn, ZoomOut } from './icons.jsx'
 
-const ACCENT = '#606de0'
-const PX_PER_S = 130
-const PIN_X = 260
-const ROW_H = 26
+const TL = {
+  height: 264,
+  headerW: 192,
+  rowH: 26,
+  rulerH: 26,
+  pinX: 300,          // playhead parks here, lanes scroll underneath
+  pxPerS: 130,        // base zoom, scaled by the zoom control
+  accent: '#606de0',
+  marker: '#cf7030',
+  wave: '#0f8b40',
+  clip: '#1c1c1e',
+  bg: '#111112',
+  line: '#1e1e20',
+}
+
+const TYPE_ICON = {
+  text: TextTool, rect: Shapes, image: Picture, path: PenNib, cursor: Pointer,
+}
 
 export default function Timeline({ doc, t, selection, onScrub, onSelect }) {
-  const { dur, scenes } = useMemo(() => timing(doc.stage), [doc])
+  const [zoom, setZoom] = useState(1)
+  const pxs = TL.pxPerS * zoom
   const areaRef = useRef(null)
+  const { dur, scenes } = useMemo(() => timing(doc.stage), [doc])
 
-  // camera-follow: once the playhead would pass the pin, scroll content
-  const scroll = Math.max(0, t * PX_PER_S - PIN_X)
-  const playheadX = Math.min(PIN_X, t * PX_PER_S)
+  const rows = useMemo(() =>
+    scenes.flatMap(scene => scene.nodes.map(node => ({
+      scene, node,
+      keys: keyTimes(doc, scene, node),
+    }))), [doc, scenes])
 
-  const rows = useMemo(() => {
-    const out = []
-    for (const sc of scenes)
-      for (const n of sc.nodes)
-        out.push({ scene: sc, node: n })
-    return out
-  }, [scenes])
-
-  const keyMarks = useMemo(() => {
-    const marks = []
-    const starts = Object.fromEntries(scenes.map(s => [s.id, s.start]))
-    for (const tr of doc.anim.tracks ?? []) {
-      const sc = scenes.find(s => s.nodes.some(n => n.id === tr.target)
-        || s.id === tr.target)
-      if (!sc) continue
-      const base = starts[sc.id] + (tr.at ?? 0)
-      for (const keys of Object.values(tr.keys ?? {}))
-        for (const k of keys) marks.push(base + k.t)
-      if (tr.reveal) marks.push(base)
-    }
-    return [...new Set(marks.map(m => Math.round(m * 60) / 60))]
-  }, [doc, scenes])
-
-  const wave = useMemo(() => {
-    // deterministic pseudo-waveform; a real one would sample the bed
-    const bars = []
-    for (let i = 0; i < dur * 20; i++) {
-      const v = Math.abs(Math.sin(i * 1.7) * 0.6 + Math.sin(i * 0.43) * 0.4)
-      bars.push(4 + v * 12)
-    }
-    return bars
-  }, [dur])
+  const scroll = Math.max(0, t * pxs - TL.pinX)
+  const playheadX = Math.min(TL.pinX, t * pxs)
 
   function scrubTo(ev) {
     const r = areaRef.current.getBoundingClientRect()
-    const x = ev.clientX - r.left + scroll
-    onScrub(Math.max(0, Math.min(dur, x / PX_PER_S)))
+    onScrub(clamp((ev.clientX - r.left + scroll) / pxs, 0, dur))
   }
 
-  const contentW = dur * PX_PER_S + 400
+  function dragScrub(ev) {
+    scrubTo(ev)
+    const move = e => scrubTo(e)
+    const up = () => {
+      removeEventListener('mousemove', move)
+      removeEventListener('mouseup', up)
+    }
+    addEventListener('mousemove', move)
+    addEventListener('mouseup', up)
+  }
 
   return (
     <div style={{
-      height: 250, background: '#111111', borderTop: '1px solid #222',
-      display: 'flex', flexDirection: 'column', position: 'relative',
-      overflow: 'hidden',
+      height: TL.height, background: TL.bg, borderTop: `1px solid ${TL.line}`,
+      display: 'flex', position: 'relative',
     }}>
+      {/* pinned headers */}
+      <div style={{
+        width: TL.headerW, flexShrink: 0, borderRight: `1px solid ${TL.line}`,
+        display: 'flex', flexDirection: 'column',
+      }}>
+        <div style={{
+          height: TL.rulerH, display: 'flex', alignItems: 'center', gap: 6,
+          padding: '0 10px', borderBottom: `1px solid ${TL.line}`,
+          color: '#6a6a68',
+        }}>
+          <span style={{ fontSize: 10, letterSpacing: '.1em' }}>LAYERS</span>
+          <span style={{ flex: 1 }} />
+          <ZoomOut size={13} style={{ cursor: 'pointer' }}
+                   onClick={() => setZoom(z => Math.max(0.4, z / 1.3))} />
+          <ZoomIn size={13} style={{ cursor: 'pointer' }}
+                  onClick={() => setZoom(z => Math.min(4, z * 1.3))} />
+        </div>
+        <div className="tl-scroll" style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}
+             onScroll={e => { lanesRef.current.scrollTop = e.target.scrollTop }}>
+          {rows.map((r, i) => (
+            <Header key={r.scene.id + r.node.id} row={r} i={i}
+                    selected={isSel(selection, r)} onSelect={onSelect} />
+          ))}
+        </div>
+      </div>
+
+      {/* lanes */}
       <div
         ref={areaRef}
         style={{ flex: 1, position: 'relative', overflow: 'hidden', cursor: 'ew-resize' }}
-        onMouseDown={ev => {
-          scrubTo(ev)
-          const move = e => scrubTo(e)
-          const up = () => {
-            removeEventListener('mousemove', move)
-            removeEventListener('mouseup', up)
-          }
-          addEventListener('mousemove', move)
-          addEventListener('mouseup', up)
-        }}
+        onMouseDown={dragScrub}
       >
         <div style={{
-          position: 'absolute', inset: 0, width: contentW,
+          position: 'absolute', inset: 0, width: dur * pxs + 500,
           transform: `translateX(${-scroll}px)`,
         }}>
-          <Ruler dur={dur} />
-          <div style={{ position: 'absolute', top: 24, left: 0, right: 0 }}>
-            {rows.slice(0, 6).map(({ scene, node }, i) => (
-              <Clip key={scene.id + node.id} scene={scene} node={node} row={i}
-                    t={t} selection={selection} onSelect={onSelect} />
+          <Ruler dur={dur} pxs={pxs} />
+          <div ref={el => { lanesRef.current = el ?? lanesRef.current }}
+               className="tl-scroll"
+               style={{ position: 'absolute', top: TL.rulerH, bottom: 48,
+                        left: 0, right: 0, overflowY: 'hidden' }}>
+            {rows.map((r, i) => (
+              <Lane key={r.scene.id + r.node.id} row={r} i={i} t={t} pxs={pxs}
+                    selected={isSel(selection, r)} onSelect={onSelect} />
             ))}
-            <div style={{ position: 'absolute', top: 6 * ROW_H + 4, left: 0 }}>
-              <KeyLane marks={keyMarks} />
-            </div>
-            <div style={{ position: 'absolute', top: 6 * ROW_H + 26, left: 0,
-                          display: 'flex', alignItems: 'center', gap: 1, height: 20 }}>
-              {wave.map((h, i) => (
-                <div key={i} style={{ width: 2, height: h, background: '#0f8b40',
-                                      borderRadius: 1 }} />
-              ))}
-            </div>
           </div>
+          <MarkerLane rows={rows} pxs={pxs} />
+          <Waveform dur={dur} pxs={pxs} />
         </div>
+
+        {/* playhead */}
         <div style={{
           position: 'absolute', top: 0, bottom: 0, left: playheadX,
-          width: 2, background: ACCENT, boxShadow: `0 0 8px ${ACCENT}88`,
           pointerEvents: 'none',
-        }} />
+        }}>
+          <div style={{
+            position: 'absolute', top: 0, bottom: 0, left: -1, width: 2,
+            background: TL.accent, boxShadow: `0 0 8px ${TL.accent}88`,
+          }} />
+          <div style={{
+            position: 'absolute', top: 2, left: -17, padding: '1px 5px',
+            background: TL.accent, borderRadius: 5, fontSize: 10,
+            fontFamily: 'ui-monospace, monospace', color: '#fff',
+          }}>{t.toFixed(2)}</div>
+        </div>
       </div>
     </div>
   )
 }
 
-function Ruler({ dur }) {
-  const ticks = []
-  for (let s = 0; s <= Math.ceil(dur); s++) ticks.push(s)
+const lanesRef = { current: null }
+
+function isSel(sel, r) {
+  return sel && sel.nodeId === r.node.id && sel.sceneId === r.scene.id
+}
+
+function keyTimes(doc, scene, node) {
+  const marks = []
+  for (const tr of doc.anim.tracks ?? []) {
+    if (tr.target !== node.id) continue
+    const base = scene.start + (tr.at ?? 0)
+    if (tr.reveal || tr.enter) marks.push({ t: base, kind: 'reveal' })
+    for (const keys of Object.values(tr.keys ?? {}))
+      for (const k of keys) marks.push({ t: base + k.t, kind: 'key' })
+  }
+  const seen = new Set()
+  return marks.filter(m => {
+    const id = m.kind + Math.round(m.t * 60)
+    return seen.has(id) ? false : (seen.add(id), true)
+  })
+}
+
+function Header({ row, i, selected, onSelect }) {
+  const Icon = TYPE_ICON[row.node.type] ?? Shapes
   return (
-    <div style={{ height: 24, position: 'relative', borderBottom: '1px solid #1e1e1e' }}>
-      {ticks.map(s => (
-        <span key={s} style={{
-          position: 'absolute', left: s * PX_PER_S + 4, top: 4,
-          fontSize: 10, color: '#6a6a68',
-          fontFamily: 'ui-monospace, monospace',
-        }}>{s.toFixed(2)}</span>
+    <div
+      onMouseDown={() => onSelect({ sceneId: row.scene.id, nodeId: row.node.id })}
+      style={{
+        height: TL.rowH, display: 'flex', alignItems: 'center', gap: 8,
+        padding: '0 10px', cursor: 'pointer',
+        background: selected ? '#1d1d22' : i % 2 ? '#131314' : 'transparent',
+        borderLeft: selected ? `2px solid ${TL.accent}` : '2px solid transparent',
+        color: selected ? '#e8e8e6' : '#8f8f8d',
+      }}
+    >
+      <Icon size={13} style={{ flexShrink: 0, opacity: 0.8 }} />
+      <span style={{
+        fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden',
+        textOverflow: 'ellipsis', flex: 1,
+      }}>{row.node.id}</span>
+      <span style={{
+        fontSize: 9, color: '#5a5a58',
+        fontFamily: 'ui-monospace, monospace',
+      }}>{row.scene.id}</span>
+    </div>
+  )
+}
+
+function Lane({ row, i, t, pxs, selected, onSelect }) {
+  const { scene, node, keys } = row
+  const active = t >= scene.start && t < scene.start + scene.dur
+  return (
+    <div style={{
+      height: TL.rowH, position: 'relative',
+      background: i % 2 ? '#131314' : 'transparent',
+    }}>
+      <div
+        onMouseDown={ev => {
+          ev.stopPropagation()
+          onSelect({ sceneId: scene.id, nodeId: node.id })
+        }}
+        style={{
+          position: 'absolute', top: 4, height: TL.rowH - 8,
+          left: scene.start * pxs, width: scene.dur * pxs - 3,
+          borderRadius: 6, cursor: 'pointer',
+          background: active ? TL.accent : TL.clip,
+          outline: selected ? '1px solid #ffffffcc' : 'none',
+          transition: 'background 90ms linear',
+        }}
+      >
+        {keys.map((m, j) => (
+          <div key={j} style={{
+            position: 'absolute',
+            left: (m.t - scene.start) * pxs - (m.kind === 'key' ? 3 : 4),
+            top: '50%',
+            ...(m.kind === 'key'
+              ? { width: 6, height: 6, transform: 'translateY(-50%) rotate(45deg)',
+                  background: active ? '#fff' : '#8f8f8d' }
+              : { width: 0, height: 0, transform: 'translateY(-50%)',
+                  borderLeft: `8px solid ${active ? '#fff' : '#8f8f8d'}`,
+                  borderTop: '4px solid transparent',
+                  borderBottom: '4px solid transparent' }),
+          }} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function Ruler({ dur, pxs }) {
+  const majors = []
+  for (let s = 0; s <= Math.ceil(dur); s++) majors.push(s)
+  const minorEvery = pxs >= 90 ? 0.1 : 0.5
+  const minors = []
+  for (let s = 0; s <= dur; s += minorEvery) minors.push(s)
+  return (
+    <div style={{
+      height: TL.rulerH, position: 'relative',
+      borderBottom: `1px solid ${TL.line}`,
+    }}>
+      {minors.map(s => (
+        <div key={'m' + s} style={{
+          position: 'absolute', left: s * pxs, bottom: 0, width: 1, height: 5,
+          background: '#2c2c2e',
+        }} />
+      ))}
+      {majors.map(s => (
+        <div key={s} style={{ position: 'absolute', left: s * pxs, bottom: 0 }}>
+          <div style={{ width: 1, height: 9, background: '#4a4a4c' }} />
+          <span style={{
+            position: 'absolute', left: 4, bottom: 7, fontSize: 10,
+            color: '#6a6a68', fontFamily: 'ui-monospace, monospace',
+          }}>{s}s</span>
+        </div>
       ))}
     </div>
   )
 }
 
-function Clip({ scene, node, row, t, selection, onSelect }) {
-  const active = t >= scene.start && t < scene.start + scene.dur
-  const selected = selection && selection.nodeId === node.id
-    && selection.sceneId === scene.id
+function MarkerLane({ rows, pxs }) {
+  const marks = useMemo(() => {
+    const all = rows.flatMap(r => r.keys.map(m => m.t))
+    return [...new Set(all.map(m => Math.round(m * 30) / 30))]
+  }, [rows])
   return (
-    <div
-      onMouseDown={ev => { ev.stopPropagation(); onSelect({ sceneId: scene.id, nodeId: node.id }) }}
-      style={{
-        position: 'absolute', top: row * ROW_H + 3,
-        left: scene.start * PX_PER_S, width: scene.dur * PX_PER_S - 4,
-        height: ROW_H - 6, borderRadius: 7, cursor: 'pointer',
-        background: active ? ACCENT : '#1a1a1a',
-        outline: selected ? '1px solid #fff' : 'none',
-        color: active ? '#fff' : '#777775',
-        display: 'flex', alignItems: 'center', padding: '0 10px',
-        fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden',
-        transition: 'background 80ms linear',
-      }}
-    >{node.id}</div>
-  )
-}
-
-function KeyLane({ marks }) {
-  return (
-    <div style={{ position: 'relative', height: 16, minWidth: 10 }}>
-      <div style={{ position: 'absolute', inset: '5px 0', background: '#cf7030',
-                    borderRadius: 4, opacity: 0.85 }} />
+    <div style={{ position: 'absolute', bottom: 26, left: 0, right: 0, height: 16 }}>
+      <div style={{
+        position: 'absolute', inset: '5px 0', background: TL.marker,
+        opacity: 0.85, borderRadius: 4,
+      }} />
       {marks.map((m, i) => (
         <div key={i} style={{
-          position: 'absolute', left: m * PX_PER_S - 3, top: 5,
-          width: 6, height: 6, background: '#fff',
-          transform: 'rotate(45deg)',
+          position: 'absolute', left: m * pxs - 3, top: 5, width: 6, height: 6,
+          background: '#fff', transform: 'rotate(45deg)',
         }} />
       ))}
     </div>
   )
+}
+
+function Waveform({ dur, pxs }) {
+  const bars = useMemo(() => {
+    const out = []
+    for (let i = 0; i < dur * 20; i++)
+      out.push(3 + Math.abs(Math.sin(i * 1.7) * 0.6 + Math.sin(i * 0.43) * 0.4) * 13)
+    return out
+  }, [dur])
+  const w = (dur * pxs) / bars.length
+  return (
+    <div style={{
+      position: 'absolute', bottom: 2, left: 0, height: 20,
+      display: 'flex', alignItems: 'center', gap: 0,
+    }}>
+      {bars.map((h, i) => (
+        <div key={i} style={{
+          width: Math.max(1, w - 1), marginRight: 1, height: h,
+          background: TL.wave, borderRadius: 1,
+        }} />
+      ))}
+    </div>
+  )
+}
+
+function clamp(v, a, b) {
+  return Math.max(a, Math.min(b, v))
 }

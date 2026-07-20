@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { boot, loadDoc, timing } from './engine.js'
 import Stage from './Stage.jsx'
+import { Pointer, TextTool, Shapes, Picture, PenNib, Play, Pause, Floppy } from './icons.jsx'
 import Timeline from './Timeline.jsx'
 import Inspector from './Inspector.jsx'
 
@@ -149,11 +150,11 @@ function Rail({ registry, current, onOpen }) {
 
 function Dock() {
   const tools = [
-    ['cursor', 'M4 2l12 11h-7l-2 7z', true],
-    ['text', 'M3 4h14M10 4v14', false],
-    ['rect', 'M3 5h14v10H3z', false],
-    ['image', 'M3 4h14v12H3zM6 12l3-3 5 5', false],
-    ['path', 'M3 15C7 3 13 17 17 5', false],
+    ['cursor', Pointer, true],
+    ['text', TextTool, false],
+    ['shape', Shapes, false],
+    ['image', Picture, false],
+    ['path', PenNib, false],
   ]
   return (
     <div style={{
@@ -162,16 +163,14 @@ function Dock() {
       background: '#101010', border: '1px solid #262626',
       borderRadius: 12, padding: 5,
     }}>
-      {tools.map(([name, d, active]) => (
+      {tools.map(([name, Icon, active]) => (
         <div key={name} title={name} style={{
           width: 32, height: 32, borderRadius: 8, display: 'grid',
           placeItems: 'center', cursor: 'pointer',
+          color: active ? '#fff' : '#9a9a97',
           background: active ? ACCENT : 'transparent',
         }}>
-          <svg width="18" height="18" viewBox="0 0 20 20">
-            <path d={d} fill={name === 'cursor' ? '#fff' : 'none'}
-                  stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
-          </svg>
+          <Icon size={16} />
         </div>
       ))}
     </div>
@@ -186,8 +185,9 @@ function Transport({ t, dur, playing, onPlay, onScrub, onSave }) {
     }}>
       <button onClick={onPlay} style={{
         border: 0, background: ACCENT, color: '#fff', borderRadius: 8,
-        padding: '5px 16px', cursor: 'pointer', font: 'inherit',
-      }}>{playing ? 'pause' : 'play'}</button>
+        width: 34, height: 28, cursor: 'pointer', display: 'grid',
+        placeItems: 'center',
+      }}>{playing ? <Pause size={13} /> : <Play size={13} />}</button>
       <input type="range" min={0} max={dur} step={1 / 60} value={t}
              onChange={e => onScrub(parseFloat(e.target.value))}
              style={{ flex: 1, accentColor: ACCENT }} />
@@ -195,10 +195,11 @@ function Transport({ t, dur, playing, onPlay, onScrub, onSave }) {
                      color: '#8a8a88', width: 96, textAlign: 'right' }}>
         {t.toFixed(2)} / {dur.toFixed(2)}s
       </span>
-      <button onClick={onSave} style={{
+      <button onClick={onSave} title="save" style={{
         border: '1px solid #2c2c2c', background: 'none', color: '#c9c9c6',
-        borderRadius: 8, padding: '4px 14px', cursor: 'pointer', font: 'inherit',
-      }}>save</button>
+        borderRadius: 8, padding: '4px 10px', cursor: 'pointer',
+        display: 'flex', alignItems: 'center', gap: 6, font: 'inherit',
+      }}><Floppy size={13} /> save</button>
     </div>
   )
 }
