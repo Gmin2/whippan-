@@ -396,5 +396,15 @@
    1080
   ],
   "group": "primitives"
+ },
+ {
+  "slug": "camera",
+  "title": "camera",
+  "dur": 7.0,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "primitives"
  }
 ]
