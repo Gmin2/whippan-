@@ -216,6 +216,30 @@
   "anim": "/docs/cuttlery.anim.json"
  },
  {
+  "slug": "survey",
+  "title": "survey (repro)",
+  "dur": 8.9,
+  "size": [
+   1080,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/survey.stage.json",
+  "anim": "/docs/survey.anim.json"
+ },
+ {
+  "slug": "blackbox",
+  "title": "blackbox (repro)",
+  "dur": 29.0,
+  "size": [
+   1138,
+   640
+  ],
+  "group": "reproductions",
+  "stage": "/docs/blackbox.stage.json",
+  "anim": "/docs/blackbox.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,
