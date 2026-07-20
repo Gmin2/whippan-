@@ -1,0 +1,28 @@
+{
+ "fps": 30,
+ "size": [1920, 1080],
+ "scenes": [
+  {"id": "c1", "bg": "#f4f2ee", "dur": 2.2, "transition": {"kind": "cut"},
+   "nodes": [
+    {"id": "page", "type": "rect", "x": 960, "y": 540, "w": 1500, "h": 800, "radius": 24, "fill": "#ffffff"},
+    {"id": "h1", "type": "text", "text": "The camera does the editing", "x": 960, "y": 320, "color": "#1b1b1b", "font": {"size": 56, "weight": 600}},
+    {"id": "body", "type": "text", "text": "crash zoom onto the button, blur sold by velocity", "x": 960, "y": 420, "color": "#8a8a88", "font": {"size": 26}},
+    {"id": "cta", "type": "rect", "x": 1350, "y": 800, "w": 220, "h": 76, "radius": 38, "fill": "#0f1419"},
+    {"id": "cta_t", "type": "text", "text": "Ship it", "x": 1350, "y": 800, "color": "#ffffff", "font": {"size": 28, "weight": 600}}
+   ]},
+  {"id": "c2", "bg": "#0f1115", "dur": 2.2, "transition": {"kind": "cut"},
+   "nodes": [
+    {"id": "pa", "type": "rect", "x": 600, "y": 540, "w": 800, "h": 600, "radius": 24, "fill": "#1c2026"},
+    {"id": "pa_t", "type": "text", "text": "panel A", "x": 600, "y": 540, "color": "#e8e8e6", "font": {"size": 44, "weight": 600}},
+    {"id": "pb", "type": "rect", "x": 2400, "y": 540, "w": 800, "h": 600, "radius": 24, "fill": "#232a33"},
+    {"id": "pb_t", "type": "text", "text": "panel B", "x": 2400, "y": 540, "color": "#e8e8e6", "font": {"size": 44, "weight": 600}}
+   ]},
+  {"id": "c3", "bg": "#e8f7f4", "dur": 2.6, "transition": {"kind": "cut"},
+   "nodes": [
+    {"id": "canvas", "type": "rect", "x": 960, "y": 470, "w": 900, "h": 560, "radius": 18, "fill": "#ffffff"},
+    {"id": "art", "type": "text", "text": "the comp", "x": 960, "y": 470, "color": "#1b1b1b", "font": {"size": 64, "weight": 700}},
+    {"id": "chrome", "type": "rect", "x": 960, "y": 900, "w": 1500, "h": 140, "radius": 16, "fill": "#111111"},
+    {"id": "chrome_t", "type": "text", "text": "timeline chrome", "x": 960, "y": 900, "color": "#6a6a68", "font": {"size": 22, "family": "mono"}}
+   ]}
+ ]
+}
