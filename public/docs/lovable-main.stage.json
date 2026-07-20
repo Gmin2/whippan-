@@ -1,0 +1,3278 @@
+{
+ "fps": 30,
+ "size": [
+  1280,
+  720
+ ],
+ "scenes": [
+  {
+   "id": "s1",
+   "bg": "#000000",
+   "dur": 3.2,
+   "transition": {
+    "kind": "cut",
+    "dur": 0.25
+   },
+   "nodes": [
+    {
+     "id": "h1_b",
+     "type": "path",
+     "x": 480,
+     "y": 360,
+     "d": "M0.0 36.0C-7.4 29.8 -36.0 14.9 -36.0 -7.4C-36.0 -24.8 -22.9 -33.5 -12.4 -33.5C-5.0 -33.5 0.0 -28.5 0.0 -22.9C0.0 -28.5 5.0 -33.5 12.4 -33.5C22.9 -33.5 36.0 -24.8 36.0 -7.4C36.0 14.9 7.4 29.8 0.0 36.0Z",
+     "fill": "#7369ff",
+     "dseq": [
+      {
+       "at": 0.0,
+       "d": "M-8 0C-8 -4.4184 -4.4184 -8 0 -8C4.4184 -8 8 -4.4184 8 0C8 4.4184 4.4184 8 0 8C-4.4184 8 -8 4.4184 -8 0Z"
+      },
+      {
+       "at": 0.45,
+       "d": "M0.0 36.0C-7.4 29.8 -36.0 14.9 -36.0 -7.4C-36.0 -24.8 -22.9 -33.5 -12.4 -33.5C-5.0 -33.5 0.0 -28.5 0.0 -22.9C0.0 -28.5 5.0 -33.5 12.4 -33.5C22.9 -33.5 36.0 -24.8 36.0 -7.4C36.0 14.9 7.4 29.8 0.0 36.0Z",
+       "ease": "outCubic"
+      }
+     ]
+    },
+    {
+     "id": "h1_l",
+     "type": "path",
+     "x": 463.9,
+     "y": 343.9,
+     "d": "M-16.74 0C-16.74 -9.245502 -9.245502 -16.74 0 -16.74C9.245502 -16.74 16.74 -9.245502 16.74 0C16.74 9.245502 9.245502 16.74 0 16.74C-9.245502 16.74 -16.74 9.245502 -16.74 0Z",
+     "fill": "#ed6b09"
+    },
+    {
+     "id": "h1_r",
+     "type": "path",
+     "x": 496.1,
+     "y": 343.9,
+     "d": "M-16.74 0C-16.74 -9.245502 -9.245502 -16.74 0 -16.74C9.245502 -16.74 16.74 -9.245502 16.74 0C16.74 9.245502 9.245502 16.74 0 16.74C-9.245502 16.74 -16.74 9.245502 -16.74 0Z",
+     "fill": "#bc272b"
+    },
+    {
+     "id": "s1_word",
+     "type": "text",
+     "text": "Lovable",
+     "x": 690,
+     "y": 360,
+     "color": "#ffffff",
+     "font": {
+      "size": 76,
+      "weight": 700
+     }
+    },
+    {
+     "id": "s1_apps",
+     "type": "text",
+     "text": "apps",
+     "x": 924,
+     "y": 360,
+     "color": "#f0407a",
+     "font": {
+      "size": 76,
+      "weight": 700
+     }
+    }
+   ]
+  },
+  {
+   "id": "s2",
+   "bg": "#000000",
+   "dur": 1.8,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.25
+   },
+   "nodes": [
+    {
+     "id": "s2_line",
+     "type": "text",
+     "text": "are built to be found",
+     "x": 640,
+     "y": 360,
+     "color": "#ffffff",
+     "font": {
+      "size": 64,
+      "weight": 700
+     }
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "bg": "#0b0b0b",
+   "dur": 1.8,
+   "transition": {
+    "kind": "cut",
+    "dur": 0.25
+   },
+   "nodes": [
+    {
+     "id": "s3_top",
+     "type": "rect",
+     "x": 640,
+     "y": 70,
+     "w": 1280,
+     "h": 140,
+     "radius": 0,
+     "fill": "#151515"
+    },
+    {
+     "id": "s3_tab",
+     "type": "rect",
+     "x": 250,
+     "y": 45,
+     "w": 320,
+     "h": 54,
+     "radius": 16,
+     "fill": "#242424"
+    },
+    {
+     "id": "s3_fav",
+     "type": "path",
+     "x": 120,
+     "y": 45,
+     "d": "M0.0 9.3C-1.9 7.7 -9.3 3.8 -9.3 -1.9C-9.3 -6.4 -5.9 -8.6 -3.2 -8.6C-1.3 -8.6 0.0 -7.4 0.0 -5.9C0.0 -7.4 1.3 -8.6 3.2 -8.6C5.9 -8.6 9.3 -6.4 9.3 -1.9C9.3 3.8 1.9 7.7 0.0 9.3Z",
+     "fill": "#ec0f5f"
+    },
+    {
+     "id": "s3_tabt",
+     "type": "text",
+     "text": "lovable.dev",
+     "x": 262,
+     "y": 45,
+     "color": "#d9d9d9",
+     "font": {
+      "size": 24,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s3_bar",
+     "type": "rect",
+     "x": 640,
+     "y": 400,
+     "w": 760,
+     "h": 120,
+     "radius": 60,
+     "fill": "#101010"
+    },
+    {
+     "id": "s3_re",
+     "type": "path",
+     "x": 360,
+     "y": 400,
+     "d": "M-12 0a12 12 0 1 1 5 9.7M-7 12L-7 8L-11 6",
+     "fill": "#7a7a7a",
+     "stroke": 3.5
+    },
+    {
+     "id": "s3_q",
+     "type": "text",
+     "text": "found",
+     "x": 560,
+     "y": 400,
+     "color": "#f2f2f2",
+     "font": {
+      "size": 56,
+      "weight": 500
+     }
+    }
+   ]
+  },
+  {
+   "id": "s4",
+   "bg": "#ffffff",
+   "dur": 1.6,
+   "transition": {
+    "kind": "cut",
+    "dur": 0.25
+   },
+   "nodes": [
+    {
+     "id": "s4_g0",
+     "type": "text",
+     "text": "F",
+     "x": 495,
+     "y": 290,
+     "color": "#4285f4",
+     "font": {
+      "size": 116,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s4_g1",
+     "type": "text",
+     "text": "o",
+     "x": 565,
+     "y": 290,
+     "color": "#ea4335",
+     "font": {
+      "size": 116,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s4_g2",
+     "type": "text",
+     "text": "u",
+     "x": 639,
+     "y": 290,
+     "color": "#fbbc05",
+     "font": {
+      "size": 116,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s4_g3",
+     "type": "text",
+     "text": "n",
+     "x": 713,
+     "y": 290,
+     "color": "#4285f4",
+     "font": {
+      "size": 116,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s4_g4",
+     "type": "text",
+     "text": "d",
+     "x": 787,
+     "y": 290,
+     "color": "#34a853",
+     "font": {
+      "size": 116,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s4_gbar",
+     "type": "rect",
+     "x": 640,
+     "y": 430,
+     "w": 640,
+     "h": 58,
+     "radius": 29,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 14,
+      "opacity": 0.55,
+      "color": "#c9c9c9"
+     }
+    },
+    {
+     "id": "s4_gai",
+     "type": "text",
+     "text": "AI Mode",
+     "x": 860,
+     "y": 430,
+     "color": "#5f6368",
+     "font": {
+      "size": 20,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s4_gmic",
+     "type": "rect",
+     "x": 790,
+     "y": 430,
+     "w": 14,
+     "h": 14,
+     "radius": 7,
+     "fill": "#4285f4"
+    },
+    {
+     "id": "s4_bg2",
+     "type": "rect",
+     "x": 640,
+     "y": 360,
+     "w": 1280,
+     "h": 720,
+     "radius": 0,
+     "fill": "#1a5cc8",
+     "gradient": {
+      "angle": 115,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#123c8f"
+       },
+       {
+        "at": 0.6,
+        "color": "#2e6fd6"
+       },
+       {
+        "at": 1,
+        "color": "#7db1ec"
+       }
+      ]
+     }
+    },
+    {
+     "id": "s4_sq1",
+     "type": "rect",
+     "x": 596,
+     "y": 216,
+     "w": 26,
+     "h": 26,
+     "radius": 4,
+     "fill": "#f25022"
+    },
+    {
+     "id": "s4_sq2",
+     "type": "rect",
+     "x": 626,
+     "y": 216,
+     "w": 26,
+     "h": 26,
+     "radius": 4,
+     "fill": "#7fba00"
+    },
+    {
+     "id": "s4_sq3",
+     "type": "rect",
+     "x": 596,
+     "y": 246,
+     "w": 26,
+     "h": 26,
+     "radius": 4,
+     "fill": "#00a4ef"
+    },
+    {
+     "id": "s4_sq4",
+     "type": "rect",
+     "x": 626,
+     "y": 246,
+     "w": 26,
+     "h": 26,
+     "radius": 4,
+     "fill": "#ffb900"
+    },
+    {
+     "id": "s4_bf",
+     "type": "text",
+     "text": "Found",
+     "x": 730,
+     "y": 232,
+     "color": "#ffffff",
+     "font": {
+      "size": 74,
+      "weight": 300
+     }
+    },
+    {
+     "id": "s4_bbar",
+     "type": "rect",
+     "x": 640,
+     "y": 420,
+     "w": 680,
+     "h": 58,
+     "radius": 29,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "s4_bmic",
+     "type": "text",
+     "text": "",
+     "x": 640,
+     "y": 420,
+     "color": "#ffffff",
+     "font": {
+      "size": 12,
+      "weight": 500
+     }
+    }
+   ]
+  },
+  {
+   "id": "s5",
+   "bg": "#587beb",
+   "dur": 3.2,
+   "transition": {
+    "kind": "zoom",
+    "dur": 0.45
+   },
+   "nodes": [
+    {
+     "id": "s5_bg",
+     "type": "rect",
+     "x": 640,
+     "y": 360,
+     "w": 1280,
+     "h": 720,
+     "radius": 0,
+     "fill": "#587beb",
+     "gradient": {
+      "angle": 115,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#587beb"
+       },
+       {
+        "at": 0.55,
+        "color": "#a765c9"
+       },
+       {
+        "at": 1,
+        "color": "#f2488f"
+       }
+      ]
+     }
+    },
+    {
+     "id": "s5_win",
+     "type": "rect",
+     "x": 680,
+     "y": 367,
+     "w": 900,
+     "h": 578,
+     "radius": 14,
+     "fill": "#0d0d0d"
+    },
+    {
+     "id": "s5_wh",
+     "type": "path",
+     "x": 258,
+     "y": 92,
+     "d": "M0.0 7.0C-1.4 5.8 -7.0 2.9 -7.0 -1.4C-7.0 -4.8 -4.4 -6.5 -2.4 -6.5C-1.0 -6.5 0.0 -5.5 0.0 -4.4C0.0 -5.5 1.0 -6.5 2.4 -6.5C4.4 -6.5 7.0 -4.8 7.0 -1.4C7.0 2.9 1.4 5.8 0.0 7.0Z",
+     "fill": "#ec0f5f"
+    },
+    {
+     "id": "s5_wt",
+     "type": "text",
+     "text": "YourSpace",
+     "x": 320,
+     "y": 92,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 16,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s5_share",
+     "type": "rect",
+     "x": 1010,
+     "y": 92,
+     "w": 74,
+     "h": 28,
+     "radius": 8,
+     "fill": "#232323"
+    },
+    {
+     "id": "s5_sharet",
+     "type": "text",
+     "text": "Share",
+     "x": 1010,
+     "y": 92,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 14,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s5_pub",
+     "type": "rect",
+     "x": 1090,
+     "y": 92,
+     "w": 74,
+     "h": 28,
+     "radius": 8,
+     "fill": "#2563eb"
+    },
+    {
+     "id": "s5_pubt",
+     "type": "text",
+     "text": "Publish",
+     "x": 1090,
+     "y": 92,
+     "color": "#ffffff",
+     "font": {
+      "size": 14,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s5_chat",
+     "type": "rect",
+     "x": 372,
+     "y": 380,
+     "w": 268,
+     "h": 540,
+     "radius": 10,
+     "fill": "#161616"
+    },
+    {
+     "id": "s5_uchip",
+     "type": "rect",
+     "x": 440,
+     "y": 140,
+     "w": 210,
+     "h": 40,
+     "radius": 12,
+     "fill": "#242424"
+    },
+    {
+     "id": "s5_ut1",
+     "type": "text",
+     "text": "Create a rental property",
+     "x": 428.0,
+     "y": 132,
+     "color": "#e2e2e2",
+     "font": {
+      "size": 13,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s5_ut2",
+     "type": "text",
+     "text": "management app",
+     "x": 395.5,
+     "y": 150,
+     "color": "#e2e2e2",
+     "font": {
+      "size": 13,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s5_th",
+     "type": "text",
+     "text": "Thought for 34s",
+     "x": 297.0,
+     "y": 186,
+     "color": "#8a8a8a",
+     "font": {
+      "size": 12,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s5_b1",
+     "type": "text",
+     "text": "SEO-optimized architecture with",
+     "x": 345.0,
+     "y": 222,
+     "color": "#9a9a9a",
+     "font": {
+      "size": 12,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s5_b2",
+     "type": "text",
+     "text": "clean URLs, structured data, and",
+     "x": 348.0,
+     "y": 242,
+     "color": "#9a9a9a",
+     "font": {
+      "size": 12,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s5_b3",
+     "type": "text",
+     "text": "fast page indexing",
+     "x": 306.0,
+     "y": 262,
+     "color": "#9a9a9a",
+     "font": {
+      "size": 12,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s5_b4",
+     "type": "text",
+     "text": "High-performance backend with",
+     "x": 339.0,
+     "y": 298,
+     "color": "#9a9a9a",
+     "font": {
+      "size": 12,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s5_b5",
+     "type": "text",
+     "text": "scalable database design",
+     "x": 324.0,
+     "y": 318,
+     "color": "#9a9a9a",
+     "font": {
+      "size": 12,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s5_edits",
+     "type": "text",
+     "text": "10 edits made",
+     "x": 291.0,
+     "y": 354,
+     "color": "#7a7a7a",
+     "font": {
+      "size": 12,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s5_show",
+     "type": "text",
+     "text": "Show all",
+     "x": 524.0,
+     "y": 354,
+     "color": "#6a6a6a",
+     "font": {
+      "size": 12,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s5_input",
+     "type": "rect",
+     "x": 372,
+     "y": 596,
+     "w": 240,
+     "h": 74,
+     "radius": 12,
+     "fill": "#1e1e1e"
+    },
+    {
+     "id": "s5_ask",
+     "type": "text",
+     "text": "Ask Lovable...",
+     "x": 309.5,
+     "y": 582,
+     "color": "#6f6f6f",
+     "font": {
+      "size": 13,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s5_typed",
+     "type": "text",
+     "text": "Help users find my app",
+     "x": 372,
+     "y": 582,
+     "color": "#f0f0f0",
+     "font": {
+      "size": 14,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s5_send",
+     "type": "rect",
+     "x": 470,
+     "y": 614,
+     "w": 22,
+     "h": 22,
+     "radius": 11,
+     "fill": "#2f6fe0"
+    },
+    {
+     "id": "s5_sarr",
+     "type": "path",
+     "x": 470,
+     "y": 614,
+     "d": "M0 5L0 -5M-4 -1L0 -5L4 -1",
+     "fill": "#ffffff",
+     "stroke": 2.2
+    },
+    {
+     "id": "s5_rip",
+     "type": "rect",
+     "x": 470,
+     "y": 614,
+     "w": 26,
+     "h": 26,
+     "radius": 13,
+     "fill": "#7a9bff"
+    },
+    {
+     "id": "s5_prev",
+     "type": "rect",
+     "x": 830,
+     "y": 380,
+     "w": 580,
+     "h": 540,
+     "radius": 10,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "s5_nav",
+     "type": "text",
+     "text": "YourSpace   Home   How-it-Works   Testimonials",
+     "x": 708.0,
+     "y": 132,
+     "color": "#333333",
+     "font": {
+      "size": 12,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s5_cta1",
+     "type": "rect",
+     "x": 1050,
+     "y": 132,
+     "w": 110,
+     "h": 26,
+     "radius": 13,
+     "fill": "#111111"
+    },
+    {
+     "id": "s5_cta1t",
+     "type": "text",
+     "text": "Take the first step",
+     "x": 1050,
+     "y": 132,
+     "color": "#ffffff",
+     "font": {
+      "size": 10,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s5_av1",
+     "type": "rect",
+     "x": 780,
+     "y": 176,
+     "w": 18,
+     "h": 18,
+     "radius": 9,
+     "fill": "#c9a86d"
+    },
+    {
+     "id": "s5_av2",
+     "type": "rect",
+     "x": 796,
+     "y": 176,
+     "w": 18,
+     "h": 18,
+     "radius": 9,
+     "fill": "#8aa5c9"
+    },
+    {
+     "id": "s5_av3",
+     "type": "rect",
+     "x": 812,
+     "y": 176,
+     "w": 18,
+     "h": 18,
+     "radius": 9,
+     "fill": "#b58aae"
+    },
+    {
+     "id": "s5_20k",
+     "type": "text",
+     "text": "20k+",
+     "x": 852,
+     "y": 176,
+     "color": "#555555",
+     "font": {
+      "size": 13,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s5_hero",
+     "type": "text",
+     "text": "YOUR SPACE",
+     "x": 830,
+     "y": 232,
+     "color": "#b9d4ee",
+     "font": {
+      "size": 52,
+      "weight": 800
+     }
+    },
+    {
+     "id": "s5_sub",
+     "type": "text",
+     "text": "All-in-one platform to track tenants, payments,",
+     "x": 830,
+     "y": 276,
+     "color": "#7d99b5",
+     "font": {
+      "size": 13,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s5_sub2",
+     "type": "text",
+     "text": "maintenance and performance.",
+     "x": 830,
+     "y": 294,
+     "color": "#7d99b5",
+     "font": {
+      "size": 13,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s5_cta2",
+     "type": "rect",
+     "x": 830,
+     "y": 330,
+     "w": 130,
+     "h": 30,
+     "radius": 15,
+     "fill": "#111111"
+    },
+    {
+     "id": "s5_cta2t",
+     "type": "text",
+     "text": "Try 14 days free",
+     "x": 830,
+     "y": 330,
+     "color": "#ffffff",
+     "font": {
+      "size": 12,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s5_st1",
+     "type": "rect",
+     "x": 900,
+     "y": 400,
+     "w": 150,
+     "h": 62,
+     "radius": 10,
+     "fill": "#eef3ee"
+    },
+    {
+     "id": "s5_st1a",
+     "type": "text",
+     "text": "Total Payment",
+     "x": 873.8,
+     "y": 388,
+     "color": "#66766b",
+     "font": {
+      "size": 11,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s5_st1b",
+     "type": "text",
+     "text": "$48,000",
+     "x": 869.5,
+     "y": 410,
+     "color": "#1c2a20",
+     "font": {
+      "size": 18,
+      "weight": 700
+     }
+    },
+    {
+     "id": "s5_st2",
+     "type": "rect",
+     "x": 1062,
+     "y": 400,
+     "w": 140,
+     "h": 62,
+     "radius": 10,
+     "fill": "#f2f6f2"
+    },
+    {
+     "id": "s5_st2a",
+     "type": "text",
+     "text": "Monthly Rent",
+     "x": 1039.0,
+     "y": 388,
+     "color": "#66766b",
+     "font": {
+      "size": 11,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s5_st2b",
+     "type": "text",
+     "text": "$8,500",
+     "x": 1033.0,
+     "y": 410,
+     "color": "#1c2a20",
+     "font": {
+      "size": 18,
+      "weight": 700
+     }
+    },
+    {
+     "id": "s5_ph",
+     "type": "rect",
+     "x": 680,
+     "y": 470,
+     "w": 200,
+     "h": 160,
+     "radius": 10,
+     "fill": "#dbe4dd"
+    },
+    {
+     "id": "s5_pht",
+     "type": "text",
+     "text": "Hudson Row Residences",
+     "x": 653.8,
+     "y": 528,
+     "color": "#3a463d",
+     "font": {
+      "size": 11,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s5_php",
+     "type": "text",
+     "text": "$250",
+     "x": 608.0,
+     "y": 546,
+     "color": "#1c2a20",
+     "font": {
+      "size": 12,
+      "weight": 700
+     }
+    },
+    {
+     "id": "s5_bar0",
+     "type": "rect",
+     "x": 930,
+     "y": 537.0,
+     "w": 26,
+     "h": 46,
+     "radius": 5,
+     "fill": "#9ecf9a"
+    },
+    {
+     "id": "s5_bar1",
+     "type": "rect",
+     "x": 972,
+     "y": 529.0,
+     "w": 26,
+     "h": 62,
+     "radius": 5,
+     "fill": "#9ecf9a"
+    },
+    {
+     "id": "s5_bar2",
+     "type": "rect",
+     "x": 1014,
+     "y": 540.0,
+     "w": 26,
+     "h": 40,
+     "radius": 5,
+     "fill": "#9ecf9a"
+    },
+    {
+     "id": "s5_bar3",
+     "type": "rect",
+     "x": 1056,
+     "y": 523.0,
+     "w": 26,
+     "h": 74,
+     "radius": 5,
+     "fill": "#9ecf9a"
+    },
+    {
+     "id": "s5_bar4",
+     "type": "rect",
+     "x": 1098,
+     "y": 532.0,
+     "w": 26,
+     "h": 56,
+     "radius": 5,
+     "fill": "#9ecf9a"
+    },
+    {
+     "id": "s5_cur",
+     "type": "cursor",
+     "x": 760,
+     "y": 690,
+     "w": 24,
+     "fill": "#111111"
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "bg": "#000000",
+   "dur": 2.0,
+   "transition": {
+    "kind": "cut",
+    "dur": 0.25
+   },
+   "nodes": [
+    {
+     "id": "s6_l1",
+     "type": "text",
+     "text": "Auto optimize",
+     "x": 640,
+     "y": 300,
+     "color": "#ffffff",
+     "font": {
+      "size": 78,
+      "weight": 700
+     }
+    },
+    {
+     "id": "s6_for",
+     "type": "text",
+     "text": "for",
+     "x": 500,
+     "y": 420,
+     "color": "#ffffff",
+     "font": {
+      "size": 44,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s6_chip",
+     "type": "rect",
+     "x": 576,
+     "y": 420,
+     "w": 46,
+     "h": 46,
+     "radius": 13,
+     "fill": "#f0407a"
+    },
+    {
+     "id": "s6_mag",
+     "type": "path",
+     "x": 578,
+     "y": 420,
+     "d": "M-3 -3m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M3 3L10 10",
+     "fill": "#ffffff",
+     "stroke": 3.0
+    },
+    {
+     "id": "s6_search",
+     "type": "text",
+     "text": "search",
+     "x": 700,
+     "y": 420,
+     "color": "#ffffff",
+     "font": {
+      "size": 44,
+      "weight": 600
+     }
+    }
+   ]
+  },
+  {
+   "id": "s7",
+   "bg": "#050505",
+   "dur": 2.4,
+   "transition": {
+    "kind": "cut",
+    "dur": 0.25
+   },
+   "nodes": [
+    {
+     "id": "s7_bar",
+     "type": "rect",
+     "x": 640,
+     "y": 74,
+     "w": 720,
+     "h": 50,
+     "radius": 25,
+     "fill": "#161616"
+    },
+    {
+     "id": "s7_mag",
+     "type": "path",
+     "x": 330,
+     "y": 74,
+     "d": "M-3 -3m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M3 3L10 10",
+     "fill": "#8a8a8a",
+     "stroke": 2.6
+    },
+    {
+     "id": "s7_q",
+     "type": "text",
+     "text": "bnb management software",
+     "x": 475.0,
+     "y": 74,
+     "color": "#d9d9d9",
+     "font": {
+      "size": 20,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s7_r1t",
+     "type": "text",
+     "text": "Rentra - Real Estate Management",
+     "x": 470.5,
+     "y": 170,
+     "color": "#8ab4f8",
+     "font": {
+      "size": 22,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s7_r1u",
+     "type": "text",
+     "text": "https://www.rentra.com",
+     "x": 377.0,
+     "y": 198,
+     "color": "#9aa0a6",
+     "font": {
+      "size": 14,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s7_r1d",
+     "type": "text",
+     "text": "Simplify and grow your vacation rental business",
+     "x": 476.2,
+     "y": 222,
+     "color": "#bdc1c6",
+     "font": {
+      "size": 15,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s7_glow",
+     "type": "rect",
+     "x": 640,
+     "y": 330,
+     "w": 780,
+     "h": 130,
+     "radius": 16,
+     "fill": "#ec0f5f",
+     "blur": 60
+    },
+    {
+     "id": "s7_card",
+     "type": "rect",
+     "x": 640,
+     "y": 330,
+     "w": 780,
+     "h": 130,
+     "radius": 16,
+     "fill": "#101014"
+    },
+    {
+     "id": "s7_fav",
+     "type": "rect",
+     "x": 300,
+     "y": 296,
+     "w": 26,
+     "h": 26,
+     "radius": 13,
+     "fill": "#2d3a52"
+    },
+    {
+     "id": "s7_favh",
+     "type": "path",
+     "x": 300,
+     "y": 296,
+     "d": "M0.0 6.4C-1.3 5.3 -6.4 2.6 -6.4 -1.3C-6.4 -4.4 -4.1 -5.9 -2.2 -5.9C-0.9 -5.9 0.0 -5.1 0.0 -4.1C0.0 -5.1 0.9 -5.9 2.2 -5.9C4.1 -5.9 6.4 -4.4 6.4 -1.3C6.4 2.6 1.3 5.3 0.0 6.4Z",
+     "fill": "#8ab4f0"
+    },
+    {
+     "id": "s7_r2s",
+     "type": "text",
+     "text": "BnB Management Software",
+     "x": 410.2,
+     "y": 290,
+     "color": "#dadce0",
+     "font": {
+      "size": 15,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s7_r2u",
+     "type": "text",
+     "text": "https://www.yourspace.com",
+     "x": 405.2,
+     "y": 310,
+     "color": "#9aa0a6",
+     "font": {
+      "size": 13,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s7_r2t",
+     "type": "text",
+     "text": "YourSpace | Real Estate Management Software",
+     "x": 535.2,
+     "y": 340,
+     "color": "#8ab4f8",
+     "font": {
+      "size": 23,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s7_r2d",
+     "type": "text",
+     "text": "Scale your short-term rental business with our",
+     "x": 460.5,
+     "y": 368,
+     "color": "#bdc1c6",
+     "font": {
+      "size": 15,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s7_r3t",
+     "type": "text",
+     "text": "Rentiq - Real Estate Management",
+     "x": 470.5,
+     "y": 460,
+     "color": "#8ab4f8",
+     "font": {
+      "size": 22,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s7_r3u",
+     "type": "text",
+     "text": "https://www.rentiq.com",
+     "x": 377.0,
+     "y": 488,
+     "color": "#9aa0a6",
+     "font": {
+      "size": 14,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s7_r3d",
+     "type": "text",
+     "text": "Build, manage, and optimize your rental business",
+     "x": 480.0,
+     "y": 512,
+     "color": "#bdc1c6",
+     "font": {
+      "size": 15,
+      "weight": 400
+     }
+    }
+   ]
+  },
+  {
+   "id": "s8",
+   "bg": "#000000",
+   "dur": 1.8,
+   "transition": {
+    "kind": "cut",
+    "dur": 0.25
+   },
+   "nodes": [
+    {
+     "id": "s8_l1",
+     "type": "text",
+     "text": "Ensure",
+     "x": 640,
+     "y": 290,
+     "color": "#ffffff",
+     "font": {
+      "size": 84,
+      "weight": 700
+     }
+    },
+    {
+     "id": "s8_ai",
+     "type": "text",
+     "text": "AI",
+     "x": 520,
+     "y": 420,
+     "color": "#ffffff",
+     "font": {
+      "size": 56,
+      "weight": 700
+     }
+    },
+    {
+     "id": "s8_tile",
+     "type": "rect",
+     "x": 596,
+     "y": 420,
+     "w": 52,
+     "h": 52,
+     "radius": 14,
+     "fill": "#1e1e1e"
+    },
+    {
+     "id": "s8_spark",
+     "type": "path",
+     "x": 596,
+     "y": 420,
+     "d": "M0 -15C2.5 -5 5 -2.5 15 0C5 2.5 2.5 5 0 15C-2.5 5 -5 2.5 -15 0C-5 -2.5 -2.5 -5 0 -15Z",
+     "fill": "#f0407a"
+    },
+    {
+     "id": "s8_read",
+     "type": "text",
+     "text": "Readability",
+     "x": 790,
+     "y": 420,
+     "color": "#ffffff",
+     "font": {
+      "size": 56,
+      "weight": 700
+     }
+    }
+   ]
+  },
+  {
+   "id": "s9",
+   "bg": "#0f0f0f",
+   "dur": 3.0,
+   "transition": {
+    "kind": "cut",
+    "dur": 0.25
+   },
+   "nodes": [
+    {
+     "id": "s9_hdr",
+     "type": "text",
+     "text": "Property GPT",
+     "x": 150.0,
+     "y": 50,
+     "color": "#ececec",
+     "font": {
+      "size": 20,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s9_login",
+     "type": "rect",
+     "x": 1150,
+     "y": 50,
+     "w": 90,
+     "h": 32,
+     "radius": 16,
+     "fill": "#2563eb"
+    },
+    {
+     "id": "s9_logint",
+     "type": "text",
+     "text": "Log in",
+     "x": 1150,
+     "y": 50,
+     "color": "#ffffff",
+     "font": {
+      "size": 14,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s9_qb",
+     "type": "rect",
+     "x": 880,
+     "y": 120,
+     "w": 480,
+     "h": 46,
+     "radius": 23,
+     "fill": "#2a2a2a"
+    },
+    {
+     "id": "s9_q",
+     "type": "text",
+     "text": "How should I manage my rental property?",
+     "x": 880,
+     "y": 120,
+     "color": "#f0f0f0",
+     "font": {
+      "size": 18,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s9_cup",
+     "type": "path",
+     "x": 250,
+     "y": 210,
+     "d": "M-8 -9L8 -9L7 1C6 6 3 8 0 8C-3 8 -6 6 -7 1ZM-3 8L3 8M-5 12L5 12M-8 -7C-12 -7 -12 -1 -8 0M8 -7C12 -7 12 -1 8 0",
+     "fill": "#f4b400",
+     "stroke": 2.0
+    },
+    {
+     "id": "s9_a1",
+     "type": "text",
+     "text": "Top 10 BnB Property Management Software",
+     "x": 533.5,
+     "y": 210,
+     "color": "#f2f2f2",
+     "font": {
+      "size": 26,
+      "weight": 700
+     }
+    },
+    {
+     "id": "s9_r1",
+     "type": "text",
+     "text": "1.  YourSpace",
+     "x": 328.0,
+     "y": 290,
+     "color": "#8ab4f0",
+     "font": {
+      "size": 24,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s9_r1u",
+     "type": "rect",
+     "x": 344,
+     "y": 306,
+     "w": 172,
+     "h": 3,
+     "radius": 1.5,
+     "fill": "#8ab4f0"
+    },
+    {
+     "id": "s9_r1b",
+     "type": "text",
+     "text": "-  All-in-One BnB Management Software",
+     "x": 643.5,
+     "y": 290,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 22,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s9_url",
+     "type": "text",
+     "text": "https://www.yourspace.com",
+     "x": 400.5,
+     "y": 330,
+     "color": "#9aa0a6",
+     "font": {
+      "size": 18,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s9_d1",
+     "type": "text",
+     "text": "Scale your short-term rental business with our automated",
+     "x": 526.0,
+     "y": 366,
+     "color": "#bdc1c6",
+     "font": {
+      "size": 17,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s9_d2",
+     "type": "text",
+     "text": "channel manager, guest inbox, and real-time calendar sync.",
+     "x": 534.5,
+     "y": 392,
+     "color": "#bdc1c6",
+     "font": {
+      "size": 17,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s9_sep",
+     "type": "rect",
+     "x": 640,
+     "y": 440,
+     "w": 800,
+     "h": 2,
+     "radius": 1,
+     "fill": "#2c2c2c"
+    },
+    {
+     "id": "s9_r2",
+     "type": "text",
+     "text": "2.  Avilo",
+     "x": 304.0,
+     "y": 490,
+     "color": "#8ab4f0",
+     "font": {
+      "size": 24,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s9_r2b",
+     "type": "text",
+     "text": "-  Get Your Rental Business Under Control",
+     "x": 645.5,
+     "y": 490,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 22,
+      "weight": 400
+     }
+    }
+   ]
+  },
+  {
+   "id": "s10",
+   "bg": "#000000",
+   "dur": 1.8,
+   "transition": {
+    "kind": "cut",
+    "dur": 0.25
+   },
+   "nodes": [
+    {
+     "id": "s10_l1",
+     "type": "text",
+     "text": "Chat with",
+     "x": 640,
+     "y": 280,
+     "color": "#ffffff",
+     "font": {
+      "size": 78,
+      "weight": 700
+     }
+    },
+    {
+     "id": "s10_comet",
+     "type": "path",
+     "x": 420,
+     "y": 430,
+     "d": "M-10 4C-2 6 8 2 12 -6C6 0 -2 0 -10 4Z",
+     "fill": "#a586f5"
+    },
+    {
+     "id": "s10_sr",
+     "type": "text",
+     "text": "SEMRUSH",
+     "x": 640,
+     "y": 430,
+     "color": "#a586f5",
+     "font": {
+      "size": 54,
+      "weight": 800
+     }
+    },
+    {
+     "id": "s10_adobe",
+     "type": "text",
+     "text": "An Adobe Company",
+     "x": 640,
+     "y": 500,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 20,
+      "weight": 500
+     }
+    }
+   ]
+  },
+  {
+   "id": "s11",
+   "bg": "#141414",
+   "dur": 3.0,
+   "transition": {
+    "kind": "cut",
+    "dur": 0.25
+   },
+   "nodes": [
+    {
+     "id": "s11_qb",
+     "type": "rect",
+     "x": 900,
+     "y": 70,
+     "w": 480,
+     "h": 44,
+     "radius": 22,
+     "fill": "#262626"
+    },
+    {
+     "id": "s11_q1",
+     "type": "text",
+     "text": "Hey",
+     "x": 703.5,
+     "y": 70,
+     "color": "#f0f0f0",
+     "font": {
+      "size": 18,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s11_q2",
+     "type": "text",
+     "text": "Semrush,",
+     "x": 768.0,
+     "y": 70,
+     "color": "#a586f5",
+     "font": {
+      "size": 18,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s11_q3",
+     "type": "text",
+     "text": "how findable is my site?",
+     "x": 930.0,
+     "y": 70,
+     "color": "#f0f0f0",
+     "font": {
+      "size": 18,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s11_tile",
+     "type": "rect",
+     "x": 300,
+     "y": 150,
+     "w": 34,
+     "h": 34,
+     "radius": 10,
+     "fill": "#2b2440"
+    },
+    {
+     "id": "s11_ci",
+     "type": "path",
+     "x": 300,
+     "y": 150,
+     "d": "M-10 4C-2 6 8 2 12 -6C6 0 -2 0 -10 4Z",
+     "fill": "#a586f5"
+    },
+    {
+     "id": "s11_sr",
+     "type": "text",
+     "text": "Semrush",
+     "x": 366.5,
+     "y": 150,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 22,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s11_th",
+     "type": "text",
+     "text": "Thought for 15s  >",
+     "x": 363.0,
+     "y": 196,
+     "color": "#8a8a8a",
+     "font": {
+      "size": 18,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s11_lg",
+     "type": "text",
+     "text": "Looking good! Here's the picture:",
+     "x": 463.5,
+     "y": 240,
+     "color": "#f0f0f0",
+     "font": {
+      "size": 22,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s11_h1",
+     "type": "text",
+     "text": "Market",
+     "x": 312.0,
+     "y": 300,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 20,
+      "weight": 700
+     }
+    },
+    {
+     "id": "s11_h2",
+     "type": "text",
+     "text": "Ranked Keywords",
+     "x": 535.0,
+     "y": 300,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 20,
+      "weight": 700
+     }
+    },
+    {
+     "id": "s11_h3",
+     "type": "text",
+     "text": "Estimated Traffic",
+     "x": 865.0,
+     "y": 300,
+     "color": "#ef7fb2",
+     "font": {
+      "size": 20,
+      "weight": 700
+     }
+    },
+    {
+     "id": "s11_f0",
+     "type": "rect",
+     "x": 296,
+     "y": 356,
+     "w": 26,
+     "h": 18,
+     "radius": 4,
+     "fill": "#3c5a9a"
+    },
+    {
+     "id": "s11_c0",
+     "type": "text",
+     "text": "US",
+     "x": 328.0,
+     "y": 356,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 20,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s11_k0",
+     "type": "text",
+     "text": "10",
+     "x": 480.0,
+     "y": 356,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 20,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s11_t0",
+     "type": "text",
+     "text": "10,000",
+     "x": 816.0,
+     "y": 356,
+     "color": "#f06a9e",
+     "font": {
+      "size": 20,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s11_u0",
+     "type": "rect",
+     "x": 640,
+     "y": 386,
+     "w": 700,
+     "h": 3,
+     "radius": 1.5,
+     "fill": "#ec0f5f",
+     "gradient": {
+      "angle": 0,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#f0407a"
+       },
+       {
+        "at": 1,
+        "color": "#ec0f5f"
+       }
+      ]
+     }
+    },
+    {
+     "id": "s11_f1",
+     "type": "rect",
+     "x": 296,
+     "y": 420,
+     "w": 26,
+     "h": 18,
+     "radius": 4,
+     "fill": "#7a3c5a"
+    },
+    {
+     "id": "s11_c1",
+     "type": "text",
+     "text": "UK",
+     "x": 328.0,
+     "y": 420,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 20,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s11_k1",
+     "type": "text",
+     "text": "4",
+     "x": 475.0,
+     "y": 420,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 20,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s11_t1",
+     "type": "text",
+     "text": "6,000",
+     "x": 811.0,
+     "y": 420,
+     "color": "#f06a9e",
+     "font": {
+      "size": 20,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s11_u1",
+     "type": "rect",
+     "x": 640,
+     "y": 450,
+     "w": 700,
+     "h": 3,
+     "radius": 1.5,
+     "fill": "#ec0f5f",
+     "gradient": {
+      "angle": 0,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#f0407a"
+       },
+       {
+        "at": 1,
+        "color": "#ec0f5f"
+       }
+      ]
+     }
+    },
+    {
+     "id": "s11_f2",
+     "type": "rect",
+     "x": 296,
+     "y": 484,
+     "w": 26,
+     "h": 18,
+     "radius": 4,
+     "fill": "#9a3c3c"
+    },
+    {
+     "id": "s11_c2",
+     "type": "text",
+     "text": "CA",
+     "x": 328.0,
+     "y": 484,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 20,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s11_k2",
+     "type": "text",
+     "text": "3",
+     "x": 475.0,
+     "y": 484,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 20,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s11_t2",
+     "type": "text",
+     "text": "4,000",
+     "x": 811.0,
+     "y": 484,
+     "color": "#f06a9e",
+     "font": {
+      "size": 20,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s11_u2",
+     "type": "rect",
+     "x": 640,
+     "y": 514,
+     "w": 700,
+     "h": 3,
+     "radius": 1.5,
+     "fill": "#ec0f5f",
+     "gradient": {
+      "angle": 0,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#f0407a"
+       },
+       {
+        "at": 1,
+        "color": "#ec0f5f"
+       }
+      ]
+     }
+    },
+    {
+     "id": "s11_f3",
+     "type": "rect",
+     "x": 296,
+     "y": 548,
+     "w": 26,
+     "h": 18,
+     "radius": 4,
+     "fill": "#3c7a5a"
+    },
+    {
+     "id": "s11_c3",
+     "type": "text",
+     "text": "AU",
+     "x": 328.0,
+     "y": 548,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 20,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s11_k3",
+     "type": "text",
+     "text": "3",
+     "x": 475.0,
+     "y": 548,
+     "color": "#e6e6e6",
+     "font": {
+      "size": 20,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s11_t3",
+     "type": "text",
+     "text": "3,800",
+     "x": 811.0,
+     "y": 548,
+     "color": "#f06a9e",
+     "font": {
+      "size": 20,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s11_u3",
+     "type": "rect",
+     "x": 640,
+     "y": 578,
+     "w": 700,
+     "h": 3,
+     "radius": 1.5,
+     "fill": "#ec0f5f",
+     "gradient": {
+      "angle": 0,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#f0407a"
+       },
+       {
+        "at": 1,
+        "color": "#ec0f5f"
+       }
+      ]
+     }
+    },
+    {
+     "id": "s11_next",
+     "type": "text",
+     "text": "What I'd do next - run competitive analysis to find keyword gaps you can win.",
+     "x": 686.2,
+     "y": 640,
+     "color": "#f0f0f0",
+     "font": {
+      "size": 21,
+      "weight": 400
+     }
+    }
+   ]
+  },
+  {
+   "id": "s12",
+   "bg": "#587beb",
+   "dur": 1.6,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.3
+   },
+   "nodes": [
+    {
+     "id": "s12_bg",
+     "type": "rect",
+     "x": 640,
+     "y": 360,
+     "w": 1280,
+     "h": 720,
+     "radius": 0,
+     "fill": "#587beb",
+     "gradient": {
+      "angle": 115,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#587beb"
+       },
+       {
+        "at": 0.55,
+        "color": "#a765c9"
+       },
+       {
+        "at": 1,
+        "color": "#f2488f"
+       }
+      ]
+     }
+    },
+    {
+     "id": "s12_win",
+     "type": "rect",
+     "x": 620,
+     "y": 420,
+     "w": 1000,
+     "h": 560,
+     "radius": 16,
+     "fill": "#0d0d0d"
+    },
+    {
+     "id": "s12_prev",
+     "type": "rect",
+     "x": 640,
+     "y": 460,
+     "w": 820,
+     "h": 420,
+     "radius": 12,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "s12_hero",
+     "type": "text",
+     "text": "YOUR SPACE",
+     "x": 640,
+     "y": 400,
+     "color": "#b9d4ee",
+     "font": {
+      "size": 58,
+      "weight": 800
+     }
+    },
+    {
+     "id": "s12_sub",
+     "type": "text",
+     "text": "All-in-one platform to track tenants, payments,",
+     "x": 640,
+     "y": 450,
+     "color": "#7d99b5",
+     "font": {
+      "size": 15,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s12_share",
+     "type": "rect",
+     "x": 950,
+     "y": 170,
+     "w": 96,
+     "h": 40,
+     "radius": 10,
+     "fill": "#232323"
+    },
+    {
+     "id": "s12_sharet",
+     "type": "text",
+     "text": "Share",
+     "x": 950,
+     "y": 170,
+     "color": "#c9c9c9",
+     "font": {
+      "size": 17,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s12_gh",
+     "type": "rect",
+     "x": 1030,
+     "y": 170,
+     "w": 40,
+     "h": 40,
+     "radius": 10,
+     "fill": "#232323"
+    },
+    {
+     "id": "s12_ghp",
+     "type": "path",
+     "x": 1030,
+     "y": 170,
+     "d": "M-9 0C-9 -4.9707 -4.9707 -9 0 -9C4.9707 -9 9 -4.9707 9 0C9 4.9707 4.9707 9 0 9C-4.9707 9 -9 4.9707 -9 0Z",
+     "fill": "#c9c9c9"
+    },
+    {
+     "id": "s12_pub",
+     "type": "rect",
+     "x": 1140,
+     "y": 170,
+     "w": 120,
+     "h": 44,
+     "radius": 10,
+     "fill": "#2563eb",
+     "states": {
+      "pressed": {
+       "scale": 0.94
+      }
+     }
+    },
+    {
+     "id": "s12_pubt",
+     "type": "text",
+     "text": "Publish",
+     "x": 1140,
+     "y": 170,
+     "color": "#ffffff",
+     "font": {
+      "size": 19,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s12_rip",
+     "type": "rect",
+     "x": 1140,
+     "y": 170,
+     "w": 130,
+     "h": 54,
+     "radius": 14,
+     "fill": "#7a9bff"
+    },
+    {
+     "id": "s12_cur",
+     "type": "cursor",
+     "x": 700,
+     "y": 560,
+     "w": 26,
+     "fill": "#111111"
+    }
+   ]
+  },
+  {
+   "id": "s13",
+   "bg": "#050505",
+   "dur": 2.6,
+   "transition": {
+    "kind": "cut",
+    "dur": 0.25
+   },
+   "nodes": [
+    {
+     "id": "s13a_g",
+     "type": "rect",
+     "x": 640.0,
+     "y": 360.0,
+     "w": 1280,
+     "h": 720,
+     "radius": 0,
+     "fill": "#06090f",
+     "gradient": {
+      "angle": 115,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#05070c"
+       },
+       {
+        "at": 0.32,
+        "color": "#3f66c4"
+       },
+       {
+        "at": 0.55,
+        "color": "#ee7fdd"
+       },
+       {
+        "at": 0.78,
+        "color": "#ec0f5f"
+       },
+       {
+        "at": 1.0,
+        "color": "#f05a25"
+       }
+      ]
+     }
+    },
+    {
+     "id": "s13a_p1",
+     "type": "rect",
+     "x": 260,
+     "y": 640,
+     "w": 560,
+     "h": 380,
+     "radius": 190,
+     "fill": "#ec0f5f",
+     "blur": 110
+    },
+    {
+     "id": "s13a_p2",
+     "type": "rect",
+     "x": 1080,
+     "y": 160,
+     "w": 520,
+     "h": 340,
+     "radius": 170,
+     "fill": "#1b2f66",
+     "blur": 120
+    },
+    {
+     "id": "s13_panel",
+     "type": "rect",
+     "x": 640,
+     "y": 370,
+     "w": 880,
+     "h": 520,
+     "radius": 22,
+     "fill": "#1a1a1a"
+    },
+    {
+     "id": "s13_hd",
+     "type": "text",
+     "text": "Your SEO review",
+     "x": 385.0,
+     "y": 160,
+     "color": "#ffffff",
+     "font": {
+      "size": 36,
+      "weight": 700
+     }
+    },
+    {
+     "id": "s13_fix",
+     "type": "rect",
+     "x": 990,
+     "y": 160,
+     "w": 120,
+     "h": 48,
+     "radius": 12,
+     "fill": "#2f6fe0",
+     "states": {
+      "pressed": {
+       "scale": 0.94
+      }
+     }
+    },
+    {
+     "id": "s13_fixt",
+     "type": "text",
+     "text": "Fix all",
+     "x": 990,
+     "y": 160,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600
+     }
+    },
+    {
+     "id": "s13_sep",
+     "type": "rect",
+     "x": 640,
+     "y": 210,
+     "w": 800,
+     "h": 2,
+     "radius": 1,
+     "fill": "#2a2a2a"
+    },
+    {
+     "id": "s13_ic0",
+     "type": "rect",
+     "x": 300,
+     "y": 280,
+     "w": 40,
+     "h": 40,
+     "radius": 20,
+     "fill": "#241418"
+    },
+    {
+     "id": "s13_ip0",
+     "type": "path",
+     "x": 300,
+     "y": 280,
+     "d": "M-6 -6L6 6M6 -6L-6 6",
+     "fill": "#e3133d",
+     "stroke": 2.6
+    },
+    {
+     "id": "s13_lb0",
+     "type": "text",
+     "text": "Search results show truncated text",
+     "x": 535.5,
+     "y": 280,
+     "color": "#ececec",
+     "font": {
+      "size": 23,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s13_ic1",
+     "type": "rect",
+     "x": 300,
+     "y": 390,
+     "w": 40,
+     "h": 40,
+     "radius": 20,
+     "fill": "#241418"
+    },
+    {
+     "id": "s13_ip1",
+     "type": "path",
+     "x": 300,
+     "y": 390,
+     "d": "M0 -9L10 8L-10 8Z",
+     "fill": "#e8a13c",
+     "stroke": 2.6
+    },
+    {
+     "id": "s13_lb1",
+     "type": "text",
+     "text": "Homepage heading structure and body copy are sparse",
+     "x": 633.2,
+     "y": 390,
+     "color": "#ececec",
+     "font": {
+      "size": 23,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s13_ic2",
+     "type": "rect",
+     "x": 300,
+     "y": 500,
+     "w": 40,
+     "h": 40,
+     "radius": 20,
+     "fill": "#241418"
+    },
+    {
+     "id": "s13_ip2",
+     "type": "path",
+     "x": 300,
+     "y": 500,
+     "d": "M0 -9L10 8L-10 8Z",
+     "fill": "#e8a13c",
+     "stroke": 2.6
+    },
+    {
+     "id": "s13_lb2",
+     "type": "text",
+     "text": "Social link previews are cluttered",
+     "x": 535.5,
+     "y": 500,
+     "color": "#ececec",
+     "font": {
+      "size": 23,
+      "weight": 400
+     }
+    },
+    {
+     "id": "s13_cur",
+     "type": "cursor",
+     "x": 700,
+     "y": 620,
+     "w": 26,
+     "fill": "#111111"
+    }
+   ]
+  },
+  {
+   "id": "s14",
+   "bg": "#050505",
+   "dur": 1.5,
+   "transition": {
+    "kind": "dissolve",
+    "dur": 0.35
+   },
+   "nodes": [
+    {
+     "id": "s14a_g",
+     "type": "rect",
+     "x": 640.0,
+     "y": 360.0,
+     "w": 1280,
+     "h": 720,
+     "radius": 0,
+     "fill": "#06090f",
+     "gradient": {
+      "angle": 115,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#05070c"
+       },
+       {
+        "at": 0.32,
+        "color": "#3f66c4"
+       },
+       {
+        "at": 0.55,
+        "color": "#ee7fdd"
+       },
+       {
+        "at": 0.78,
+        "color": "#ec0f5f"
+       },
+       {
+        "at": 1.0,
+        "color": "#f05a25"
+       }
+      ]
+     }
+    },
+    {
+     "id": "s14a_p1",
+     "type": "rect",
+     "x": 260,
+     "y": 640,
+     "w": 560,
+     "h": 380,
+     "radius": 190,
+     "fill": "#ec0f5f",
+     "blur": 110
+    },
+    {
+     "id": "s14a_p2",
+     "type": "rect",
+     "x": 1080,
+     "y": 160,
+     "w": 520,
+     "h": 340,
+     "radius": 170,
+     "fill": "#1b2f66",
+     "blur": 120
+    },
+    {
+     "id": "s14_l1",
+     "type": "text",
+     "text": "Server-Side",
+     "x": 640,
+     "y": 280,
+     "color": "#ffffff",
+     "font": {
+      "size": 70,
+      "weight": 800
+     }
+    },
+    {
+     "id": "s14_tile",
+     "type": "rect",
+     "x": 402,
+     "y": 380,
+     "w": 58,
+     "h": 58,
+     "radius": 15,
+     "fill": "#1e1e1e"
+    },
+    {
+     "id": "s14_srv",
+     "type": "path",
+     "x": 402,
+     "y": 380,
+     "d": "M-15 -12L15 -12L15 -2L-15 -2ZM-15 2L15 2L15 12L-15 12ZM-10 -7L-6 -7M-10 7L-6 7",
+     "fill": "#f05a25",
+     "stroke": 2.4
+    },
+    {
+     "id": "s14_l2",
+     "type": "text",
+     "text": "Rendering",
+     "x": 700,
+     "y": 380,
+     "color": "#ffffff",
+     "font": {
+      "size": 70,
+      "weight": 800
+     }
+    },
+    {
+     "id": "s14_cap",
+     "type": "text",
+     "text": "for new apps",
+     "x": 640,
+     "y": 470,
+     "color": "#ffffff",
+     "font": {
+      "size": 24,
+      "weight": 500
+     }
+    }
+   ]
+  },
+  {
+   "id": "s15",
+   "bg": "#050505",
+   "dur": 1.5,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.3
+   },
+   "nodes": [
+    {
+     "id": "s15a_g",
+     "type": "rect",
+     "x": 640.0,
+     "y": 360.0,
+     "w": 1280,
+     "h": 720,
+     "radius": 0,
+     "fill": "#06090f",
+     "gradient": {
+      "angle": 115,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#05070c"
+       },
+       {
+        "at": 0.32,
+        "color": "#3f66c4"
+       },
+       {
+        "at": 0.55,
+        "color": "#ee7fdd"
+       },
+       {
+        "at": 0.78,
+        "color": "#ec0f5f"
+       },
+       {
+        "at": 1.0,
+        "color": "#f05a25"
+       }
+      ]
+     }
+    },
+    {
+     "id": "s15a_p1",
+     "type": "rect",
+     "x": 260,
+     "y": 640,
+     "w": 560,
+     "h": 380,
+     "radius": 190,
+     "fill": "#ec0f5f",
+     "blur": 110
+    },
+    {
+     "id": "s15a_p2",
+     "type": "rect",
+     "x": 1080,
+     "y": 160,
+     "w": 520,
+     "h": 340,
+     "radius": 170,
+     "fill": "#1b2f66",
+     "blur": 120
+    },
+    {
+     "id": "s15_tile",
+     "type": "rect",
+     "x": 380,
+     "y": 320,
+     "w": 58,
+     "h": 58,
+     "radius": 15,
+     "fill": "#1e1e1e"
+    },
+    {
+     "id": "s15_db",
+     "type": "path",
+     "x": 380,
+     "y": 320,
+     "d": "M-12 -10a12 5 0 1 0 24 0a12 5 0 1 0 -24 0M-12 -10L-12 8a12 5 0 0 0 24 0L12 -10M2 -2L-4 4L2 4L-4 12",
+     "fill": "#f05a25",
+     "stroke": 2.2
+    },
+    {
+     "id": "s15_l1",
+     "type": "text",
+     "text": "Pre-Rendering",
+     "x": 700,
+     "y": 320,
+     "color": "#ffffff",
+     "font": {
+      "size": 70,
+      "weight": 800
+     }
+    },
+    {
+     "id": "s15_cap",
+     "type": "text",
+     "text": "for existing apps",
+     "x": 640,
+     "y": 420,
+     "color": "#ffffff",
+     "font": {
+      "size": 24,
+      "weight": 500
+     }
+    }
+   ]
+  },
+  {
+   "id": "s16",
+   "bg": "#0a0a0a",
+   "dur": 2.2,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.3
+   },
+   "nodes": [
+    {
+     "id": "h16_b",
+     "type": "path",
+     "x": 640,
+     "y": 360,
+     "d": "M0.0 49.3C-10.2 40.8 -49.3 20.4 -49.3 -10.2C-49.3 -34.0 -31.4 -45.9 -17.0 -45.9C-6.8 -45.9 0.0 -39.1 0.0 -31.4C0.0 -39.1 6.8 -45.9 17.0 -45.9C31.4 -45.9 49.3 -34.0 49.3 -10.2C49.3 20.4 10.2 40.8 0.0 49.3Z",
+     "fill": "#7369ff",
+     "dseq": [
+      {
+       "at": 0.0,
+       "d": "M-12 0C-12 -6.6276 -6.6276 -12 0 -12C6.6276 -12 12 -6.6276 12 0C12 6.6276 6.6276 12 0 12C-6.6276 12 -12 6.6276 -12 0Z"
+      },
+      {
+       "at": 0.4,
+       "d": "M0.0 49.3C-10.2 40.8 -49.3 20.4 -49.3 -10.2C-49.3 -34.0 -31.4 -45.9 -17.0 -45.9C-6.8 -45.9 0.0 -39.1 0.0 -31.4C0.0 -39.1 6.8 -45.9 17.0 -45.9C31.4 -45.9 49.3 -34.0 49.3 -10.2C49.3 20.4 10.2 40.8 0.0 49.3Z",
+       "ease": "outCubic"
+      }
+     ]
+    },
+    {
+     "id": "h16_l",
+     "type": "path",
+     "x": 617.9,
+     "y": 337.9,
+     "d": "M-22.95 0C-22.95 -12.675285 -12.675285 -22.95 0 -22.95C12.675285 -22.95 22.95 -12.675285 22.95 0C22.95 12.675285 12.675285 22.95 0 22.95C-12.675285 22.95 -22.95 12.675285 -22.95 0Z",
+     "fill": "#ed6b09"
+    },
+    {
+     "id": "h16_r",
+     "type": "path",
+     "x": 662.1,
+     "y": 337.9,
+     "d": "M-22.95 0C-22.95 -12.675285 -12.675285 -22.95 0 -22.95C12.675285 -22.95 22.95 -12.675285 22.95 0C22.95 12.675285 12.675285 22.95 0 22.95C-12.675285 22.95 -22.95 12.675285 -22.95 0Z",
+     "fill": "#bc272b"
+    },
+    {
+     "id": "s16_pr0",
+     "type": "rect",
+     "x": 250,
+     "y": 130,
+     "w": 139.1,
+     "h": 47,
+     "radius": 24,
+     "fill": "#f0407a"
+    },
+    {
+     "id": "s16_p0",
+     "type": "rect",
+     "x": 250,
+     "y": 130,
+     "w": 136.1,
+     "h": 44,
+     "radius": 22,
+     "fill": "#101010"
+    },
+    {
+     "id": "s16_pt0",
+     "type": "text",
+     "text": "Sitemap",
+     "x": 250,
+     "y": 130,
+     "color": "#5c5c5c",
+     "font": {
+      "size": 22,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s16_pr1",
+     "type": "rect",
+     "x": 520,
+     "y": 130,
+     "w": 173.4,
+     "h": 47,
+     "radius": 24,
+     "fill": "#f0407a"
+    },
+    {
+     "id": "s16_p1",
+     "type": "rect",
+     "x": 520,
+     "y": 130,
+     "w": 170.4,
+     "h": 44,
+     "radius": 22,
+     "fill": "#101010"
+    },
+    {
+     "id": "s16_pt1",
+     "type": "text",
+     "text": "robots.txt",
+     "x": 520,
+     "y": 130,
+     "color": "#5c5c5c",
+     "font": {
+      "size": 22,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s16_pr2",
+     "type": "rect",
+     "x": 880,
+     "y": 130,
+     "w": 253.5,
+     "h": 47,
+     "radius": 24,
+     "fill": "#f0407a"
+    },
+    {
+     "id": "s16_p2",
+     "type": "rect",
+     "x": 880,
+     "y": 130,
+     "w": 250.5,
+     "h": 44,
+     "radius": 22,
+     "fill": "#101010"
+    },
+    {
+     "id": "s16_pt2",
+     "type": "text",
+     "text": "Chat with Semrush",
+     "x": 880,
+     "y": 130,
+     "color": "#5c5c5c",
+     "font": {
+      "size": 22,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s16_pr3",
+     "type": "rect",
+     "x": 240,
+     "y": 250,
+     "w": 276.4,
+     "h": 47,
+     "radius": 24,
+     "fill": "#f0407a"
+    },
+    {
+     "id": "s16_p3",
+     "type": "rect",
+     "x": 240,
+     "y": 250,
+     "w": 273.4,
+     "h": 44,
+     "radius": 22,
+     "fill": "#101010"
+    },
+    {
+     "id": "s16_pt3",
+     "type": "text",
+     "text": "Optimize for search",
+     "x": 240,
+     "y": 250,
+     "color": "#f0f0f0",
+     "font": {
+      "size": 22,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s16_pr4",
+     "type": "rect",
+     "x": 630,
+     "y": 250,
+     "w": 242.0,
+     "h": 47,
+     "radius": 24,
+     "fill": "#f0407a"
+    },
+    {
+     "id": "s16_p4",
+     "type": "rect",
+     "x": 630,
+     "y": 250,
+     "w": 239.0,
+     "h": 44,
+     "radius": 22,
+     "fill": "#101010"
+    },
+    {
+     "id": "s16_pt4",
+     "type": "text",
+     "text": "Keyword analysis",
+     "x": 630,
+     "y": 250,
+     "color": "#f0f0f0",
+     "font": {
+      "size": 22,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s16_pr5",
+     "type": "rect",
+     "x": 1010,
+     "y": 250,
+     "w": 230.6,
+     "h": 47,
+     "radius": 24,
+     "fill": "#f0407a"
+    },
+    {
+     "id": "s16_p5",
+     "type": "rect",
+     "x": 1010,
+     "y": 250,
+     "w": 227.6,
+     "h": 44,
+     "radius": 22,
+     "fill": "#101010"
+    },
+    {
+     "id": "s16_pt5",
+     "type": "text",
+     "text": "Audit backlinks",
+     "x": 1010,
+     "y": 250,
+     "color": "#5c5c5c",
+     "font": {
+      "size": 22,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s16_pr6",
+     "type": "rect",
+     "x": 210,
+     "y": 360,
+     "w": 310.7,
+     "h": 47,
+     "radius": 24,
+     "fill": "#f0407a"
+    },
+    {
+     "id": "s16_p6",
+     "type": "rect",
+     "x": 210,
+     "y": 360,
+     "w": 307.7,
+     "h": 44,
+     "radius": 22,
+     "fill": "#101010"
+    },
+    {
+     "id": "s16_pt6",
+     "type": "text",
+     "text": "Chat with Semrush data",
+     "x": 210,
+     "y": 360,
+     "color": "#5c5c5c",
+     "font": {
+      "size": 22,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s16_pr7",
+     "type": "rect",
+     "x": 1060,
+     "y": 360,
+     "w": 276.4,
+     "h": 47,
+     "radius": 24,
+     "fill": "#f0407a"
+    },
+    {
+     "id": "s16_p7",
+     "type": "rect",
+     "x": 1060,
+     "y": 360,
+     "w": 273.4,
+     "h": 44,
+     "radius": 22,
+     "fill": "#101010"
+    },
+    {
+     "id": "s16_pt7",
+     "type": "text",
+     "text": "Optimize for search",
+     "x": 1060,
+     "y": 360,
+     "color": "#5c5c5c",
+     "font": {
+      "size": 22,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s16_pr8",
+     "type": "rect",
+     "x": 230,
+     "y": 470,
+     "w": 230.6,
+     "h": 47,
+     "radius": 24,
+     "fill": "#f0407a"
+    },
+    {
+     "id": "s16_p8",
+     "type": "rect",
+     "x": 230,
+     "y": 470,
+     "w": 227.6,
+     "h": 44,
+     "radius": 22,
+     "fill": "#101010"
+    },
+    {
+     "id": "s16_pt8",
+     "type": "text",
+     "text": "Audit backlinks",
+     "x": 230,
+     "y": 470,
+     "color": "#5c5c5c",
+     "font": {
+      "size": 22,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s16_pr9",
+     "type": "rect",
+     "x": 540,
+     "y": 470,
+     "w": 173.4,
+     "h": 47,
+     "radius": 24,
+     "fill": "#f0407a"
+    },
+    {
+     "id": "s16_p9",
+     "type": "rect",
+     "x": 540,
+     "y": 470,
+     "w": 170.4,
+     "h": 44,
+     "radius": 22,
+     "fill": "#101010"
+    },
+    {
+     "id": "s16_pt9",
+     "type": "text",
+     "text": "robots.txt",
+     "x": 540,
+     "y": 470,
+     "color": "#5c5c5c",
+     "font": {
+      "size": 22,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s16_pr10",
+     "type": "rect",
+     "x": 860,
+     "y": 470,
+     "w": 219.2,
+     "h": 47,
+     "radius": 24,
+     "fill": "#f0407a"
+    },
+    {
+     "id": "s16_p10",
+     "type": "rect",
+     "x": 860,
+     "y": 470,
+     "w": 216.2,
+     "h": 44,
+     "radius": 22,
+     "fill": "#101010"
+    },
+    {
+     "id": "s16_pt10",
+     "type": "text",
+     "text": "AI readability",
+     "x": 860,
+     "y": 470,
+     "color": "#f0f0f0",
+     "font": {
+      "size": 22,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s16_pr11",
+     "type": "rect",
+     "x": 380,
+     "y": 600,
+     "w": 93.3,
+     "h": 47,
+     "radius": 24,
+     "fill": "#f0407a"
+    },
+    {
+     "id": "s16_p11",
+     "type": "rect",
+     "x": 380,
+     "y": 600,
+     "w": 90.3,
+     "h": 44,
+     "radius": 22,
+     "fill": "#101010"
+    },
+    {
+     "id": "s16_pt11",
+     "type": "text",
+     "text": "SSR",
+     "x": 380,
+     "y": 600,
+     "color": "#5c5c5c",
+     "font": {
+      "size": 22,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s16_pr12",
+     "type": "rect",
+     "x": 640,
+     "y": 600,
+     "w": 207.7,
+     "h": 47,
+     "radius": 24,
+     "fill": "#f0407a"
+    },
+    {
+     "id": "s16_p12",
+     "type": "rect",
+     "x": 640,
+     "y": 600,
+     "w": 204.7,
+     "h": 44,
+     "radius": 22,
+     "fill": "#101010"
+    },
+    {
+     "id": "s16_pt12",
+     "type": "text",
+     "text": "Pre-rendering",
+     "x": 640,
+     "y": 600,
+     "color": "#5c5c5c",
+     "font": {
+      "size": 22,
+      "weight": 500
+     }
+    },
+    {
+     "id": "s16_pr13",
+     "type": "rect",
+     "x": 980,
+     "y": 600,
+     "w": 242.0,
+     "h": 47,
+     "radius": 24,
+     "fill": "#f0407a"
+    },
+    {
+     "id": "s16_p13",
+     "type": "rect",
+     "x": 980,
+     "y": 600,
+     "w": 239.0,
+     "h": 44,
+     "radius": 22,
+     "fill": "#101010"
+    },
+    {
+     "id": "s16_pt13",
+     "type": "text",
+     "text": "Keyword analysis",
+     "x": 980,
+     "y": 600,
+     "color": "#5c5c5c",
+     "font": {
+      "size": 22,
+      "weight": 500
+     }
+    }
+   ]
+  },
+  {
+   "id": "s17",
+   "bg": "#050505",
+   "dur": 3.4,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.35
+   },
+   "nodes": [
+    {
+     "id": "s17a_g",
+     "type": "rect",
+     "x": 640.0,
+     "y": 360.0,
+     "w": 1280,
+     "h": 720,
+     "radius": 0,
+     "fill": "#06090f",
+     "gradient": {
+      "angle": 115,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#05070c"
+       },
+       {
+        "at": 0.32,
+        "color": "#3f66c4"
+       },
+       {
+        "at": 0.55,
+        "color": "#ee7fdd"
+       },
+       {
+        "at": 0.78,
+        "color": "#ec0f5f"
+       },
+       {
+        "at": 1.0,
+        "color": "#f05a25"
+       }
+      ]
+     }
+    },
+    {
+     "id": "s17a_p1",
+     "type": "rect",
+     "x": 260,
+     "y": 640,
+     "w": 560,
+     "h": 380,
+     "radius": 190,
+     "fill": "#ec0f5f",
+     "blur": 110
+    },
+    {
+     "id": "s17a_p2",
+     "type": "rect",
+     "x": 1080,
+     "y": 160,
+     "w": 520,
+     "h": 340,
+     "radius": 170,
+     "fill": "#1b2f66",
+     "blur": 120
+    },
+    {
+     "id": "s17_build",
+     "type": "text",
+     "text": "Build something",
+     "x": 452,
+     "y": 360,
+     "color": "#ffffff",
+     "font": {
+      "size": 62,
+      "weight": 700
+     }
+    },
+    {
+     "id": "s17_h",
+     "type": "path",
+     "x": 730,
+     "y": 358,
+     "d": "M0.0 26.1C-5.4 21.6 -26.1 10.8 -26.1 -5.4C-26.1 -18.0 -16.7 -24.3 -9.0 -24.3C-3.6 -24.3 0.0 -20.7 0.0 -16.7C0.0 -20.7 3.6 -24.3 9.0 -24.3C16.7 -24.3 26.1 -18.0 26.1 -5.4C26.1 10.8 5.4 21.6 0.0 26.1Z",
+     "fill": "#ffffff"
+    },
+    {
+     "id": "s17_find",
+     "type": "text",
+     "text": "Findable",
+     "x": 916,
+     "y": 360,
+     "color": "#ffffff",
+     "font": {
+      "size": 62,
+      "weight": 700
+     }
+    },
+    {
+     "id": "s17_srch",
+     "type": "text",
+     "text": "Searchable",
+     "x": 950,
+     "y": 360,
+     "color": "#ffffff",
+     "font": {
+      "size": 62,
+      "weight": 700
+     }
+    },
+    {
+     "id": "s17_lov",
+     "type": "text",
+     "text": "Lovable",
+     "x": 900,
+     "y": 360,
+     "color": "#ffffff",
+     "font": {
+      "size": 62,
+      "weight": 700
+     }
+    }
+   ]
+  }
+ ],
+ "audio": {
+  "src": "/assets/audio/pad.m4a",
+  "gain": 0.6,
+  "fade_out": 0.9
+ }
+}
