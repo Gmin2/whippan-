@@ -321,12 +321,17 @@ function Playground({ ck, registry }) {
     if (entry) document.title = `${name} · whippan gallery`
   }, [name, entry])
 
+  const [loadError, setLoadError] = useState(null)
   useEffect(() => {
     let alive = true
     setDoc(null)
+    setLoadError(null)
     setT(0)
     setPlaying(true)
-    if (entry) loadDoc(entry).then(d => { if (alive) setDoc(d) })
+    if (entry) loadDoc(entry).then(
+      d => { if (alive) setDoc(d) },
+      err => { if (alive) setLoadError(String(err)) },
+    )
     return () => { alive = false }
   }, [name, runKey])
 
@@ -684,7 +689,9 @@ function Playground({ ck, registry }) {
               ? <Film key={runKey} ck={ck} doc={doc} t={t}
                       className="h-auto w-full rounded-lg shadow-[0_1px_2px_rgba(0,0,0,0.06),0_12px_40px_rgba(0,0,0,0.1)]" />
               : <div style={{ aspectRatio: `${fw} / ${fh}` }}
-                     className="w-full rounded-lg bg-black/5" />}
+                     className="grid w-full place-items-center rounded-lg bg-black/5 text-[11px] text-neutral-400">
+                  {loadError ?? 'loading'}
+                </div>}
           </div>
         </div>
       </main>

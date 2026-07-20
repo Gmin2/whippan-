@@ -26,8 +26,14 @@ export async function loadDoc(entry) {
   const stageUrl = entry.stage || `/docs/examples/${entry.slug}.stage.json`
   const animUrl = entry.anim || `/docs/examples/${entry.slug}.anim.json`
   const [stage, anim] = await Promise.all([
-    fetch(stageUrl).then(r => r.json()),
-    fetch(animUrl).then(r => r.json()),
+    fetch(stageUrl).then(r => {
+      if (!r.ok) throw new Error(`missing ${stageUrl}`)
+      return r.json()
+    }),
+    fetch(animUrl).then(r => {
+      if (!r.ok) throw new Error(`missing ${animUrl}`)
+      return r.json()
+    }),
   ])
   const { CK } = await boot()
   const images = new Map()
