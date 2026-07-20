@@ -1,0 +1,21 @@
+{
+  "tracks": [
+    {
+      "target": "pill",
+      "at": 0.175,
+      "loop": true,
+      "keys": {
+        "glow_opacity": [
+          { "t": 0, "v": 0.76 },
+          { "t": 0.725, "v": 0.95, "ease": "inOutCubic" },
+          { "t": 1.45, "v": 0.76, "ease": "inOutCubic" }
+        ],
+        "glow_sigma": [
+          { "t": 0, "v": 27 },
+          { "t": 0.725, "v": 33, "ease": "inOutCubic" },
+          { "t": 1.45, "v": 27, "ease": "inOutCubic" }
+        ]
+      }
+    }
+  ]
+}

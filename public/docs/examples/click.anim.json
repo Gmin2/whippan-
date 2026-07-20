@@ -1,0 +1,136 @@
+{
+  "tracks": [
+    {
+      "target": "card",
+      "at": 0,
+      "keys": {
+        "opacity": [
+          {
+            "t": 0,
+            "v": 0
+          }
+        ]
+      }
+    },
+    {
+      "target": "cardtext",
+      "at": 0,
+      "keys": {
+        "opacity": [
+          {
+            "t": 0,
+            "v": 0
+          }
+        ]
+      }
+    },
+    {
+      "target": "cur",
+      "at": 0.4,
+      "keys": {
+        "x": [
+          {
+            "t": 0,
+            "v": 0
+          },
+          {
+            "t": 0.7,
+            "v": 360,
+            "ease": "inOutCubic"
+          }
+        ],
+        "y": [
+          {
+            "t": 0,
+            "v": 0
+          },
+          {
+            "t": 0.7,
+            "v": -280,
+            "ease": "inOutCubic"
+          }
+        ]
+      }
+    },
+    {
+      "target": "btn",
+      "at": 1.35,
+      "state": "pressed"
+    },
+    {
+      "target": "btn",
+      "at": 1.5,
+      "state": "base"
+    },
+    {
+      "target": "card",
+      "at": 1.6,
+      "keys": {
+        "opacity": [
+          {
+            "t": 0,
+            "v": 0
+          },
+          {
+            "t": 0.12,
+            "v": 1
+          }
+        ],
+        "y": [
+          {
+            "t": 0,
+            "v": 30
+          },
+          {
+            "t": 0.3,
+            "v": 0,
+            "ease": "outCubic"
+          }
+        ],
+        "scale": [
+          {
+            "t": 0,
+            "v": 0.96
+          },
+          {
+            "t": 0.3,
+            "v": 1,
+            "ease": [
+              0.22,
+              1,
+              0.36,
+              1
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "target": "cardtext",
+      "at": 1.7,
+      "keys": {
+        "opacity": [
+          {
+            "t": 0,
+            "v": 0
+          },
+          {
+            "t": 0.15,
+            "v": 1
+          }
+        ],
+        "y": [
+          {
+            "t": 0,
+            "v": 20
+          },
+          {
+            "t": 0.3,
+            "v": 0,
+            "ease": "outCubic"
+          }
+        ]
+      }
+    }
+  ]
+}
