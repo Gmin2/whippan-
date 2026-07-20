@@ -314,10 +314,10 @@ scene("s2", MAT, D2, {"kind": "cut"}, c + wn + cn)
 # to a separate close-up scene (s3b) so text stays crisp.
 D3 = 5.417
 c = [rect("s3_slide", SLX, SLY, SLW, SLH, 6, OFF)]
-hb = path("s3_hsun", 738, 340, sunburst_d(), ACC)
+hb = path("s3_hsun", 722, 340, sunburst_d(), ACC)
 hb["keys"] = {"scale": [{"t": 0, "v": 1.35}]}
 c.append(hb)
-c.append(text("s3_head", "Let's knock something off your list", 1135, 342,
+c.append(text("s3_head", "Let's knock something off your list", 1148, 342,
               44, INK, weight=600))
 c.append(rect("s3_card", 1040, 512, 900, 238, 26, "#ffffff",
               glow={"sigma": 30, "opacity": 0.16, "color": "#8a8378",
@@ -444,11 +444,11 @@ sg = path("s3b_sendg", 1355, 662, "M0 9L0 -9M-7 -2L0 -9L7 -2", "#ffffff",
           stroke=3.0)
 sg["keys"] = {"scale": [{"t": 0, "v": 2.4}]}
 c.append(sg)
-c.append({"id": "s3b_cur", "type": "cursor", "x": 1395, "y": 800, "w": 62,
+c.append({"id": "s3b_cur", "type": "cursor", "x": 1432, "y": 716, "w": 62,
           "fill": "#ffffff"})
 tracks.append(keyed("s3b_cur",
-                    x=[(0.0, 0.0), (0.45, -18.0, "outCubic")],
-                    y=[(0.0, 0.0), (0.45, -78.0, "outCubic")]))
+                    x=[(0.0, 0.0), (0.45, -46.0, "outCubic")],
+                    y=[(0.0, 0.0), (0.45, -28.0, "outCubic")]))
 tracks.append({"target": "s3b_send", "at": 0.5, "state": "pressed"})
 wn, wt = watermark("s3b_")
 cn, ct = chrome("s3bc_", D1 + D2 + D3, D3B, [("demo", 0, D3B)])

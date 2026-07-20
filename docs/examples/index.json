@@ -204,6 +204,18 @@
   "anim": "/docs/ai-1.anim.json"
  },
  {
+  "slug": "cuttlery",
+  "title": "cuttlery (repro)",
+  "dur": 44.77,
+  "size": [
+   1280,
+   720
+  ],
+  "group": "reproductions",
+  "stage": "/docs/cuttlery.stage.json",
+  "anim": "/docs/cuttlery.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,

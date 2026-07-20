@@ -196,7 +196,7 @@ OVALS = [(120, 90, "#262626"), (235, 120, "#323232"), (352, 155, "#3f3f3f"),
 for i, (ox, ry, col) in enumerate(OVALS):
     rx = max(28, ry * 0.34)
     path(f"oval{i}", ox, 320, ring_d(rx, ry, max(14, rx * 0.55)), col)
-    t0 = 2.48 + i * 0.055
+    t0 = 2.48 + (6 - i) * 0.05
     track(f"oval{i}", scale=[(t0, 0.5), (t0 + 0.18, 1.0, "outCubic")])
     windows(f"oval{i}", [(t0, 3.18)])
 
@@ -216,33 +216,33 @@ for nid in ("sl_line", "sl_thumb"):
 # ------------------------------------------------------------ slide it up
 # window 1 is the comp scene, window 2 the full-bleed scrub finale
 SW1, SW2 = (3.48, 4.26), (8.52, 9.5)
-rect("tog_pill", 330, 320, 40, 64, 20, "#613ff3")
-rect("tog_knob", 330, 336, 30, 30, 15, "#ffffff")
+rect("tog_pill", 320, 320, 40, 64, 20, "#613ff3")
+rect("tog_knob", 320, 336, 30, 30, 15, "#ffffff")
 track("tog_knob",
       y=[(3.55, 0), (3.90, -32, "outCubic"), (8.515, -32), (8.53, 0),
          (8.95, -32, "outCubic")])
 windows("tog_pill", [SW1, SW2])
 windows("tog_knob", [SW1, SW2])
 
-text("s_slide", "slide", 462, 320, 82, "#141414", 800)
+text("s_slide", "slide", 480, 320, 82, "#141414", 800)
 track("s_slide", y=[(3.52, -46), (3.82, 0, "outCubic"), (8.515, 0),
                     (8.53, -46), (8.84, 0, "outCubic")])
 windows("s_slide", [SW1, SW2])
-text("s_it", "it", 596, 320, 82, "#141414", 800, rot=7)
+text("s_it", "it", 616, 320, 82, "#141414", 800, rot=7)
 track("s_it", y=[(3.58, -40), (3.88, 0, "outCubic"), (8.515, 0),
                  (8.59, -40), (8.90, 0, "outCubic")])
 windows("s_it", [SW1, SW2])
-text("s_up_g", "up", 678, 322, 82, "#a9a9a9", 800, rot=-6)
+text("s_up_g", "up", 700, 322, 82, "#a9a9a9", 800, rot=-6)
 windows("s_up_g", [(3.60, 4.06), (8.60, 8.99)])
-text("s_up_b", "up", 678, 320, 82, "#141414", 800)
+text("s_up_b", "up", 700, 320, 82, "#141414", 800)
 windows("s_up_b", [(4.04, 4.26), (8.97, 9.5)])
-text("s_gh1", "slide", 462, 262, 82, "#b7b7b7", 800)
+text("s_gh1", "slide", 480, 262, 82, "#b7b7b7", 800)
 track("s_gh1", y=[(3.52, 0), (3.95, 26, "outCubic"), (8.515, 0), (8.53, 0),
                   (8.96, 26, "outCubic")])
 windows("s_gh1", [(3.52, 3.96), (8.53, 8.97)])
-text("s_gh2", "slide", 462, 230, 82, "#d2d2d2", 800)
+text("s_gh2", "slide", 480, 230, 82, "#d2d2d2", 800)
 windows("s_gh2", [(3.52, 3.84), (8.53, 8.85)])
-text("s_gh3", "it up", 640, 268, 82, "#c4c4c4", 800)
+text("s_gh3", "it up", 660, 268, 82, "#c4c4c4", 800)
 windows("s_gh3", [(3.58, 3.98), (8.59, 8.99)])
 
 # ------------------------------------------------------------ wooh + alien
