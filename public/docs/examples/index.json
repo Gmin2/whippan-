@@ -300,6 +300,18 @@
   "anim": "/docs/design.anim.json"
  },
  {
+  "slug": "replit",
+  "title": "replit (repro)",
+  "dur": 39.8,
+  "size": [
+   998,
+   720
+  ],
+  "group": "reproductions",
+  "stage": "/docs/replit.stage.json",
+  "anim": "/docs/replit.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,
