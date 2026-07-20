@@ -156,6 +156,18 @@
   "anim": "/docs/state-slim.anim.json"
  },
  {
+  "slug": "skale",
+  "title": "skale (repro)",
+  "dur": 39.4,
+  "size": [
+   1280,
+   720
+  ],
+  "group": "reproductions",
+  "stage": "/docs/skale.stage.json",
+  "anim": "/docs/skale.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,
