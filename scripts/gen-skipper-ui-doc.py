@@ -549,23 +549,47 @@ n15i = [
     text("cw_l2", "CANVAS", 960, 92, 16, "#9a9a9a"),
     rect("cw_vl", 960, 145, 1, 60, 0, "#bbbbbb"),
 ]
-heads = [(60, 800, 52, "#111111"), (195, 750, 58, "#ffffff"),
-         (330, 810, 50, "#111111"), (455, 770, 56, "#111111"),
-         (585, 830, 48, "#ffffff"), (700, 780, 54, "#111111"),
-         (820, 840, 50, "#111111"), (950, 790, 58, "#ffffff"),
-         (1075, 835, 50, "#111111"), (1200, 770, 56, "#111111"),
-         (1330, 825, 50, "#ffffff"), (1460, 760, 58, "#111111"),
-         (1590, 815, 52, "#111111"), (1720, 775, 56, "#ffffff"),
-         (1850, 820, 52, "#111111")]
+heads = [(45, 900, 34, "#111111"), (145, 865, 38, "#ffffff"),
+         (245, 905, 32, "#111111"), (340, 878, 36, "#111111"),
+         (435, 920, 30, "#ffffff"), (525, 885, 35, "#111111"),
+         (615, 925, 32, "#111111"), (715, 890, 38, "#ffffff"),
+         (810, 922, 32, "#111111"), (905, 878, 36, "#111111"),
+         (1000, 918, 32, "#ffffff"), (1095, 870, 38, "#111111"),
+         (1190, 912, 34, "#111111"), (1285, 880, 36, "#ffffff"),
+         (1380, 918, 34, "#111111"), (1475, 872, 37, "#111111"),
+         (1570, 915, 33, "#ffffff"), (1665, 878, 36, "#111111"),
+         (1760, 918, 33, "#111111"), (1860, 885, 36, "#111111")]
 for i, (x, y, r, c) in enumerate(heads):
     if c == "#ffffff":
         n15i.append(path(f"cw_h{i}o", x, y, circle_d(r), "#111111",
                          stroke=3.0))
     else:
         n15i.append(path(f"cw_h{i}", x, y, circle_d(r), c))
-    n15i.append(rect(f"cw_b{i}", x, y + r + 95, r * 2.6, 190, 40,
+    n15i.append(rect(f"cw_b{i}", x, y + r + 68, r * 2.7, 130, 30,
                      "#111111" if i % 3 else "#1a1a1a"))
-scene("s15i", "#ffffff", 0.80, n15i)
+for i, (x, y, r, c) in enumerate(heads):
+    nid = f"cw_h{i}o" if c == "#ffffff" else f"cw_h{i}"
+    track(nid, y=[(0, 170), (0.3, 0, "outCubic")])
+    track(f"cw_b{i}", y=[(0, 170), (0.3, 0, "outCubic")])
+scene("s15i", "#ffffff", 0.47, n15i)
+
+# 15i2 ------------------------------------- scroll-effect-with-gsap mosaic
+n15i2 = [
+    text("mo_l1", "SCROLL", 960, 40, 16, "#8a8a8a"),
+    text("mo_l2", "EFFECT WITH", 960, 62, 16, "#8a8a8a"),
+    text("mo_l3", "GSAP", 960, 84, 16, "#8a8a8a"),
+    rect("mo_vl", 960, 140, 1, 60, 0, "#6a6a6a"),
+]
+TILES = [(360, 828, 280, 260, "#5a55c8"), (660, 660, 280, 260, "#c8d8ee"),
+         (960, 532, 280, 255, "#b8d4e8"), (1260, 662, 280, 260, "#f4f2ee"),
+         (1560, 828, 280, 255, "#8a8a86"), (660, 945, 280, 260, "#e8c8b0"),
+         (960, 815, 280, 260, "#d8e4f0"), (1260, 945, 280, 255, "#f0ead8"),
+         (360, 1075, 280, 200, "#3838a8"), (1560, 1075, 280, 200,
+                                            "#d8d84a")]
+for i, (x, y, w, h, c) in enumerate(TILES):
+    n15i2.append(rect(f"mo_t{i}", x, y, w, h, 10, c))
+    track(f"mo_t{i}", y=[(0, 260), (0.32, 0, "outCubic")])
+scene("s15i2", DK, 0.33, n15i2)
 
 # 15j -------------------------------------------------------- ascii site
 n15j = [
@@ -602,7 +626,7 @@ n15j = [
     {"id": "as_f4", "type": "text", "text": "IN PERSON  $600", "x": 1790,
      "y": 1018, "color": "#333333", "font": {"size": 17, "family": "mono"}},
 ]
-scene("s15j", "#f2f2ed", 0.80, n15j)
+scene("s15j", "#f2f2ed", 0.67, n15j)
 
 # 15k -------------------------------------------------------- gsap scroll
 n15k = [
@@ -619,8 +643,34 @@ n15k = [
          "#ffffff"),
 ]
 for nid in ("gs_c1", "gs_c2", "gs_c3", "gs_c4"):
-    track(nid, y=[(0, 210), (0.78, 0, "outCubic")])
-scene("s15k", DK, 0.80, n15k)
+    track(nid, y=[(0, 60), (0.13, 0, "outCubic")])
+scene("s15k", DK, 0.13, n15k)
+
+# 15k2 --------------------------------------------------- pink draw scene
+n15k2 = [
+    rect("dr_tip", 250, 22, 520, 44, 4, "#f2aac4"),
+    {"id": "dr_tipt", "type": "text",
+     "text": "lick: add cube Shift + Click: remove cube",
+     "x": 255, "y": 22, "color": "#7c1035",
+     "font": {"size": 17, "weight": 500, "family": "mono"}},
+    text("dr_w", "Draw", 990, 875, 195, "#8b1f38", 800),
+    text("dr_h1", "click on the grid to start adding", 1115, 778, 20,
+         "#a8касс".replace("касс", "2040")),
+    text("dr_h2", "blocks to the canvas", 1160, 802, 20, "#a82040"),
+    rect("dr_c1", 680, 685, 66, 62, 6, "#8f2a33", rot=-8),
+    rect("dr_c2", 1170, 540, 58, 56, 6, "#8f2a33", rot=10),
+    rect("dr_c3", 1305, 695, 60, 58, 6, "#8f2a33", rot=-6),
+    rect("dr_c4", 1478, 452, 50, 48, 6, "#8f2a33", rot=12),
+    text("dr_p1", "Lorem ipsum dolor sit amet consectetur adipisicing"
+         " elit. Maiores quia beatae cum nisi labe ipsam", 995, 1018, 19,
+         "#a11c48"),
+    text("dr_p2", "diaboribus possimus architecto, incidunt error, totam"
+         " itaque exercitationem? Aliquam maiores pariatur", 995, 1042, 19,
+         "#a11c48"),
+    path("dr_cur", 1732, 962, "M0 0L0 30L8 22L14 34L20 30L14 20L24 18Z",
+         "#ffffff"),
+]
+scene("s15k2", "#dc0f60", 0.47, n15k2)
 
 # 15l ----------------------------------------------------------- live now
 n15l = [
@@ -650,7 +700,17 @@ n15l = [
     path("ln_bf", 958, 932, "M-12 -4C-4 -14 6 -12 8 -2C14 -8 20 0 12 8"
          "C4 14 -8 12 -12 -4Z", "#111111"),
 ]
-scene("s15l", DK, 0.54, n15l)
+scene("s15l", DK, 0.53, n15l)
+
+# 15m --------------------------------------------------- code flash again
+n15m = []
+for i, line in enumerate(CODE):
+    if line:
+        n15m.append({"id": f"c2_l{i}", "type": "text", "text": line,
+                     "x": 640, "y": 60 + i * 58, "color": "#585858",
+                     "font": {"size": 24, "weight": 400, "family": "mono"}})
+n15m.append(sphere("c2_sph", 1000, 560, 100))
+scene("s15m", "#1c1c1c", 0.34, n15m)
 
 # 16 --------------------------------------------------------- end gallery
 scene("s16", "#ffffff", 0.90, gallery("ge_"))

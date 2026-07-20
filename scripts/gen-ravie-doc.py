@@ -183,6 +183,7 @@ for tab, tx in [("Medical", 160), ("Allowance", 366), ("Activities", 584),
     keyed(f"s2_tab_{tab}", opacity=[(0, 0.4)])
 typed("s2_sal", 0.5, 0.07)
 typed("s2_rent", 1.8, 0.075)
+keyed("s2_rent", opacity=[(0, 0), (1.55, 0), (1.56, 1)])
 keyed("s2_cell", x=[(1.5, 0), (1.501, 213)])
 # the sheet breathes
 tracks.append({"target": "s2", "loop": True, "keys": {"cam_zoom": [
@@ -239,12 +240,13 @@ def search_close(p, query, at, cadence):
     sc = []
     sc.append(rect(f"{p}_glow", 600, 482, 900, 28, 14, GREEN, blur=22))
     sc.append(rect(f"{p}_bar", 660, 320, 1240, 320, 160, "#eff3f4"))
-    sc.append(rect(f"{p}_top", 660, 162, 1150, 3, 1, BLUE, blur=1.5))
+    sc.append(rect(f"{p}_top", 725, 162, 950, 3, 1, BLUE, blur=1.5))
     sc.append(path(f"{p}_mag", 208, 316, magnifier_d(26), "#b0b6ba",
                    stroke=4.0))
     sc.append(rect(f"{p}_caret", 384, 320, 5, 80, 1, BLUE))
     sc.append(ltext(f"{p}_q", query, 380, 320, 56, INK))
     typed(f"{p}_q", at, cadence, cadence_end=cadence * 0.6)
+    keyed(f"{p}_q", opacity=[(0, 0), (at - 0.02, 0), (at - 0.01, 1)])
     keyed(f"{p}_caret", opacity=[(0.0, 1), (at - 0.01, 1), (at, 0)])
     keyed(f"{p}_glow", opacity=[(0, 0.55)])
     keyed(f"{p}_top", opacity=[(0, 0.6)])
@@ -263,7 +265,7 @@ def block(sc, p, title_lines, time_s, cx_, cy_, w, h, fill, tcol="#ffffff",
           mcol=None, streak=False):
     kw = {}
     if streak:
-        kw["streak"] = {"samples": 4, "window": 0.06, "gain": 0.4}
+        kw["streak"] = {"samples": 5, "window": 0.045, "gain": 0.25}
     ids = [f"{p}_r"]
     sc.append(rect(f"{p}_r", cx_, cy_, w, h, 12, fill, **kw))
     left = cx_ - w / 2 + 18
@@ -496,6 +498,7 @@ typed("s11_first", 0.4, 0.08)
 keyed("s11_f1_u", opacity=[(0, 1), (1.6, 1), (1.75, 0.2)])
 keyed("s11_f2_u", opacity=[(0, 0), (1.6, 0), (1.75, 1)])
 keyed("s11_ph2", opacity=[(0, 1), (1.62, 1), (1.74, 0)])
+keyed("s11_last", opacity=[(0, 0), (1.74, 0), (1.75, 1)])
 typed("s11_last", 1.75, 0.08)
 
 # --------------------------------------------------------------- scene s12
@@ -583,6 +586,7 @@ keyed("s13_tnew", opacity=[(0, 0), (0.79, 0), (0.8, 1)])
 typed("s13_tnew", 0.8, 0.034)
 for nid in ("s13_como", "s13_comi", "s13_dadtag", "s13_dadt"):
     fade_in(nid, 2.05, 0.25)
+keyed("s13_com", opacity=[(0, 0), (2.28, 0), (2.29, 1)])
 typed("s13_com", 2.3, 0.048)
 tracks.append({"target": "s13", "loop": True, "keys": {"cam_zoom": [
     {"t": 0, "v": 1.0}, {"t": 1.9, "v": 1.006, "ease": "inOutCubic"},

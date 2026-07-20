@@ -28,7 +28,7 @@
      "radius": 0,
      "fill": "#3a3a3a",
      "gradient": {
-      "angle": 225,
+      "angle": 135,
       "stops": [
        {
         "at": 0.0,
@@ -316,7 +316,7 @@
     {
      "id": "tog_pill",
      "type": "rect",
-     "x": 330,
+     "x": 320,
      "y": 320,
      "w": 40,
      "h": 64,
@@ -326,7 +326,7 @@
     {
      "id": "tog_knob",
      "type": "rect",
-     "x": 330,
+     "x": 320,
      "y": 336,
      "w": 30,
      "h": 30,
@@ -337,7 +337,7 @@
      "id": "s_slide",
      "type": "text",
      "text": "slide",
-     "x": 462,
+     "x": 480,
      "y": 320,
      "color": "#141414",
      "font": {
@@ -349,7 +349,7 @@
      "id": "s_it",
      "type": "text",
      "text": "it",
-     "x": 596,
+     "x": 616,
      "y": 320,
      "color": "#141414",
      "font": {
@@ -362,7 +362,7 @@
      "id": "s_up_g",
      "type": "text",
      "text": "up",
-     "x": 678,
+     "x": 700,
      "y": 322,
      "color": "#a9a9a9",
      "font": {
@@ -375,7 +375,7 @@
      "id": "s_up_b",
      "type": "text",
      "text": "up",
-     "x": 678,
+     "x": 700,
      "y": 320,
      "color": "#141414",
      "font": {
@@ -387,7 +387,7 @@
      "id": "s_gh1",
      "type": "text",
      "text": "slide",
-     "x": 462,
+     "x": 480,
      "y": 262,
      "color": "#b7b7b7",
      "font": {
@@ -399,7 +399,7 @@
      "id": "s_gh2",
      "type": "text",
      "text": "slide",
-     "x": 462,
+     "x": 480,
      "y": 230,
      "color": "#d2d2d2",
      "font": {
@@ -411,7 +411,7 @@
      "id": "s_gh3",
      "type": "text",
      "text": "it up",
-     "x": 640,
+     "x": 660,
      "y": 268,
      "color": "#c4c4c4",
      "font": {
@@ -3292,6 +3292,75 @@
      "h": 340,
      "radius": 1,
      "fill": "#5560d8"
+    },
+    {
+     "id": "strip_l",
+     "type": "rect",
+     "x": 16,
+     "y": 540,
+     "w": 32,
+     "h": 1082,
+     "radius": 0,
+     "fill": "#232323",
+     "gradient": {
+      "angle": 180,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#5c5a5b"
+       },
+       {
+        "at": 1.0,
+        "color": "#1c1c1c"
+       }
+      ]
+     }
+    },
+    {
+     "id": "strip_r",
+     "type": "rect",
+     "x": 1048,
+     "y": 540,
+     "w": 64,
+     "h": 1082,
+     "radius": 0,
+     "fill": "#8a8888",
+     "gradient": {
+      "angle": 180,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#cac6c7"
+       },
+       {
+        "at": 1.0,
+        "color": "#4a4a4a"
+       }
+      ]
+     }
+    },
+    {
+     "id": "strip_b",
+     "type": "rect",
+     "x": 540,
+     "y": 1019,
+     "w": 1082,
+     "h": 122,
+     "radius": 0,
+     "fill": "#3a3a3a",
+     "gradient": {
+      "angle": 90,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#181818"
+       },
+       {
+        "at": 1.0,
+        "color": "#565454"
+       }
+      ]
+     }
     },
     {
      "id": "tp_pause",

@@ -129,14 +129,15 @@ rect("p_wash", 540, 470, 2400, 2200, 0, "#e9e9ec", gradient={
     "angle": 90, "stops": [{"at": 0, "color": "#e6e6ea"},
                            {"at": 0.5, "color": "#f8f8fa"},
                            {"at": 1, "color": "#fefefe"}]})
-path("p_grid", 540, 540, grid_d(-940, 1480, -940, 1480, 74), "#e4e4e8",
-     stroke=1.0, opacity=0.55)
+set_static(path("p_grid", 540, 540, grid_d(-940, 1480, -940, 1480, 74),
+                "#ececef", stroke=1.0), opacity=0.6)
 
 # blurred hero type: main + offset ghosts fake the permanent defocus
-for gid, s, x, y in [("com", "COMING", 511, 372), ("soon", "SOON", 484, 564)]:
-    for i, (dx, dy, op) in enumerate([(-8, 0, 0.35), (8, 3, 0.35), (0, 0, 0.8)]):
-        n = text(f"h_{gid}{i}", s, x + dx, y + dy, 252, "#d8d7dc", weight=900)
-        n["opacity"] = op
+for gid, s, x, y in [("com", "COMING", 511, 372), ("soon", "SOON", 487, 564)]:
+    for i, (dx, dy, op) in enumerate([(-6, 0, 0.22), (6, 3, 0.22),
+                                      (0, 0, 0.85)]):
+        n = text(f"h_{gid}{i}", s, x + dx, y + dy, 225, "#d8d7dc", weight=900)
+        set_static(n, opacity=op)
 
 # small inert "?" badge clipped at the far left of COMING
 rect("b2_card", 35, 378, 84, 84, 24, "#ffffff",
@@ -146,14 +147,15 @@ text("b2_q", "?", 35, 380, 46, "#c5c5cc", weight=800)
 # the interactive "?" badge at the right end of SOON
 rect("b1_halo", 865, 565, 150, 150, 46, "#b9c4fb", blur=26)
 track("b1_halo", opacity=[(0, 0), (4 * F, 0), (12 * F, 0.9, "outCubic"),
-                          (40 * F, 0.75), (70 * F, 0.55), (100 * F, 0.4),
-                          (S1, 0.35)])
+                          (40 * F, 0.75), (70 * F, 0.55), (88 * F, 0.5),
+                          (96 * F, 0)])
 rect("b1_card", 865, 565, 94, 94, 27, "#ffffff",
      glow={"sigma": 16, "opacity": 0.3, "color": "#aeb4cf", "dy": 7})
 q_grey = text("b1_qg", "?", 865, 567, 52, "#b9b9c0", weight=800)
 q_ind = text("b1_qi", "?", 865, 567, 52, "#6472f0", weight=800)
 track("b1_qg", opacity=[(0, 1), (4 * F, 1), (11 * F, 0)])
-track("b1_qi", opacity=[(0, 0), (4 * F, 0), (11 * F, 1)])
+track("b1_qi", opacity=[(0, 0), (4 * F, 0), (11 * F, 1), (90 * F, 1),
+                        (96 * F, 0)])
 
 # sparkle burst around the badge: teal + blue 4-point stars
 SPARKS = [(-58, -48, 17, "#4fd6c4", 0.00), (-72, -18, 12, "#5b8def", 0.05),
@@ -185,7 +187,7 @@ rect("em_input", 421, 765, 355, 53, 14, "#ffffff")
 text("em_ph", "Enter your email", 343, 766, 20, "#a3a3ab", weight=400)
 rect("em_btn", 696, 765, 168, 56, 28, "#5876fc")
 path("em_pl_c", 634, 765, circle_d(13), "#7e93fd")
-path("em_pl", 634, 765, "M-5 4L6 -3L-2 1L-5 4ZM-2 1L0 5L2 2Z", "#ffffff")
+path("em_pl", 634, 765, "M-6 3L7 -4L0 6L-2 2Z", "#ffffff")
 text("em_btnt", "Get notified", 714, 766, 21, "#ffffff", weight=600)
 
 # click flash on the badge at f88: a 2-frame diagonal streak
@@ -238,13 +240,13 @@ ck_y = CY + 42
 x = LH
 for i, item in enumerate(["Monthly breakdowns", "Source files",
                           "Exclusive tools"]):
-    n = path(f"cd_tk{i}", x + 5, ck_y, "M-4 0L-1 3L5 -4", "#6472f0",
+    n = path(f"cd_tk{i}", x + 4, ck_y, "M-4 0L-1 3L5 -4", "#6472f0",
              stroke=2.2)
     card_kids.append(n["id"])
-    w = line_w(item, 11.5)
-    cd_text(f"cd_ck{i}", item, x + 14 + w / 2, ck_y, 11.5, "#6a6a70",
+    w = line_w(item, 11)
+    cd_text(f"cd_ck{i}", item, x + 15 + w / 2, ck_y, 11, "#6a6a70",
             weight=500)
-    x += 14 + w + 18
+    x += 15 + w + 14
 
 close = rect("cd_close", 851, 830, 48, 19, 9.5, "#2c2c2e")
 cd_text("cd_closet", "Close", 851, 831, 10, "#ffffff")
@@ -273,9 +275,9 @@ for nid in ("b1_qg", "b1_qi"):
 # body: low-poly pentagon + facet, white ring + orange socket dot.
 # limbs: capsule polygons radiating out. builder returns node ids so both
 # scenes can pose their own instance.
-BODY_R = 36
+BODY_R = 38
 LIMB_ANGLES = [-90, -38, 8, 55, 118, 165, 212]
-LIMB_LEN = [46, 50, 44, 50, 46, 48, 44]
+LIMB_LEN = [58, 62, 55, 62, 58, 60, 55]
 LIMB_COLS = ["#5c7afb", "#6b86f2", "#5c7afb", "#6377f0", "#6b86f2",
              "#5c7afb", "#6377f0"]
 

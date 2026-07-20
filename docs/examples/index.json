@@ -240,6 +240,18 @@
   "anim": "/docs/blackbox.anim.json"
  },
  {
+  "slug": "claude",
+  "title": "claude (repro)",
+  "dur": 23.79,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/claude.stage.json",
+  "anim": "/docs/claude.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,

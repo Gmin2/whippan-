@@ -358,7 +358,7 @@ BUBS = [(1265, 200, 150, "#3f3f41"), (2300, 250, 170, "#5c554f"),
 for i, (bx, by, br, bc) in enumerate(BUBS):
     nodes.append(rect(f"bub{i}", bx, by, br * 2, br * 2, br, bc))
     tracks.append(vis(f"bub{i}", 4.9 + (i % 3) * 0.1, 5.2 + (i % 3) * 0.1,
-                      5.95, 6.3, hi=0.92))
+                      5.78, 6.02, hi=0.92))
     tracks.append({"target": f"bub{i}", "at": 4.9, "loop": True,
                    "keys": {"y": [
                        {"t": 0, "v": 0},
@@ -622,8 +622,17 @@ for i, (name, t0, t1) in enumerate(ROWS):
                    "y": [dict(t=k[0], v=round(k[1] * S, 1),
                               **({"ease": k[2]} if len(k) > 2 else {}))
                          for k in SCROLL]}})
+    # rows scrolled past the ruler leave the visible band
+    hide = None
+    if i <= 3:
+        hide = [(5.88, 1), (6.28, 0)]
+    elif i <= 6:
+        hide = [(9.2, 1), (9.65, 0)]
     for suf in ("b", "t", "l"):
-        tracks.append(keyed(p + suf, y=SCROLL))
+        if hide:
+            tracks.append(keyed(p + suf, y=SCROLL, opacity=hide))
+        else:
+            tracks.append(keyed(p + suf, y=SCROLL))
 
 # ruler strip drawn over scrolled bars
 nodes.append(rect("rulbg", W, 1477, 2484, 138, 0, TLBG))
