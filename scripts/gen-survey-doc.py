@@ -429,8 +429,8 @@ for nid in ["a_sent", "a_sent_p", "a_sent_t"]:
 # cursors: arrow -> i-beam glued to the caret -> pointing hand
 make(S3, {"id": "a_cur", "type": "cursor", "x": 760, "y": 875, "w": 40,
           "fill": "#111111"})
-key("a_cur", "x", [(0.30, 0), (0.95, -310, "inOutCubic")])
-key("a_cur", "y", [(0.30, 0), (0.95, -138, "inOutCubic")])
+key("a_cur", "x", [(0.15, 0), (0.75, -310, "inOutCubic")])
+key("a_cur", "y", [(0.15, 0), (0.75, -138, "inOutCubic")])
 opacity_steps("a_cur", [(0, 1), (1.05, 1), (1.10, 0)])
 path(S3, "a_ib", 340, 738, IBEAM, None, stroke=2.4)
 scene_nodes[S3][-1]["fill"] = "#2a2d30"

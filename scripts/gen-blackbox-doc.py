@@ -431,15 +431,25 @@ scene("s9", "#000000", 0.9, n9)
 # white; red e2ee body; scrambling "Privacy Formation" ascii panel; a
 # halftone stripe portrait sits behind at low opacity.
 g10 = rnd(77)
+FLIP = 0.7
 stripes = []
 for ry in range(0, H, 14):
     x0 = 80 + next(g10) * 400
     wl = 200 + next(g10) * 640
     stripes.append(f"M{x0:.0f} {ry}h{wl:.0f}v8h{-wl:.0f}Z")
-n10 = [path("port10", 0, 0, "".join(stripes), "#909090")]
-track("port10", opacity=stepk([(0.02, 0), (0.06, 0.3), (1.2, 0.24),
-                               (2.0, 0.3), (2.9, 0.24), (3.0, 0)]))
+n10 = [rect("wbg10", 569, 320, 1140, 642, 0, WHITE),
+       path("port10", 0, 0, "".join(stripes), "#9a9a9a")]
+# phase 1 is white-out: bright bg, black card, inverted digit box. the flip
+# at FLIP swaps to the dark portrait look.
+track("wbg10", opacity=stepk([(0, 1), (FLIP, 0)]))
+track("port10", opacity=stepk([(0, 0.2), (FLIP, 0.3), (1.2, 0.26),
+                               (2.0, 0.3), (2.9, 0.26), (3.0, 0)]))
 n10 += [
+    rect("mbx10", 866, 201, 422, 183, 0, WHITE),
+    text("mbxr10_0", "7 5 5 5 2 7 1 1 1 1 1 1", 866, 146, 26, "#0a0a0a"),
+    text("mbxr10_1", "2 6 6 6 5 2 2 7 1 1 1 1", 866, 202, 26, "#0a0a0a"),
+    text("mbxr10_2", "5 6 6 4 5 3 3 5 1 1 1 1", 866, 258, 26, "#0a0a0a"),
+    text("mint10", "End-to-en", 200, 499, 12, MINT),
     rect("cardb10", 400, 432, 580, 280, 0, "#0a0a0a"),
     rect("cardw10", 400, 432, 580, 280, 0, WHITE),
     text("hlw1", "END-TO-END", 297, 345, 54, WHITE, family="inter", weight=800),
@@ -458,15 +468,19 @@ n10 += [
     text("plblt10", "Privacy Formation", 933, 86, 13, "#111111",
          family="inter", weight=500),
 ]
-FLIP = 0.85
-track("cardb10", opacity=stepk([(0.04, 0), (0.08, 1), (FLIP, 0)]))
+for i in range(3):
+    track(f"mbxr10_{i}", opacity=stepk([(0, 1), (FLIP, 0)]))
+track("mbx10", opacity=stepk([(0, 1), (FLIP, 0)]))
+reveal("mint10", 0.15, unit="type", cadence=0.05, dur=0.04, caret="bar")
+track("mint10", opacity=stepk([(0, 1), (FLIP, 0)]))
+track("cardb10", opacity=stepk([(0, 1), (FLIP, 0)]))
 track("cardw10", opacity=stepk([(0, 0), (FLIP, 1), (2.95, 1), (3.05, 0)]))
-reveal("hlw1", 0.12, unit="type", cadence=0.038, dur=0.04, caret="block",
+reveal("hlw1", 0.1, unit="type", cadence=0.03, dur=0.04, caret="block",
        caret_typing="solid")
-track("hlw1", opacity=stepk([(0.1, 0), (0.12, 1), (FLIP, 0)]))
-reveal("hlw2", 0.5, unit="type", cadence=0.038, dur=0.04, caret="block",
+track("hlw1", opacity=stepk([(0.08, 0), (0.1, 1), (FLIP, 0)]))
+reveal("hlw2", 0.35, unit="type", cadence=0.03, dur=0.04, caret="block",
        caret_typing="solid")
-track("hlw2", opacity=stepk([(0, 0), (0.5, 1), (FLIP, 0)]))
+track("hlw2", opacity=stepk([(0, 0), (0.35, 1), (FLIP, 0)]))
 track("hlb1", opacity=stepk([(0, 0), (FLIP, 1), (2.95, 1), (3.0, 0)]))
 track("hlb2", opacity=stepk([(0, 0), (FLIP, 1), (2.85, 1), (2.9, 0)]))
 for nid, a in [("sub10a", 1.0), ("sub10b", 1.05)]:

@@ -309,160 +309,90 @@ scene("s2", MAT, D2, {"kind": "cut"}, c + wn + cn)
 
 # ============================================================ scene 3
 # demo chapter: headline + chat composer dissolve up, the prompt types,
-# the + menu and connectors submenu pop, Milanote/Figma toggle on, and a
-# group push-in lands the frame on the Opus chip + orange send button.
-# camera is faked per node (pivot zoom) so the template chrome stays put.
-D3 = 6.375
-FZX, FZY = 1280.0, 575.0  # zoom pivot: composer bottom-right
-
-
-def ease_io(u):
-    return 4 * u * u * u if u < 0.5 else 1 - ((-2 * u + 2) ** 3) / 2
-
-
-def ease_out(u):
-    return 1 - (1 - u) ** 3
-
-
-def zf(t):
-    if t <= 1.6:
-        return 1.0
-    if t <= 4.6:
-        return 1.0 + 0.5 * ease_io((t - 1.6) / 3.0)
-    if t <= 5.5:
-        return 1.5 + 0.85 * ease_out((t - 4.6) / 0.9)
-    return 2.35
-
-
-GRID = sorted(set(
-    [round(i * 0.25, 2) for i in range(int(D3 / 0.25) + 1)]
-    + [round(4.4 + i * 0.05, 2) for i in range(27)] + [D3]))
-
-
-def zoomed(nid, px, py, base=1.0, ox=None, oy=None):
-    """bake the pivot zoom into x/y/scale keys; ox/oy are optional
-    scene-local own-motion functions returning extra offsets."""
-    xs, ys, ss = [], [], []
-    for t in GRID:
-        z = zf(t)
-        exx = ox(t) if ox else 0.0
-        eyy = oy(t) if oy else 0.0
-        xs.append((t, (z - 1) * (px - FZX) + exx))
-        ys.append((t, (z - 1) * (py - FZY) + eyy))
-        ss.append((t, base * z))
-    return [keyed(nid, x=xs, y=ys, scale=ss)]
-
-
-def rise(t0, t1, amt):
-    def f(t):
-        if t <= t0:
-            return amt
-        if t >= t1:
-            return 0.0
-        return amt * (1 - ease_out((t - t0) / (t1 - t0)))
-    return f
-
-
+# the + menu and connectors submenu pop, Milanote/Figma toggle on. the
+# real film pushes the camera in continuously; here the push is deferred
+# to a separate close-up scene (s3b) so text stays crisp.
+D3 = 5.417
 c = [rect("s3_slide", SLX, SLY, SLW, SLH, 6, OFF)]
-Z = []  # (id, px, py, base, ox, oy)
-
-
-def znode(n, base=1.0, ox=None, oy=None):
-    c.append(n)
-    Z.append((n["id"], n["x"], n["y"], base, ox, oy))
-    return n
-
-
-hb = path("s3_hsun", 750, 340, sunburst_d(), ACC)
-znode(hb, base=1.15, oy=rise(0.0, 0.55, 34))
-znode(text("s3_head", "Let's knock something off your list", 1105, 342,
-           44, INK, weight=600), oy=rise(0.0, 0.55, 34))
-znode(rect("s3_card", 1040, 512, 900, 238, 26, "#ffffff",
-           glow={"sigma": 30, "opacity": 0.16, "color": "#8a8378",
-                 "dy": 12}), oy=rise(0.15, 0.7, 46))
-znode(ltext("s3_ph", "How can i help u today?", 625, 450, 30, "#b0aca4"),
-      oy=rise(0.15, 0.7, 46))
+hb = path("s3_hsun", 738, 340, sunburst_d(), ACC)
+hb["keys"] = {"scale": [{"t": 0, "v": 1.35}]}
+c.append(hb)
+c.append(text("s3_head", "Let's knock something off your list", 1135, 342,
+              44, INK, weight=600))
+c.append(rect("s3_card", 1040, 512, 900, 238, 26, "#ffffff",
+              glow={"sigma": 30, "opacity": 0.16, "color": "#8a8378",
+                    "dy": 12}))
+c.append(ltext("s3_ph", "How can i help u today?", 625, 450, 30,
+               "#b0aca4"))
 P1 = "Hey Claude, Can you analyze my milanote board with the"
 P2 = "product script, references, and moodboards and start"
 P3 = "storyboarding in Figma?"
-znode(ltext("s3_p1", P1, 625, 446, 28, UIINK))
-znode(ltext("s3_p2", P2, 625, 482, 28, UIINK))
-znode(ltext("s3_p3", P3, 625, 518, 28, UIINK))
-znode(rect("s3_plus", 634, 592, 46, 46, 12, "#f1efeb"),
-      oy=rise(0.15, 0.7, 46))
-znode(path("s3_plusg", 634, 592, "M-9 0L9 0M0 -9L0 9", "#3f3f3f",
-           stroke=2.6), oy=rise(0.15, 0.7, 46))
-znode(text("s3_opus", "Opus 4.7", 1352, 592, 26, "#3f3f3f"),
-      oy=rise(0.15, 0.7, 46))
-znode(path("s3_chev", 1416, 594, "M-6 -3L0 3L6 -3", "#3f3f3f",
-           stroke=2.2), oy=rise(0.15, 0.7, 46))
-znode(rect("s3_send", 1458, 592, 54, 54, 14, SEND),
-      oy=rise(0.15, 0.7, 46))
-znode(path("s3_sendg", 1458, 592, "M0 9L0 -9M-7 -2L0 -9L7 -2", "#ffffff",
-           stroke=3.0), oy=rise(0.15, 0.7, 46))
+c.append(ltext("s3_p1", P1, 625, 446, 28, UIINK))
+c.append(ltext("s3_p2", P2, 625, 482, 28, UIINK))
+c.append(ltext("s3_p3", P3, 625, 518, 28, UIINK))
+c.append(rect("s3_plus", 634, 592, 46, 46, 12, "#f1efeb"))
+c.append(path("s3_plusg", 634, 592, "M-9 0L9 0M0 -9L0 9", "#3f3f3f",
+              stroke=2.6))
+c.append(text("s3_opus", "Opus 4.7", 1352, 592, 26, "#3f3f3f"))
+c.append(path("s3_chev", 1416, 594, "M-6 -3L0 3L6 -3", "#3f3f3f",
+              stroke=2.2))
+c.append(rect("s3_send", 1458, 592, 54, 54, 14, SEND))
+c.append(path("s3_sendg", 1458, 592, "M0 9L0 -9M-7 -2L0 -9L7 -2",
+              "#ffffff", stroke=3.0))
 # + menu
-znode(rect("s3_menu", 772, 585, 242, 180, 16, "#ffffff",
-           glow={"sigma": 24, "opacity": 0.2, "color": "#8a8378",
-                 "dy": 8}))
+c.append(rect("s3_menu", 772, 585, 242, 180, 16, "#ffffff",
+              glow={"sigma": 24, "opacity": 0.2, "color": "#8a8378",
+                    "dy": 8}))
 MENU = [("Add files or photos", 522), ("Skills", 566), ("Connectors", 604),
         ("Plugins", 642)]
 for i, (s, y) in enumerate(MENU):
-    znode(ltext(f"s3_mi{i}", s, 684, y, 21, "#2c2c2c"))
+    c.append(ltext(f"s3_mi{i}", s, 684, y, 21, "#2c2c2c"))
     if i > 0:
-        znode(path(f"s3_mc{i}", 876, y, "M-3 -6L3 0L-3 6", "#9a9a9a",
-                   stroke=2.0))
+        c.append(path(f"s3_mc{i}", 876, y, "M-3 -6L3 0L-3 6", "#9a9a9a",
+                      stroke=2.0))
 # connectors submenu
-znode(rect("s3_sub", 1044, 585, 292, 272, 16, "#ffffff",
-           glow={"sigma": 24, "opacity": 0.2, "color": "#8a8378",
-                 "dy": 8}))
+c.append(rect("s3_sub", 1044, 585, 292, 272, 16, "#ffffff",
+              glow={"sigma": 24, "opacity": 0.2, "color": "#8a8378",
+                    "dy": 8}))
 SUB = [("Milanote", 482), ("Figma", 523), ("Slack", 563),
        ("Claude in Chrome", 602), ("Add from Google Drive", 642)]
 for i, (s, y) in enumerate(SUB):
-    znode(ltext(f"s3_si{i}", s, 952, y, 21, "#2c2c2c"))
-znode(rect("s3_sic0", 930, 482, 22, 22, 11, "#232120"))
-znode(path("s3_sic0m", 930, 482, "M-4 4L-4 -4L0 0L4 -4L4 4", "#ffffff",
-           stroke=1.6))
-znode(rect("s3_sic1", 930, 523, 20, 20, 10, "#a259ff"))
-znode(rect("s3_sic2", 930, 563, 20, 20, 10, "#e01e5a"))
-znode(rect("s3_sic3", 930, 602, 20, 20, 10, "#4285f4"))
-znode(path("s3_sic4", 930, 642, "M0 -9L9 7L-9 7Z", "#f4b400"))
-znode(text("s3_foot", "Add connectors", 1010, 694, 20, "#8f8f8f"))
+    c.append(ltext(f"s3_si{i}", s, 952, y, 21, "#2c2c2c"))
+c.append(rect("s3_sic0", 930, 482, 22, 22, 11, "#232120"))
+c.append(path("s3_sic0m", 930, 482, "M-4 4L-4 -4L0 0L4 -4L4 4", "#ffffff",
+              stroke=1.6))
+c.append(rect("s3_sic1", 930, 523, 20, 20, 10, "#a259ff"))
+c.append(rect("s3_sic2", 930, 563, 20, 20, 10, "#e01e5a"))
+c.append(rect("s3_sic3", 930, 602, 20, 20, 10, "#4285f4"))
+c.append(path("s3_sic4", 930, 642, "M0 -9L9 7L-9 7Z", "#f4b400"))
+c.append(text("s3_foot", "Add connectors", 1010, 694, 20, "#8f8f8f"))
 # submenu toggles: milanote + figma flip on, slack + chrome stay grey
 for i, y in enumerate([482, 523, 563, 602]):
-    znode(rect(f"s3_tp{i}", 1150, y, 40, 22, 11, "#d6d4ce",
-               states={"on": {"fill": TOGBLUE}}))
-FLIPS = {0: 4.27, 1: 4.62}
-for i, y in enumerate([482, 523, 563, 602]):
-    fl = FLIPS.get(i)
+    c.append(rect(f"s3_tp{i}", 1150, y, 40, 22, 11, "#d6d4ce",
+                  states={"on": {"fill": TOGBLUE}}))
+    c.append(rect(f"s3_tk{i}", 1141, y, 18, 18, 9, "#ffffff"))
+tracks.append({"target": "s3_tp0", "at": 4.27, "state": "on"})
+tracks.append({"target": "s3_tp1", "at": 4.62, "state": "on"})
+tracks.append(keyed("s3_tk0", x=[(4.27, 0.0), (4.39, 18.0, "outCubic")]))
+tracks.append(keyed("s3_tk1", x=[(4.62, 0.0), (4.74, 18.0, "outCubic")]))
 
-    def knb(t, fl=fl):
-        if fl is None or t < fl:
-            return 0.0
-        return 18.0 if t > fl + 0.12 else 18.0 * (t - fl) / 0.12
-    znode(rect(f"s3_tk{i}", 1141, y, 18, 18, 9, "#ffffff"), ox=knb)
-if True:
-    tracks.append({"target": "s3_tp0", "at": 4.27, "state": "on"})
-    tracks.append({"target": "s3_tp1", "at": 4.62, "state": "on"})
-
-for nid, px, py, base, ox, oy in Z:
-    tracks += zoomed(nid, px, py, base, ox, oy)
-
-# entrances / reveals / menu gating (opacity only, zoom handles geometry)
-IN_HEAD = [(0.0, 0), (0.45, 1)]
-IN_CARD = [(0.15, 0), (0.6, 1)]
+# entrances: headline + composer dissolve up from below
 for nid in ["s3_hsun", "s3_head"]:
-    tracks.append(keyed(nid, opacity=IN_HEAD))
+    tracks.append(keyed(nid, opacity=[(0.0, 0), (0.45, 1)],
+                        y=[(0.0, 34.0), (0.55, 0.0, "outCubic")]))
 for nid in ["s3_card", "s3_plus", "s3_plusg", "s3_opus", "s3_chev",
             "s3_send", "s3_sendg"]:
-    tracks.append(keyed(nid, opacity=IN_CARD))
+    tracks.append(keyed(nid, opacity=[(0.15, 0), (0.6, 1)],
+                        y=[(0.15, 46.0), (0.7, 0.0, "outCubic")]))
 tracks.append(keyed("s3_ph", opacity=[(0.15, 0), (0.6, 1), (1.75, 1),
-                                      (1.88, 0)]))
+                                      (1.88, 0)],
+                    y=[(0.15, 46.0), (0.7, 0.0, "outCubic")]))
 tracks.append({"target": "s3_p1", "at": 1.92, "reveal": {
     "unit": "type", "cadence": 0.027, "dur": 0.05, "caret": "none"}})
 tracks.append({"target": "s3_p2", "at": 3.45, "reveal": {
     "unit": "type", "cadence": 0.026, "dur": 0.05, "caret": "none"}})
 tracks.append({"target": "s3_p3", "at": 4.85, "reveal": {
-    "unit": "type", "cadence": 0.028, "dur": 0.05, "caret": "none"}})
+    "unit": "type", "cadence": 0.02, "dur": 0.05, "caret": "none"}})
 tracks.append(keyed("s3_p1", opacity=[(0, 0), (1.9, 0), (1.92, 1)]))
 tracks.append(keyed("s3_p2", opacity=[(0, 0), (3.43, 0), (3.45, 1)]))
 tracks.append(keyed("s3_p3", opacity=[(0, 0), (4.83, 0), (4.85, 1)]))
@@ -476,25 +406,15 @@ SUB_IDS = ["s3_sub", "s3_foot"] + [f"s3_si{i}" for i in range(5)] + \
 for nid in SUB_IDS:
     tracks.append(keyed(nid, opacity=[(0, 0), (3.7, 0), (3.82, 1)]))
 
-
-def screen_pt(px, py, t):
-    z = zf(t)
-    return (FZX + z * (px - FZX), FZY + z * (py - FZY))
-
-
-# cursor rides in screen space: + button, connectors, the two toggles,
-# then down to the send button for the press
+# cursor: + button, connectors item, the two toggles, then toward send
 c.append({"id": "s3_cur", "type": "cursor", "x": 900, "y": 800, "w": 30,
           "fill": "#ffffff"})
 WAY = [(1.45, 830, 700), (2.6, 648, 610), (3.3, 862, 616),
-       (4.2, 1156, 494), (4.55, 1156, 534), (5.3, 1300, 620),
-       (6.05, 1462, 618), (6.375, 1462, 618)]
-cx0, cy0 = 900, 800
+       (4.2, 1156, 494), (4.55, 1156, 534), (5.417, 1330, 640)]
 xs, ys = [], []
 for t, px, py in WAY:
-    sxx, syy = screen_pt(px, py, t)
-    xs.append((t, sxx - cx0, "outCubic"))
-    ys.append((t, syy - cy0, "outCubic"))
+    xs.append((t, px - 900.0, "outCubic"))
+    ys.append((t, py - 800.0, "outCubic"))
 tracks.append(keyed("s3_cur", x=xs, y=ys,
                     opacity=[(1.3, 0), (1.45, 1)]))
 
@@ -503,6 +423,37 @@ cn, ct = chrome("s3c_", D1 + D2, D3,
                 [("hook", 0, 0.296), ("demo", 0.296, D3)])
 tracks += wt + ct
 scene("s3", MAT, D3, {"kind": "fade", "dur": 0.4}, c + wn + cn)
+
+# ============================================================ scene 3b
+# close-up on the composer corner: prompt tail huge, Opus chip + orange
+# send button, cursor presses. stands in for the real camera push-in.
+D3B = 0.958
+c = [rect("s3b_slide", SLX, SLY, SLW, SLH, 6, OFF)]
+c.append(rect("s3b_card", 760, 560, 1330, 780, 50, "#ffffff",
+              glow={"sigma": 40, "opacity": 0.15, "color": "#8a8378",
+                    "dy": 16}))
+c.append(ltext("s3b_t1", "d with the product script,", 430, 345, 62,
+               UIINK))
+c.append(ltext("s3b_t2", "arding in Figma?", 430, 430, 62, UIINK))
+c.append(text("s3b_opus", "Opus 4.7", 1120, 665, 58, "#3f3f3f"))
+c.append(path("s3b_chev", 1252, 670, "M-13 -7L0 7L13 -7", "#3f3f3f",
+              stroke=4.5))
+c.append(rect("s3b_send", 1355, 662, 116, 116, 30, SEND,
+              states={"pressed": {"fill": "#c2543b"}}))
+sg = path("s3b_sendg", 1355, 662, "M0 9L0 -9M-7 -2L0 -9L7 -2", "#ffffff",
+          stroke=3.0)
+sg["keys"] = {"scale": [{"t": 0, "v": 2.4}]}
+c.append(sg)
+c.append({"id": "s3b_cur", "type": "cursor", "x": 1395, "y": 800, "w": 62,
+          "fill": "#ffffff"})
+tracks.append(keyed("s3b_cur",
+                    x=[(0.0, 0.0), (0.45, -18.0, "outCubic")],
+                    y=[(0.0, 0.0), (0.45, -78.0, "outCubic")]))
+tracks.append({"target": "s3b_send", "at": 0.5, "state": "pressed"})
+wn, wt = watermark("s3b_")
+cn, ct = chrome("s3bc_", D1 + D2 + D3, D3B, [("demo", 0, D3B)])
+tracks += wt + ct
+scene("s3b", MAT, D3B, {"kind": "fade", "dur": 0.3}, c + wn + cn)
 
 # ============================================================ scene 4
 # blur+zoom-out handoff to the macOS transcript window; Claude's reply
@@ -573,7 +524,7 @@ for nid in RWIN:
                         opacity=[(1.2, 0), (1.4, 1)]))
 
 wn, wt = watermark("s4_")
-cn, ct = chrome("s4c_", D1 + D2 + D3, D4, [("demo", 0, D4)])
+cn, ct = chrome("s4c_", D1 + D2 + D3 + D3B, D4, [("demo", 0, D4)])
 tracks += wt + ct
 scene("s4", MAT, D4, {"kind": "fade", "dur": 0.7}, c + wn + cn)
 
@@ -587,7 +538,7 @@ tracks.append({"target": "s5_line", "at": 0.04, "reveal": {
     "unit": "word", "stagger": 0.11, "dur": 0.05, "rise": 0}})
 tracks.append(keyed("s5_line", x=[(0, 0.0), (D5, -14.0)]))
 wn, wt = watermark("s5_")
-cn, ct = chrome("s5c_", D1 + D2 + D3 + D4, D5, [("end", 0, D5)])
+cn, ct = chrome("s5c_", D1 + D2 + D3 + D3B + D4, D5, [("end", 0, D5)])
 tracks += wt + ct
 scene("s5", MAT, D5, {"kind": "cut"}, c + wn + cn)
 
@@ -676,7 +627,8 @@ fillfade("s6_f5", FILL_T[5])
 fillfade("s6_f5d", FILL_T[5])
 
 wn, wt = watermark("s6_")
-cn, ct = chrome("s6c_", D1 + D2 + D3 + D4 + D5, D6, [("end", 0, D6)])
+cn, ct = chrome("s6c_", D1 + D2 + D3 + D3B + D4 + D5, D6,
+                [("end", 0, D6)])
 tracks += wt + ct
 scene("s6", MAT, D6, {"kind": "cut"}, c + wn + cn)
 
@@ -698,23 +650,23 @@ tracks.append(keyed("s7_l2", opacity=[(0, 0), (1.21, 0), (1.22, 1)]))
 for nid in ["s7_l1", "s7_l2"]:
     tracks.append(keyed(nid, x=[(0, 0.0), (D7, -16.0)]))
 wn, wt = watermark("s7_")
-cn, ct = chrome("s7c_", D1 + D2 + D3 + D4 + D5 + D6, D7,
+cn, ct = chrome("s7c_", D1 + D2 + D3 + D3B + D4 + D5 + D6, D7,
                 [("end", 0, 0.196), ("cta", 0.196, D7)])
 tracks += wt + ct
 scene("s7", MAT, D7, {"kind": "cut"}, c + wn + cn)
 
 # ============================================================ scene 8
 # end card: "With Claude Design" + clay sunburst, dead-still hold.
-D8 = TOTAL - (D1 + D2 + D3 + D4 + D5 + D6 + D7)
+D8 = TOTAL - (D1 + D2 + D3 + D3B + D4 + D5 + D6 + D7)
 c = [rect("s8_slide", SLX, SLY, SLW, SLH, 6, OFF)]
 c.append(text("s8_line", "With Claude Design", 935, 414, 52, INK,
               weight=600))
 tracks.append({"target": "s8_line", "at": 0.05, "reveal": {
     "unit": "word", "stagger": 0.28, "dur": 0.1, "rise": 0,
-    "accent": ACC, "color_delay": 0.28, "color_dur": 0.3}})
-sb = path("s8_sun", 1210, 412, sunburst_d(), ACC)
+    "accent": ACC, "color_delay": 0.18, "color_dur": 0.25}})
+sb = path("s8_sun", 1240, 412, sunburst_d(), ACC)
 c.append(sb)
-tracks.append(keyed("s8_sun", opacity=[(0, 0), (0.75, 0), (0.9, 1)]))
+tracks.append(keyed("s8_sun", opacity=[(0, 0), (0.55, 0), (0.72, 1)]))
 wn, wt = watermark("s8_")
 cn, ct = chrome("s8c_", TOTAL - D8, D8, [("cta", 0, D8)])
 tracks += wt + ct

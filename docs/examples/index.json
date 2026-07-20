@@ -180,6 +180,18 @@
   "anim": "/docs/base44.anim.json"
  },
  {
+  "slug": "lovable-main",
+  "title": "lovable-main (repro)",
+  "dur": 38.4,
+  "size": [
+   1280,
+   720
+  ],
+  "group": "reproductions",
+  "stage": "/docs/lovable-main.stage.json",
+  "anim": "/docs/lovable-main.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,
