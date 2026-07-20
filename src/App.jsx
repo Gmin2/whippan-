@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Navigate, Route, Routes, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { gsap } from 'gsap'
-import { motion, useMotionTemplate, useSpring } from 'motion/react'
 import { boot, loadDoc, docDur, render, paintFrame } from './engine.js'
 import { fisheyeList, pressFeedback } from './tools/interaction.js'
 
@@ -218,9 +217,6 @@ function PillAction({ fx = 'none', onClick, href, active, children }) {
   return <button {...common}>{inner}</button>
 }
 
-const DOCK_SPRING = { stiffness: 300, damping: 30, mass: 0.8 }
-const DOCK_LABELS = ['play / pause', 'replay', 'save frame .png', 'zen mode', 'isolated render', 'copy link']
-
 const THUMB_W = 208
 
 // preview thumbnails: one engine-rendered mid-film frame per doc, cached
@@ -300,17 +296,13 @@ function Playground({ ck, registry }) {
   const [playing, setPlaying] = useState(true)
   const rafRef = useRef(null)
   const [hovered, setHovered] = useState(null)
-  const [zen, setZen] = useState(false)
+  const zen = false
   const [stageScale, setStageScale] = useState(1)
   const [stagePan, setStagePan] = useState({ x: 0, y: 0 })
   const stageRef = useRef(null)
   const dragRef = useRef(null)
   const [navOpen, setNavOpen] = useState(true)
-  const [copied, setCopied] = useState(false)
   const dockRef = useRef(null)
-  const dockIconRefs = useRef([])
-  const dockTipRefs = useRef([])
-  const dockTipParentRef = useRef(null)
   const navRef = useRef(null)
   const mainRef = useRef(null)
 
@@ -421,35 +413,6 @@ function Playground({ ck, registry }) {
     )
   }, [])
 
-  // dock tooltip: one strip revealed through a spring-animated clip-path
-  // window. Adapted from Skiper UI's skiper43 by @gurvinder-singh02 —
-  // https://gxuri.me — used with attribution.
-  const tipX = useSpring(0, { stiffness: 350, damping: 30 })
-  const clipL = useSpring(0, DOCK_SPRING)
-  const clipR = useSpring(100, DOCK_SPRING)
-  const tipOpacity = useSpring(0, DOCK_SPRING)
-  const tipClip = useMotionTemplate`inset(0 ${clipR}% 0 ${clipL}% round 8px)`
-
-  const dockEnter = useCallback(
-    index => {
-      const iconR = dockIconRefs.current[index]?.getBoundingClientRect()
-      const parentR = dockTipParentRef.current?.getBoundingClientRect()
-      const segs = dockTipRefs.current
-      if (!iconR || !parentR || !segs[index]) return
-      let before = 0
-      for (let i = 0; i < index; i++) before += segs[i]?.getBoundingClientRect().width || 0
-      const cur = segs[index].getBoundingClientRect().width
-      const total = segs.reduce((sum, el) => sum + (el?.getBoundingClientRect().width || 0), 0)
-      const after = total - before - cur
-      tipX.set(iconR.left + iconR.width / 2 - (parentR.left + before + cur / 2))
-      clipL.set(total ? (before / total) * 100 : 0)
-      clipR.set(total ? (after / total) * 100 : 0)
-      tipOpacity.set(1)
-    },
-    [tipX, clipL, clipR, tipOpacity],
-  )
-  const dockLeave = useCallback(() => tipOpacity.set(0), [tipOpacity])
-
   // vertical fisheye on the rail
   const lensRef = useRef(null)
   useLayoutEffect(() => {
@@ -491,24 +454,6 @@ function Playground({ ck, registry }) {
   }, [name, runKey])
 
   if (!entry) return <Navigate to="/" replace />
-
-  const copyLink = () => {
-    navigator.clipboard?.writeText(`${window.location.origin}/${name}`).catch(() => {})
-    setCopied(true)
-    window.setTimeout(() => setCopied(false), 1200)
-  }
-
-  const savePng = () => {
-    const c = document.querySelector('[data-film]')
-    if (!c) return
-    c.toBlob(blob => {
-      const a = document.createElement('a')
-      a.href = URL.createObjectURL(blob)
-      a.download = `${name}-frame.png`
-      a.click()
-      URL.revokeObjectURL(a.href)
-    })
-  }
 
   // fit the film into the stage
   const [fw, fh] = entry.size ?? [1920, 1080]
@@ -577,76 +522,21 @@ function Playground({ ck, registry }) {
         </nav>
       )}
 
-      {/* bottom dock — skiper43-style icons menu with clip-path tooltip strip */}
+      {/* bottom dock: play, scrub, clock */}
       <div className="fixed bottom-6 left-1/2 z-20 -translate-x-1/2">
-        <div ref={dockRef} onMouseLeave={dockLeave} className="relative">
-          <div ref={dockTipParentRef} className="pointer-events-none absolute -top-11 left-0">
-            <motion.div
-              className="flex bg-[#4d5c96] text-white"
-              style={{ opacity: tipOpacity, x: tipX, clipPath: tipClip }}
-            >
-              {DOCK_LABELS.map((l, i) => (
-                <div
-                  key={l}
-                  ref={el => { if (el) dockTipRefs.current[i] = el }}
-                  className="inline-flex h-8 items-center justify-center whitespace-nowrap px-3 text-[12px] font-medium leading-none tracking-tight"
-                >
-                  {l}
-                </div>
-              ))}
-            </motion.div>
-          </div>
-
-          <div className="flex items-center gap-0.5 rounded-full border border-black/5 bg-white/90 py-1.5 pl-1.5 pr-2 shadow-[0_18px_44px_-18px_rgba(0,0,0,0.4)] backdrop-blur-sm">
-            <span ref={el => { if (el) dockIconRefs.current[0] = el }} onMouseEnter={() => dockEnter(0)}>
-              <PillAction active={playing} onClick={() => setPlaying(p => !p)}>
-                {playing ? <IconPause /> : <IconPlay />}
-              </PillAction>
-            </span>
-            <span ref={el => { if (el) dockIconRefs.current[1] = el }} onMouseEnter={() => dockEnter(1)}>
-              <PillAction fx="spin" onClick={() => setRunKey(k => k + 1)}>
-                <IconRefresh />
-              </PillAction>
-            </span>
-            <span ref={el => { if (el) dockIconRefs.current[2] = el }} onMouseEnter={() => dockEnter(2)}>
-              <PillAction fx="dip" onClick={savePng}>
-                <IconDownload />
-              </PillAction>
-            </span>
-            <span ref={el => { if (el) dockIconRefs.current[3] = el }} onMouseEnter={() => dockEnter(3)}>
-              <PillAction active={zen} onClick={() => setZen(z => !z)}>
-                <IconWindowCode />
-              </PillAction>
-            </span>
-            <span ref={el => { if (el) dockIconRefs.current[4] = el }} onMouseEnter={() => dockEnter(4)}>
-              <PillAction href={`/?render=${name}`}>
-                <IconArrowUpRight />
-              </PillAction>
-            </span>
-            <span className="mx-1.5 h-5 w-px bg-neutral-200" />
+        <div ref={dockRef}>
+          <div className="flex items-center gap-2 rounded-full border border-black/5 bg-white/90 py-1.5 pl-1.5 pr-4 shadow-[0_18px_44px_-18px_rgba(0,0,0,0.4)] backdrop-blur-sm">
+            <PillAction onClick={() => setPlaying(p => !p)}>
+              {playing ? <IconPause /> : <IconPlay />}
+            </PillAction>
             <input
               type="range" min={0} max={dur} step={1 / 60} value={t}
               onChange={e => { setPlaying(false); setT(parseFloat(e.target.value)) }}
-              className="w-40 accent-sky-500"
-              onMouseEnter={dockLeave}
+              className="w-56 accent-sky-500"
             />
             <span className="w-12 text-right font-mono text-[11px] tracking-tight text-neutral-400">
               {t.toFixed(2)}s
             </span>
-            <span className="mx-1.5 h-5 w-px bg-neutral-200" />
-            <button
-              ref={el => { if (el) dockIconRefs.current[5] = el }}
-              onClick={copyLink}
-              onMouseEnter={() => dockEnter(5)}
-              className="group flex items-center gap-2 rounded-full px-2.5 py-1.5 transition-colors duration-200 hover:bg-neutral-100"
-            >
-              <span className="font-mono text-[11px] tracking-tight text-neutral-400 transition-colors duration-200 group-hover:text-neutral-600">
-                /{name}
-              </span>
-              <span className={`transition-colors duration-200 ${copied ? 'text-emerald-500' : 'text-neutral-400 group-hover:text-neutral-600'}`}>
-                {copied ? <IconCheck /> : <IconCopy />}
-              </span>
-            </button>
           </div>
         </div>
       </div>
