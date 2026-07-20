@@ -26,17 +26,38 @@ function useEngine() {
 
 // the film itself: engine draw commands through the shared skia painter,
 // looping in real time
-function Film({ ck, doc, animated = true, className, style }) {
+function Film({ ck, doc, t, className, style }) {
   const ref = useRef(null)
   const surf = useRef(null)
   const [w, h] = doc.stage.size
   const dur = docDur(doc.stage)
+  const controlled = typeof t === 'number'
 
   useEffect(() => {
     const surface = ck.MakeCanvasSurface(ref.current)
     const paint = new ck.Paint()
     paint.setAntiAlias(true)
     surf.current = { surface, skc: surface.getCanvas(), paint }
+    return () => {
+      paint.delete()
+      surface.delete()
+      surf.current = null
+    }
+  }, [ck, doc])
+
+  // controlled: repaint whenever the clock prop moves
+  useEffect(() => {
+    const s = surf.current
+    if (!s || !controlled) return
+    paintFrame(ck, s.skc, s.paint,
+      JSON.parse(render(JSON.stringify(doc.stage), JSON.stringify(doc.anim), t)),
+      doc.images)
+    s.surface.flush()
+  })
+
+  // uncontrolled (isolated render route): free-running loop
+  useEffect(() => {
+    if (controlled) return
     const stage = JSON.stringify(doc.stage)
     const anim = JSON.stringify(doc.anim)
     let raf
@@ -44,23 +65,32 @@ function Film({ ck, doc, animated = true, className, style }) {
     const draw = now => {
       const s = surf.current
       if (!s) return
-      const t = animated ? ((now - t0) / 1000) % dur : dur * 0.4
-      paintFrame(ck, s.skc, s.paint, JSON.parse(render(stage, anim, t)), doc.images)
+      paintFrame(ck, s.skc, s.paint,
+        JSON.parse(render(stage, anim, ((now - t0) / 1000) % dur)), doc.images)
       s.surface.flush()
-      if (animated) raf = requestAnimationFrame(draw)
+      raf = requestAnimationFrame(draw)
     }
     draw(t0)
-    return () => {
-      cancelAnimationFrame(raf)
-      paint.delete()
-      surface.delete()
-      surf.current = null
-    }
-  }, [ck, doc, animated, dur])
+    return () => cancelAnimationFrame(raf)
+  }, [ck, doc, controlled, dur])
 
   return <canvas ref={ref} width={w} height={h} className={className}
                  style={style} data-film />
 }
+
+const IconPlay = () => (
+  <svg width="14" height="14" viewBox="0 0 20 20">
+    <polygon points="6 4 16 10 6 16 6 4" fill="none" stroke="currentColor"
+             strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+  </svg>
+)
+
+const IconPause = () => (
+  <svg width="14" height="14" viewBox="0 0 20 20">
+    <line x1="7" y1="4.5" x2="7" y2="15.5" stroke="currentColor" strokeLinecap="round" strokeWidth="2.4" />
+    <line x1="13" y1="4.5" x2="13" y2="15.5" stroke="currentColor" strokeLinecap="round" strokeWidth="2.4" />
+  </svg>
+)
 
 function RenderRoute({ ck, registry, name }) {
   const [doc, setDoc] = useState(null)
@@ -189,7 +219,7 @@ function PillAction({ fx = 'none', onClick, href, active, children }) {
 }
 
 const DOCK_SPRING = { stiffness: 300, damping: 30, mass: 0.8 }
-const DOCK_LABELS = ['replay', 'save frame .png', 'zen mode', 'isolated render', 'copy link']
+const DOCK_LABELS = ['play / pause', 'replay', 'save frame .png', 'zen mode', 'isolated render', 'copy link']
 
 const THUMB_W = 208
 
@@ -266,6 +296,9 @@ function Playground({ ck, registry }) {
   const navigate = useNavigate()
   const [doc, setDoc] = useState(null)
   const [runKey, setRunKey] = useState(0)
+  const [t, setT] = useState(0)
+  const [playing, setPlaying] = useState(true)
+  const rafRef = useRef(null)
   const [hovered, setHovered] = useState(null)
   const [zen, setZen] = useState(false)
   const [stageScale, setStageScale] = useState(1)
@@ -291,9 +324,25 @@ function Playground({ ck, registry }) {
   useEffect(() => {
     let alive = true
     setDoc(null)
+    setT(0)
+    setPlaying(true)
     if (entry) loadDoc(entry).then(d => { if (alive) setDoc(d) })
     return () => { alive = false }
-  }, [name])
+  }, [name, runKey])
+
+  const dur = doc ? docDur(doc.stage) : 1
+  useEffect(() => {
+    if (!playing || !doc) return
+    let last = performance.now()
+    const tick = now => {
+      const dt = (now - last) / 1000
+      last = now
+      setT(prev => (prev + dt) % dur)
+      rafRef.current = requestAnimationFrame(tick)
+    }
+    rafRef.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [playing, doc, dur])
 
   // wheel over the canvas zooms; horizontal (or shift) pans; dblclick resets
   useEffect(() => {
@@ -545,30 +594,45 @@ function Playground({ ck, registry }) {
 
           <div className="flex items-center gap-0.5 rounded-full border border-black/5 bg-white/90 py-1.5 pl-1.5 pr-2 shadow-[0_18px_44px_-18px_rgba(0,0,0,0.4)] backdrop-blur-sm">
             <span ref={el => { if (el) dockIconRefs.current[0] = el }} onMouseEnter={() => dockEnter(0)}>
+              <PillAction active={playing} onClick={() => setPlaying(p => !p)}>
+                {playing ? <IconPause /> : <IconPlay />}
+              </PillAction>
+            </span>
+            <span ref={el => { if (el) dockIconRefs.current[1] = el }} onMouseEnter={() => dockEnter(1)}>
               <PillAction fx="spin" onClick={() => setRunKey(k => k + 1)}>
                 <IconRefresh />
               </PillAction>
             </span>
-            <span ref={el => { if (el) dockIconRefs.current[1] = el }} onMouseEnter={() => dockEnter(1)}>
+            <span ref={el => { if (el) dockIconRefs.current[2] = el }} onMouseEnter={() => dockEnter(2)}>
               <PillAction fx="dip" onClick={savePng}>
                 <IconDownload />
               </PillAction>
             </span>
-            <span ref={el => { if (el) dockIconRefs.current[2] = el }} onMouseEnter={() => dockEnter(2)}>
+            <span ref={el => { if (el) dockIconRefs.current[3] = el }} onMouseEnter={() => dockEnter(3)}>
               <PillAction active={zen} onClick={() => setZen(z => !z)}>
                 <IconWindowCode />
               </PillAction>
             </span>
-            <span ref={el => { if (el) dockIconRefs.current[3] = el }} onMouseEnter={() => dockEnter(3)}>
+            <span ref={el => { if (el) dockIconRefs.current[4] = el }} onMouseEnter={() => dockEnter(4)}>
               <PillAction href={`/?render=${name}`}>
                 <IconArrowUpRight />
               </PillAction>
             </span>
             <span className="mx-1.5 h-5 w-px bg-neutral-200" />
+            <input
+              type="range" min={0} max={dur} step={1 / 60} value={t}
+              onChange={e => { setPlaying(false); setT(parseFloat(e.target.value)) }}
+              className="w-40 accent-sky-500"
+              onMouseEnter={dockLeave}
+            />
+            <span className="w-12 text-right font-mono text-[11px] tracking-tight text-neutral-400">
+              {t.toFixed(2)}s
+            </span>
+            <span className="mx-1.5 h-5 w-px bg-neutral-200" />
             <button
-              ref={el => { if (el) dockIconRefs.current[4] = el }}
+              ref={el => { if (el) dockIconRefs.current[5] = el }}
               onClick={copyLink}
-              onMouseEnter={() => dockEnter(4)}
+              onMouseEnter={() => dockEnter(5)}
               className="group flex items-center gap-2 rounded-full px-2.5 py-1.5 transition-colors duration-200 hover:bg-neutral-100"
             >
               <span className="font-mono text-[11px] tracking-tight text-neutral-400 transition-colors duration-200 group-hover:text-neutral-600">
@@ -617,7 +681,7 @@ function Playground({ ck, registry }) {
             }}
           >
             {doc
-              ? <Film key={runKey} ck={ck} doc={doc}
+              ? <Film key={runKey} ck={ck} doc={doc} t={t}
                       className="h-auto w-full rounded-lg shadow-[0_1px_2px_rgba(0,0,0,0.06),0_12px_40px_rgba(0,0,0,0.1)]" />
               : <div style={{ aspectRatio: `${fw} / ${fh}` }}
                      className="w-full rounded-lg bg-black/5" />}
