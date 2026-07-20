@@ -94,7 +94,7 @@ def born(nid, at, rise=12, dur=0.2):
 # 1 ------------------------------------- dark search bar, "We killed"
 n1 = [
     rect("sb", 640, 360, 1040, 300, 90, PILL,
-         glow={"sigma": 40, "opacity": 0.0, "color": CYAN}),
+         glow={"sigma": 60, "opacity": 0.0, "color": CYAN}),
     text("sb_ph", "Search for...", 420, 360, 44, "#6d6d6d"),
     text("wk", "We killed", 470, 360, 84, "#f2f2f2", weight=600),
     rect("decoy", 830, 360, 88, 88, 24, "#ffffff",
@@ -103,7 +103,7 @@ n1 = [
              {"at": 1, "color": "#e85a8f"}]}),
 ]
 track("s1", cam_zoom=[(0, 0.85), (2.8, 1.32, "outCubic")])
-track("sb", glow_opacity=[(0.7, 0), (1.2, 0.3)])
+track("sb", glow_opacity=[(0.7, 0), (1.2, 0.14)])
 track("sb_ph", opacity=[(0, 0.9), (0.85, 0.9), (1.0, 0)])
 track("wk", opacity=[(0, 0), (0.88, 0), (0.9, 1)])
 reveal("wk", 0.9, unit="glyph", stagger=0.09, dur=0.12, rise=0,
@@ -157,7 +157,7 @@ scene("s3", DARK, 3.4, n3)
 # 4 ------------------------------------ gradient wall + "Aside" hero
 n4 = [rect("wall", 640, 360, 1280, 720, 0, "#038fb2",
            gradient={"angle": 90, "stops": [
-               {"at": 0, "color": "#99c3d1"}, {"at": 0.45, "color": "#038fb2"},
+               {"at": 0, "color": "#99c3d1"}, {"at": 0.4, "color": "#0a84a8"},
                {"at": 1, "color": "#020b12"}]})]
 for i in range(9):
     n4.append(rect(f"slat{i}", 96 + i * 136, 360, 3, 720, 0, "#ffffff"))

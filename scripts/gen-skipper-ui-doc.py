@@ -113,8 +113,8 @@ def gallery(p):
     n.append(text(p + "c1u", "event for developers", 302, 328, 17, "#cfcfcf"))
     n.append(text(p + "c1l", "Vercel Liquid simulation", 275, 405, 16,
                   "#5a5a5a"))
-    n.append(rect(p + "c2", 1718, 90, 390, 215, 12, "#ef1660"))
     n.append(rect(p + "c2b", 1740, 175, 430, 130, 14, "#f7f6f2"))
+    n.append(rect(p + "c2", 1718, 90, 390, 215, 12, "#ef1660"))
     n.append(text(p + "c2l", "Drawing cursor effect", 1636, 233, 17,
                   "#3c3c3c"))
     n.append(rect(p + "c3", 195, 682, 400, 335, 14, "#fdfdfc"))
@@ -160,24 +160,20 @@ def fluid_badge(p):
              opacity=0.75),
         rect(p + "fl2", 1450, 1010, 900, 300, 150, "#1c62c9", blur=80,
              opacity=0.6),
-        path(p + "ring1", 958, 538, circle_d(214), "#00000000", stroke=3.0),
-        path(p + "ring2", 958, 538, circle_d(186), "#00000000", stroke=2.5),
+        path(p + "ring1", 958, 538, circle_d(214), "#ffffff", stroke=3.0),
+        path(p + "ring2", 958, 538, circle_d(186), "#ffffff", stroke=2.5),
         sphere(p + "sph", 958, 538, 100),
         text(p + "bt", "S K I P E R P R O", 958, 425, 19, "#ffffff", 600),
     ]
-    n[3]["fill"] = "#ffffff"
-    n[3]["stroke"] = 3.0
-    n[4]["fill"] = "#ffffff"
-    n[4]["stroke"] = 2.5
     return n
 
 
 # 1 ------------------------------------------------------------ grid intro
 n1 = [
-    rect("g_v1", 693, 540, 2, 1080, 0, "#ffffff", opacity=0.8),
-    rect("g_v2", 1225, 540, 2, 1080, 0, "#ffffff", opacity=0.7),
-    rect("g_h1", 960, 477, 1920, 2, 0, "#ffffff", opacity=0.75),
-    rect("g_h2", 960, 598, 1920, 2, 0, "#ffffff", opacity=0.65),
+    rect("g_v1", 693, 540, 2, 1080, 0, "#e8e8e8"),
+    rect("g_v2", 1225, 540, 2, 1080, 0, "#d0d0d0"),
+    rect("g_h1", 960, 477, 1920, 2, 0, "#dcdcdc"),
+    rect("g_h2", 960, 598, 1920, 2, 0, "#c4c4c4"),
     text("g_t", "Skiper-UI", 960, 538, 50, "#ffffff", 500),
 ]
 track("g_v1", x=[(0, 260), (1.3, 0, "outCubic")],
@@ -207,24 +203,20 @@ scene("s4", "#1c1c1c", 0.23, spec_nodes("sp_"))
 # 5 ----------------------------------------------------------- wireframe
 n5 = [
     path("wf_p1", 330, 520, "M-370 -215L330 -215C352 -215 370 -197 370 -175"
-         "L370 130C370 152 352 170 330 170L-370 170", "#00000000",
+         "L370 130C370 152 352 170 330 170L-370 170", "#b8b8b8",
          stroke=2.0),
     path("wf_p2", 1390, 530, "M-530 -160C-530 -182 -512 -200 -490 -200"
          "L530 -200L530 165L-490 165C-512 165 -530 147 -530 125Z",
-         "#00000000", stroke=2.0),
+         "#b8b8b8", stroke=2.0),
     path("wf_p3", 1450, 830, "M-470 -95C-470 -117 -452 -135 -430 -135"
-         "L470 -135L470 100L-470 100Z", "#00000000", stroke=2.0),
+         "L470 -135L470 100L-470 100Z", "#b8b8b8", stroke=2.0),
     path("wf_d1", 188, 495, circle_d(30), "#f2595e"),
     path("wf_d2", 341, 495, circle_d(30), "#f8c43d"),
     path("wf_d3", 488, 495, circle_d(30), "#40e54b"),
     sphere("wf_sph", 921, 528, 94),
     text("wf_t", "Skiper-UI", 1365, 530, 88, "#111111", 600),
 ]
-for nid in ("wf_p1", "wf_p2", "wf_p3"):
-    for nn in n5:
-        if nn["id"] == nid:
-            nn["fill"] = "#b8b8b8"
-scene("s5", "#ebebeb", 0.23, n5)
+scene("s5", "#ebebeb", 0.17, n5)
 
 # 6 --------------------------------------------------------- code editor
 CODE = [

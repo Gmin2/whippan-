@@ -292,9 +292,6 @@ for nid in list_ids:
                         (1.58, 1), (1.70, 0)])
     key(nid, "y", [(born, 40), (born + 0.28, 0, "outCubic")])
 # field chrome dies with the list when the player takes over
-for nid in ["q_field", "q_query", "q_ph"]:
-    for (tid, prop), ks in list(keyacc.items()):
-        pass
 opacity_steps("q_field", [(0, 1), (1.58, 1), (1.70, 0)])
 opacity_steps("q_query", [(0, 0), (0.033, 1), (1.58, 1), (1.70, 0)])
 
@@ -434,11 +431,12 @@ path(S3, "a_ib", 340, 738, IBEAM, None, stroke=2.4)
 scene_nodes[S3][-1]["fill"] = "#2a2d30"
 opacity_steps("a_ib", [(0, 0), (1.02, 1), (3.10, 1), (3.16, 0)])
 key("a_ib", "x", [(1.083, 0), (3.05, 230)])
-path(S3, "a_hand", 545, 858, hand_d(), "#ffffff", stroke=None)
-hand = scene_nodes[S3][-1]
-hand["stroke"] = None
-opacity_steps("a_hand", [(0, 0), (3.16, 1)])
-key("a_hand", "y", [(3.30, 0), (3.34, 4), (3.40, 0)])
+path(S3, "a_hand_o", 545, 858, hand_d(), "#1a1a1a")
+scene_nodes[S3][-1]["keys"] = {"scale": [{"t": 0, "v": 1.14}]}
+path(S3, "a_hand", 545, 858, hand_d(), "#ffffff")
+for nid in ["a_hand_o", "a_hand"]:
+    opacity_steps(nid, [(0, 0), (3.16, 1)])
+    key(nid, "y", [(3.30, 0), (3.34, 4), (3.40, 0)])
 
 # camera: settle, slow push onto the form (header rides out), typing hold,
 # pull back for the sent flip
@@ -495,6 +493,8 @@ path(S4, "k_rt_g", 428, 845, circle_d(8) + "M4 -8L9 -11L10 -4", None,
 scene_nodes[S4][-1]["fill"] = "#8a9096"
 text(S4, "k_rt_t", "retake the survey", 548, 845, 20, "#8a9096",
      weight=600)
+path(S4, "k_hand_o", 545, 852, hand_d(), "#1a1a1a")
+scene_nodes[S4][-1]["keys"] = {"scale": [{"t": 0, "v": 1.14}]}
 path(S4, "k_hand", 545, 852, hand_d(), "#ffffff")
 
 # arrive dim (the real page deblurs grey -> black), settle to full ink

@@ -1,0 +1,618 @@
+#!/usr/bin/env python3
+# reproduction of radio/crab (4.967s, 1080x1080): "coming soon" 3D landing
+# page. act one is the page — blurred COMING SOON, glowing "?" badge with
+# sparkles, email capture, click opens the info card, crab walks in at the
+# right edge. one hard cut at f161, then act two: the crab is a draggable
+# ragdoll on an elastic orange tether. the 3D low-poly crab becomes a drawn
+# 2D cartoon (body polygon + capsule limbs); the drag physics are simulated
+# here (slack-elastic body spring + under-damped limb springs) and baked as
+# dense keys so the overshoot is real. silent source, timings from the
+# 60fps frame ledger.
+import json
+import math
+import os
+
+W, H = 1080, 1080
+F = 1 / 60
+K = 0.5523
+
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+s1_nodes, s2_nodes, tracks = [], [], []
+cur_nodes = s1_nodes
+
+
+def rect(id, x, y, w, h, r, fill, **kw):
+    n = {"id": id, "type": "rect", "x": round(x, 1), "y": round(y, 1),
+         "w": round(w, 1), "h": round(h, 1), "radius": r, "fill": fill}
+    n.update(kw)
+    cur_nodes.append(n)
+    return n
+
+
+def text(id, s, x, y, size, color, weight=700, **kw):
+    n = {"id": id, "type": "text", "text": s, "x": round(x, 1),
+         "y": round(y, 1), "color": color,
+         "font": {"size": round(size, 1), "weight": weight}}
+    n.update(kw)
+    cur_nodes.append(n)
+    return n
+
+
+def path(id, x, y, d, fill, **kw):
+    n = {"id": id, "type": "path", "x": round(x, 1), "y": round(y, 1),
+         "d": d, "fill": fill}
+    n.update(kw)
+    cur_nodes.append(n)
+    return n
+
+
+def track(nid, at=0.0, **props):
+    keys = {}
+    for name, seq in props.items():
+        out = []
+        for k in seq:
+            kk = {"t": round(k[0], 4), "v": round(k[1], 2)}
+            if len(k) > 2:
+                kk["ease"] = k[2]
+            out.append(kk)
+        keys[name] = out
+    t = {"target": nid, "keys": keys}
+    if at:
+        t["at"] = at
+    tracks.append(t)
+
+
+def circle_d(r, cx=0, cy=0):
+    k = r * K
+    return (f"M{cx-r:.1f} {cy:.1f}C{cx-r:.1f} {cy-k:.1f} {cx-k:.1f} {cy-r:.1f} {cx:.1f} {cy-r:.1f}"
+            f"C{cx+k:.1f} {cy-r:.1f} {cx+r:.1f} {cy-k:.1f} {cx+r:.1f} {cy:.1f}"
+            f"C{cx+r:.1f} {cy+k:.1f} {cx+k:.1f} {cy+r:.1f} {cx:.1f} {cy+r:.1f}"
+            f"C{cx-k:.1f} {cy+r:.1f} {cx-r:.1f} {cy+k:.1f} {cx-r:.1f} {cy:.1f}Z")
+
+
+def grid_d(x0, x1, y0, y1, step):
+    d = ""
+    x = x0
+    while x <= x1:
+        d += f"M{x} {y0}L{x} {y1}"
+        x += step
+    y = y0
+    while y <= y1:
+        d += f"M{x0} {y}L{x1} {y}"
+        y += step
+    return d
+
+
+def star_d(r):
+    a = r * 0.16
+    return (f"M0 {-r}C{a} {-a} {a} {-a} {r} 0C{a} {a} {a} {a} 0 {r}"
+            f"C{-a} {a} {-a} {a} {-r} 0C{-a} {-a} {-a} {-a} 0 {-r}Z")
+
+
+# pointing-hand cursor: index finger up + palm; drawn as fill union
+HAND_D = ("M-4 -24C-4 -29 4 -29 4 -24L4 -2L-4 -2Z"
+          "M-13 2C-13 -5 -4 -5 -4 1L-4 -2L12 -2C19 -2 22 3 22 9"
+          "C22 17 17 23 9 23L-2 23C-9 23 -13 17 -13 10Z")
+HAND_LINES = "M4 -1L4 9M11 0L11 9M17 2L17 9"
+# closed grabbing fist
+FIST_D = ("M-16 -3C-16 -14 16 -14 16 -3L16 8C16 17 -16 17 -16 8Z")
+FIST_LINES = "M-8 -9L-8 -1M0 -10L0 -1M8 -9L8 -1"
+
+
+def cursor_group(prefix, x, y, kind, scale=1.0):
+    d = HAND_D if kind == "hand" else FIST_D
+    lines = HAND_LINES if kind == "hand" else FIST_LINES
+    o = path(f"{prefix}_o", x, y, d, "#1c1c1e")
+    o["keys"] = {"scale": [{"t": 0, "v": 1.17 * scale}]}
+    f = path(f"{prefix}_f", x, y, d, "#ffffff")
+    f["keys"] = {"scale": [{"t": 0, "v": scale}]}
+    l = path(f"{prefix}_l", x, y, lines, "#1c1c1e", stroke=2.0)
+    l["keys"] = {"scale": [{"t": 0, "v": scale}]}
+    return [o["id"], f["id"], l["id"]]
+
+
+# ------------------------------------------------------------------ scene 1
+# the coming-soon page, laid out at full-page framing; the camera does the
+# zoomed-in hook, the crash zoom-out, and the push-in to the info card.
+S1 = 160 * F
+
+rect("p_wash", 540, 470, 2400, 2200, 0, "#e9e9ec", gradient={
+    "angle": 90, "stops": [{"at": 0, "color": "#e6e6ea"},
+                           {"at": 0.5, "color": "#f8f8fa"},
+                           {"at": 1, "color": "#fefefe"}]})
+path("p_grid", 540, 540, grid_d(-940, 1480, -940, 1480, 74), "#e4e4e8",
+     stroke=1.0, opacity=0.55)
+
+# blurred hero type: main + offset ghosts fake the permanent defocus
+for gid, s, x, y in [("com", "COMING", 511, 372), ("soon", "SOON", 484, 564)]:
+    for i, (dx, dy, op) in enumerate([(-8, 0, 0.35), (8, 3, 0.35), (0, 0, 0.8)]):
+        n = text(f"h_{gid}{i}", s, x + dx, y + dy, 252, "#d8d7dc", weight=900)
+        n["opacity"] = op
+
+# small inert "?" badge clipped at the far left of COMING
+rect("b2_card", 35, 378, 84, 84, 24, "#ffffff",
+     glow={"sigma": 14, "opacity": 0.25, "color": "#b9bcc9", "dy": 6})
+text("b2_q", "?", 35, 380, 46, "#c5c5cc", weight=800)
+
+# the interactive "?" badge at the right end of SOON
+rect("b1_halo", 865, 565, 150, 150, 46, "#b9c4fb", blur=26)
+track("b1_halo", opacity=[(0, 0), (4 * F, 0), (12 * F, 0.9, "outCubic"),
+                          (40 * F, 0.75), (70 * F, 0.55), (100 * F, 0.4),
+                          (S1, 0.35)])
+rect("b1_card", 865, 565, 94, 94, 27, "#ffffff",
+     glow={"sigma": 16, "opacity": 0.3, "color": "#aeb4cf", "dy": 7})
+q_grey = text("b1_qg", "?", 865, 567, 52, "#b9b9c0", weight=800)
+q_ind = text("b1_qi", "?", 865, 567, 52, "#6472f0", weight=800)
+track("b1_qg", opacity=[(0, 1), (4 * F, 1), (11 * F, 0)])
+track("b1_qi", opacity=[(0, 0), (4 * F, 0), (11 * F, 1)])
+
+# sparkle burst around the badge: teal + blue 4-point stars
+SPARKS = [(-58, -48, 17, "#4fd6c4", 0.00), (-72, -18, 12, "#5b8def", 0.05),
+          (-40, -66, 9, "#7fe3d4", 0.08), (62, -30, 13, "#4fd6c4", 0.03),
+          (52, 28, 10, "#5b8def", 0.10), (74, 6, 8, "#4fd6c4", 0.13)]
+for i, (dx, dy, r, col, dl) in enumerate(SPARKS):
+    n = path(f"sp{i}", 865 + dx, 565 + dy, star_d(r), col)
+    t0 = 4 * F + dl
+    tw = []
+    tt = t0 + 0.22
+    v = 1.0
+    while tt < 60 * F:
+        v = 0.78 if v == 1.0 else 1.0
+        tw.append((tt, v, "inOutCubic"))
+        tt += 0.14
+    track(n["id"],
+          scale=[(t0, 0.0), (t0 + 0.18, 1.18, "outCubic"),
+                 (t0 + 0.30, 1.0, "inOutCubic")] + tw,
+          opacity=[(0, 0), (t0, 0), (t0 + 0.1, 1), (55 * F, 1), (72 * F, 0)])
+
+text("cap", "Want to learn how to add 3D to your websites?", 511, 690,
+     23, "#6d6d72", weight=500)
+
+# email capture row
+rect("em_card", 511, 765, 572, 78, 30, "#ffffff",
+     glow={"sigma": 18, "opacity": 0.22, "color": "#b7bac6", "dy": 8})
+rect("em_border", 421, 765, 358, 56, 15, "#d7d7dd")
+rect("em_input", 421, 765, 355, 53, 14, "#ffffff")
+text("em_ph", "Enter your email", 343, 766, 20, "#a3a3ab", weight=400)
+rect("em_btn", 696, 765, 168, 56, 28, "#5876fc")
+path("em_pl_c", 634, 765, circle_d(13), "#7e93fd")
+path("em_pl", 634, 765, "M-5 4L6 -3L-2 1L-5 4ZM-2 1L0 5L2 2Z", "#ffffff")
+text("em_btnt", "Get notified", 714, 766, 21, "#ffffff", weight=600)
+
+# click flash on the badge at f88: a 2-frame diagonal streak
+fl = rect("b1_flash", 865, 565, 120, 26, 13, "#ffffff", rot=-38)
+track("b1_flash", opacity=[(0, 0), (87 * F, 0), (88 * F, 0.9),
+                           (91 * F, 0)])
+
+# info card materializes out of the push-in (page-space, small: the camera
+# is at 1.9x when it is up)
+CX, CY = 855, 555
+card = rect("cd", CX, CY, 354, 140, 14, "#ffffff",
+            glow={"sigma": 20, "opacity": 0.25, "color": "#b0b3c2", "dy": 8})
+card_kids = []
+
+
+def cd_text(id, s, x, y, size, color, weight=600):
+    n = text(id, s, x, y, size, color, weight=weight)
+    card_kids.append(n["id"])
+    return n
+
+
+LH = CX - 177 + 26        # card text left edge
+fs = 18.2
+l3_y = CY + 12
+
+
+def line_w(s, size):
+    return len(s) * size * 0.5
+
+
+cd_text("cd_l1", "Learn how to add 3D to your", LH + line_w("Learn how to add 3D to your", fs) / 2, CY - 36, fs, "#1c1c1e")
+cd_text("cd_l2", "websites and digital products,", LH + line_w("websites and digital products,", fs) / 2, CY - 12, fs, "#1c1c1e")
+# line 3 mixes plain text with the black highlight chips
+x = LH
+w = line_w("with a focus on", fs)
+cd_text("cd_l3a", "with a focus on", x + w / 2, l3_y, fs, "#1c1c1e")
+x += w + 9
+for cid, word in [("cd_ch1", "design"), ("cd_ch2", "feel.")]:
+    cw = line_w(word, fs) + 14
+    n = rect(cid, x + cw / 2, l3_y, cw, 24, 5, "#212123")
+    card_kids.append(n["id"])
+    cd_text(cid + "t", word, x + cw / 2, l3_y + 1, fs, "#ffffff")
+    x += cw + 8
+    if cid == "cd_ch1":
+        w = line_w("and", fs)
+        cd_text("cd_l3b", "and", x + w / 2, l3_y, fs, "#1c1c1e")
+        x += w + 8
+
+ck_y = CY + 42
+x = LH
+for i, item in enumerate(["Monthly breakdowns", "Source files",
+                          "Exclusive tools"]):
+    n = path(f"cd_tk{i}", x + 5, ck_y, "M-4 0L-1 3L5 -4", "#6472f0",
+             stroke=2.2)
+    card_kids.append(n["id"])
+    w = line_w(item, 11.5)
+    cd_text(f"cd_ck{i}", item, x + 14 + w / 2, ck_y, 11.5, "#6a6a70",
+            weight=500)
+    x += 14 + w + 18
+
+close = rect("cd_close", 851, 830, 48, 19, 9.5, "#2c2c2e")
+cd_text("cd_closet", "Close", 851, 831, 10, "#ffffff")
+
+# card + kids materialize f92-112; close pops at f112
+track("cd", opacity=[(0, 0), (92 * F, 0), (104 * F, 1, "outCubic")],
+      scale=[(92 * F, 0.8), (110 * F, 1.0, "outCubic")],
+      blur=[(92 * F, 9), (108 * F, 0, "outCubic")])
+for i, kid in enumerate(card_kids):
+    if kid in ("cd_closet",):
+        track(kid, opacity=[(0, 0), (112 * F, 0), (118 * F, 1)])
+        continue
+    d = 96 * F + (i % 5) * 0.02
+    track(kid, opacity=[(0, 0), (d, 0), (d + 0.18, 1, "outCubic")],
+          y=[(d, 8), (d + 0.22, 0, "outCubic")])
+track("cd_close", opacity=[(0, 0), (112 * F, 0), (118 * F, 1)],
+      scale=[(112 * F, 0.7), (122 * F, 1.0, "outCubic")])
+
+# the hero "?" glyphs + halo dip while the card swallows the badge
+track("b1_card", opacity=[(0, 1), (90 * F, 1), (98 * F, 0)])
+for nid in ("b1_qg", "b1_qi"):
+    pass  # their opacity tracks already end them; add fade via card cover
+
+
+# ---------------------------------------------------------- 2d cartoon crab
+# body: low-poly pentagon + facet, white ring + orange socket dot.
+# limbs: capsule polygons radiating out. builder returns node ids so both
+# scenes can pose their own instance.
+BODY_R = 36
+LIMB_ANGLES = [-90, -38, 8, 55, 118, 165, 212]
+LIMB_LEN = [46, 50, 44, 50, 46, 48, 44]
+LIMB_COLS = ["#5c7afb", "#6b86f2", "#5c7afb", "#6377f0", "#6b86f2",
+             "#5c7afb", "#6377f0"]
+
+
+def pent_d(r):
+    pts = []
+    for i in range(5):
+        a = math.radians(-90 + i * 72 + (6 if i % 2 else -4))
+        rr = r * (1.0 if i % 2 else 0.92)
+        pts.append((rr * math.cos(a), rr * math.sin(a)))
+    d = f"M{pts[0][0]:.1f} {pts[0][1]:.1f}"
+    for x, y in pts[1:]:
+        d += f"L{x:.1f} {y:.1f}"
+    return d + "Z"
+
+
+def capsule_d(ln, wd):
+    h = ln / 2
+    w = wd / 2
+    return (f"M{-w} {-h+3}C{-w} {-h-5} {w} {-h-5} {w} {-h+3}"
+            f"L{w*0.86} {h-4}C{w*0.8} {h+5} {-w*0.8} {h+5} {-w*0.86} {h-4}Z")
+
+
+def build_crab(prefix, cx, cy, sc):
+    """static crab instance; returns dict of ids for posing."""
+    ids = {"limbs": [], "echoes": []}
+    sh = rect(f"{prefix}_sh", cx, cy + 58 * sc, 120 * sc, 26 * sc,
+              13 * sc, "#c7c7cc", blur=9, opacity=0.45)
+    ids["shadow"] = sh["id"]
+    for i, ang in enumerate(LIMB_ANGLES):
+        a = math.radians(ang)
+        lx = cx + math.cos(a) * (BODY_R + LIMB_LEN[i] / 2 + 6) * sc
+        ly = cy + math.sin(a) * (BODY_R + LIMB_LEN[i] / 2 + 6) * sc
+        e = path(f"{prefix}_le{i}", lx, ly,
+                 capsule_d(LIMB_LEN[i], 20), "#96a8f8",
+                 rot=ang + 90, opacity=0.0)
+        e["keys"] = {"scale": [{"t": 0, "v": sc}]}
+        ids["echoes"].append(e["id"])
+        n = path(f"{prefix}_l{i}", lx, ly,
+                 capsule_d(LIMB_LEN[i], 20), LIMB_COLS[i], rot=ang + 90)
+        n["keys"] = {"scale": [{"t": 0, "v": sc}]}
+        ids["limbs"].append(n["id"])
+    b = path(f"{prefix}_body", cx, cy, pent_d(BODY_R), "#5c7afb")
+    b["keys"] = {"scale": [{"t": 0, "v": sc}]}
+    f = path(f"{prefix}_facet", cx, cy,
+             "M-30 -12L2 -33L26 -6L-4 6Z", "#6b86f2", opacity=0.75)
+    f["keys"] = {"scale": [{"t": 0, "v": sc}]}
+    ring = path(f"{prefix}_ring", cx, cy, circle_d(14), "#ffffff")
+    ring["keys"] = {"scale": [{"t": 0, "v": sc}]}
+    dot = path(f"{prefix}_dot", cx, cy, circle_d(8.5), "#f79f28")
+    dot["keys"] = {"scale": [{"t": 0, "v": sc}]}
+    ids["body"] = [b["id"], f["id"], ring["id"], dot["id"]]
+    return ids
+
+
+# crab walks in at the right edge f128-160 (page space, seen at 1.9x)
+pv = build_crab("pv", 1108, 552, 0.52)
+for nid in pv["body"] + [pv["shadow"]]:
+    track(nid, x=[(126 * F, 80), (160 * F, 0, "outCubic")],
+          opacity=[(0, 0), (126 * F, 0), (132 * F, 1)])
+for i, nid in enumerate(pv["limbs"]):
+    sw = 14 if i % 2 else -14
+    wig = []
+    tt = 126 * F
+    v = sw
+    while tt <= 160 * F:
+        wig.append((tt, LIMB_ANGLES[i] + 90 + v, "inOutCubic"))
+        v = -v
+        tt += 0.14
+    track(nid, x=[(126 * F, 80), (160 * F, 0, "outCubic")],
+          opacity=[(0, 0), (126 * F, 0), (132 * F, 1)],
+          rot=wig)
+
+# scene-1 pointing-hand cursor
+c1 = cursor_group("cur1", 909, 662, "hand", 1.0)
+for nid in c1:
+    track(nid, x=[(0, 0), (4 * F, 0), (12 * F, -16, "outCubic"),
+                  (30 * F, -16), (55 * F, -12, "inOutCubic"), (88 * F, -12),
+                  (100 * F, -26, "inOutCubic"), (160 * F, -28)],
+          y=[(0, 0), (4 * F, 0), (12 * F, -26, "outCubic"), (30 * F, -26),
+             (55 * F, -30, "inOutCubic"), (88 * F, -30),
+             (100 * F, -68, "inOutCubic"), (160 * F, -70)])
+
+# camera: hook hold -> crash zoom-out -> hold -> push-in on the card
+EZ = [0.16, 1, 0.3, 1]
+track("s1",
+      cam_zoom=[(0, 1.70), (26 * F, 1.715), (52 * F, 1.0, EZ), (88 * F, 1.0),
+                (108 * F, 1.9, [0.3, 0.75, 0.3, 1]), (160 * F, 1.93)],
+      cam_x=[(0, 325), (26 * F, 325), (52 * F, 0, EZ), (88 * F, 0),
+             (108 * F, 325.5, [0.3, 0.75, 0.3, 1]), (160 * F, 327)],
+      cam_y=[(0, 25), (26 * F, 27), (52 * F, 0, EZ), (88 * F, 0),
+             (108 * F, 26.6, [0.3, 0.75, 0.3, 1]), (160 * F, 28)])
+
+# ------------------------------------------------------------------ scene 2
+# drag playground. world designed at the close framing (zoom 1.05 at cut);
+# zoom-out to 0.62 reveals page furniture + the dark device bezel.
+cur_nodes = s2_nodes
+S2 = 138 * F
+
+rect("g_wash", 540, 470, 3000, 2600, 0, "#e9e9ec", gradient={
+    "angle": 90, "stops": [{"at": 0, "color": "#e6e6ea"},
+                           {"at": 0.5, "color": "#f8f8fa"},
+                           {"at": 1, "color": "#fefefe"}]})
+path("g_grid", 540, 540, grid_d(-1200, 1700, -1200, 1700, 74), "#e4e4e8",
+     stroke=1.0, opacity=0.55)
+
+# ghost hero type fragments (still defocused): big G bottom-left, NG top-left
+for i, (dx, dy, op) in enumerate([(-9, 0, 0.35), (9, 3, 0.35), (0, 0, 0.8)]):
+    n = text(f"g_g{i}", "G", 40 + dx, 790 + dy, 430, "#d5d4d9", weight=900)
+    n["opacity"] = op
+    n2 = text(f"g_ng{i}", "NG", 60 + dx, 105 + dy, 330, "#d5d4d9", weight=900)
+    n2["opacity"] = op * 0.9
+    n3 = text(f"g_n{i}", "N", -95 + dx, 480 + dy, 330, "#d5d4d9", weight=900)
+    n3["opacity"] = op * 0.9
+
+# page furniture seen when zoomed out: glowing badge + get-notified pill
+rect("g_halo", 24, 411, 260, 260, 80, "#b9c4fb", blur=38, opacity=0.7)
+rect("g_badge", 24, 411, 168, 168, 48, "#ffffff",
+     glow={"sigma": 22, "opacity": 0.3, "color": "#aeb4cf", "dy": 10})
+text("g_q", "?", 24, 415, 92, "#6472f0", weight=800)
+rect("g_pill", -240, 770, 280, 90, 45, "#5876fc")
+text("g_pillt", "Get notified", -205, 772, 34, "#ffffff", weight=600)
+text("g_caption", "s?", -280, 620, 34, "#6d6d72", weight=500)
+p = path("g_mark", 1150, 1210, circle_d(64) + circle_d(38), "#d3d3d8",
+         stroke=3.0)
+p["opacity"] = 0.6
+
+# device bezel beyond the page's right/bottom edges
+rect("bz_r", 1620, 540, 640, 3200, 64, "#3e3d42")
+rect("bz_b", 540, 1640, 3400, 640, 64, "#3e3d42")
+rect("bz_corner", 1452, 1452, 400, 400, 90, "#3e3d42", rot=0)
+
+# --------------------------------------------------- ragdoll drag simulation
+# handle waypoints (t, x, y) scene-local; catmull-ish eased between stops
+HANDLE_WP = [
+    (0.00, 790, 475),
+    (0.14, 862, 566),
+    (0.28, 706, 700),
+    (0.42, 900, 528),
+    (0.58, 915, 520),
+    (0.68, 700, 810),
+    (0.80, 685, 840),
+    (0.95, 700, 560),
+    (1.15, 660, 480),
+    (1.35, 705, 532),
+    (1.55, 668, 498),
+    (1.75, 762, 470),
+    (1.93, 556, 700),
+    (2.08, 498, 730),
+    (2.30, 478, 738),
+]
+
+
+def handle_pos(t):
+    if t <= HANDLE_WP[0][0]:
+        return HANDLE_WP[0][1], HANDLE_WP[0][2]
+    for (t0, x0, y0), (t1, x1, y1) in zip(HANDLE_WP, HANDLE_WP[1:]):
+        if t0 <= t <= t1:
+            p = (t - t0) / (t1 - t0)
+            p = p * p * (3 - 2 * p)  # smoothstep per segment
+            return x0 + (x1 - x0) * p, y0 + (y1 - y0) * p
+    return HANDLE_WP[-1][1], HANDLE_WP[-1][2]
+
+
+DT = 1 / 240
+STEPS = int(2.30 / DT) + 1
+L_REST = 128
+BODY_K = 42.0
+BODY_DAMP = 3.4
+LIMB_OM = 13.5
+LIMB_Z = 0.22
+
+bx, by = 300.0, 590.0
+bvx, bvy = 0.0, 0.0
+brot = 0.0
+limb_off = [(0.0, 0.0)] * 7      # displacement from anchor
+limb_vel = [(0.0, 0.0)] * 7
+
+samples = []                     # per 1/30s: body, rot, limbs, handle
+next_sample = 0.0
+for step in range(STEPS):
+    t = step * DT
+    hx, hy = handle_pos(t)
+    dx, dy = hx - bx, hy - by
+    dist = math.hypot(dx, dy)
+    ax = ay = 0.0
+    if dist > L_REST:
+        pull = (dist - L_REST) * BODY_K
+        ax += dx / dist * pull
+        ay += dy / dist * pull
+    ax -= bvx * BODY_DAMP
+    ay -= bvy * BODY_DAMP
+    bvx += ax * DT
+    bvy += ay * DT
+    bx += bvx * DT
+    by += bvy * DT
+    rot_target = max(-26.0, min(26.0, bvx * 0.035))
+    brot += (rot_target - brot) * min(1.0, 6.0 * DT)
+    new_off, new_vel = [], []
+    for i, ang in enumerate(LIMB_ANGLES):
+        ox, oy = limb_off[i]
+        vx, vy = limb_vel[i]
+        # spring the limb displacement back to zero; body acceleration
+        # excites it (limbs lag the body)
+        lax = -LIMB_OM * LIMB_OM * ox - 2 * LIMB_Z * LIMB_OM * vx - ax * 0.62
+        lay = -LIMB_OM * LIMB_OM * oy - 2 * LIMB_Z * LIMB_OM * vy - ay * 0.62
+        vx += lax * DT
+        vy += lay * DT
+        ox += vx * DT
+        oy += vy * DT
+        m = math.hypot(ox, oy)
+        if m > 34:
+            ox, oy = ox / m * 34, oy / m * 34
+        new_off.append((ox, oy))
+        new_vel.append((vx, vy))
+    limb_off, limb_vel = new_off, new_vel
+    if t >= next_sample - 1e-9:
+        samples.append((round(t, 4), bx, by, brot,
+                        list(limb_off), hx, hy,
+                        math.hypot(bvx, bvy)))
+        next_sample += 1 / 30
+
+# stage rest positions = first sample
+b0x, b0y = samples[0][1], samples[0][2]
+h0x, h0y = samples[0][5], samples[0][6]
+
+crab = build_crab("cr", b0x, b0y, 1.0)
+
+# limb anchors in body space (rotated by body rot at runtime)
+ANCH = []
+for i, ang in enumerate(LIMB_ANGLES):
+    a = math.radians(ang)
+    r = BODY_R + LIMB_LEN[i] / 2 + 6
+    ANCH.append((math.cos(a) * r, math.sin(a) * r))
+
+
+def rot2(x, y, deg):
+    a = math.radians(deg)
+    return (x * math.cos(a) - y * math.sin(a),
+            x * math.sin(a) + y * math.cos(a))
+
+
+body_keys_x, body_keys_y, body_keys_rot = [], [], []
+limb_kx = [[] for _ in range(7)]
+limb_ky = [[] for _ in range(7)]
+limb_kr = [[] for _ in range(7)]
+limb_echo_op = [[] for _ in range(7)]
+sh_kx, sh_ky = [], []
+handle_kx, handle_ky = [], []
+dot_keys = [([], []) for _ in range(13)]
+cur_kx, cur_ky = [], []
+
+# limb stage positions (unrotated rest)
+limb_stage = [(b0x + ax_, b0y + ay_) for ax_, ay_ in ANCH]
+
+prev_limb_pos = list(limb_stage)
+for si, (t, bx, by, brot, offs, hx, hy, spd) in enumerate(samples):
+    body_keys_x.append((t, bx - b0x))
+    body_keys_y.append((t, by - b0y))
+    body_keys_rot.append((t, brot))
+    sh_kx.append((t, bx - b0x))
+    sh_ky.append((t, by - b0y))
+    handle_kx.append((t, hx - h0x))
+    handle_ky.append((t, hy - h0y))
+    cur_kx.append((t, hx - h0x))
+    cur_ky.append((t, hy - h0y))
+    for i in range(7):
+        axr, ayr = rot2(*ANCH[i], brot)
+        ox, oy = offs[i]
+        lx = bx + axr + ox
+        ly = by + ayr + oy
+        limb_kx[i].append((t, lx - limb_stage[i][0]))
+        limb_ky[i].append((t, ly - limb_stage[i][1]))
+        # swing: perpendicular displacement bends the limb
+        pax, pay = -math.sin(math.radians(LIMB_ANGLES[i])), \
+            math.cos(math.radians(LIMB_ANGLES[i]))
+        perp = ox * pax + oy * pay
+        limb_kr[i].append((t, LIMB_ANGLES[i] + 90 + brot
+                           + max(-42, min(42, perp * 1.9))))
+        pv_ = prev_limb_pos[i]
+        lspd = math.hypot(lx - pv_[0], ly - pv_[1]) * 30
+        limb_echo_op[i].append((t, max(0.0, min(0.32, (lspd - 550) / 2200))))
+        prev_limb_pos[i] = (lx, ly)
+    for di in range(13):
+        f = (di + 1) / 14
+        px = bx + (hx - bx) * f
+        py = by + (hy - by) * f
+        dot_keys[di][0].append((t, px))
+        dot_keys[di][1].append((t, py))
+
+track(crab["body"][0], x=body_keys_x, y=body_keys_y, rot=body_keys_rot)
+for nid in crab["body"][1:]:
+    track(nid, x=body_keys_x, y=body_keys_y)
+track(crab["shadow"], x=sh_kx, y=sh_ky)
+for i in range(7):
+    track(crab["limbs"][i], x=limb_kx[i], y=limb_ky[i], rot=limb_kr[i])
+    # echo: same motion delayed one sample, opacity by speed
+    ex = [(t + 1 / 30, v) for t, v in limb_kx[i][:-1]]
+    ey = [(t + 1 / 30, v) for t, v in limb_ky[i][:-1]]
+    er = [(t + 1 / 30, v) for t, v in limb_kr[i][:-1]]
+    track(crab["echoes"][i], x=[(0, limb_kx[i][0][1])] + ex,
+          y=[(0, limb_ky[i][0][1])] + ey,
+          rot=[(0, limb_kr[i][0][1])] + er,
+          opacity=limb_echo_op[i])
+
+# tether dots (absolute positions baked; stage pos = first sample)
+for di in range(13):
+    xs, ys = dot_keys[di]
+    x0, y0 = xs[0][1], ys[0][1]
+    rect(f"td{di}", x0, y0, 10.5, 10.5, 5.25, "#f09a2e")
+    track(f"td{di}", x=[(t, v - x0) for t, v in xs],
+          y=[(t, v - y0) for t, v in ys])
+
+# handle dot + grabbing fist cursor riding it
+rect("hd", h0x, h0y, 24, 24, 12, "#f79f28",
+     streak={"samples": 5, "window": 0.05, "gain": 0.45})
+track("hd", x=handle_kx, y=handle_ky)
+c2 = cursor_group("cur2", h0x + 2, h0y + 52, "fist", 1.15)
+for nid in c2:
+    track(nid, x=cur_kx, y=cur_ky)
+
+# camera: close on the toy -> pull back to the bezel -> drift back in
+track("s2",
+      cam_zoom=[(0, 1.05), (52 * F, 1.05), (78 * F, 0.62, EZ), (104 * F, 0.62),
+                (128 * F, 0.90, [0.4, 0, 0.3, 1]), (138 * F, 0.925)],
+      cam_x=[(0, 0), (52 * F, 0), (78 * F, 0, EZ), (104 * F, 0),
+             (128 * F, 60, [0.4, 0, 0.3, 1]), (138 * F, 64)],
+      cam_y=[(0, 0), (52 * F, 0), (78 * F, 0, EZ), (104 * F, 0),
+             (128 * F, -20, [0.4, 0, 0.3, 1]), (138 * F, -24)])
+
+stage = {
+    "fps": 30,
+    "size": [W, H],
+    "scenes": [
+        {"id": "s1", "bg": "#fefefe", "dur": round(S1, 4),
+         "transition": {"kind": "cut"}, "nodes": s1_nodes},
+        {"id": "s2", "bg": "#fefefe", "dur": round(S2, 4),
+         "transition": {"kind": "cut"}, "nodes": s2_nodes},
+    ],
+}
+
+with open("docs/crab.stage.json", "w") as f:
+    json.dump(stage, f, indent=1)
+with open("docs/crab.anim.json", "w") as f:
+    json.dump({"tracks": tracks}, f, indent=1)
+print("wrote docs/crab.{stage,anim}.json:",
+      len(s1_nodes) + len(s2_nodes), "nodes,", len(tracks), "tracks,",
+      f"dur {S1 + S2:.3f}s")

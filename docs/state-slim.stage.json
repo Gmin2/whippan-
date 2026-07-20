@@ -745,7 +745,7 @@
      "id": "t7w0",
      "type": "text",
      "text": "EarnIn Mori   ExtraLight",
-     "x": 210,
+     "x": 232.0,
      "y": 522,
      "color": "#1a1a1a",
      "font": {
@@ -757,7 +757,7 @@
      "id": "t7w1",
      "type": "text",
      "text": "EarnIn Mori   Light",
-     "x": 210,
+     "x": 210.8,
      "y": 546,
      "color": "#1a1a1a",
      "font": {
@@ -769,7 +769,7 @@
      "id": "t7w2",
      "type": "text",
      "text": "EarnIn Mori   Regular",
-     "x": 210,
+     "x": 219.2,
      "y": 570,
      "color": "#1a1a1a",
      "font": {
@@ -781,7 +781,7 @@
      "id": "t7w3",
      "type": "text",
      "text": "EarnIn Mori   Medium",
-     "x": 210,
+     "x": 215.0,
      "y": 594,
      "color": "#1a1a1a",
      "font": {
@@ -793,7 +793,7 @@
      "id": "t7b0",
      "type": "text",
      "text": "EarnIn Mori   SemiBold",
-     "x": 400,
+     "x": 423.5,
      "y": 526,
      "color": "#1a1a1a",
      "font": {
@@ -805,7 +805,7 @@
      "id": "t7b1",
      "type": "text",
      "text": "EarnIn Mori   Bold",
-     "x": 400,
+     "x": 406.5,
      "y": 552,
      "color": "#1a1a1a",
      "font": {
@@ -817,7 +817,7 @@
      "id": "t7b2",
      "type": "text",
      "text": "EarnIn Mori   ExtraBold",
-     "x": 400,
+     "x": 427.8,
      "y": 578,
      "color": "#1a1a1a",
      "font": {
@@ -1173,11 +1173,11 @@
      "id": "h10a",
      "type": "text",
      "text": "Three colors,",
-     "x": 393.0,
-     "y": 165,
+     "x": 440.0,
+     "y": 150,
      "color": "#000000",
      "font": {
-      "size": 104,
+      "size": 120,
       "weight": 700
      }
     },
@@ -1185,11 +1185,11 @@
      "id": "h10b",
      "type": "text",
      "text": "infinite",
-     "x": 263.0,
-     "y": 295,
+     "x": 290.0,
+     "y": 300,
      "color": "#000000",
      "font": {
-      "size": 104,
+      "size": 120,
       "weight": 700
      }
     },
@@ -1197,11 +1197,11 @@
      "id": "h10c",
      "type": "text",
      "text": "possibilities.",
-     "x": 419.0,
-     "y": 425,
+     "x": 470.0,
+     "y": 450,
      "color": "#000000",
      "font": {
-      "size": 104,
+      "size": 120,
       "weight": 700
      }
     }
@@ -1708,12 +1708,12 @@
      "id": "mn_bloom",
      "type": "rect",
      "x": 569,
-     "y": 440,
-     "w": 300,
-     "h": 150,
-     "radius": 75,
+     "y": 415,
+     "w": 260,
+     "h": 110,
+     "radius": 55,
      "fill": "#ffe91e",
-     "blur": 32
+     "blur": 26
     },
     {
      "id": "mn_w0",
@@ -2107,12 +2107,12 @@
      "id": "sc_bloom",
      "type": "rect",
      "x": 560,
-     "y": 200,
-     "w": 240,
-     "h": 240,
-     "radius": 120,
+     "y": 210,
+     "w": 220,
+     "h": 220,
+     "radius": 110,
      "fill": "#ffe91e",
-     "blur": 48
+     "blur": 40
     },
     {
      "id": "sc_a",
@@ -2289,7 +2289,7 @@
   {
    "id": "s16",
    "bg": "#ffe91e",
-   "dur": 1.2,
+   "dur": 0.467,
    "transition": {
     "kind": "cut"
    },
@@ -2366,7 +2366,7 @@
   {
    "id": "s17a",
    "bg": "#000000",
-   "dur": 1.267,
+   "dur": 2.0,
    "transition": {
     "kind": "cut"
    },
@@ -4150,7 +4150,7 @@
      "id": "gal_t1",
      "type": "text",
      "text": "to the",
-     "x": 460,
+     "x": 454.0,
      "y": 182,
      "color": "#111111",
      "font": {
@@ -4162,7 +4162,7 @@
      "id": "gal_t2",
      "type": "text",
      "text": "get your",
-     "x": 492,
+     "x": 477.0,
      "y": 244,
      "color": "#111111",
      "font": {
@@ -4174,7 +4174,7 @@
      "id": "gal_t3",
      "type": "text",
      "text": "earnings",
-     "x": 496,
+     "x": 477.0,
      "y": 308,
      "color": "#111111",
      "font": {
@@ -4186,7 +4186,7 @@
      "id": "st1",
      "type": "rect",
      "x": 165,
-     "y": 560,
+     "y": 572,
      "w": 70,
      "h": 85,
      "radius": 4,
@@ -4196,7 +4196,7 @@
      "id": "st2",
      "type": "rect",
      "x": 258,
-     "y": 568,
+     "y": 578,
      "w": 75,
      "h": 78,
      "radius": 4,

@@ -120,6 +120,18 @@
   "anim": "/docs/lovable.anim.json"
  },
  {
+  "slug": "lucia",
+  "title": "lucia (repro)",
+  "dur": 15.94,
+  "size": [
+   1280,
+   720
+  ],
+  "group": "reproductions",
+  "stage": "/docs/lucia.stage.json",
+  "anim": "/docs/lucia.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,

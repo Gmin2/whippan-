@@ -179,8 +179,8 @@ for i, d in enumerate(ring1):
     track(nid, opacity=stepk([(a, 0), (a + 0.05, 0.55), (a + 0.3, 0.35),
                               (a + 0.55, 0.6), (1.4, 0.42), (1.9, 0.55)]),
           scale=[(0.15, 1.14), (1.3, 1.0, "outCubic")])
-for gid, s, t0, t1 in [("g1_a", "0", 0.30, 0.63), ("g1_b", "Zer0", 0.63, 0.96),
-                       ("g1_c", "DAY 0", 0.96, 2.2)]:
+for gid, s, t0, t1 in [("g1_a", "0", 0.27, 0.55), ("g1_b", "Zer0", 0.55, 0.8),
+                       ("g1_c", "DAY 0", 0.8, 2.2)]:
     n1.append(text(gid, s, 569, 322, 34))
     track(gid, opacity=stepk([(0, 0), (t0, 1), (t1, 0)] if t1 < 2.2
                              else [(0, 0), (t0, 1)]))
@@ -316,8 +316,8 @@ for i in range(11):
     t0 = 0.06 + i * 0.05
     track(f"lq6_{i}", opacity=stepk([(t0, 0), (t0 + 0.04, 1)]),
           scale=[(t0, 0.9), (t0 + 0.2, 1.0, "outCubic")])
-    track(f"lh6_{i}", opacity=[(0.42 + i * 0.05, 0),
-                               (0.72 + i * 0.05, 1, "outCubic")])
+    track(f"lh6_{i}", opacity=[(0.32 + i * 0.035, 0),
+                               (0.58 + i * 0.035, 1, "outCubic")])
 scene("s6", "#000000", 1.2, n6, kind="fade", tdur=0.22)
 
 # 7 ------------------------------------------------ terminal deploy line
@@ -347,15 +347,15 @@ reveal("t7b", 0.25, unit="type", cadence=0.04, dur=0.04, caret="block",
 reveal("t7c", 0.52, unit="type", cadence=0.035, dur=0.04, caret="block",
        caret_typing="solid")
 track("t7c", opacity=stepk([(0, 0), (0.52, 1)]))
-reveal("t7d", 1.45, unit="type", cadence=0.045, dur=0.04, caret="block",
+reveal("t7d", 1.35, unit="type", cadence=0.045, dur=0.04, caret="block",
        caret_typing="solid")
-track("t7d", opacity=stepk([(0, 0), (1.45, 1)]))
-reveal("t7e", 1.85, unit="type", cadence=0.05, dur=0.04, caret="block",
+track("t7d", opacity=stepk([(0, 0), (1.35, 1)]))
+reveal("t7e", 1.75, unit="type", cadence=0.045, dur=0.04, caret="block",
        caret_typing="solid")
-track("t7e", opacity=stepk([(0, 0), (1.85, 1)]))
-reveal("t7f", 2.1, unit="type", cadence=0.045, dur=0.04, caret="block",
+track("t7e", opacity=stepk([(0, 0), (1.75, 1)]))
+reveal("t7f", 2.0, unit="type", cadence=0.045, dur=0.04, caret="block",
        caret_blink=1.0)
-track("t7f", opacity=stepk([(0, 0), (2.1, 1)]))
+track("t7f", opacity=stepk([(0, 0), (2.0, 1)]))
 scene("s7", "#000000", 2.6, n7)
 
 # 8 --------------------------------------- ocean claim + pricing caption
@@ -430,12 +430,12 @@ scene("s9", "#000000", 0.9, n9)
 g10 = rnd(77)
 stripes = []
 for ry in range(0, H, 16):
-    x0 = 300 + next(g10) * 500
-    wl = 80 + next(g10) * 420
-    stripes.append(f"M{x0:.0f} {ry}h{wl:.0f}v9h{-wl:.0f}Z")
+    x0 = 480 + next(g10) * 380
+    wl = 60 + next(g10) * 320
+    stripes.append(f"M{x0:.0f} {ry}h{wl:.0f}v8h{-wl:.0f}Z")
 n10 = [path("port10", 0, 0, "".join(stripes), "#8a8a8a")]
-track("port10", opacity=stepk([(0.02, 0), (0.06, 0.22), (1.2, 0.16),
-                               (2.0, 0.22), (3.1, 0.16), (3.2, 0)]))
+track("port10", opacity=stepk([(0.02, 0), (0.06, 0.14), (1.2, 0.1),
+                               (2.0, 0.14), (3.1, 0.1), (3.2, 0)]))
 n10 += [
     rect("cardb10", 400, 432, 580, 280, 0, "#0a0a0a"),
     rect("cardw10", 400, 432, 580, 280, 0, WHITE),
@@ -506,16 +506,15 @@ n12 = [
     path("mark12", 475, 320, hex_mark(40), WHITE),
     text("x12", "X", 563, 322, 30),
     rect("nv12", 650, 325, 66, 66, 3, LIME),
-    path("nveye12", 650, 322, ellipse_d(22, 13), WHITE, stroke=3.0),
-    rect("nvbar12", 622, 322, 12, 4, 0, WHITE),
+    path("nveye12", 650, 323, ellipse_d(25, 15), WHITE, stroke=3.5),
     text("cap12", "BLACKBOX.AI x NVIDIA", 569, 566, 15),
 ]
 track("mark12", x=[(0, 0), (0.35, 0, "outCubic")])
-for nid in ["x12", "nv12", "nveye12", "nvbar12"]:
+for nid in ["x12", "nv12", "nveye12"]:
     track(nid, opacity=[(0.08, 0), (0.35, 1, "outCubic")],
           x=[(0.08, 34), (0.45, 0, "outCubic")])
-reveal("cap12", 0.55, unit="scramble", cadence=0.045, churn=4)
-track("cap12", opacity=stepk([(0.5, 0), (0.55, 1)]))
+reveal("cap12", 0.4, unit="scramble", cadence=0.022, churn=4)
+track("cap12", opacity=stepk([(0.35, 0), (0.4, 1)]))
 scene("s12", "#000000", 2.0, n12)
 
 # 13 ------------------------------------------- NEMOTORN 3 ULTRA title
@@ -529,10 +528,10 @@ n13 = [
 ]
 track("circ13", opacity=stepk([(0.0, 0.9), (0.14, 0.9), (0.18, 0)]),
       scale=[(0, 0.4), (0.16, 1.3, "outCubic")])
-reveal("ttl13a", 0.1, unit="type", cadence=0.022, dur=0.04, caret="block",
+reveal("ttl13a", 0.08, unit="type", cadence=0.015, dur=0.04, caret="block",
        caret_typing="solid")
-reveal("ttl13b", 0.42, unit="type", cadence=0.022, dur=0.04, caret="block")
-track("ttl13b", opacity=stepk([(0, 0), (0.42, 1)]))
+reveal("ttl13b", 0.3, unit="type", cadence=0.016, dur=0.04, caret="block")
+track("ttl13b", opacity=stepk([(0, 0), (0.3, 1)]))
 scene("s13", "#000000", 1.2, n13)
 
 # 14 -------------------------------------------------- outro disperse

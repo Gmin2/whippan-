@@ -391,7 +391,6 @@ for i, b in enumerate(order):
 # --------------------------------------------------------------- chapter 12
 # studio monitor types the sentence one word per screen
 T12 = 69 / 30
-slots = [(i * T12 / 6, (i + 1) * T12 / 6) for i in range(6)]
 n12 = [
     rect("mn_st", 569, 530, 150, 130, 8, "#9aa0a3"),
     rect("mn_bs", 569, 601, 170, 14, 6, "#8e9497"),
@@ -399,8 +398,10 @@ n12 = [
     rect("mn_ow", 569, 295, 632, 358, 6, OW),
     rect("mn_yl", 569, 295, 632, 358, 6, YEL),
     rect("mn_bk", 569, 295, 632, 358, 6, "#050505"),
-    rect("mn_bloom", 569, 440, 300, 150, 75, YEL, blur=32),
+    rect("mn_bloom", 569, 415, 260, 110, 55, YEL, blur=26),
 ]
+bounds = [0, 0.30, 0.55, 0.80, 1.05, 1.75, T12]
+slots = [(bounds[i], bounds[i + 1]) for i in range(6)]
 words = ["This", "is", "not", "just", "a", "card"]
 for i, wd in enumerate(words):
     col = YEL if i == 5 else BLACK
@@ -410,9 +411,9 @@ steps_vis("mn_yl", [(slots[4][0], slots[5][0])], T12)
 steps_vis("mn_bk", [(slots[5][0], T12)], T12)
 for i in range(6):
     steps_vis(f"mn_w{i}", [slots[i]], T12)
-track("mn_bloom", opacity=[(0, 0.55), (slots[4][0] - 0.001, 0.75),
+track("mn_bloom", opacity=[(0, 0.5), (slots[4][0] - 0.001, 0.7),
                            (slots[4][0], 0)],
-      y=[(0, 0), (slots[4][0], -50)])
+      y=[(0, 10), (slots[4][0], -40)])
 
 # --------------------------------------------------------------- chapter 13
 # motion as textures: typed, then glitch bars, then a bloom
@@ -467,7 +468,7 @@ scene("s14", YEL, 21, n14)
 # card-scatter shape-language field
 GRAIN = "#23211a"
 n15 = [
-    circle("sc_bloom", 560, 200, 120, YEL, blur=48),
+    circle("sc_bloom", 560, 210, 110, YEL, blur=40),
     rect("sc_a", 440, 90, 105, 85, 8, GRAIN),
     circle("sc_ad", 442, 55, 8, "#ffffff"),
     path("sc_ol", 594, 92, rrect_d(200, 112, 4), YEL, stroke=1.5),
@@ -491,8 +492,9 @@ drift = [("sc_a", 8, 5), ("sc_b", -6, 7), ("sc_c", 9, -6), ("sc_yl", -7, 4),
          ("sc_yg", 6, -5), ("sc_pill", -5, -6), ("sc_d", 7, 6),
          ("sc_e", -8, 5), ("sc_f", 6, -7), ("sc_g", -6, 4), ("sc_ol", 5, 6)]
 for i, (nid, dx, dy) in enumerate(drift):
-    track(nid, at=0.04 * i, opacity=[(0, 0), (0.18, 1)],
+    track(nid, at=0.015 * i, opacity=[(0, 0), (0.09, 1)],
           x=[(0, 0), (2.2, dx)], y=[(0, 0), (2.2, dy)])
+track("sc_bloom", opacity=[(0, 0), (0.15, 0.5)])
 
 # --------------------------------------------------------------- chapter 16
 # toggle anatomy spec on yellow: track outline + knob state row
@@ -505,11 +507,11 @@ n16 = [
     path("an_s2", 569, 470, circle_d(44), BLACK, stroke=2),
     circle("an_s3", 718, 470, 44, BLACK, blur=9),
 ]
-scene("s16", YEL, 36, n16)
+scene("s16", YEL, 14, n16)
 for i, nid in enumerate(("an_s1", "an_s2", "an_s3")):
-    track(nid, at=0.25 + i * 0.12, opacity=[(0, 0), (0.15, 1)],
-          scale=[(0, 0.6), (0.3, 1.0, "outCubic")])
-track("an_kn", x=[(0.6, 0), (1.0, 184, "outCubic")])
+    track(nid, at=0.05 + i * 0.06, opacity=[(0, 0), (0.1, 1)],
+          scale=[(0, 0.6), (0.2, 1.0, "outCubic")])
+track("an_kn", x=[(0.15, 0), (0.42, 184, "outCubic")])
 
 # --------------------------------------------------------------- chapter 17
 # corner-radius connectors, then outline rects drawn on black
@@ -531,13 +533,13 @@ n17 = [
     text("cr_t1", "42 px", 397, 180, 24, YEL, 500),
     text("cr_t2", "42 px", 695, 388, 24, YEL, 500),
 ]
-scene("s17a", BLACK, 38, n17)
+scene("s17a", BLACK, 60, n17)
 for i, nid in enumerate(("cr_l1", "cr_l2", "cr_l3", "cr_l4")):
-    track(nid, at=i * 0.1, opacity=[(0, 0), (0.12, 1)])
+    track(nid, at=i * 0.03, opacity=[(0, 0), (0.07, 1)])
 for i, nid in enumerate(("cr_d1", "cr_d2", "cr_d3", "cr_d4")):
-    track(nid, at=0.1 + i * 0.1, scale=[(0, 0), (0.2, 1.0, "outCubic")])
+    track(nid, at=0.04 + i * 0.04, scale=[(0, 0), (0.15, 1.0, "outCubic")])
 for nid in ("cr_t1", "cr_t2"):
-    track(nid, at=0.55, opacity=[(0, 0), (0.15, 1)])
+    track(nid, at=0.25, opacity=[(0, 0), (0.1, 1)])
 
 n17b = [
     solidline("rr_gv1", 180, CY, H, "#242424", vertical=True, stroke=1),
@@ -585,7 +587,7 @@ track("to_p1", opacity=[(0, 0), (0.15, 1)], x=[(0, -70), (0.4, 0, "outCubic")])
 track("to_p2", at=0.08, opacity=[(0, 0), (0.15, 1)],
       x=[(0, 70), (0.4, 0, "outCubic")])
 track("to_y", at=0.12, opacity=[(0, 0), (0.15, 1)])
-reveal("to_t", 0.25, unit="type", cadence=0.075, dur=0.06, caret="bar")
+reveal("to_t", 0.1, unit="type", cadence=0.05, dur=0.06, caret="bar")
 
 # --------------------------------------------------------------- chapter 19
 # sneakers typewriter over a blueprint, then the giant Sys
@@ -783,11 +785,11 @@ n26 += [
          family="mono"),
     text("gal_cd2", "$1,330.46  $160.0", 878, 260, 11, "#5daa5d", 400,
          family="mono"),
-    text("gal_t1", "to the", 460, 182, 46, "#111111", 500),
-    text("gal_t2", "get your", 492, 244, 46, "#111111", 500),
-    text("gal_t3", "earnings", 496, 308, 46, "#111111", 500),
-    rect("st1", 165, 560, 70, 85, 4, "#b98d63"),
-    rect("st2", 258, 568, 75, 78, 4, "#a87c52"),
+    left_text("gal_t1", "to the", 385, 182, 46, "#111111", 500),
+    left_text("gal_t2", "get your", 385, 244, 46, "#111111", 500),
+    left_text("gal_t3", "earnings", 385, 308, 46, "#111111", 500),
+    rect("st1", 165, 572, 70, 85, 4, "#b98d63"),
+    rect("st2", 258, 578, 75, 78, 4, "#a87c52"),
 ]
 scene("s26", "#7d5a42", 75, n26)
 reveal("gal_t3", 0.5, unit="scramble", cadence=0.07, churn=4)

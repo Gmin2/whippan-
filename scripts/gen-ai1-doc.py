@@ -282,7 +282,7 @@ scene("s4", CREAM, 3.2, n4, kind="fade", tdur=0.35)
 
 # scene 5 -------------- track node + flow build (real f404-540)
 n5 = [
-    rect("wall", 1560, 560, 1150, 1400, 0, MID, blur=90, opacity=0.0,
+    rect("wall", 1560, 560, 1150, 1400, 0, MID, blur=90,
          gradient={"angle": 25, "stops": [{"at": 0, "color": "#f6c9a4"},
                                           {"at": 1, "color": "#ee6a2b"}]}),
     path("herobadge", 240, 538, hex_d(52), ORANGE),
@@ -360,7 +360,7 @@ scene("s6", "#f7f5f2", 2.4, n6)
 
 # scene 7 --------------- dark prompt + typewriter (real f931-1051)
 n7 = [
-    rect("lens", 1650, 120, 700, 500, 250, "#7a4018", blur=160, opacity=0.5),
+    rect("lens", 1650, 120, 700, 500, 250, "#7a4018", blur=160),
     rect("prompt", 1350, 540, 2000, 470, 235, "#151011",
          glow={"sigma": 40, "opacity": 0.25, "color": "#3a2114"}),
     text("ptext", "Analyze ads", 810, 540, 150, "#f4efe9", weight=500),
@@ -370,6 +370,7 @@ n7 = [
          ORANGE, stroke=5),
     path("subhex", 1780, 540, hex_d(34), "#ffffff"),
 ]
+track("lens", opacity=[(0, 0.5)])
 reveal("ptext", 0.35, unit="type", cadence=0.1, dur=0.1, caret="bar",
        caret_blink=1.0, caret_typing="hidden")
 track("subbtn", opacity=[(1.55, 0), (1.7, 1)],
@@ -467,8 +468,7 @@ scene("s9", "#000000", 2.2, n9)
 
 # scene 10 ------- "Competitors" + physics chips (real f1354-1424)
 n10 = [
-    rect("corner10", 1700, 120, 900, 600, 0, "#f6c9a4", blur=140,
-         opacity=0.6),
+    rect("corner10", 1700, 120, 900, 600, 0, "#f6c9a4", blur=140),
     text("comp", "Competitors", 40, 540, 84, weight=600),
     rect("ph_track", 620, 540, 660, 190, 48, ORANGE, goo="phys"),
     text("ph_track_t", "tracking", 620, 540, 64, "#ffffff", weight=600),
@@ -477,6 +477,7 @@ n10 = [
     rect("ph_org", 1220, 690, 610, 190, 48, ORANGE, goo="phys"),
     text("ph_org_t", "organic", 1220, 690, 64, "#ffffff", weight=600),
 ]
+track("corner10", opacity=[(0, 0.6)])
 word_ritual("comp", 0.05, stagger=0.1, rise=0)
 track("ph_track", opacity=[(0.1, 0), (0.16, 1)],
       scale=[(0.1, 0.94), (0.35, 1.0, "outCubic")])

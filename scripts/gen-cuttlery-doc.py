@@ -280,8 +280,8 @@ for i, px, py, sc, val, vx, vy, yr, at in PLANES:
     fade_in(f"t_vb{i}", at + 0.3, 0.12)
     fade_in(f"t_vt{i}", at + 0.3, 0.12)
     fade_in(f"t_yr{i}", at + 0.15, 0.15)
-n1.append(path("t_fork_l", 250, 430, FORK_D, CHROME, rot=115,
-               keys={"scale": [{"t": 0, "v": 1.6}]}))
+n1.append(path("t_fork_l", 200, 430, FORK_D, CHROME, rot=115,
+               keys={"scale": [{"t": 0, "v": 1.4}]}))
 track("t_fork_l", opacity=[(5.3, 0), (5.6, 1)])
 drift("t_fork_l", -8, 6, 5.0, rot0=115, drot=4)
 scene("s1", GREY, 10.8333, n1)
@@ -316,8 +316,8 @@ n2 += [
     path("sk_arr", 632, 307, "M-50 0L50 0M20 -22L50 0L20 22", "#ffffff",
          stroke=3),
 ]
-word_reveal("sk_h1", 1.3, rise=0)
-word_reveal("sk_h2", 1.8, stagger=0.14, rise=0)
+word_reveal("sk_h1", 1.3, rise=0, ink="#ffffff")
+word_reveal("sk_h2", 1.8, stagger=0.14, rise=0, ink="#ffffff")
 word_reveal("sk_h3", 2.5, accent=LIME, keep=["creative"], stagger=0.16,
             rise=0)
 track("sk_h3", opacity=[(2.45, 0), (2.5, 1)])
@@ -338,7 +338,8 @@ for i, (x, w_, fill) in enumerate(STALKS):
         track(nid, y=[(0, 320), (0.45, 0, "outCubic")])
 n3.append(text("bb_word", "Bamboo", 560, 365, 240, KELLY, weight=500))
 tracks.append({"target": "bb_word", "at": 0.15, "reveal": {
-    "unit": "glyph", "stagger": 0.05, "dur": 0.18, "rise": 0}})
+    "unit": "glyph", "stagger": 0.05, "dur": 0.18, "rise": 0,
+    "accent": KELLY}})
 n3 += [text("bb_q", "Qu", 607, 510, 13, INK, weight=400),
        text("bb_ep", "EP.", 617, 529, 13, INK, weight=400)]
 fade_in("bb_q", 0.5, 0.15)
@@ -410,8 +411,8 @@ n5 += [
     text("pl_cap2", "from Airlinetk", 875, 498, 15, INK, weight=400),
 ]
 tracks.append({"target": "pl_cap1", "at": 2.4, "reveal": {
-    "unit": "type", "cadence": 0.02, "dur": 0.05, "caret": "bar",
-    "caret_typing": "hidden"}})
+    "unit": "glyph", "stagger": 0.018, "dur": 0.06, "rise": 0,
+    "accent": INK}})
 fade_in("pl_cap2", 3.0, 0.15)
 scene("s5", OLIVE, 3.8333, n5)
 
@@ -438,9 +439,9 @@ n6 += [
     text("cr_cap2", "from AirLinetk", 630, 94, 14, "#dddddd", weight=400),
     path("cr_dnar", 560, 125, ARROW_UP_D, KELLY, stroke=2.5, rot=225),
 ]
-word_reveal("cr_h1", 1.4, stagger=0.12, rise=0)
-word_reveal("cr_h2", 1.65, rise=0)
-word_reveal("cr_h3", 1.85, rise=0)
+word_reveal("cr_h1", 1.4, stagger=0.12, rise=0, ink="#f4f4f4")
+word_reveal("cr_h2", 1.65, rise=0, ink="#f4f4f4")
+word_reveal("cr_h3", 1.85, rise=0, ink="#f4f4f4")
 fade_in("cr_upar", 2.1, 0.2)
 fade_in("cr_cars", 2.3, 0.2)
 fade_in("cr_cap1", 1.1, 0.2)
@@ -462,7 +463,7 @@ CARS = [
 for i, (x, y, fill, r0) in enumerate(CARS):
     nid = f"cr_c{i}"
     n6.append(path(nid, x, y, CAR_D, fill, rot=r0,
-                   keys={"scale": [{"t": 0, "v": 0.9}]}))
+                   keys={"scale": [{"t": 0, "v": 1.0}]}))
     at = 1.0 + i * 0.18
     track(nid, at=at, opacity=[(0, 0), (0.05, 1)],
           y=[(0, -420), (0.4, 0, "outCubic")],
@@ -500,8 +501,8 @@ n7 = [
     text("pa_cap2", "and food waste into sustainable aviation fuel.", 250,
          660, 14, "#eaf5ee", weight=400),
 ]
-word_reveal("pa_h1", 0.15, stagger=0.1, rise=0)
-word_reveal("pa_h3", 0.6, stagger=0.12, rise=0)
+word_reveal("pa_h1", 0.15, stagger=0.1, rise=0, ink="#ffffff")
+word_reveal("pa_h3", 0.6, stagger=0.12, rise=0, ink="#ffffff")
 track("pa_h2", opacity=[(0.4, 0), (0.55, 1)])
 track("pa_blk", x=[(0, -450), (0.45, 0, "outCubic")])
 track("pa_lime", y=[(0, 150), (0.5, 0, "outCubic")])
@@ -530,7 +531,7 @@ n8 = [
     rect("sf_blk", 221, 546, 443, 348, 0, "#141414"),
     path("sf_bottle", 640, 150, BOTTLE_D, "#2a2d2a", rot=115,
          keys={"scale": [{"t": 0, "v": 3.4}]}),
-    rect("sf_stream", 888, 400, 5, 380, 0, "#dfe9f2"),
+    rect("sf_stream", 758, 430, 5, 380, 0, "#dfe9f2"),
     path("sf_fin", 1120, 500, "M-160 280L40 -240C70 -290 120 -290 140 "
          "-240L160 280Z", "#1f1f1f"),
     path("sf_fin_s1", 1120, 470, "M-60 40L120 -60L120 -20L-60 80Z",
@@ -549,8 +550,7 @@ for nid, at in [("sf_cl1", 0.5), ("sf_cl2", 0.6), ("sf_cl3", 0.7)]:
     fade_in(nid, at, 0.25)
 track("sf_blk", opacity=[(0, 0), (0.001, 0), (2.1, 0), (2.101, 1)])
 fade_in("sf_bottle", 0.6, 0.25)
-track("sf_stream", opacity=[(0.9, 0), (1.1, 0.9)],
-      h=[(0.9, 0), (1.5, 380, "outCubic")])
+track("sf_stream", opacity=[(0.9, 0), (1.2, 0.9)])
 track("sf_fin", y=[(0.4, 420), (1.1, 0, "outCubic")],
       opacity=[(0.4, 0), (0.5, 1)])
 track("sf_fin_s1", y=[(0.4, 420), (1.1, 0, "outCubic")],
@@ -561,7 +561,7 @@ track("sf_h1", opacity=[(0.25, 0), (0.4, 1)])
 track("sf_h2", opacity=[(0.55, 0), (0.7, 1), (2.1, 1), (2.3, 0)])
 track("sf_h3", opacity=[(0.85, 0), (1.0, 1), (2.1, 1), (2.3, 0)])
 fade_in("sf_ar", 3.6, 0.2)
-SAF_STEPS = [("sf_s1", "S", 67), ("sf_s2", "SA", 115), ("sf_s3", "SAF", 162)]
+SAF_STEPS = [("sf_s1", "S", 97), ("sf_s2", "SA", 145), ("sf_s3", "SAF", 192)]
 for i, (nid, s, cx) in enumerate(SAF_STEPS):
     n8.append(text(nid, s, cx, 480, 190, "#f2f2f2", weight=400))
     t_on = 2.4 + i * 0.3
@@ -588,8 +588,8 @@ n9 = [
     rect("tk_gsq4", 1038, 697, 160, 46, 0, "#2f9c55"),
     rect("tk_wsq", 75, 432, 152, 156, 0, "#e9e9e9"),
     rect("tk_panel", 315, 190, 322, 320, 0, PANELBLUE),
-    path("tk_pret", 260, 71, brackets_d(16, 9, "tl,br"), "#111111",
-         stroke=2, keys={"scale": [{"t": 0, "v": 1.0}]}),
+    path("tk_pret", 190, 60, "M0 10L0 0L10 0", "#111111", stroke=2),
+    path("tk_pret2", 330, 82, "M-10 0L0 0L0 -10", "#111111", stroke=2),
     text("tk_t0", "The Takeaway", 260, 71, 21, INK),
     text("tk_t1", "Rethinking", 272, 131, 28, INK),
     text("tk_t2", "what goes", 273, 180, 28, INK),
@@ -600,16 +600,15 @@ n9 = [
     rect("tk_foam", 225, 415, 90, 60, 8, "#d9d9d9", rot=-8),
     path("tk_cup", 275, 465, circle_d(22), "#bcbcbc"),
     rect("tk_bin2", 862, 595, 160, 150, 0, "#161616"),
-    path("tk_fork2", 862, 598, FORK_D, "#d9dcdc",
-         keys={"scale": [{"t": 0, "v": 0.85}]}),
+    path("tk_fork2", 862, 594, FORK_D, "#d9dcdc",
+         keys={"scale": [{"t": 0, "v": 0.68}]}),
     rect("tk_bsq", 878, 435, 160, 155, 0, "#a8c4e2"),
     path("tk_dnarr", 878, 435, "M0 -40L0 30M-22 8L0 30L22 8", "#111111",
          stroke=3),
 ]
-# reticle brackets need to hug the panel title, not sit at panel corners
-n9[16]["x"], n9[16]["y"] = 260, 71
 track("tk_panel", x=[(0, -400), (0.4, 0, "outCubic")])
-for nid, at in [("tk_pret", 0.35), ("tk_t0", 0.35), ("tk_arr", 1.3),
+for nid, at in [("tk_pret", 0.35), ("tk_pret2", 0.35), ("tk_t0", 0.35),
+                ("tk_arr", 1.3),
                 ("tk_bin", 0.55), ("tk_foam", 0.6), ("tk_cup", 0.6),
                 ("tk_bin2", 0.75), ("tk_fork2", 0.8), ("tk_bsq", 0.9),
                 ("tk_dnarr", 0.95), ("tk_gsq1", 0.3), ("tk_gsq2", 0.5),
@@ -688,15 +687,15 @@ scene("s11", GREY, 3.5, n11)
 
 # ============================================ scene 14: quicksight logo
 n12 = [
-    path("lg_bl", 516, 383, "M0 -26L0 8L30 8", "#111111", stroke=5),
-    path("lg_tr", 762, 338, "M-30 -8L0 -8L0 26", "#111111", stroke=5),
+    path("lg_bl", 506, 385, "M0 -26L0 8L30 8", "#111111", stroke=5),
+    path("lg_tr", 772, 335, "M-30 -8L0 -8L0 26", "#111111", stroke=5),
     text("lg_word", "Quicksight", 640, 360, 46, INK, weight=700),
 ]
 fade_in("lg_bl", 0.1, 0.1)
 fade_in("lg_tr", 0.1, 0.1)
 tracks.append({"target": "lg_word", "at": 0.35, "reveal": {
-    "unit": "type", "cadence": 0.05, "dur": 0.06, "caret": "block",
-    "caret_typing": "hidden", "caret_blink": 0}})
+    "unit": "glyph", "stagger": 0.05, "dur": 0.08, "rise": 0,
+    "accent": INK}})
 scene("s12", "#f0f0f0", 2.9667, n12)
 
 stage = {"fps": 30, "size": [W, H], "scenes": scenes,
