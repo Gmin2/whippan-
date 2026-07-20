@@ -230,14 +230,17 @@ tracks.append(keyed(
        (2.3, 760, "inOutCubic")],
     y=[(1.95, 0), (2.3, -15, "inOutCubic")],
     opacity=[(0, 0), (1.05, 0), (1.22, 1), (2.95, 1), (3.3, 0)]))
-# the card flips away into a big tilted device back: a light slab that
-# owns the preview until the iPod assembles out of it
-nodes.append(rect("devtilt", PX, 660, 1250, 1150, 110, "#d7d7d9"))
-tracks.append(keyed("devtilt",
-                    scale=[(2.95, 0.9), (3.5, 1.02, "outCubic"),
-                           (4.1, 1.0)],
-                    opacity=[(0, 0), (2.95, 0), (3.25, 1), (4.0, 1),
-                             (4.3, 0)]))
+# the card flips away into the device: a light slab that inflates with
+# the tilt, then settles into the tall iPod body with the wheel
+nodes.append(rect("devtilt", PX, 705, 760, 760, 100, "#d7d7d9"))
+tracks.append(keyed(
+    "devtilt",
+    w=[(2.95, 760), (3.4, 1060, "inOutCubic"), (3.55, 1060),
+       (3.95, 700, "inOutCubic")],
+    h=[(2.95, 760), (3.4, 1260, "inOutCubic"), (3.55, 1260),
+       (3.95, 1060, "inOutCubic")],
+    y=[(3.55, 0), (3.95, 230, "inOutCubic")],
+    opacity=[(0, 0), (2.95, 0), (3.25, 1), (5.3, 1), (5.58, 0)]))
 # full-bleed labels, lower left
 nodes.append(ltext("cvt1", "Seigfried", 1210, 1160, 66, "#f5f5f5",
                    weight=700))
@@ -294,14 +297,14 @@ tab_icons = (
     + circle(0, -2, 22) + circle(0, -2, 9, ccw=True)
     + lines([[(180, -16), (222, -16)], [(180, 0), (222, 0)],
              [(180, 16), (222, 16)]]))
-nodes.append(rect("tabbar", PX, 1035, 680, 130, 65, "#f4f4f5"))
-nodes.append(path("tabicons", PX, 1035, tab_icons, "#3a3a3e", stroke=2.4))
+nodes.append(rect("tabbar", PX, 826, 730, 145, 72, "#f4f4f5"))
+nodes.append(path("tabicons", PX, 826, tab_icons, "#3a3a3e", stroke=2.4))
 for nid in ("tabbar", "tabicons"):
     tracks.append(keyed(
         nid,
-        y=[(3.0, 260), (3.4, 0, "outCubic"), (4.4, 0),
-           (4.75, 70, "inOutCubic")],
-        scale=[(4.4, 1), (4.75, 0.78, "inOutCubic")],
+        y=[(3.0, 300), (3.4, 0, "outCubic"), (3.55, 0),
+           (3.95, 450, "inOutCubic")],
+        scale=[(3.55, 1), (3.95, 0.46, "inOutCubic")],
         opacity=[(0, 0), (2.98, 0), (3.2, 1), (5.3, 1), (5.58, 0)]))
 
 CARD2_Y = [(3.45, -420), (3.9, 0, "outCubic"), (4.8, 0),

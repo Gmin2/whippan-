@@ -312,6 +312,18 @@
   "anim": "/docs/replit.anim.json"
  },
  {
+  "slug": "radio-main",
+  "title": "radio-main (repro)",
+  "dur": 9.5,
+  "size": [
+   1080,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/radio-main.stage.json",
+  "anim": "/docs/radio-main.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,
