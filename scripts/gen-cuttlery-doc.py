@@ -87,10 +87,13 @@ def fade_in(nid, at, dur=0.22, rise=0):
         track(nid, at=at, opacity=[(0, 0), (dur, 1)])
 
 
-def word_reveal(nid, at, accent=None, keep=None, stagger=0.09, rise=14):
-    r = {"unit": "word", "stagger": stagger, "dur": 0.24, "rise": rise}
+def word_reveal(nid, at, accent=None, keep=None, stagger=0.09, rise=14,
+                ink=INK):
+    # accent defaults to the node ink so plain lines never flash a
+    # foreign color mid-reveal; pass accent for the one lime keyword.
+    r = {"unit": "word", "stagger": stagger, "dur": 0.24, "rise": rise,
+         "accent": accent or ink}
     if accent:
-        r["accent"] = accent
         r["color_delay"] = 0.14
         r["color_dur"] = 0.28
     if keep:

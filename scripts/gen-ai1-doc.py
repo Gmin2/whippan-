@@ -320,7 +320,8 @@ for eid, ex, ey, d in ELBOWS:
 for i, (pid, label, px, py, pw, ph, at, icon_d) in enumerate(FLOW):
     n5 += [
         rect(pid, px, py, pw, ph, ph / 2, MID, gradient={
-            "angle": 15, "stops": [{"at": 0, "color": "#f westernBrace"}]}),
+            "angle": 15, "stops": [{"at": 0, "color": "#f29a60"},
+                                   {"at": 1, "color": "#e8671f"}]}),
         rect(pid + "_cap", px - pw / 2 + ph / 2 + 6, py, ph - 22, ph - 22,
              (ph - 22) / 2, "#f2925a"),
         path(pid + "_ic", px - pw / 2 + ph / 2 + 6, py, icon_d, "#ffffff",
@@ -335,12 +336,6 @@ for i, (pid, label, px, py, pw, ph, at, icon_d) in enumerate(FLOW):
     track(pid + "_cap", opacity=[(at + 0.08, 0), (at + 0.22, 1)])
     track(pid + "_ic", opacity=[(at + 0.12, 0), (at + 0.28, 1)])
     track(pid + "_t", opacity=[(at + 0.2, 0), (at + 0.4, 1)])
-# gradient stops hack above is invalid; fix fill after construction
-for n in n5:
-    if n["id"] in ("fp1", "fp2", "fp3"):
-        n["gradient"] = {"angle": 15,
-                         "stops": [{"at": 0, "color": "#f29a60"},
-                                   {"at": 1, "color": "#e8671f"}]}
 # camera: slow left pan, hard push-in, decelerating pan
 track("s5", cam_zoom=[(0, 1.0), (2.3, 1.0), (2.55, 1.42, "outCubic"),
                       (3.8, 1.47)],
@@ -581,9 +576,10 @@ n12 = []
 for i, (cid, label, cy, at, side) in enumerate(CHAIN):
     wv = 60 + len(label) * 19
     gy = 140 + i * 195
-    n12.append(rect(f"gh{i}", 960, gy, wv, 100, 26, "#f0b184", opacity=0.16))
-    n12.append(text(f"gh{i}_t", label, 960 + 32, gy, 38, "#e5b18c",
-                    opacity=0.35))
+    n12.append(rect(f"gh{i}", 960, gy, wv, 100, 26, "#f0b184"))
+    n12.append(text(f"gh{i}_t", label, 960 + 32, gy, 38, "#e5b18c"))
+    track(f"gh{i}", opacity=[(0, 0.16)])
+    track(f"gh{i}_t", opacity=[(0, 0.35)])
 TRAIN = [("tc1", "Connects", 560, 380, 0.2),
          ("tc2", "Map Events", 990, 420, 0.75),
          ("tc3", "Send Postbacks", 1480, 520, 1.3)]

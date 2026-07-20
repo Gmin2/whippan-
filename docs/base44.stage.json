@@ -1,0 +1,3178 @@
+{
+ "fps": 25,
+ "size": [
+  1920,
+  1080
+ ],
+ "scenes": [
+  {
+   "id": "s1",
+   "bg": "#eeebe4",
+   "dur": 2.4,
+   "transition": {
+    "kind": "cut"
+   },
+   "nodes": [
+    {
+     "id": "i_lt",
+     "type": "text",
+     "text": "<",
+     "x": 655,
+     "y": 545,
+     "color": "#010202",
+     "font": {
+      "size": 88,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "i_gt",
+     "type": "text",
+     "text": ">",
+     "x": 1265,
+     "y": 545,
+     "color": "#010202",
+     "font": {
+      "size": 88,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "i_w1",
+     "type": "text",
+     "text": "Build apps",
+     "x": 960,
+     "y": 540,
+     "color": "#010202",
+     "font": {
+      "size": 88,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "i_w2",
+     "type": "text",
+     "text": "that scale",
+     "x": 960,
+     "y": 540,
+     "color": "#010202",
+     "font": {
+      "size": 88,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "i_c0",
+     "type": "text",
+     "text": "/",
+     "x": 680,
+     "y": 445,
+     "color": "#010202",
+     "font": {
+      "size": 64,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "i_c1",
+     "type": "text",
+     "text": "/",
+     "x": 822,
+     "y": 415,
+     "color": "#d57f1c",
+     "font": {
+      "size": 64,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "i_c2",
+     "type": "text",
+     "text": "/",
+     "x": 1105,
+     "y": 415,
+     "color": "#010202",
+     "font": {
+      "size": 64,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "i_c3",
+     "type": "text",
+     "text": "/",
+     "x": 1265,
+     "y": 445,
+     "color": "#010202",
+     "font": {
+      "size": 64,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "i_c4",
+     "type": "text",
+     "text": "/",
+     "x": 675,
+     "y": 605,
+     "color": "#010202",
+     "font": {
+      "size": 64,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "i_c5",
+     "type": "text",
+     "text": "/",
+     "x": 818,
+     "y": 672,
+     "color": "#010202",
+     "font": {
+      "size": 64,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "i_c6",
+     "type": "text",
+     "text": ">",
+     "x": 1088,
+     "y": 672,
+     "color": "#010202",
+     "font": {
+      "size": 56,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "i_c7",
+     "type": "text",
+     "text": "*",
+     "x": 1266,
+     "y": 608,
+     "color": "#010202",
+     "font": {
+      "size": 60,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "i_f0",
+     "type": "text",
+     "text": "const express();",
+     "x": 410,
+     "y": 295,
+     "color": "#8a8a86",
+     "font": {
+      "size": 30,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "i_f1",
+     "type": "text",
+     "text": "(req,res)=>{",
+     "x": 1490,
+     "y": 320,
+     "color": "#8a8a86",
+     "font": {
+      "size": 30,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "i_f2",
+     "type": "text",
+     "text": "userResponse = await axios",
+     "x": 470,
+     "y": 795,
+     "color": "#8a8a86",
+     "font": {
+      "size": 28,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "i_f3",
+     "type": "text",
+     "text": "app.get('/connect/github')",
+     "x": 1420,
+     "y": 800,
+     "color": "#8a8a86",
+     "font": {
+      "size": 28,
+      "weight": 400,
+      "family": "mono"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s2",
+   "bg": "#eeebe4",
+   "dur": 1.5,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.3
+   },
+   "nodes": [
+    {
+     "id": "d_blue",
+     "type": "path",
+     "x": 960,
+     "y": 540,
+     "fill": "#6b8bf0",
+     "d": "M-20 0C-20 -11.046 -11.046 -20 0 -20C11.046 -20 20 -11.046 20 0C20 11.046 11.046 20 0 20C-11.046 20 -20 11.046 -20 0Z"
+    },
+    {
+     "id": "d_pink",
+     "type": "path",
+     "x": 960,
+     "y": 540,
+     "fill": "#f08ac2",
+     "d": "M-20 0C-20 -11.046 -11.046 -20 0 -20C11.046 -20 20 -11.046 20 0C20 11.046 11.046 20 0 20C-11.046 20 -20 11.046 -20 0Z"
+    },
+    {
+     "id": "d_org",
+     "type": "path",
+     "x": 960,
+     "y": 540,
+     "fill": "#ef5d24",
+     "d": "M-20 0C-20 -11.046 -11.046 -20 0 -20C11.046 -20 20 -11.046 20 0C20 11.046 11.046 20 0 20C-11.046 20 -20 11.046 -20 0Z"
+    },
+    {
+     "id": "d_slats",
+     "type": "path",
+     "x": 960,
+     "y": 540,
+     "fill": "#eeebe4",
+     "d": "M-70.5 5.4L70.5 5.4L70.5 13.9L-70.5 13.9ZM-66.4 23.8L66.4 23.8L66.4 31.6L-66.4 31.6ZM-57.1 40.8L57.1 40.8L57.1 46.9L-57.1 46.9Z"
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "bg": "#eeebe4",
+   "dur": 1.7,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.25
+   },
+   "nodes": [
+    {
+     "id": "m3",
+     "type": "path",
+     "x": 790,
+     "y": 540,
+     "fill": "#ef5d24",
+     "d": "M-46 0C-46 -25.4058 -25.4058 -46 0 -46C25.4058 -46 46 -25.4058 46 0C46 25.4058 25.4058 46 0 46C-25.4058 46 -46 25.4058 -46 0ZM-47.7 3.7L47.7 3.7L47.7 9.4L-47.7 9.4ZM-44.9 16.1L44.9 16.1L44.9 21.4L-44.9 21.4ZM-38.6 27.6L38.6 27.6L38.6 31.7L-38.6 31.7Z"
+    },
+    {
+     "id": "m3s",
+     "type": "path",
+     "x": 790,
+     "y": 540,
+     "fill": "#eeebe4",
+     "d": "M-47.7 3.7L47.7 3.7L47.7 9.4L-47.7 9.4ZM-44.9 16.1L44.9 16.1L44.9 21.4L-44.9 21.4ZM-38.6 27.6L38.6 27.6L38.6 31.7L-38.6 31.7Z"
+    },
+    {
+     "id": "wm3",
+     "type": "text",
+     "text": "Base 44",
+     "x": 1042,
+     "y": 540,
+     "color": "#010202",
+     "font": {
+      "size": 96,
+      "weight": 700,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s4",
+   "bg": "#eeebe4",
+   "dur": 3.5,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.3
+   },
+   "nodes": [
+    {
+     "id": "p_wmk",
+     "type": "path",
+     "x": 52,
+     "y": 40,
+     "fill": "#c9c4b8",
+     "d": "M-14 0C-14 -7.732200000000001 -7.732200000000001 -14 0 -14C7.732200000000001 -14 14 -7.732200000000001 14 0C14 7.732200000000001 7.732200000000001 14 0 14C-7.732200000000001 14 -14 7.732200000000001 -14 0ZM-14.5 1.1L14.5 1.1L14.5 2.9L-14.5 2.9ZM-13.7 4.9L13.7 4.9L13.7 6.5L-13.7 6.5ZM-11.8 8.4L11.8 8.4L11.8 9.7L-11.8 9.7Z"
+    },
+    {
+     "id": "p_wmt",
+     "type": "text",
+     "text": "Base 44",
+     "x": 118.0,
+     "y": 40,
+     "color": "#c9c4b8",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "p_box",
+     "type": "rect",
+     "x": 940,
+     "y": 540,
+     "w": 1010,
+     "h": 300,
+     "radius": 28,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "p_btn",
+     "type": "rect",
+     "x": 1385,
+     "y": 452,
+     "w": 76,
+     "h": 76,
+     "radius": 18,
+     "fill": "#191919",
+     "states": {
+      "pressed": {
+       "scale": 0.92
+      }
+     }
+    },
+    {
+     "id": "p_arr",
+     "type": "path",
+     "x": 1385,
+     "y": 452,
+     "fill": "#ffffff",
+     "stroke": 3.5,
+     "d": "M-13 0L13 0M3 -10L13 0L3 10"
+    },
+    {
+     "id": "p_plus",
+     "type": "text",
+     "text": "+",
+     "x": 492,
+     "y": 632,
+     "color": "#b5b0a6",
+     "font": {
+      "size": 44,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "p_l1",
+     "type": "text",
+     "text": "I want to build a bike renting app that features",
+     "x": 931.0,
+     "y": 482,
+     "color": "#1b1b1b",
+     "font": {
+      "size": 38,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "p_l2",
+     "type": "text",
+     "text": "terrain tracking, a social hub and events",
+     "x": 864.5,
+     "y": 538,
+     "color": "#1b1b1b",
+     "font": {
+      "size": 38,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "p_cur",
+     "type": "cursor",
+     "x": 1600,
+     "y": 800,
+     "w": 26,
+     "fill": "#111111"
+    }
+   ]
+  },
+  {
+   "id": "s5",
+   "bg": "#f6ddc8",
+   "dur": 1.8,
+   "transition": {
+    "kind": "dissolve",
+    "dur": 0.35
+   },
+   "nodes": [
+    {
+     "id": "w_a",
+     "type": "rect",
+     "x": 960,
+     "y": 300,
+     "w": 2200,
+     "h": 900,
+     "radius": 0,
+     "fill": "#ffb37a",
+     "blur": 90,
+     "rot": -8,
+     "gradient": {
+      "angle": 15,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#ffb37a"
+       },
+       {
+        "at": 0.5,
+        "color": "#ff8ac2"
+       },
+       {
+        "at": 1.0,
+        "color": "#ffd9a0"
+       }
+      ]
+     }
+    },
+    {
+     "id": "w_b",
+     "type": "rect",
+     "x": 700,
+     "y": 800,
+     "w": 2000,
+     "h": 800,
+     "radius": 0,
+     "fill": "#b8a6ff",
+     "blur": 110,
+     "rot": 6,
+     "gradient": {
+      "angle": 160,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#b8a6ff"
+       },
+       {
+        "at": 0.5,
+        "color": "#ff9ecb"
+       },
+       {
+        "at": 1.0,
+        "color": "#ffb37a"
+       }
+      ]
+     }
+    },
+    {
+     "id": "w_c",
+     "type": "rect",
+     "x": 1400,
+     "y": 640,
+     "w": 1600,
+     "h": 700,
+     "radius": 0,
+     "fill": "#8fd8ff",
+     "blur": 100,
+     "rot": -4,
+     "gradient": {
+      "angle": 60,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#8fd8ff"
+       },
+       {
+        "at": 0.5,
+        "color": "#fff3d8"
+       },
+       {
+        "at": 1.0,
+        "color": "#ffa4c8"
+       }
+      ]
+     }
+    },
+    {
+     "id": "w_core",
+     "type": "rect",
+     "x": 1050,
+     "y": 420,
+     "w": 900,
+     "h": 500,
+     "radius": 250,
+     "fill": "#fff6e2",
+     "blur": 120
+    },
+    {
+     "id": "w_ghost",
+     "type": "rect",
+     "x": 940,
+     "y": 540,
+     "w": 1010,
+     "h": 300,
+     "radius": 28,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "w_f1",
+     "type": "text",
+     "text": "const orgs",
+     "x": 400,
+     "y": 110,
+     "color": "#8fd8ff",
+     "font": {
+      "size": 40,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "w_f2",
+     "type": "text",
+     "text": "req.que",
+     "x": 1500,
+     "y": 105,
+     "color": "#ffffff",
+     "font": {
+      "size": 40,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "w_f3",
+     "type": "text",
+     "text": "=> {",
+     "x": 120,
+     "y": 560,
+     "color": "#ffffff",
+     "font": {
+      "size": 44,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "w_f4",
+     "type": "text",
+     "text": "express",
+     "x": 540,
+     "y": 285,
+     "color": "#8fd8ff",
+     "font": {
+      "size": 40,
+      "weight": 400,
+      "family": "mono"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "bg": "#eeebe4",
+   "dur": 3.2,
+   "transition": {
+    "kind": "dissolve",
+    "dur": 0.4
+   },
+   "nodes": [
+    {
+     "id": "b_wmk",
+     "type": "path",
+     "x": 52,
+     "y": 40,
+     "fill": "#c9c4b8",
+     "d": "M-14 0C-14 -7.732200000000001 -7.732200000000001 -14 0 -14C7.732200000000001 -14 14 -7.732200000000001 14 0C14 7.732200000000001 7.732200000000001 14 0 14C-7.732200000000001 14 -14 7.732200000000001 -14 0ZM-14.5 1.1L14.5 1.1L14.5 2.9L-14.5 2.9ZM-13.7 4.9L13.7 4.9L13.7 6.5L-13.7 6.5ZM-11.8 8.4L11.8 8.4L11.8 9.7L-11.8 9.7Z"
+    },
+    {
+     "id": "b_wmt",
+     "type": "text",
+     "text": "Base 44",
+     "x": 118.0,
+     "y": 40,
+     "color": "#c9c4b8",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "b_card",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 1330,
+     "h": 790,
+     "radius": 16,
+     "fill": "#21251f"
+    },
+    {
+     "id": "b_hero",
+     "type": "rect",
+     "x": 960,
+     "y": 372,
+     "w": 1310,
+     "h": 448,
+     "radius": 12,
+     "fill": "#5a6b52",
+     "gradient": {
+      "angle": 180,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#8e9c7e"
+       },
+       {
+        "at": 0.5,
+        "color": "#5f7355"
+       },
+       {
+        "at": 1.0,
+        "color": "#3f4a38"
+       }
+      ]
+     }
+    },
+    {
+     "id": "b_chrome",
+     "type": "rect",
+     "x": 410,
+     "y": 190,
+     "w": 190,
+     "h": 54,
+     "radius": 12,
+     "fill": "#161613"
+    },
+    {
+     "id": "b_chromet",
+     "type": "text",
+     "text": "trailride",
+     "x": 394.0,
+     "y": 190,
+     "color": "#ffffff",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "b_rent",
+     "type": "rect",
+     "x": 1408,
+     "y": 190,
+     "w": 150,
+     "h": 42,
+     "radius": 8,
+     "fill": "#f0a232"
+    },
+    {
+     "id": "b_rentt",
+     "type": "text",
+     "text": "Rent Bikes",
+     "x": 1408,
+     "y": 190,
+     "color": "#3a2a10",
+     "font": {
+      "size": 19,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "b_search",
+     "type": "rect",
+     "x": 1580,
+     "y": 190,
+     "w": 170,
+     "h": 42,
+     "radius": 8,
+     "fill": "#2c2c2a"
+    },
+    {
+     "id": "b_searcht",
+     "type": "text",
+     "text": "Search Routes",
+     "x": 1580,
+     "y": 190,
+     "color": "#e8e8e4",
+     "font": {
+      "size": 19,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "b_h1",
+     "type": "text",
+     "text": "your next adventure",
+     "x": 799.0,
+     "y": 585,
+     "color": "#ffffff",
+     "font": {
+      "size": 84,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "b_fl",
+     "type": "path",
+     "x": 1240,
+     "y": 578,
+     "fill": "#ffffff",
+     "d": "M-14.72 -16C-14.72 -24.129856 -8.129856 -30.72 0 -30.72C8.129856 -30.72 14.72 -24.129856 14.72 -16C14.72 -7.870144 8.129856 -1.2799999999999994 0 -1.2799999999999994C-8.129856 -1.2799999999999994 -14.72 -7.870144 -14.72 -16ZM1.2799999999999994 0C1.2799999999999994 -8.129856 7.870144 -14.72 16 -14.72C24.129856 -14.72 30.72 -8.129856 30.72 0C30.72 8.129856 24.129856 14.72 16 14.72C7.870144 14.72 1.2799999999999994 8.129856 1.2799999999999994 0ZM-14.72 16C-14.72 7.870144 -8.129856 1.2799999999999994 0 1.2799999999999994C8.129856 1.2799999999999994 14.72 7.870144 14.72 16C14.72 24.129856 8.129856 30.72 0 30.72C-8.129856 30.72 -14.72 24.129856 -14.72 16ZM-30.72 0C-30.72 -8.129856 -24.129856 -14.72 -16 -14.72C-7.870144 -14.72 -1.2799999999999994 -8.129856 -1.2799999999999994 0C-1.2799999999999994 8.129856 -7.870144 14.72 -16 14.72C-24.129856 14.72 -30.72 8.129856 -30.72 0Z"
+    },
+    {
+     "id": "b_h2",
+     "type": "text",
+     "text": "awaits",
+     "x": 1416.0,
+     "y": 585,
+     "color": "#ffffff",
+     "font": {
+      "size": 84,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "b_k0",
+     "type": "rect",
+     "x": 436,
+     "y": 795,
+     "w": 250,
+     "h": 276,
+     "radius": 10,
+     "fill": "#3d3d3f"
+    },
+    {
+     "id": "b_kl0",
+     "type": "text",
+     "text": "Gravel Bikes",
+     "x": 398.0,
+     "y": 705,
+     "color": "#f2f2f2",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "b_ks0",
+     "type": "text",
+     "text": "Great for rough trails",
+     "x": 403.0,
+     "y": 736,
+     "color": "#a9a9a6",
+     "font": {
+      "size": 14,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "b_k1",
+     "type": "rect",
+     "x": 698,
+     "y": 795,
+     "w": 250,
+     "h": 276,
+     "radius": 10,
+     "fill": "#3d3d3f"
+    },
+    {
+     "id": "b_kl1",
+     "type": "text",
+     "text": "BMX Bikes",
+     "x": 642.0,
+     "y": 705,
+     "color": "#f2f2f2",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "b_ks1",
+     "type": "text",
+     "text": "Great for rough trails",
+     "x": 665.0,
+     "y": 736,
+     "color": "#a9a9a6",
+     "font": {
+      "size": 14,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "b_k2",
+     "type": "rect",
+     "x": 960,
+     "y": 795,
+     "w": 250,
+     "h": 276,
+     "radius": 10,
+     "fill": "#3d3d3f"
+    },
+    {
+     "id": "b_kl2",
+     "type": "text",
+     "text": "Dirt Bikes",
+     "x": 910.0,
+     "y": 705,
+     "color": "#f2f2f2",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "b_ks2",
+     "type": "text",
+     "text": "Built for speed",
+     "x": 902.5,
+     "y": 736,
+     "color": "#a9a9a6",
+     "font": {
+      "size": 14,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "b_k3",
+     "type": "rect",
+     "x": 1222,
+     "y": 795,
+     "w": 250,
+     "h": 276,
+     "radius": 10,
+     "fill": "#3d3d3f"
+    },
+    {
+     "id": "b_kl3",
+     "type": "text",
+     "text": "Mountain Bikes",
+     "x": 1196.0,
+     "y": 705,
+     "color": "#f2f2f2",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "b_ks3",
+     "type": "text",
+     "text": "Conquers any terrain",
+     "x": 1182.0,
+     "y": 736,
+     "color": "#a9a9a6",
+     "font": {
+      "size": 14,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "b_k4",
+     "type": "rect",
+     "x": 1484,
+     "y": 795,
+     "w": 250,
+     "h": 276,
+     "radius": 10,
+     "fill": "#3d3d3f"
+    },
+    {
+     "id": "b_kl4",
+     "type": "text",
+     "text": "Road Bikes",
+     "x": 1434.0,
+     "y": 705,
+     "color": "#f2f2f2",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "b_ks4",
+     "type": "text",
+     "text": "Maximum performance",
+     "x": 1440.5,
+     "y": 736,
+     "color": "#a9a9a6",
+     "font": {
+      "size": 14,
+      "weight": 400,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s7",
+   "bg": "#eeebe4",
+   "dur": 2.4,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.35
+   },
+   "nodes": [
+    {
+     "id": "r_wmk",
+     "type": "path",
+     "x": 52,
+     "y": 40,
+     "fill": "#b9b4a8",
+     "d": "M-14 0C-14 -7.732200000000001 -7.732200000000001 -14 0 -14C7.732200000000001 -14 14 -7.732200000000001 14 0C14 7.732200000000001 7.732200000000001 14 0 14C-7.732200000000001 14 -14 7.732200000000001 -14 0ZM-14.5 1.1L14.5 1.1L14.5 2.9L-14.5 2.9ZM-13.7 4.9L13.7 4.9L13.7 6.5L-13.7 6.5ZM-11.8 8.4L11.8 8.4L11.8 9.7L-11.8 9.7Z"
+    },
+    {
+     "id": "r_wmt",
+     "type": "text",
+     "text": "Base 44",
+     "x": 118.0,
+     "y": 40,
+     "color": "#b9b4a8",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r_map",
+     "type": "rect",
+     "x": 1155,
+     "y": 540,
+     "w": 1230,
+     "h": 820,
+     "radius": 16,
+     "fill": "#e7dfd0"
+    },
+    {
+     "id": "r_c0",
+     "type": "path",
+     "x": 1155,
+     "y": 540,
+     "fill": "#d5c9b0",
+     "stroke": 2.0,
+     "d": "M-560 -210C-320 -272 -120 -166 140 -238S470 -184 560 -254"
+    },
+    {
+     "id": "r_c1",
+     "type": "path",
+     "x": 1155,
+     "y": 540,
+     "fill": "#d5c9b0",
+     "stroke": 2.0,
+     "d": "M-560 -90C-320 -152 -120 -46 140 -118S470 -64 560 -134"
+    },
+    {
+     "id": "r_c2",
+     "type": "path",
+     "x": 1155,
+     "y": 540,
+     "fill": "#d5c9b0",
+     "stroke": 2.0,
+     "d": "M-560 50C-320 -12 -120 94 140 22S470 76 560 6"
+    },
+    {
+     "id": "r_c3",
+     "type": "path",
+     "x": 1155,
+     "y": 540,
+     "fill": "#d5c9b0",
+     "stroke": 2.0,
+     "d": "M-560 200C-320 138 -120 244 140 172S470 226 560 156"
+    },
+    {
+     "id": "r_route",
+     "type": "path",
+     "x": 1155,
+     "y": 540,
+     "fill": "#d57f1c",
+     "stroke": 6.0,
+     "d": "M-480 260C-300 180 -260 60 -120 20S120 -60 220 -140S420 -180 500 -260"
+    },
+    {
+     "id": "r_wp1",
+     "type": "path",
+     "x": 675,
+     "y": 800,
+     "fill": "#4a8de8",
+     "d": "M-11 0C-11 -6.0753 -6.0753 -11 0 -11C6.0753 -11 11 -6.0753 11 0C11 6.0753 6.0753 11 0 11C-6.0753 11 -11 6.0753 -11 0Z"
+    },
+    {
+     "id": "r_wp2",
+     "type": "path",
+     "x": 1655,
+     "y": 280,
+     "fill": "#4a8de8",
+     "d": "M-11 0C-11 -6.0753 -6.0753 -11 0 -11C6.0753 -11 11 -6.0753 11 0C11 6.0753 6.0753 11 0 11C-6.0753 11 -11 6.0753 -11 0Z"
+    },
+    {
+     "id": "r_panel",
+     "type": "rect",
+     "x": 330,
+     "y": 540,
+     "w": 360,
+     "h": 820,
+     "radius": 16,
+     "fill": "#1c1c1d"
+    },
+    {
+     "id": "r_title",
+     "type": "text",
+     "text": "Build your Route",
+     "x": 313.0,
+     "y": 250,
+     "color": "#f2f2f2",
+     "font": {
+      "size": 32,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r_row0",
+     "type": "rect",
+     "x": 330,
+     "y": 350,
+     "w": 316,
+     "h": 62,
+     "radius": 10,
+     "fill": "#27272a"
+    },
+    {
+     "id": "r_rl0",
+     "type": "text",
+     "text": "Trail difficulty",
+     "x": 274.0,
+     "y": 350,
+     "color": "#b9b9b6",
+     "font": {
+      "size": 21,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r_rv0",
+     "type": "text",
+     "text": "Hard",
+     "x": 426.0,
+     "y": 350,
+     "color": "#f0f0ee",
+     "font": {
+      "size": 21,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r_row1",
+     "type": "rect",
+     "x": 330,
+     "y": 432,
+     "w": 316,
+     "h": 62,
+     "radius": 10,
+     "fill": "#27272a"
+    },
+    {
+     "id": "r_rl1",
+     "type": "text",
+     "text": "Distance",
+     "x": 232.0,
+     "y": 432,
+     "color": "#b9b9b6",
+     "font": {
+      "size": 21,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r_rv1",
+     "type": "text",
+     "text": "24 km",
+     "x": 431.2,
+     "y": 432,
+     "color": "#f0f0ee",
+     "font": {
+      "size": 21,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r_row2",
+     "type": "rect",
+     "x": 330,
+     "y": 514,
+     "w": 316,
+     "h": 62,
+     "radius": 10,
+     "fill": "#27272a"
+    },
+    {
+     "id": "r_rl2",
+     "type": "text",
+     "text": "Elevation",
+     "x": 237.2,
+     "y": 514,
+     "color": "#b9b9b6",
+     "font": {
+      "size": 21,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r_rv2",
+     "type": "text",
+     "text": "620 m",
+     "x": 431.2,
+     "y": 514,
+     "color": "#f0f0ee",
+     "font": {
+      "size": 21,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "r_sl_track",
+     "type": "rect",
+     "x": 330,
+     "y": 640,
+     "w": 280,
+     "h": 6,
+     "radius": 3,
+     "fill": "#3a3a3e"
+    },
+    {
+     "id": "r_sl_fill",
+     "type": "rect",
+     "x": 278,
+     "y": 640,
+     "w": 176,
+     "h": 6,
+     "radius": 3,
+     "fill": "#ef5d24"
+    },
+    {
+     "id": "r_sl_knob",
+     "type": "path",
+     "x": 366,
+     "y": 640,
+     "fill": "#ef5d24",
+     "d": "M-10 0C-10 -5.523 -5.523 -10 0 -10C5.523 -10 10 -5.523 10 0C10 5.523 5.523 10 0 10C-5.523 10 -10 5.523 -10 0Z"
+    },
+    {
+     "id": "r_go",
+     "type": "rect",
+     "x": 330,
+     "y": 880,
+     "w": 300,
+     "h": 62,
+     "radius": 13,
+     "fill": "#ef5d24"
+    },
+    {
+     "id": "r_got",
+     "type": "text",
+     "text": "Build Route",
+     "x": 330,
+     "y": 880,
+     "color": "#ffffff",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s8",
+   "bg": "#eeebe4",
+   "dur": 1.5,
+   "transition": {
+    "kind": "dissolve",
+    "dur": 0.35
+   },
+   "nodes": [
+    {
+     "id": "g0_wmk",
+     "type": "path",
+     "x": 52,
+     "y": 40,
+     "fill": "#c9c4b8",
+     "d": "M-14 0C-14 -7.732200000000001 -7.732200000000001 -14 0 -14C7.732200000000001 -14 14 -7.732200000000001 14 0C14 7.732200000000001 7.732200000000001 14 0 14C-7.732200000000001 14 -14 7.732200000000001 -14 0ZM-14.5 1.1L14.5 1.1L14.5 2.9L-14.5 2.9ZM-13.7 4.9L13.7 4.9L13.7 6.5L-13.7 6.5ZM-11.8 8.4L11.8 8.4L11.8 9.7L-11.8 9.7Z"
+    },
+    {
+     "id": "g0_wmt",
+     "type": "text",
+     "text": "Base 44",
+     "x": 118.0,
+     "y": 40,
+     "color": "#c9c4b8",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g0_b0",
+     "type": "rect",
+     "x": 510,
+     "y": 340,
+     "w": 560,
+     "h": 105,
+     "radius": 52.5,
+     "fill": "#f0a0c0",
+     "blur": 34,
+     "gradient": {
+      "angle": 10,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#f2a0c8"
+       },
+       {
+        "at": 1.0,
+        "color": "#f0964a"
+       }
+      ]
+     }
+    },
+    {
+     "id": "g0_b1",
+     "type": "rect",
+     "x": 1195,
+     "y": 235,
+     "w": 420,
+     "h": 105,
+     "radius": 52.5,
+     "fill": "#f0a0c0",
+     "blur": 34,
+     "gradient": {
+      "angle": 15,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#e4f0ff"
+       },
+       {
+        "at": 1.0,
+        "color": "#d9b8f0"
+       }
+      ]
+     }
+    },
+    {
+     "id": "g0_b2",
+     "type": "rect",
+     "x": 915,
+     "y": 535,
+     "w": 780,
+     "h": 110,
+     "radius": 55.0,
+     "fill": "#f0a0c0",
+     "blur": 34,
+     "gradient": {
+      "angle": 12,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#f2b8e0"
+       },
+       {
+        "at": 1.0,
+        "color": "#f2a038"
+       }
+      ]
+     }
+    },
+    {
+     "id": "g0_b3",
+     "type": "rect",
+     "x": 1435,
+     "y": 700,
+     "w": 340,
+     "h": 100,
+     "radius": 50.0,
+     "fill": "#f0a0c0",
+     "blur": 34,
+     "gradient": {
+      "angle": 8,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#f0a8d8"
+       },
+       {
+        "at": 1.0,
+        "color": "#f286b8"
+       }
+      ]
+     }
+    },
+    {
+     "id": "g0_b4",
+     "type": "rect",
+     "x": 455,
+     "y": 825,
+     "w": 330,
+     "h": 95,
+     "radius": 47.5,
+     "fill": "#f0a0c0",
+     "blur": 34,
+     "gradient": {
+      "angle": 12,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#dcd4f4"
+       },
+       {
+        "at": 1.0,
+        "color": "#c8ccf2"
+       }
+      ]
+     }
+    },
+    {
+     "id": "g0_head",
+     "type": "text",
+     "text": "Track and plan bike rentals",
+     "x": 532.6,
+     "y": 175,
+     "color": "#ef5d24",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "mono"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s9",
+   "bg": "#eeebe4",
+   "dur": 3.4,
+   "transition": {
+    "kind": "dissolve",
+    "dur": 0.4
+   },
+   "nodes": [
+    {
+     "id": "g_nav",
+     "type": "rect",
+     "x": 142,
+     "y": 540,
+     "w": 285,
+     "h": 1080,
+     "radius": 0,
+     "fill": "#171717"
+    },
+    {
+     "id": "g_wmk",
+     "type": "path",
+     "x": 60,
+     "y": 56,
+     "fill": "#8a8a86",
+     "d": "M-13 0C-13 -7.1799 -7.1799 -13 0 -13C7.1799 -13 13 -7.1799 13 0C13 7.1799 7.1799 13 0 13C-7.1799 13 -13 7.1799 -13 0Z"
+    },
+    {
+     "id": "g_wmt",
+     "type": "text",
+     "text": "Base 44",
+     "x": 122.5,
+     "y": 56,
+     "color": "#d5d5d2",
+     "font": {
+      "size": 22,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_navhl",
+     "type": "rect",
+     "x": 142,
+     "y": 194,
+     "w": 253,
+     "h": 46,
+     "radius": 10,
+     "fill": "#2c2c2e"
+    },
+    {
+     "id": "g_n0",
+     "type": "text",
+     "text": "Downtown Hub",
+     "x": 109.0,
+     "y": 148,
+     "color": "#8f8f8c",
+     "font": {
+      "size": 21,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_n1",
+     "type": "text",
+     "text": "Waterfront Station",
+     "x": 140.5,
+     "y": 194,
+     "color": "#e8e8e4",
+     "font": {
+      "size": 21,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_n2",
+     "type": "text",
+     "text": "Gate Depot",
+     "x": 98.5,
+     "y": 240,
+     "color": "#8f8f8c",
+     "font": {
+      "size": 21,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_n3",
+     "type": "text",
+     "text": "Bridge Outlet",
+     "x": 114.2,
+     "y": 286,
+     "color": "#8f8f8c",
+     "font": {
+      "size": 21,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_n4",
+     "type": "text",
+     "text": "Sunset Park",
+     "x": 103.8,
+     "y": 332,
+     "color": "#8f8f8c",
+     "font": {
+      "size": 21,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_m0",
+     "type": "text",
+     "text": "Bike Rentals",
+     "x": 109.0,
+     "y": 430,
+     "color": "#8f8f8c",
+     "font": {
+      "size": 21,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_m1",
+     "type": "text",
+     "text": "Pages",
+     "x": 72.2,
+     "y": 476,
+     "color": "#8f8f8c",
+     "font": {
+      "size": 21,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_m2",
+     "type": "text",
+     "text": "Performance",
+     "x": 103.8,
+     "y": 522,
+     "color": "#8f8f8c",
+     "font": {
+      "size": 21,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_m3",
+     "type": "text",
+     "text": "Team Management",
+     "x": 124.8,
+     "y": 568,
+     "color": "#8f8f8c",
+     "font": {
+      "size": 21,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_m4",
+     "type": "text",
+     "text": "Customize",
+     "x": 93.2,
+     "y": 614,
+     "color": "#8f8f8c",
+     "font": {
+      "size": 21,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_title",
+     "type": "text",
+     "text": "Bike Rental Status",
+     "x": 592.0,
+     "y": 112,
+     "color": "#010202",
+     "font": {
+      "size": 60,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_sub",
+     "type": "text",
+     "text": "Track and plan bike rentals",
+     "x": 532.6,
+     "y": 175,
+     "color": "#c98a4a",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "g_month",
+     "type": "text",
+     "text": "January 2026",
+     "x": 438.0,
+     "y": 240,
+     "color": "#e87ab8",
+     "font": {
+      "size": 26,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_range",
+     "type": "text",
+     "text": "Jan 22, 2026 - Jan 28, 2026",
+     "x": 481.5,
+     "y": 272,
+     "color": "#c9895a",
+     "font": {
+      "size": 18,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_today",
+     "type": "rect",
+     "x": 1445,
+     "y": 248,
+     "w": 108,
+     "h": 42,
+     "radius": 21,
+     "fill": "#161613"
+    },
+    {
+     "id": "g_todayt",
+     "type": "text",
+     "text": "Today",
+     "x": 1445,
+     "y": 248,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_d0",
+     "type": "text",
+     "text": "22",
+     "x": 400,
+     "y": 330,
+     "color": "#010202",
+     "font": {
+      "size": 58,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_dl0",
+     "type": "text",
+     "text": "Mon",
+     "x": 458,
+     "y": 342,
+     "color": "#9a958a",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_d1",
+     "type": "text",
+     "text": "23",
+     "x": 590,
+     "y": 330,
+     "color": "#010202",
+     "font": {
+      "size": 58,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_dl1",
+     "type": "text",
+     "text": "Tue",
+     "x": 648,
+     "y": 342,
+     "color": "#9a958a",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_sep1",
+     "type": "rect",
+     "x": 495,
+     "y": 660,
+     "w": 2,
+     "h": 620,
+     "radius": 1,
+     "fill": "#ddd6c8"
+    },
+    {
+     "id": "g_d2",
+     "type": "text",
+     "text": "24",
+     "x": 780,
+     "y": 330,
+     "color": "#010202",
+     "font": {
+      "size": 58,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_dl2",
+     "type": "text",
+     "text": "Wed",
+     "x": 838,
+     "y": 342,
+     "color": "#9a958a",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_sep2",
+     "type": "rect",
+     "x": 685,
+     "y": 660,
+     "w": 2,
+     "h": 620,
+     "radius": 1,
+     "fill": "#ddd6c8"
+    },
+    {
+     "id": "g_d3",
+     "type": "text",
+     "text": "25",
+     "x": 970,
+     "y": 330,
+     "color": "#010202",
+     "font": {
+      "size": 58,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_dl3",
+     "type": "text",
+     "text": "Thu",
+     "x": 1028,
+     "y": 342,
+     "color": "#9a958a",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_sep3",
+     "type": "rect",
+     "x": 875,
+     "y": 660,
+     "w": 2,
+     "h": 620,
+     "radius": 1,
+     "fill": "#ddd6c8"
+    },
+    {
+     "id": "g_d4",
+     "type": "text",
+     "text": "26",
+     "x": 1160,
+     "y": 330,
+     "color": "#010202",
+     "font": {
+      "size": 58,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_dl4",
+     "type": "text",
+     "text": "Fri",
+     "x": 1218,
+     "y": 342,
+     "color": "#9a958a",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_sep4",
+     "type": "rect",
+     "x": 1065,
+     "y": 660,
+     "w": 2,
+     "h": 620,
+     "radius": 1,
+     "fill": "#ddd6c8"
+    },
+    {
+     "id": "g_d5",
+     "type": "text",
+     "text": "27",
+     "x": 1350,
+     "y": 330,
+     "color": "#010202",
+     "font": {
+      "size": 58,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_dl5",
+     "type": "text",
+     "text": "Sat",
+     "x": 1408,
+     "y": 342,
+     "color": "#9a958a",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_sep5",
+     "type": "rect",
+     "x": 1255,
+     "y": 660,
+     "w": 2,
+     "h": 620,
+     "radius": 1,
+     "fill": "#ddd6c8"
+    },
+    {
+     "id": "g_d6",
+     "type": "text",
+     "text": "28",
+     "x": 1540,
+     "y": 330,
+     "color": "#010202",
+     "font": {
+      "size": 58,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_dl6",
+     "type": "text",
+     "text": "Sun",
+     "x": 1598,
+     "y": 342,
+     "color": "#9a958a",
+     "font": {
+      "size": 16,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_sep6",
+     "type": "rect",
+     "x": 1445,
+     "y": 660,
+     "w": 2,
+     "h": 620,
+     "radius": 1,
+     "fill": "#ddd6c8"
+    },
+    {
+     "id": "g_mj",
+     "type": "rect",
+     "x": 855,
+     "y": 595,
+     "w": 420,
+     "h": 74,
+     "radius": 12,
+     "fill": "#ec8a3c"
+    },
+    {
+     "id": "g_mjn",
+     "type": "text",
+     "text": "Marcus Johnson",
+     "x": 736.5,
+     "y": 582,
+     "color": "#ffffff",
+     "font": {
+      "size": 21,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_mjs",
+     "type": "text",
+     "text": "Tue 23 - Thu 25",
+     "x": 719.2,
+     "y": 610,
+     "color": "#ffffff",
+     "font": {
+      "size": 15,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_dp",
+     "type": "rect",
+     "x": 470,
+     "y": 700,
+     "w": 280,
+     "h": 74,
+     "radius": 12,
+     "fill": "#cbdb6a"
+    },
+    {
+     "id": "g_dpn",
+     "type": "text",
+     "text": "David Park",
+     "x": 400.5,
+     "y": 687,
+     "color": "#3a4018",
+     "font": {
+      "size": 21,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_dps",
+     "type": "text",
+     "text": "Sat 27 - Sun 28",
+     "x": 404.2,
+     "y": 715,
+     "color": "#3a4018",
+     "font": {
+      "size": 15,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_al",
+     "type": "rect",
+     "x": 700,
+     "y": 845,
+     "w": 360,
+     "h": 74,
+     "radius": 12,
+     "fill": "#ecd9ab"
+    },
+    {
+     "id": "g_aln",
+     "type": "text",
+     "text": "Amanda Lee",
+     "x": 590.5,
+     "y": 832,
+     "color": "#5a4a22",
+     "font": {
+      "size": 21,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_als",
+     "type": "text",
+     "text": "Thu 25 - Sat 27",
+     "x": 594.2,
+     "y": 860,
+     "color": "#5a4a22",
+     "font": {
+      "size": 15,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_jw",
+     "type": "rect",
+     "x": 1370,
+     "y": 790,
+     "w": 280,
+     "h": 74,
+     "radius": 12,
+     "fill": "#cbdb6a"
+    },
+    {
+     "id": "g_jwn",
+     "type": "text",
+     "text": "James Wilson",
+     "x": 1311.0,
+     "y": 777,
+     "color": "#3a4018",
+     "font": {
+      "size": 21,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_jws",
+     "type": "text",
+     "text": "Tue 23 - Wed 24",
+     "x": 1304.2,
+     "y": 805,
+     "color": "#3a4018",
+     "font": {
+      "size": 15,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_lt",
+     "type": "rect",
+     "x": 1300,
+     "y": 435,
+     "w": 150,
+     "h": 74,
+     "radius": 12,
+     "fill": "#a9d3f2"
+    },
+    {
+     "id": "g_ltn",
+     "type": "text",
+     "text": "Lisa T.",
+     "x": 1279.8,
+     "y": 422,
+     "color": "#1e3a52",
+     "font": {
+      "size": 21,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_lts",
+     "type": "text",
+     "text": "Mon 22",
+     "x": 1265.5,
+     "y": 450,
+     "color": "#1e3a52",
+     "font": {
+      "size": 15,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_er",
+     "type": "rect",
+     "x": 1000,
+     "y": 840,
+     "w": 150,
+     "h": 74,
+     "radius": 12,
+     "fill": "#a9d3f2"
+    },
+    {
+     "id": "g_ern",
+     "type": "text",
+     "text": "Emily R.",
+     "x": 985.0,
+     "y": 827,
+     "color": "#1e3a52",
+     "font": {
+      "size": 21,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_ers",
+     "type": "text",
+     "text": "Sun 28",
+     "x": 965.5,
+     "y": 855,
+     "color": "#1e3a52",
+     "font": {
+      "size": 15,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_sc",
+     "type": "rect",
+     "x": 1580,
+     "y": 695,
+     "w": 260,
+     "h": 90,
+     "radius": 14,
+     "fill": "#f2a0c8",
+     "blur": 22,
+     "gradient": {
+      "angle": 10,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#f0a8d8"
+       },
+       {
+        "at": 1.0,
+        "color": "#f0964a"
+       }
+      ]
+     }
+    },
+    {
+     "id": "g_qa",
+     "type": "rect",
+     "x": 1770,
+     "y": 258,
+     "w": 250,
+     "h": 120,
+     "radius": 14,
+     "fill": "#f6f1e6"
+    },
+    {
+     "id": "g_qat",
+     "type": "text",
+     "text": "Quick Actions",
+     "x": 1739.5,
+     "y": 222,
+     "color": "#010202",
+     "font": {
+      "size": 22,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_qas",
+     "type": "text",
+     "text": "Manage Rentals",
+     "x": 1734.5,
+     "y": 275,
+     "color": "#6a675f",
+     "font": {
+      "size": 19,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_av",
+     "type": "rect",
+     "x": 1770,
+     "y": 520,
+     "w": 250,
+     "h": 240,
+     "radius": 14,
+     "fill": "#f6f1e6"
+    },
+    {
+     "id": "g_avt",
+     "type": "text",
+     "text": "Available Bikes",
+     "x": 1746.8,
+     "y": 432,
+     "color": "#8a8578",
+     "font": {
+      "size": 21,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_bk0",
+     "type": "text",
+     "text": "Summit Rider",
+     "x": 1725.0,
+     "y": 478,
+     "color": "#8f8b80",
+     "font": {
+      "size": 19,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_bu0",
+     "type": "text",
+     "text": "Available until 03.12.26",
+     "x": 1752.0,
+     "y": 504,
+     "color": "#a9a498",
+     "font": {
+      "size": 14,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_bk1",
+     "type": "text",
+     "text": "PeakSeeker Pro",
+     "x": 1734.5,
+     "y": 552,
+     "color": "#8f8b80",
+     "font": {
+      "size": 19,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_bu1",
+     "type": "text",
+     "text": "Available until 02.15.26",
+     "x": 1752.0,
+     "y": 578,
+     "color": "#a9a498",
+     "font": {
+      "size": 14,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_bk2",
+     "type": "text",
+     "text": "Velocity Racer",
+     "x": 1734.5,
+     "y": 626,
+     "color": "#8f8b80",
+     "font": {
+      "size": 19,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "g_bu2",
+     "type": "text",
+     "text": "Available until 04.01.26",
+     "x": 1752.0,
+     "y": 652,
+     "color": "#a9a498",
+     "font": {
+      "size": 14,
+      "weight": 400,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s10",
+   "bg": "#f2efe8",
+   "dur": 2.8,
+   "transition": {
+    "kind": "cut"
+   },
+   "nodes": [
+    {
+     "id": "t_wmk",
+     "type": "path",
+     "x": 52,
+     "y": 40,
+     "fill": "#c9c4b8",
+     "d": "M-14 0C-14 -7.732200000000001 -7.732200000000001 -14 0 -14C7.732200000000001 -14 14 -7.732200000000001 14 0C14 7.732200000000001 7.732200000000001 14 0 14C-7.732200000000001 14 -14 7.732200000000001 -14 0ZM-14.5 1.1L14.5 1.1L14.5 2.9L-14.5 2.9ZM-13.7 4.9L13.7 4.9L13.7 6.5L-13.7 6.5ZM-11.8 8.4L11.8 8.4L11.8 9.7L-11.8 9.7Z"
+    },
+    {
+     "id": "t_wmt",
+     "type": "text",
+     "text": "Base 44",
+     "x": 118.0,
+     "y": 40,
+     "color": "#c9c4b8",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "t_streak",
+     "type": "rect",
+     "x": 960,
+     "y": 940,
+     "w": 2100,
+     "h": 240,
+     "radius": 0,
+     "fill": "#ffd0e8",
+     "blur": 70,
+     "rot": -5,
+     "gradient": {
+      "angle": 0,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#ffb0d8"
+       },
+       {
+        "at": 0.333,
+        "color": "#ffd9a0"
+       },
+       {
+        "at": 0.667,
+        "color": "#c8f0d8"
+       },
+       {
+        "at": 1.0,
+        "color": "#b0d8ff"
+       }
+      ]
+     }
+    },
+    {
+     "id": "t_phone",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 390,
+     "h": 800,
+     "radius": 38,
+     "fill": "#93a084",
+     "gradient": {
+      "angle": 180,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#e8c99a"
+       },
+       {
+        "at": 0.5,
+        "color": "#98a888"
+       },
+       {
+        "at": 1.0,
+        "color": "#54654a"
+       }
+      ]
+     }
+    },
+    {
+     "id": "t_chrome",
+     "type": "rect",
+     "x": 872,
+     "y": 178,
+     "w": 140,
+     "h": 44,
+     "radius": 12,
+     "fill": "#161613"
+    },
+    {
+     "id": "t_chromet",
+     "type": "text",
+     "text": "trailride",
+     "x": 872,
+     "y": 178,
+     "color": "#ffffff",
+     "font": {
+      "size": 20,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "t_menu",
+     "type": "rect",
+     "x": 1116,
+     "y": 178,
+     "w": 44,
+     "h": 44,
+     "radius": 12,
+     "fill": "#161613"
+    },
+    {
+     "id": "t_menut",
+     "type": "text",
+     "text": "=",
+     "x": 1116,
+     "y": 177,
+     "color": "#ffffff",
+     "font": {
+      "size": 26,
+      "weight": 700,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "t_name",
+     "type": "text",
+     "text": "Waterfront",
+     "x": 930.0,
+     "y": 258,
+     "color": "#ffffff",
+     "font": {
+      "size": 52,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "t_dchip",
+     "type": "rect",
+     "x": 862,
+     "y": 618,
+     "w": 140,
+     "h": 34,
+     "radius": 8,
+     "fill": "#101010"
+    },
+    {
+     "id": "t_dsq",
+     "type": "rect",
+     "x": 812,
+     "y": 618,
+     "w": 14,
+     "h": 14,
+     "radius": 3,
+     "fill": "#4a9de8"
+    },
+    {
+     "id": "t_dlbl",
+     "type": "text",
+     "text": "Distance",
+     "x": 873.2,
+     "y": 618,
+     "color": "#ffffff",
+     "font": {
+      "size": 18,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "t_d57",
+     "type": "text",
+     "text": "5.7",
+     "x": 863.0,
+     "y": 690,
+     "color": "#ffffff",
+     "font": {
+      "size": 84,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "t_d58",
+     "type": "text",
+     "text": "5.8",
+     "x": 863.0,
+     "y": 690,
+     "color": "#ffffff",
+     "font": {
+      "size": 84,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "t_dk",
+     "type": "text",
+     "text": "K",
+     "x": 956.5,
+     "y": 712,
+     "color": "#e8e8e4",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "t_tchip",
+     "type": "rect",
+     "x": 848,
+     "y": 788,
+     "w": 110,
+     "h": 34,
+     "radius": 8,
+     "fill": "#101010"
+    },
+    {
+     "id": "t_tsq",
+     "type": "rect",
+     "x": 812,
+     "y": 788,
+     "w": 14,
+     "h": 14,
+     "radius": 3,
+     "fill": "#4a9de8"
+    },
+    {
+     "id": "t_tlbl",
+     "type": "text",
+     "text": "Time",
+     "x": 851.6,
+     "y": 788,
+     "color": "#ffffff",
+     "font": {
+      "size": 18,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "t_time",
+     "type": "text",
+     "text": "0:07:24",
+     "x": 908.5,
+     "y": 856,
+     "color": "#ffffff",
+     "font": {
+      "size": 62,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "t_stop",
+     "type": "rect",
+     "x": 942,
+     "y": 950,
+     "w": 306,
+     "h": 62,
+     "radius": 12,
+     "fill": "#f0982e"
+    },
+    {
+     "id": "t_stopt",
+     "type": "text",
+     "text": "Stop Trip",
+     "x": 870.5,
+     "y": 950,
+     "color": "#ffffff",
+     "font": {
+      "size": 26,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "t_pause",
+     "type": "path",
+     "x": 1112,
+     "y": 950,
+     "fill": "#141414",
+     "d": "M-26 0C-26 -14.3598 -14.3598 -26 0 -26C14.3598 -26 26 -14.3598 26 0C26 14.3598 14.3598 26 0 26C-14.3598 26 -26 14.3598 -26 0Z"
+    },
+    {
+     "id": "t_pauseg",
+     "type": "path",
+     "x": 1112,
+     "y": 950,
+     "fill": "#ffffff",
+     "stroke": 4.0,
+     "d": "M-5 -8L-5 8M5 -8L5 8"
+    }
+   ]
+  },
+  {
+   "id": "s11",
+   "bg": "#1c1c1d",
+   "dur": 2.6,
+   "transition": {
+    "kind": "cut"
+   },
+   "nodes": [
+    {
+     "id": "c_wmk",
+     "type": "path",
+     "x": 52,
+     "y": 40,
+     "fill": "#6a6a66",
+     "d": "M-14 0C-14 -7.732200000000001 -7.732200000000001 -14 0 -14C7.732200000000001 -14 14 -7.732200000000001 14 0C14 7.732200000000001 7.732200000000001 14 0 14C-7.732200000000001 14 -14 7.732200000000001 -14 0ZM-14.5 1.1L14.5 1.1L14.5 2.9L-14.5 2.9ZM-13.7 4.9L13.7 4.9L13.7 6.5L-13.7 6.5ZM-11.8 8.4L11.8 8.4L11.8 9.7L-11.8 9.7Z"
+    },
+    {
+     "id": "c_wmt",
+     "type": "text",
+     "text": "Base 44",
+     "x": 118.0,
+     "y": 40,
+     "color": "#8f8f8b",
+     "font": {
+      "size": 24,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "c_ohl",
+     "type": "rect",
+     "x": 1298.4,
+     "y": 540,
+     "w": 277.2,
+     "h": 84,
+     "radius": 8,
+     "fill": "#d57f1c"
+    },
+    {
+     "id": "c_mhl",
+     "type": "rect",
+     "x": 1557.6,
+     "y": 540,
+     "w": 190.79999999999998,
+     "h": 84,
+     "radius": 8,
+     "fill": "#4a7dd8"
+    },
+    {
+     "id": "c_arr",
+     "type": "path",
+     "x": 700,
+     "y": 542,
+     "fill": "#93c049",
+     "stroke": 5.0,
+     "d": "M-22 0L18 0M4 -13L18 0L4 13"
+    },
+    {
+     "id": "c_cmd",
+     "type": "text",
+     "text": "git push origin main",
+     "x": 1212.0,
+     "y": 540,
+     "color": "#ffffff",
+     "font": {
+      "size": 72,
+      "weight": 400,
+      "family": "mono"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s12",
+   "bg": "#f2ede2",
+   "dur": 2.2,
+   "transition": {
+    "kind": "dissolve",
+    "dur": 0.4
+   },
+   "nodes": [
+    {
+     "id": "dm_wa",
+     "type": "rect",
+     "x": 500,
+     "y": 250,
+     "w": 900,
+     "h": 600,
+     "radius": 300,
+     "fill": "#ffca9e",
+     "blur": 100,
+     "gradient": {
+      "angle": 20,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#ffca9e"
+       },
+       {
+        "at": 1.0,
+        "color": "#ffa4c8"
+       }
+      ]
+     }
+    },
+    {
+     "id": "dm_wb",
+     "type": "rect",
+     "x": 1500,
+     "y": 780,
+     "w": 900,
+     "h": 600,
+     "radius": 300,
+     "fill": "#a8d8f0",
+     "blur": 110,
+     "gradient": {
+      "angle": 200,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#b8e0f0"
+       },
+       {
+        "at": 1.0,
+        "color": "#e8c0f0"
+       }
+      ]
+     }
+    },
+    {
+     "id": "dm_wc",
+     "type": "rect",
+     "x": 1450,
+     "y": 220,
+     "w": 700,
+     "h": 460,
+     "radius": 230,
+     "fill": "#ffd9b0",
+     "blur": 95
+    },
+    {
+     "id": "dm_card",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 810,
+     "h": 280,
+     "radius": 22,
+     "fill": "#fdfbf6"
+    },
+    {
+     "id": "dm_t",
+     "type": "text",
+     "text": "DamageReport",
+     "x": 735.0,
+     "y": 465,
+     "color": "#010202",
+     "font": {
+      "size": 40,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "dm_pub",
+     "type": "rect",
+     "x": 962,
+     "y": 463,
+     "w": 118,
+     "h": 42,
+     "radius": 21,
+     "fill": "#efece4"
+    },
+    {
+     "id": "dm_pubt",
+     "type": "text",
+     "text": "Public",
+     "x": 970,
+     "y": 463,
+     "color": "#5a5a56",
+     "font": {
+      "size": 21,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "dm_alert",
+     "type": "path",
+     "x": 628,
+     "y": 522,
+     "fill": "#e0453a",
+     "stroke": 2.2,
+     "d": "M-10 0C-10 -5.523 -5.523 -10 0 -10C5.523 -10 10 -5.523 10 0C10 5.523 5.523 10 0 10C-5.523 10 -10 5.523 -10 0ZM0 -4L0 2M0 5L0 6"
+    },
+    {
+     "id": "dm_alertt",
+     "type": "text",
+     "text": "All users have access",
+     "x": 786.5,
+     "y": 522,
+     "color": "#a09a92",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "dm_input",
+     "type": "rect",
+     "x": 905,
+     "y": 610,
+     "w": 630,
+     "h": 64,
+     "radius": 12,
+     "fill": "#f4f0e6"
+    },
+    {
+     "id": "dm_int",
+     "type": "text",
+     "text": "All users have access",
+     "x": 766.0,
+     "y": 610,
+     "color": "#3a3a36",
+     "font": {
+      "size": 24,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "dm_fix",
+     "type": "rect",
+     "x": 1245,
+     "y": 610,
+     "w": 190,
+     "h": 56,
+     "radius": 10,
+     "fill": "#121212"
+    },
+    {
+     "id": "dm_fixhl",
+     "type": "rect",
+     "x": 1245,
+     "y": 610,
+     "w": 190,
+     "h": 56,
+     "radius": 10,
+     "fill": "#ef5d24"
+    },
+    {
+     "id": "dm_fixt",
+     "type": "text",
+     "text": "Apply Fixes",
+     "x": 1245,
+     "y": 610,
+     "color": "#ffffff",
+     "font": {
+      "size": 22,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "dm_cur",
+     "type": "cursor",
+     "x": 1520,
+     "y": 810,
+     "w": 26,
+     "fill": "#111111"
+    }
+   ]
+  },
+  {
+   "id": "s13",
+   "bg": "#eee6db",
+   "dur": 2.4,
+   "transition": {
+    "kind": "cut"
+   },
+   "nodes": [
+    {
+     "id": "pb_sky",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "radius": 0,
+     "fill": "#f5e4d2",
+     "gradient": {
+      "angle": 180,
+      "stops": [
+       {
+        "at": 0.0,
+        "color": "#f5e4d2"
+       },
+       {
+        "at": 0.5,
+        "color": "#eee6db"
+       },
+       {
+        "at": 1.0,
+        "color": "#c2d3cd"
+       }
+      ]
+     }
+    },
+    {
+     "id": "pb_btn",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 260,
+     "h": 100,
+     "radius": 18,
+     "fill": "#101010",
+     "states": {
+      "pressed": {
+       "scale": 0.95,
+       "fill": "#5a4a6a"
+      }
+     }
+    },
+    {
+     "id": "pb_t",
+     "type": "text",
+     "text": "Publish",
+     "x": 960,
+     "y": 540,
+     "color": "#ffffff",
+     "font": {
+      "size": 34,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "pb_cur",
+     "type": "cursor",
+     "x": 1090,
+     "y": 670,
+     "w": 26,
+     "fill": "#333333"
+    }
+   ]
+  },
+  {
+   "id": "s14",
+   "bg": "#eeebe4",
+   "dur": 2.2,
+   "transition": {
+    "kind": "dissolve",
+    "dur": 0.4
+   },
+   "nodes": [
+    {
+     "id": "e_c0",
+     "type": "text",
+     "text": "/",
+     "x": 640,
+     "y": 400,
+     "color": "#010202",
+     "font": {
+      "size": 56,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "e_c1",
+     "type": "text",
+     "text": "/",
+     "x": 1300,
+     "y": 380,
+     "color": "#010202",
+     "font": {
+      "size": 56,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "e_c2",
+     "type": "text",
+     "text": "<",
+     "x": 760,
+     "y": 660,
+     "color": "#010202",
+     "font": {
+      "size": 52,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "e_c3",
+     "type": "text",
+     "text": ">",
+     "x": 1180,
+     "y": 665,
+     "color": "#010202",
+     "font": {
+      "size": 52,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "e_c4",
+     "type": "text",
+     "text": "*",
+     "x": 990,
+     "y": 330,
+     "color": "#d57f1c",
+     "font": {
+      "size": 52,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "e_c5",
+     "type": "text",
+     "text": "/",
+     "x": 880,
+     "y": 730,
+     "color": "#010202",
+     "font": {
+      "size": 56,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "e_f0",
+     "type": "text",
+     "text": "const express",
+     "x": 380,
+     "y": 260,
+     "color": "#8a8a86",
+     "font": {
+      "size": 28,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "e_f1",
+     "type": "text",
+     "text": "client_id",
+     "x": 1520,
+     "y": 300,
+     "color": "#8a8a86",
+     "font": {
+      "size": 28,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "e_f2",
+     "type": "text",
+     "text": "app.get('/connect/github')",
+     "x": 1380,
+     "y": 810,
+     "color": "#8a8a86",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "e_f3",
+     "type": "text",
+     "text": "434b",
+     "x": 480,
+     "y": 800,
+     "color": "#8a8a86",
+     "font": {
+      "size": 28,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "e_pink",
+     "type": "path",
+     "x": 960,
+     "y": 540,
+     "fill": "#f08ac2",
+     "d": "M-20 0C-20 -11.046 -11.046 -20 0 -20C11.046 -20 20 -11.046 20 0C20 11.046 11.046 20 0 20C-11.046 20 -20 11.046 -20 0Z"
+    },
+    {
+     "id": "e_org",
+     "type": "path",
+     "x": 960,
+     "y": 540,
+     "fill": "#ef5d24",
+     "d": "M-20 0C-20 -11.046 -11.046 -20 0 -20C11.046 -20 20 -11.046 20 0C20 11.046 11.046 20 0 20C-11.046 20 -20 11.046 -20 0Z"
+    },
+    {
+     "id": "e_slats",
+     "type": "path",
+     "x": 960,
+     "y": 540,
+     "fill": "#eeebe4",
+     "d": "M-70.5 5.4L70.5 5.4L70.5 13.9L-70.5 13.9ZM-66.4 23.8L66.4 23.8L66.4 31.6L-66.4 31.6ZM-57.1 40.8L57.1 40.8L57.1 46.9L-57.1 46.9Z"
+    }
+   ]
+  },
+  {
+   "id": "s15",
+   "bg": "#eeebe4",
+   "dur": 1.6,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.25
+   },
+   "nodes": [
+    {
+     "id": "m15",
+     "type": "path",
+     "x": 790,
+     "y": 540,
+     "fill": "#ef5d24",
+     "d": "M-46 0C-46 -25.4058 -25.4058 -46 0 -46C25.4058 -46 46 -25.4058 46 0C46 25.4058 25.4058 46 0 46C-25.4058 46 -46 25.4058 -46 0Z"
+    },
+    {
+     "id": "m15s",
+     "type": "path",
+     "x": 790,
+     "y": 540,
+     "fill": "#eeebe4",
+     "d": "M-47.7 3.7L47.7 3.7L47.7 9.4L-47.7 9.4ZM-44.9 16.1L44.9 16.1L44.9 21.4L-44.9 21.4ZM-38.6 27.6L38.6 27.6L38.6 31.7L-38.6 31.7Z"
+    },
+    {
+     "id": "wm15",
+     "type": "text",
+     "text": "Base 44",
+     "x": 1042,
+     "y": 540,
+     "color": "#010202",
+     "font": {
+      "size": 96,
+      "weight": 700,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s16",
+   "bg": "#eeebe4",
+   "dur": 3.0,
+   "transition": {
+    "kind": "fade",
+    "dur": 0.3
+   },
+   "nodes": [
+    {
+     "id": "q_out",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 250,
+     "h": 96,
+     "radius": 48,
+     "fill": "#16130f"
+    },
+    {
+     "id": "q_in",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 244,
+     "h": 90,
+     "radius": 45,
+     "fill": "#eeebe4"
+    },
+    {
+     "id": "q_t",
+     "type": "text",
+     "text": "Build it your way",
+     "x": 960,
+     "y": 540,
+     "color": "#010202",
+     "font": {
+      "size": 44,
+      "weight": 500,
+      "family": "inter"
+     }
+    }
+   ]
+  }
+ ]
+}

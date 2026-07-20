@@ -284,8 +284,8 @@ scene("s4", "#ffffff", 3.0, n4, kind="fade", tdur=0.25)
 
 # 5 --------------------------------------------------------- imessage thread
 n5 = [
-    rect("im_ph_o", 960, 590, 830, 1520, 116, "#c9ccd0"),
-    rect("im_ph_i", 960, 590, 792, 1482, 100, "#ffffff"),
+    rect("im_ph_o", 960, 590, 1200, 1520, 116, "#c9ccd0"),
+    rect("im_ph_i", 960, 590, 1150, 1482, 100, "#ffffff"),
     path("im_chev", 640, 150, "M10 -18L-8 0L10 18", None, stroke=4.5),
     path("im_bdg", 700, 150, circle_d(24), "#3a3a3c"),
     text("im_bdg_t", "2", 700, 151, 26, "#ffffff", weight=600),
@@ -341,26 +341,27 @@ scene("s5", "#ffffff", 4.4, n5, kind="rise", tdur=0.4)
 CARDS = [
     ("sc_a", 1150, 240, 470, 210, -4,
      ["SEC charges exec in $16M crypto", "fraud over 'insured' token scheme"],
-     "#26292c", 22, 600),
+     "#26292c", 22, True),
     ("sc_b", 300, 170, 330, 150, 3,
-     ["MARKET SENTIMENT", "Fear & Greed Index: 26 (Fear)"], "#26292c", 20, 0),
+     ["MARKET SENTIMENT", "Fear & Greed Index: 26 (Fear)"], "#26292c", 20,
+     False),
     ("sc_c", 1660, 200, 380, 210, -2,
      ["Weekly ETF Flows", "BlackRock IBIT", "Morgan Stanley MSBT",
-      "Fidelity FBTC"], "#26292c", 19, 0),
+      "Fidelity FBTC"], "#26292c", 19, False),
     ("sc_d", 560, 520, 450, 150, 2,
      ["Arkham Intel", "Strategy wallet just moved", "13,927 BTC ($1.02B)"],
-     "#26292c", 20, 0),
+     "#26292c", 20, False),
     ("sc_e", 1560, 590, 440, 190, 3,
      ["r/cryptocurrency", "Saylor bought another", "13,927 BTC"],
-     "#26292c", 20, 0),
+     "#26292c", 20, False),
     ("sc_f", 1040, 800, 430, 160, -3,
      ["The cheapest bitcoin ETF yet:", "Morgan Stanley uses 0.14% fee"],
-     "#26292c", 20, 700),
+     "#26292c", 20, True),
     ("sc_g", 330, 850, 360, 200, -2,
      ["coindesk", "Bitcoin, Ethereum approach", "two-month highs"],
-     "#26292c", 20, 0),
+     "#26292c", 20, False),
     ("sc_h", 830, 90, 420, 140, 2,
-     ["Ether-bitcoin ratio bounces", "from 2026 lows"], "#26292c", 20, 0),
+     ["Ether-bitcoin ratio bounces", "from 2026 lows"], "#26292c", 20, False),
 ]
 n6 = []
 for ci, (cid, cx, cy, cw, ch, rot, lines, ink, fs, coin) in enumerate(CARDS):
@@ -377,8 +378,8 @@ for ci, (cid, cx, cy, cw, ch, rot, lines, ink, fs, coin) in enumerate(CARDS):
         ids.append(tid)
     if coin:
         gid = f"{cid}_coin"
-        n6.append(path(gid, coin, cy + ch / 2 - 34, circle_d(26), "#e2a72e",
-                       rot=rot))
+        n6.append(path(gid, cx - cw / 2 + 48, cy + ch / 2 - 42,
+                       circle_d(22), "#e2a72e", rot=rot))
         ids.append(gid)
     s0 = 0.05 + ci * 0.07
     for nid in ids:
@@ -426,8 +427,8 @@ scene("s7", "#ffffff", 2.4, n7, kind="fade", tdur=0.3)
 
 # 8 -------------------------------------------------------- digest builds
 n8 = [
-    rect("dg_ph_o", 960, 590, 830, 1520, 116, "#c9ccd0"),
-    rect("dg_ph_i", 960, 590, 792, 1482, 100, "#ffffff"),
+    rect("dg_ph_o", 960, 590, 1200, 1520, 116, "#c9ccd0"),
+    rect("dg_ph_i", 960, 590, 1150, 1482, 100, "#ffffff"),
     rect("dg_isl", 960, 90, 240, 64, 32, "#111111"),
     text("dg_clk", "9:41", 700, 90, 30, INK, weight=600),
 ]

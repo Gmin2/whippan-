@@ -402,12 +402,10 @@ n = [
     path("ansnow1", 260, 275, "M-58 55L0 -55L58 55Z", "#f2f4f4"),
     path("ansnow2", 1030, 300, "M-52 50L0 -48L52 50Z", "#f2f4f4"),
     path("anmtn", 640, 430, zig, "#4a8a4f"),
-    text("an", "ANASTASIA", 640, 250, 92, "#2d5ac9", 800),
-    path("anflag", 640, 260, "M0 22L0 -14L20 -8L0 -2", "#b52330",
+    text("an", "ANASTASIA", 640, 165, 92, "#2d5ac9", 800),
+    path("anflag", 640, 258, "M0 22L0 -14L20 -8L0 -2", "#b52330",
          stroke=4.0),
 ]
-track("anflag", at=0, opacity=[(0, 0), (0.02, 1)],
-      y=[(0, 20), (0.001, 20), (0.002, 20)])
 wobble("an", amp_rot=0.4, amp_y=2, period=0.5)
 scene("s_anastasia", "#cfe3e8", 0.45, n)
 
@@ -481,13 +479,13 @@ n = [
     path("nkring1", 640, 380, circle_d(200), "#c9b58a", stroke=1.6),
     path("nkring2", 640, 380, circle_d(320), "#c9b58a", stroke=1.6),
     path("nkrad", 640, 380, radials, "#c9b58a", stroke=1.4),
-    rect("nkframe", 640, 360, 1200, 660, 4, "#00000000"),
     path("nkstar", 640, 400, star_d(), "#e8821e"),
-    path("nkshadow", 640, 470, "M-95 0L95 -25L88 55L-88 62Z", "#17130e"),
-    path("nkshoe", 640, 395,
+    path("nkshadow", 640, 452, "M-80 0C-40 12 40 12 80 0C40 22 -40 22 -80 0Z",
+         "#17130e"),
+    path("nkshoe", 640, 400,
          "M-90 30C-80 -15 -30 -42 20 -38C60 -34 92 -8 95 18"
          "C60 34 -40 44 -90 30Z", "#f4f1ea"),
-    path("nkswsh", 660, 400, "M-30 6C-8 -8 18 -12 34 -10C12 4 -8 10 -30 6Z",
+    path("nkswsh", 660, 405, "M-30 6C-8 -8 18 -12 34 -10C12 4 -8 10 -30 6Z",
          "#2d5ac9"),
     text("nkex", "EXCELLENCE", 640, 170, 62, "#2d5ac9", 700),
     rect("nkd1", 250, 490, 34, 12, 3, "#2d5ac9", rot=32),
@@ -558,7 +556,7 @@ track("oturl2", opacity=[(0, 0), (0.7, 0), (0.701, 1), (1.2, 1),
 track("oturl3", opacity=[(0, 0), (1.25, 0), (1.251, 1), (1.75, 1),
                          (1.95, 0)])
 # fade to black over the last half second
-track("otfade", opacity=[(0, 0), (1.75, 0), (2.25, 1, "inCubic")])
+track("otfade", opacity=[(0, 0), (1.6, 0), (2.1, 1, "inCubic"), (2.3, 1)])
 scene("s_outro", CREAM, 2.3, n)
 
 stage = {"fps": 30, "size": [W, H], "scenes": scenes,

@@ -168,7 +168,7 @@ scene("s1c", BLACK, 23, [
 n2 = blueprint("g2")
 n2.append(text("org1", "organized chaos.", CX, 318, 96, GREY, 500))
 scene("s2a", DRAFT, 40, n2)
-reveal("org1", 0.05, unit="type", cadence=0.08, dur=0.08)
+reveal("org1", 0.02, unit="type", cadence=0.045, cadence_end=0.1, dur=0.08)
 
 scene("s2b", YEL, 15, [text("org2", "organized chaos.", CX, 318, 96,
                             BLACK, 700)])
@@ -197,7 +197,8 @@ scene("s4", YEL, 17, [
     text("lgt1", "earn", 512, 320, 86, "#ffffff", 600),
     text("lgi1", "in", 688, 320, 58, BLACK, 700),
 ])
-reveal("lgt1", 0.03, unit="glyph", stagger=0.09, dur=0.15, rise=0)
+reveal("lgt1", 0.03, unit="glyph", stagger=0.09, dur=0.15, rise=0,
+       accent="#ffffff")
 
 # ---------------------------------------------------------------- chapter 5
 # fast use-case card montage on pale pink
@@ -250,11 +251,13 @@ n7 = [
 weights = [("ExtraLight", 200), ("Light", 300), ("Regular", 400),
            ("Medium", 500)]
 for i, (nm, wt) in enumerate(weights):
-    n7.append(text(f"t7w{i}", f"EarnIn Mori   {nm}", 210, 522 + i * 24,
+    s = f"EarnIn Mori   {nm}"
+    n7.append(text(f"t7w{i}", s, 130 + len(s) * 17 * 0.25, 522 + i * 24,
                    17, "#1a1a1a", wt))
 for i, (nm, wt) in enumerate([("SemiBold", 600), ("Bold", 700),
                               ("ExtraBold", 800)]):
-    n7.append(text(f"t7b{i}", f"EarnIn Mori   {nm}", 400, 526 + i * 26,
+    s = f"EarnIn Mori   {nm}"
+    n7.append(text(f"t7b{i}", s, 330 + len(s) * 17 * 0.25, 526 + i * 26,
                    17, "#1a1a1a", wt))
 scene("s7", YEL, 73, n7)
 track("s7", cam_x=[(0, 70), (2.3, -70, "outCubic")])
@@ -305,9 +308,9 @@ def left_text(id, s, left, y, size, color=BLACK, weight=700):
 
 
 scene("s10a", YEL, 40, [
-    left_text("h10a", "Three colors,", 55, 165, 104),
-    left_text("h10b", "infinite", 55, 295, 104),
-    left_text("h10c", "possibilities.", 55, 425, 104),
+    left_text("h10a", "Three colors,", 50, 150, 120),
+    left_text("h10b", "infinite", 50, 300, 120),
+    left_text("h10c", "possibilities.", 50, 450, 120),
 ])
 for i, nid in enumerate(("h10a", "h10b", "h10c")):
     track(nid, at=i * 0.07, opacity=[(0, 0), (0.05, 1)])
