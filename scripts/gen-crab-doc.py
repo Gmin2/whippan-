@@ -104,8 +104,8 @@ HAND_D = ("M-5 -26C-5 -32 5 -32 5 -26L5 -2L-5 -2Z"
           "C26 19 19 26 9 26L-4 26C-12 26 -16 19 -16 12Z")
 HAND_LINES = "M5 -1L5 9M13 0L13 9M20 3L20 9"
 # closed grabbing fist
-FIST_D = ("M-16 -4C-16 -15 16 -15 16 -4L16 8C16 17 -16 17 -16 8Z")
-FIST_LINES = "M-8 -7L-8 2M0 -8L0 2M8 -7L8 2"
+FIST_D = ("M-17 -2C-17 -16 17 -16 17 -2L17 7C17 18 -17 18 -17 7Z")
+FIST_LINES = "M-8 -6L-8 3M0 -7L0 3M8 -6L8 3"
 
 
 def cursor_group(prefix, x, y, kind, scale=1.0):
@@ -335,7 +335,7 @@ def build_crab(prefix, cx, cy, sc, echoes=True):
 
 
 # crab walks in at the right edge f128-160 (page space, seen at 1.9x)
-pv = build_crab("pv", 1108, 552, 0.52, echoes=False)
+pv = build_crab("pv", 1090, 552, 0.52, echoes=False)
 for nid in pv["body"] + [pv["shadow"]]:
     track(nid, x=[(126 * F, 80), (160 * F, 0, "outCubic")],
           opacity=[(0, 0), (126 * F, 0), (132 * F, 1)])
@@ -389,17 +389,20 @@ set_static(path("g_grid", 540, 540, grid_d(-1200, 1700, -1200, 1700, 74),
 for i, (dx, dy, op) in enumerate([(-6, 0, 0.22), (6, 3, 0.22), (0, 0, 0.8)]):
     set_static(text(f"g_g{i}", "G", 40 + dx, 790 + dy, 430, "#d5d4d9",
                     weight=900), opacity=op)
-    set_static(text(f"g_ng{i}", "NG", 60 + dx, 105 + dy, 330, "#d5d4d9",
+    set_static(text(f"g_ng{i}", "NG", 55 + dx, 85 + dy, 330, "#d5d4d9",
                     weight=900), opacity=op * 0.9)
     set_static(text(f"g_n{i}", "N", -95 + dx, 480 + dy, 330, "#d5d4d9",
                     weight=900), opacity=op * 0.9)
 
-# page furniture seen when zoomed out: glowing badge + get-notified pill
-set_static(rect("g_halo", 24, 411, 230, 230, 72, "#b9c4fb", blur=32),
+# page furniture seen when zoomed out: glowing badge + get-notified pill.
+# the badge sits offscreen during the close framing; a parallax slide near
+# the end brings it large into the top-left like the reference close.
+BGX, BGY = -45, 411
+set_static(rect("g_halo", BGX, BGY, 230, 230, 72, "#b9c4fb", blur=32),
            opacity=0.55)
-rect("g_badge", 24, 411, 168, 168, 48, "#ffffff",
+rect("g_badge", BGX, BGY, 168, 168, 48, "#ffffff",
      glow={"sigma": 22, "opacity": 0.3, "color": "#aeb4cf", "dy": 10})
-text("g_q", "?", 24, 415, 92, "#6472f0", weight=800)
+text("g_q", "?", BGX, BGY + 4, 92, "#6472f0", weight=800)
 rect("g_pill", -240, 770, 280, 90, 45, "#5876fc")
 text("g_pillt", "Get notified", -205, 772, 34, "#ffffff", weight=600)
 text("g_caption", "s?", -280, 620, 34, "#6d6d72", weight=500)
@@ -428,8 +431,8 @@ HANDLE_WP = [
     (0.00, *close_w(790, 475)),
     (0.14, *close_w(862, 566)),
     (0.28, *close_w(706, 700)),
-    (0.42, *close_w(900, 528)),
-    (0.58, *close_w(915, 520)),
+    (0.42, *close_w(850, 528)),
+    (0.58, *close_w(858, 522)),
     (0.68, *close_w(700, 810)),
     (0.80, *close_w(685, 840)),
     (0.95, *mid_w(700, 560)),
@@ -599,12 +602,12 @@ for i in range(7):
 for di in range(13):
     xs, ys = dot_keys[di]
     x0, y0 = xs[0][1], ys[0][1]
-    rect(f"td{di}", x0, y0, 10.5, 10.5, 5.25, "#f09a2e")
+    rect(f"td{di}", x0, y0, 8.5, 8.5, 4.25, "#f09a2e")
     track(f"td{di}", x=[(t, v - x0) for t, v in xs],
           y=[(t, v - y0) for t, v in ys])
 
 # handle dot + grabbing fist cursor riding it
-rect("hd", h0x, h0y, 24, 24, 12, "#f79f28",
+rect("hd", h0x, h0y, 19, 19, 9.5, "#f79f28",
      streak={"samples": 4, "window": 0.04, "gain": 0.3})
 track("hd", x=handle_kx, y=handle_ky)
 c2 = cursor_group("cur2", h0x + 2, h0y + 46, "fist", 1.5)
@@ -617,6 +620,14 @@ for nid in c2:
 cex, cey, cez = samples[-1][1], samples[-1][2], 1.18
 end_cam_x = cex - 540 + (540 - 650) / cez
 end_cam_y = cey - 540 + (540 - 470) / cez
+
+# parallax-slide the badge so the end framing shows it big at top-left
+# (the reference camera pans; our furniture drifts to the same effect)
+bex = (150 - 540) / cez + end_cam_x + 540
+bey = (210 - 540) / cez + end_cam_y + 540
+for nid in ("g_halo", "g_badge", "g_q"):
+    track(nid, x=[(0, 0), (1.72, 0), (2.1, bex - BGX, "inOutCubic")],
+          y=[(0, 0), (1.72, 0), (2.1, bey - BGY, "inOutCubic")])
 track("s2",
       cam_zoom=[(0, 1.32), (50 * F, 1.32), (76 * F, 0.62, EZ),
                 (102 * F, 0.62), (126 * F, 1.13, [0.4, 0, 0.3, 1]),

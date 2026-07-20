@@ -278,12 +278,12 @@ g0 += d1
 # ---------------------------------------------------------------- s2 run
 d2 = 3.0
 ns = [
-    text("run2", "Run", 235, 307, 84, INK, 700),
-    rect("pill1", 415, 307, 195, 72, 36, RED, goo="pillgoo"),
-    text("pill1t", "multiple", 415, 307, 40, "#ffffff", 600),
-    rect("pill2", 600, 307, 158, 72, 36, RED, goo="pillgoo"),
-    text("pill2t", "agents", 600, 307, 40, "#ffffff", 600),
-    text("inpar", "in parallel", 800, 307, 40, INK, 600),
+    text("run2", "Run", 205, 307, 84, INK, 700),
+    rect("pill1", 425, 307, 195, 72, 36, RED, goo="pillgoo"),
+    text("pill1t", "multiple", 425, 307, 40, "#ffffff", 600),
+    rect("pill2", 630, 307, 158, 72, 36, RED, goo="pillgoo"),
+    text("pill2t", "agents", 630, 307, 40, "#ffffff", 600),
+    text("inpar", "in parallel", 820, 307, 40, INK, 600),
 ]
 tracks.append({"target": "run2", "reveal": {
     "unit": "word", "stagger": 0, "dur": 0.15, "rise": 0, "accent": RED,
@@ -300,6 +300,7 @@ tracks.append({"target": "inpar", "at": 1.9, "reveal": {
     "unit": "word", "stagger": 0.09, "dur": 0.2, "rise": 22, "accent": INK}})
 ostep("inpar", [(0, 0), (1.9, 1)])
 track("inpar", x=[(1.9, 0), (d2, -14)])
+exit_fade(["run2", "pill1", "pill1t", "pill2", "pill2t", "inpar"], 2.78, 2.98)
 scene(2, d2, {"kind": "cut"}, ns, g0)
 g0 += d2
 
@@ -327,6 +328,7 @@ for i, (label, cx, cy) in enumerate(CARDS3):
     for nid in (f"c3card{i}", f"c3mol{i}d", f"c3mol{i}l", f"c3t{i}"):
         track(nid, x=[(t0 + 0.2, -60), (t0 + 0.65, 0, "outCubic")])
         ostep(nid, [(0, 0), (t0 + 0.2, 0), (t0 + 0.4, 1)])
+exit_fade([n["id"] for n in ns], 2.55, 2.78)
 scene(3, d3, {"kind": "fade", "dur": 0.3}, ns, g0)
 g0 += d3
 
@@ -416,7 +418,7 @@ ns += [
 ]
 for i, col in enumerate(["#c9a29a", "#9ab4c9", "#b9a9c9", "#a9c99a", "#c9c29a"]):
     ns.append(path(f"app_av{i}", 828 + i * 22, 342, circle_d(0, 0, 10), col))
-ns += cursor_chip("m6", 770, 505, BLUE, "Max", 52, 40)
+ns += cursor_chip("m6", 770, 505, BLUE, "Max", 60, 46, big=True)
 tracks.append({"target": "ptyped", "at": 0.7, "reveal": {
     "unit": "type", "cadence": 0.055, "dur": 0.08, "caret": "bar",
     "caret_blink": 0.9}})
@@ -468,8 +470,7 @@ for i, (prompt, name, col, bx, by) in enumerate(QUAD):
         path(p + "sendar", bx + 148, by + 35, "M0 6L0 -6M-4.5 -1.5L0 -6L4.5 -1.5",
              "#ffffff", stroke=1.8),
     ]
-    cdx = -58 if right else 48
-    ns += cursor_chip(p, bx + 168, by + 60, col, name, cdx, 22)
+    ns += cursor_chip(p, bx + 168, by + 60, col, name, -58, 24)
     t0 = 0.25 + i * 0.14
     grp = [p + s for s in ("box", "boxb", "plus", "send", "sendar",
                            "cur", "chipf", "chipb", "chipt")]
@@ -539,8 +540,6 @@ ns += [
     rect("chip9", 170, 148, 108, 34, 8, "#eceae3"),
     text("chip9t", "Main App", 170, 148, 16, INK, 600),
 ]
-for j, n in enumerate(postinify("", 0, 0, 1.0)):
-    pass
 m9ids = [n["id"] for n in ns if n["id"].startswith("m9")]
 track("m9card", blur=[(0, 14), (0.7, 0, "outCubic")])
 for j, nid in enumerate(m9ids):
@@ -663,6 +662,13 @@ tracks.append({"target": "h12b", "at": 2.35, "reveal": {
     "unit": "word", "stagger": 0.08, "dur": 0.2, "rise": 16, "accent": RED,
     "color_delay": 0.2, "color_dur": 0.35, "keep": ["Now"]}})
 ostep("h12b", [(0, 0), (2.35, 1)])
+# the red wipe: an in-world flood swallows the tree at the scene's end, so
+# the cut into s13 lands on an already-red stage
+ns.append(rect("wipe12", 499, 307, 906, 510, 60, RED))
+track("wipe12",
+      w=[(3.15, 90), (3.55, 906, "inCubic")],
+      h=[(3.15, 90), (3.55, 510, "inCubic")])
+ostep("wipe12", [(0, 0), (3.15, 1)])
 scene(12, d12, {"kind": "fade", "dur": 0.4}, ns, g0)
 g0 += d12
 
@@ -678,8 +684,8 @@ ns = [
     text("t13b", "Move Faster", 499, 300, 52, INK, 700),
 ]
 track("flood",
-      w=[(0, 70), (0.32, 906, "outCubic"), (2.5, 906), (2.8, 104, "inCubic")],
-      h=[(0, 70), (0.32, 510, "outCubic"), (2.5, 510), (2.8, 104, "inCubic")])
+      w=[(2.5, 906), (2.8, 104, "inCubic")],
+      h=[(2.5, 510), (2.8, 104, "inCubic")])
 ostep("rt13", [(0, 0), (0.6, 0), (0.9, 0.22), (2.4, 0.22), (2.55, 0)])
 track("pill13",
       w=[(0.45, 50), (0.85, 520, "outCubic"), (2.3, 520), (2.62, 36, "inCubic")],

@@ -217,7 +217,7 @@ path(ed, "e_phr", 358, 804, circle_d(9), "#ea6f34", stroke=2.0)
 
 # color wheel: blooms out of the dot f26-40. packed 14-swatch ring, muted
 # designer palette, slightly right of and above the dot like the source
-WCX, WCY = 210.5, 484
+WCX, WCY = 208, 484
 rect(ed, "e_disc", WCX, WCY, 127, 127, 63.5, "#ffffff",
      glow={"sigma": 5, "opacity": 0.15, "color": "#888888", "dy": 2})
 track("e_disc", scale=[(24 * F, 0.0), (25 * F, 0.0), (33 * F, 1.0, "outCubic")],
@@ -248,9 +248,9 @@ for nid in ("e_win", "e_drop"):
           opacity=steps([(25 * F, 0), (25.5 * F, 1)]))
 
 # gradient sphere blooms in one frame at f57
-rect(ed, "e_sph", 223, 524, 69, 69, 34.5, "#2b7cf0",
+rect(ed, "e_sph", 225.8, 524, 73, 73, 36.5, "#2b7cf0",
      gradient={"angle": 135, "stops": [
-         {"at": 0.0, "color": "#72f7f4"}, {"at": 0.35, "color": "#2f8cf0"},
+         {"at": 0.0, "color": "#72f7f4"}, {"at": 0.5, "color": "#2f8cf0"},
          {"at": 1.0, "color": "#0535df"}]},
      glow={"sigma": 8, "opacity": 0.3, "color": "#2255cc", "dy": 4})
 track("e_sph", scale=[(55 * F, 0.0), (56 * F, 0.55), (58 * F, 1.0, "outCubic")],
