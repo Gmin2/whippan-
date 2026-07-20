@@ -93,7 +93,7 @@ export default function App() {
             position: 'relative', padding: 28,
           }}>
             <Stage ck={ck} doc={doc} t={t} selection={selection}
-                   onSelect={setSelection} />
+                   onSelect={setSelection} onEdit={edit} />
             <Dock />
           </div>
           <Transport t={t} dur={dur} playing={playing}
