@@ -49,7 +49,7 @@ function Film({ ck, doc, animated = true, className, style }) {
       s.surface.flush()
       if (animated) raf = requestAnimationFrame(draw)
     }
-    raf = requestAnimationFrame(draw)
+    draw(t0)
     return () => {
       cancelAnimationFrame(raf)
       paint.delete()
@@ -203,7 +203,7 @@ async function thumbFrame(ck, entry) {
   const canvas = document.createElement('canvas')
   canvas.width = w
   canvas.height = h
-  const surface = ck.MakeSWCanvasSurface(canvas)
+  const surface = (ck.MakeSWCanvasSurface ?? ck.MakeCanvasSurface).call(ck, canvas)
   const paint = new ck.Paint()
   paint.setAntiAlias(true)
   const t = docDur(doc.stage) * 0.4
