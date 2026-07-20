@@ -119,7 +119,7 @@ vroll_ids = []    # clip rows that ride the vertical track scroll
 
 # ------------------------------------------------------------ desktop
 rect("desk", 540, 540, 1082, 1082, 0, "#3a3a3a",
-     gradient={"angle": 135, "stops": [
+     gradient={"angle": 315, "stops": [
          {"at": 0.0, "color": "#d6d2d3"}, {"at": 0.45, "color": "#6e6c6d"},
          {"at": 1.0, "color": "#232323"}]})
 rect("win_rim", 524, 522, 988, 876, 26, "#4a4a4a")
@@ -181,11 +181,11 @@ text("gh2", "2", CX, 366, 52, "#9a9a9a", 800)
 windows("gh2", [(1.56, 1.84)])
 
 # ------------------------------------------------------------ let's go(oo)
-text("w_lets", "let's", 455, 320, 105, "#9a9a9a", 800)
+text("w_lets", "let's", 385, 320, 105, "#9a9a9a", 800)
 track("w_lets", y=[(1.98, 30), (2.16, 0, "outCubic")],
       scale=[(2.50, 1.0), (2.64, 2.1, "inCubic")])
 windows("w_lets", [(1.98, 2.60)])
-text("w_go", "go", 655, 320, 105, "#d9d9d9", 800)
+text("w_go", "go", 565, 320, 105, "#d9d9d9", 800)
 track("w_go", y=[(2.10, 26), (2.26, 0, "outCubic")],
       scale=[(2.50, 1.0), (2.64, 2.3, "inCubic")])
 windows("w_go", [(2.10, 2.60)])
@@ -589,7 +589,7 @@ path("dock_ch2", 600, 511, "M-3 -2L0 2L3 -2", "#9a9a9a", stroke=1.6)
 
 # ------------------------------------------------------------ camera zoom
 track("s", cam_zoom=[(0, 1.0), (7.583, 1.0), (7.617, 2.2, "outCubic")],
-      cam_y=[(0, 0), (7.583, 0), (7.617, -242, "outCubic")])
+      cam_y=[(0, 0), (7.583, 0), (7.617, -110, "outCubic")])
 
 stage = {
     "fps": 30,

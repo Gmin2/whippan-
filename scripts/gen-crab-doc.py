@@ -301,40 +301,41 @@ def capsule_d(ln, wd):
             f"L{w*0.86} {h-4}C{w*0.8} {h+5} {-w*0.8} {h+5} {-w*0.86} {h-4}Z")
 
 
-def build_crab(prefix, cx, cy, sc):
+def build_crab(prefix, cx, cy, sc, echoes=True):
     """static crab instance; returns dict of ids for posing."""
     ids = {"limbs": [], "echoes": []}
-    sh = rect(f"{prefix}_sh", cx, cy + 58 * sc, 120 * sc, 26 * sc,
-              13 * sc, "#c7c7cc", blur=9, opacity=0.45)
+    sh = rect(f"{prefix}_sh", cx, cy + 62 * sc, 132 * sc, 28 * sc,
+              14 * sc, "#c7c7cc", blur=9)
+    set_static(sh, opacity=0.4)
     ids["shadow"] = sh["id"]
     for i, ang in enumerate(LIMB_ANGLES):
         a = math.radians(ang)
-        lx = cx + math.cos(a) * (BODY_R + LIMB_LEN[i] / 2 + 6) * sc
-        ly = cy + math.sin(a) * (BODY_R + LIMB_LEN[i] / 2 + 6) * sc
-        e = path(f"{prefix}_le{i}", lx, ly,
-                 capsule_d(LIMB_LEN[i], 20), "#96a8f8",
-                 rot=ang + 90, opacity=0.0)
-        e["keys"] = {"scale": [{"t": 0, "v": sc}]}
-        ids["echoes"].append(e["id"])
+        lx = cx + math.cos(a) * (BODY_R + LIMB_LEN[i] / 2 - 8) * sc
+        ly = cy + math.sin(a) * (BODY_R + LIMB_LEN[i] / 2 - 8) * sc
+        if echoes:
+            e = path(f"{prefix}_le{i}", lx, ly,
+                     capsule_d(LIMB_LEN[i], 26), "#96a8f8", rot=ang + 90)
+            set_static(e, scale=sc, opacity=0.0)
+            ids["echoes"].append(e["id"])
         n = path(f"{prefix}_l{i}", lx, ly,
-                 capsule_d(LIMB_LEN[i], 20), LIMB_COLS[i], rot=ang + 90)
-        n["keys"] = {"scale": [{"t": 0, "v": sc}]}
+                 capsule_d(LIMB_LEN[i], 26), LIMB_COLS[i], rot=ang + 90)
+        set_static(n, scale=sc)
         ids["limbs"].append(n["id"])
     b = path(f"{prefix}_body", cx, cy, pent_d(BODY_R), "#5c7afb")
-    b["keys"] = {"scale": [{"t": 0, "v": sc}]}
+    set_static(b, scale=sc)
     f = path(f"{prefix}_facet", cx, cy,
-             "M-30 -12L2 -33L26 -6L-4 6Z", "#6b86f2", opacity=0.75)
-    f["keys"] = {"scale": [{"t": 0, "v": sc}]}
-    ring = path(f"{prefix}_ring", cx, cy, circle_d(14), "#ffffff")
-    ring["keys"] = {"scale": [{"t": 0, "v": sc}]}
-    dot = path(f"{prefix}_dot", cx, cy, circle_d(8.5), "#f79f28")
-    dot["keys"] = {"scale": [{"t": 0, "v": sc}]}
+             "M-32 -13L2 -35L28 -7L-4 6Z", "#6b86f2")
+    set_static(f, scale=sc, opacity=0.7)
+    ring = path(f"{prefix}_ring", cx, cy, circle_d(15), "#ffffff")
+    set_static(ring, scale=sc)
+    dot = path(f"{prefix}_dot", cx, cy, circle_d(9), "#f79f28")
+    set_static(dot, scale=sc)
     ids["body"] = [b["id"], f["id"], ring["id"], dot["id"]]
     return ids
 
 
 # crab walks in at the right edge f128-160 (page space, seen at 1.9x)
-pv = build_crab("pv", 1108, 552, 0.52)
+pv = build_crab("pv", 1108, 552, 0.52, echoes=False)
 for nid in pv["body"] + [pv["shadow"]]:
     track(nid, x=[(126 * F, 80), (160 * F, 0, "outCubic")],
           opacity=[(0, 0), (126 * F, 0), (132 * F, 1)])
@@ -351,15 +352,15 @@ for i, nid in enumerate(pv["limbs"]):
           opacity=[(0, 0), (126 * F, 0), (132 * F, 1)],
           rot=wig)
 
-# scene-1 pointing-hand cursor
-c1 = cursor_group("cur1", 909, 662, "hand", 1.0)
+# scene-1 pointing-hand cursor (stage pos: fingertip near badge lower edge)
+c1 = cursor_group("cur1", 909, 668, "hand", 1.35)
 for nid in c1:
     track(nid, x=[(0, 0), (4 * F, 0), (12 * F, -16, "outCubic"),
-                  (30 * F, -16), (55 * F, -12, "inOutCubic"), (88 * F, -12),
-                  (100 * F, -26, "inOutCubic"), (160 * F, -28)],
+                  (30 * F, -16), (55 * F, -14, "inOutCubic"), (88 * F, -14),
+                  (102 * F, 142, "inOutCubic"), (160 * F, 145)],
           y=[(0, 0), (4 * F, 0), (12 * F, -26, "outCubic"), (30 * F, -26),
-             (55 * F, -30, "inOutCubic"), (88 * F, -30),
-             (100 * F, -68, "inOutCubic"), (160 * F, -70)])
+             (55 * F, -32, "inOutCubic"), (88 * F, -32),
+             (102 * F, -50, "inOutCubic"), (160 * F, -52)])
 
 # camera: hook hold -> crash zoom-out -> hold -> push-in on the card
 EZ = [0.16, 1, 0.3, 1]
@@ -381,29 +382,29 @@ rect("g_wash", 540, 470, 3000, 2600, 0, "#e9e9ec", gradient={
     "angle": 90, "stops": [{"at": 0, "color": "#e6e6ea"},
                            {"at": 0.5, "color": "#f8f8fa"},
                            {"at": 1, "color": "#fefefe"}]})
-path("g_grid", 540, 540, grid_d(-1200, 1700, -1200, 1700, 74), "#e4e4e8",
-     stroke=1.0, opacity=0.55)
+set_static(path("g_grid", 540, 540, grid_d(-1200, 1700, -1200, 1700, 74),
+                "#ececef", stroke=1.0), opacity=0.6)
 
 # ghost hero type fragments (still defocused): big G bottom-left, NG top-left
-for i, (dx, dy, op) in enumerate([(-9, 0, 0.35), (9, 3, 0.35), (0, 0, 0.8)]):
-    n = text(f"g_g{i}", "G", 40 + dx, 790 + dy, 430, "#d5d4d9", weight=900)
-    n["opacity"] = op
-    n2 = text(f"g_ng{i}", "NG", 60 + dx, 105 + dy, 330, "#d5d4d9", weight=900)
-    n2["opacity"] = op * 0.9
-    n3 = text(f"g_n{i}", "N", -95 + dx, 480 + dy, 330, "#d5d4d9", weight=900)
-    n3["opacity"] = op * 0.9
+for i, (dx, dy, op) in enumerate([(-6, 0, 0.22), (6, 3, 0.22), (0, 0, 0.8)]):
+    set_static(text(f"g_g{i}", "G", 40 + dx, 790 + dy, 430, "#d5d4d9",
+                    weight=900), opacity=op)
+    set_static(text(f"g_ng{i}", "NG", 60 + dx, 105 + dy, 330, "#d5d4d9",
+                    weight=900), opacity=op * 0.9)
+    set_static(text(f"g_n{i}", "N", -95 + dx, 480 + dy, 330, "#d5d4d9",
+                    weight=900), opacity=op * 0.9)
 
 # page furniture seen when zoomed out: glowing badge + get-notified pill
-rect("g_halo", 24, 411, 260, 260, 80, "#b9c4fb", blur=38, opacity=0.7)
+set_static(rect("g_halo", 24, 411, 230, 230, 72, "#b9c4fb", blur=32),
+           opacity=0.55)
 rect("g_badge", 24, 411, 168, 168, 48, "#ffffff",
      glow={"sigma": 22, "opacity": 0.3, "color": "#aeb4cf", "dy": 10})
 text("g_q", "?", 24, 415, 92, "#6472f0", weight=800)
 rect("g_pill", -240, 770, 280, 90, 45, "#5876fc")
 text("g_pillt", "Get notified", -205, 772, 34, "#ffffff", weight=600)
 text("g_caption", "s?", -280, 620, 34, "#6d6d72", weight=500)
-p = path("g_mark", 1150, 1210, circle_d(64) + circle_d(38), "#d3d3d8",
-         stroke=3.0)
-p["opacity"] = 0.6
+set_static(path("g_mark", 1150, 1210, circle_d(64) + circle_d(38), "#d3d3d8",
+                stroke=3.0), opacity=0.6)
 
 # device bezel beyond the page's right/bottom edges
 rect("bz_r", 1620, 540, 640, 3200, 64, "#3e3d42")

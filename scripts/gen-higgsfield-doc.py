@@ -246,12 +246,16 @@ def macro_tile(p, cx, cy, w, h, nodes, dx=0, dy=0, ws=None):
     nodes.append(rect(p + "c", cx + dx, cy + dy, ws, ws, ws/2, "#33333a"))
     nodes.append(rect(p + "f", cx + dx, cy + dy, ws*0.76, ws*0.76,
                       ws*0.38, "#0d0d10"))
+    nodes.append(path(p + "mh", cx + dx, cy + dy,
+                      f"M0 0L{ws*0.2} {-ws*0.14}M0 0L{-ws*0.04} {-ws*0.24}",
+                      "#d8d8dc", stroke=max(1.2, ws * 0.03)))
     nodes.append(path(p + "h", cx + dx, cy + dy,
-                      f"M0 0L{ws*0.2} {-ws*0.14}M0 0L{-ws*0.05} {ws*0.26}",
-                      LIME, stroke=1.4))
+                      f"M0 0L{-ws*0.05} {ws*0.26}", LIME,
+                      stroke=max(1.0, ws * 0.018)))
 
 
-def deadline(p, nodes, cx, cy, prefix, d_from, d_to, t_swap, t_in=0.15):
+def deadline(p, nodes, cx, cy, prefix, d_from, d_to, t_swap, t_in=0.15,
+             t_out=None):
     """dark chip, DEADLINE label, lime mono countdown; last digit swaps."""
     nodes.append(rect(p + "bg", cx, cy, 172, 32, 16, "#141418"))
     nodes.append(ltext(p + "lb", "DEADLINE", cx - 74, cy, 9, "#8a8a92",
@@ -265,11 +269,15 @@ def deadline(p, nodes, cx, cy, prefix, d_from, d_to, t_swap, t_in=0.15):
     nodes.append(text(p + "db", d_to, dxp, cy, 15, LIME, weight=600,
                       family="mono"))
     for nid in (p + "bg", p + "lb", p + "tm"):
-        gate(nid, t_in, fade=0.15)
-    track(p + "da", opacity=[(0, 0), (t_in, 0), (t_in + 0.15, 1),
-                             (t_swap, 1), (t_swap + 0.1, 0)],
+        gate(nid, t_in, t_out, fade=0.15)
+    da_ops = [(0, 0), (t_in, 0), (t_in + 0.15, 1),
+              (t_swap, 1), (t_swap + 0.1, 0)]
+    db_ops = [(0, 0), (t_swap, 0), (t_swap + 0.1, 1)]
+    if t_out:
+        db_ops += [(t_out, 1), (t_out + 0.15, 0)]
+    track(p + "da", opacity=da_ops,
           y=[(t_swap, 0), (t_swap + 0.1, -9, "outCubic")])
-    track(p + "db", opacity=[(0, 0), (t_swap, 0), (t_swap + 0.1, 1)],
+    track(p + "db", opacity=db_ops,
           y=[(t_swap, 9), (t_swap + 0.1, 0, "outCubic")])
 
 

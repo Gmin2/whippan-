@@ -146,7 +146,7 @@ nodes.append(rect("pvbase", PX + 1.5, 705, 1407, 1410, 0, "#bfbfbf"))
 nodes.append(rect("pvblack", PX + 1.5, 705, 1407, 1410, 0, "#0a0a0a"))
 tracks.append(vis("pvblack", 1.78, 2.12))
 nodes.append(rect("pvgreen", PX + 1.5, 705, 1407, 1410, 0, GREEN))
-tracks.append(vis("pvgreen", 5.82, 6.12))
+tracks.append(vis("pvgreen", 5.8, 6.06))
 
 # ===================================================== s1: glyph drop-in
 # small white lozenge with the black player glyph, grows on a long ease
@@ -371,8 +371,8 @@ for i, (bx, by, br) in enumerate([(260, 240, 110), (830, 330, 130),
                                   (240, 1150, 70)]):
     g = ["#7a7a7a", "#8f8f8f", "#6b6b6b", "#9b9b9b", "#818181"][i]
     nodes.append(rect(f"mbub{i}", bx, by, br * 2, br * 2, br, g))
-    tracks.append(vis(f"mbub{i}", 4.95, 5.25, 5.95, 6.25, hi=0.9))
-IT_OP = [(0, 0), (5.4, 0), (5.65, 1), (6.0, 1), (6.3, 0)]
+    tracks.append(vis(f"mbub{i}", 4.95, 5.25, 5.85, 6.15, hi=0.9))
+IT_OP = [(0, 0), (5.4, 0), (5.62, 1), (5.85, 1), (6.08, 0)]
 IT_SC = [(5.4, 0.8), (5.72, 1.0, "outCubic")]
 note_d = (circle(-52, 52, 30) + circle(40, 64, 30)
           + poly([(-30, 52), (-22, 52), (-22, -58), (-30, -58)])
@@ -430,17 +430,17 @@ def torso_d(lean):
 
 
 def band_d(hx, hy):
-    """headphone band: filled crescent over the head."""
+    """headphone band: filled crescent hugging the head."""
     out, inn = [], []
     for i in range(13):
         a = math.pi + i / 12 * math.pi
-        out.append((hx + 160 * math.cos(a), hy - 20 + 150 * math.sin(a)))
-        inn.append((hx + 118 * math.cos(a), hy - 20 + 112 * math.sin(a)))
+        out.append((hx + 152 * math.cos(a), hy + 5 + 145 * math.sin(a)))
+        inn.append((hx + 112 * math.cos(a), hy + 5 + 106 * math.sin(a)))
     return poly(out + list(reversed(inn)))
 
 
 def pads_d(hx, hy):
-    return circle(hx - 132, hy + 4, 44) + circle(hx + 132, hy + 4, 44)
+    return circle(hx - 128, hy + 22, 44) + circle(hx + 128, hy + 22, 44)
 
 
 # poses: head center, torso lean, arm/leg joint chains
@@ -530,10 +530,14 @@ for part, col in DANCER_PARTS:
                         opacity=DOP,
                         scale=[(0, 0.62), (10.15, 0.62),
                                (10.5, 0.26, "inOutCubic")]))
-# the phone in the raised hand
+# the phone in the raised hand; during the shrink it follows the hand
+# (dancer scales about its own center, the phone compensates)
 nodes.append(rect("dphone", PX + 330, 60, 84, 140, 18, "#f4f4f4",
                   rot=14))
-tracks.append(keyed("dphone", x=DX, y=DY,
+tracks.append(keyed("dphone",
+                    x=[(5.55, -560), (6.35, 0, "outCubic"), (10.15, 0),
+                       (10.5, -621, "inOutCubic")],
+                    y=[(10.15, 0), (10.5, 821, "inOutCubic")],
                     scale=[(10.15, 1), (10.5, 0.42, "inOutCubic")],
                     opacity=[(0, 0), (9.4, 0), (9.6, 1), (10.9, 1),
                              (11.1, 0)]))
@@ -555,12 +559,18 @@ tracks.append(keyed("wm_full",
                     x=[(10.95, 40), (11.25, 0, "outCubic")],
                     opacity=[(0, 0), (10.95, 0), (11.15, 1),
                              (11.52, 1), (11.68, 0)]))
+nodes.append(text("m_full", "iPod, but it's 2026", 612, 720, 62,
+                  "#4a4a4a", weight=700))
+tracks.append(keyed("m_full",
+                    x=[(10.95, 25), (11.25, 0, "outCubic")],
+                    opacity=[(0, 0), (10.95, 0), (11.15, 1),
+                             (11.52, 1), (11.68, 0)]))
 MO1_OP = [(0, 0), (11.55, 0), (11.78, 1)]
 MO1_SC = [(11.55, 0.85), (11.85, 1.0, "outCubic")]
 mo1_parts = [
-    text("mo1_m", "m", PX, 630, 230, "#0a0a0a", weight=800),
-    rect("mo1_o", PX, 768, 250, 105, 52, "#0a0a0a"),
-    text("mo1_1", "1", PX, 770, 86, GREEN, weight=800),
+    text("mo1_m", "m", PX, 618, 230, "#0a0a0a", weight=800),
+    rect("mo1_o", PX, 775, 250, 100, 50, "#0a0a0a"),
+    text("mo1_1", "1", PX, 777, 82, GREEN, weight=800),
 ]
 for n in mo1_parts:
     nodes.append(n)

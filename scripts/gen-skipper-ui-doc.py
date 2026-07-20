@@ -655,7 +655,7 @@ n15k2 = [
      "font": {"size": 17, "weight": 500, "family": "mono"}},
     text("dr_w", "Draw", 990, 875, 195, "#8b1f38", 800),
     text("dr_h1", "click on the grid to start adding", 1115, 778, 20,
-         "#a8касс".replace("касс", "2040")),
+         "#a82040"),
     text("dr_h2", "blocks to the canvas", 1160, 802, 20, "#a82040"),
     rect("dr_c1", 680, 685, 66, 62, 6, "#8f2a33", rot=-8),
     rect("dr_c2", 1170, 540, 58, 56, 6, "#8f2a33", rot=10),
