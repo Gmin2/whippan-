@@ -252,6 +252,18 @@
   "anim": "/docs/claude.anim.json"
  },
  {
+  "slug": "ravie",
+  "title": "ravie (repro)",
+  "dur": 38.8,
+  "size": [
+   1138,
+   640
+  ],
+  "group": "reproductions",
+  "stage": "/docs/ravie.stage.json",
+  "anim": "/docs/ravie.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,
