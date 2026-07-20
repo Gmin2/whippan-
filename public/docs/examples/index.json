@@ -60,6 +60,18 @@
   "anim": "/docs/base-2.anim.json"
  },
  {
+  "slug": "x-anim",
+  "title": "x-anim (repro)",
+  "dur": 14.24,
+  "size": [
+   2274,
+   1168
+  ],
+  "group": "reproductions",
+  "stage": "/docs/x-anim.stage.json",
+  "anim": "/docs/x-anim.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,
