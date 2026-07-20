@@ -203,7 +203,8 @@ c.append(rect("s1_slide", SLX, SLY, SLW, SLH, 6, CLAY))
 c.append(text("s1_head", "Claude Design now connects to", 955, 417, 50,
               INK, weight=600))
 tracks.append({"target": "s1_head", "at": 0.02, "reveal": {
-    "unit": "word", "stagger": 0.13, "dur": 0.04, "rise": 0}})
+    "unit": "word", "stagger": 0.13, "dur": 0.04, "rise": 0,
+    "accent": INK}})
 tracks.append(keyed("s1_head", x=[(0, 0.0), (D1, -22.0)]))
 
 # collage: rounded cards flying in around the headline, then absorbing
@@ -242,7 +243,7 @@ for i, (x, y, w, h, fill, fdx, fdy) in enumerate(COLL):
                                      (1.18, 0)]))
 
 # milanote connector card
-CARD_IN = [(0, 520.0), (1.18, 520.0), (1.52, 0.0, "outCubic"),
+CARD_IN = [(0, 940.0), (1.18, 940.0), (1.52, 0.0, "outCubic"),
            (1.83, 0.0), (2.0, -30.0, "outCubic")]
 c += [
     rect("s1_card", 965, 410, 510, 132, 30, CREAM,
@@ -258,7 +259,7 @@ c += [
 for nid in ["s1_card", "s1_mic", "s1_mim", "s1_mlbl", "s1_tpill"]:
     tracks.append(keyed(nid, x=CARD_IN))
 tracks.append(keyed("s1_tknob",
-                    x=[(0, 520.0), (1.18, 520.0), (1.52, 0.0, "outCubic"),
+                    x=[(0, 940.0), (1.18, 940.0), (1.52, 0.0, "outCubic"),
                        (1.79, 0.0), (1.91, 26.0, "outCubic"),
                        (2.0, -3.0, "outCubic")]))
 tracks.append({"target": "s1_tpill", "at": 1.79, "state": "on"})
@@ -295,7 +296,7 @@ tracks.append({"target": "s2_line", "at": 0.95, "reveal": {
     "keep": ["into"]}})
 tracks.append(keyed("s2_line", opacity=[(0, 0), (0.95, 0), (1.0, 1)]))
 sb = path("s2_sun", 1372, 413, sunburst_d(), ACC)
-sb["keys"] = {"scale": [{"t": 0, "v": 0.85}]}
+sb["keys"] = {"scale": [{"t": 0, "v": 1.2}]}
 c.append(sb)
 tracks.append(keyed("s2_sun",
                     x=[(0, -278.0), (1.3, -278.0), (1.48, 0.0, "outCubic")],

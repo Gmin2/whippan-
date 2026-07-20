@@ -362,14 +362,14 @@ scene("s7", "#000000", 2.6, n7)
 # f461-571: grey gradient stand-in for the ocean shot, center measurement
 # line, two captions trade places, vertical glitch bars exit.
 n8 = [
-    rect("sky8", 569, 320, 1140, 642, 0, "#a3a3a3",
-         gradient={"angle": 90, "stops": [{"at": 0, "color": "#9b9b9b"},
-                                          {"at": 1, "color": "#ababab"}]}),
-    rect("sea8", 569, 588, 1140, 130, 0, "#7f7f7f",
-         gradient={"angle": 90, "stops": [{"at": 0, "color": "#8e8e8e"},
-                                          {"at": 1, "color": "#6e6e6e"}]}),
-    rect("wave8a", 400, 545, 300, 2, 0, "#c4c4c4"),
-    rect("wave8b", 760, 570, 380, 2, 0, "#bdbdbd"),
+    rect("sky8", 569, 320, 1140, 642, 0, "#6b6b6b",
+         gradient={"angle": 90, "stops": [{"at": 0, "color": "#606060"},
+                                          {"at": 1, "color": "#767676"}]}),
+    rect("sea8", 569, 588, 1140, 130, 0, "#4a4a4a",
+         gradient={"angle": 90, "stops": [{"at": 0, "color": "#565656"},
+                                          {"at": 1, "color": "#3c3c3c"}]}),
+    rect("wave8a", 400, 545, 300, 2, 0, "#8f8f8f"),
+    rect("wave8b", 760, 570, 380, 2, 0, "#888888"),
     rect("vln8", 552, 320, 2, 640, 0, WHITE),
     rect("cap8a", 552, 82, 70, 2, 0, WHITE),
     rect("cap8b", 552, 235, 70, 2, 0, WHITE),
@@ -386,6 +386,9 @@ reveal("fast8", 0.2, unit="type", cadence=0.028, dur=0.05, caret="block")
 track("fast8", opacity=[(0.2, 1), (1.9, 1), (2.2, 0.3, "outCubic")])
 track("price8", opacity=[(0, 0), (1.9, 0), (2.2, 1, "outCubic")],
       y=[(1.9, 8), (2.3, 0, "outCubic")])
+n8.append(rect("dim8", 569, 320, 1140, 642, 0, "#000000"))
+track("dim8", opacity=[(0, 0.35), (0.35, 0.0, "outCubic"), (2.4, 0.0),
+                       (3.7, 0.38)])
 for i, gx in enumerate([28, 96, 1046, 1112]):
     nid = f"gl8_{i}"
     n8.append(rect(nid, gx, 320, 16, 640, 0, WHITE))
@@ -429,13 +432,13 @@ scene("s9", "#000000", 0.9, n9)
 # halftone stripe portrait sits behind at low opacity.
 g10 = rnd(77)
 stripes = []
-for ry in range(0, H, 16):
-    x0 = 480 + next(g10) * 380
-    wl = 60 + next(g10) * 320
+for ry in range(0, H, 14):
+    x0 = 80 + next(g10) * 400
+    wl = 200 + next(g10) * 640
     stripes.append(f"M{x0:.0f} {ry}h{wl:.0f}v8h{-wl:.0f}Z")
-n10 = [path("port10", 0, 0, "".join(stripes), "#8a8a8a")]
-track("port10", opacity=stepk([(0.02, 0), (0.06, 0.14), (1.2, 0.1),
-                               (2.0, 0.14), (3.1, 0.1), (3.2, 0)]))
+n10 = [path("port10", 0, 0, "".join(stripes), "#909090")]
+track("port10", opacity=stepk([(0.02, 0), (0.06, 0.3), (1.2, 0.24),
+                               (2.0, 0.3), (2.9, 0.24), (3.0, 0)]))
 n10 += [
     rect("cardb10", 400, 432, 580, 280, 0, "#0a0a0a"),
     rect("cardw10", 400, 432, 580, 280, 0, WHITE),

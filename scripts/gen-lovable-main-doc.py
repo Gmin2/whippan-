@@ -84,8 +84,8 @@ def heart(prefix, x, y, s):
     # left lobe, red right lobe
     return [
         path(prefix + "_b", x, y, heart_d(s), PURPLE),
-        path(prefix + "_l", x - 26 * s, y - 26 * s, circle_d(27 * s), ORANGE),
-        path(prefix + "_r", x + 26 * s, y - 26 * s, circle_d(27 * s), RED),
+        path(prefix + "_l", x - 23 * s, y - 22 * s, circle_d(23 * s), ORANGE),
+        path(prefix + "_r", x + 23 * s, y - 22 * s, circle_d(23 * s), RED),
     ]
 
 
@@ -139,7 +139,7 @@ def aurora(prefix, dur, dark_top=True):
     # -> orange, plus two blurred drifting pools
     ns = [
         rect(prefix + "_g", W / 2, H / 2, W, H, 0, "#06090f", gradient={
-            "angle": 115, "stops": [
+            "angle": 65, "stops": [
                 {"at": 0.0, "color": "#05070c"},
                 {"at": 0.32, "color": "#3f66c4"},
                 {"at": 0.55, "color": AURORA_PINK},
@@ -152,6 +152,9 @@ def aurora(prefix, dur, dark_top=True):
           x=[(0, -30), (dur, 40, "inOutCubic")])
     track(prefix + "_p2", opacity=[(0, 0.55)],
           x=[(0, 30), (dur, -40, "inOutCubic")])
+    if dark_top:
+        ns.append(rect(prefix + "_veil", W / 2, H / 2, W, H, 0, "#000000"))
+        track(prefix + "_veil", opacity=[(0, 0.42)])
     return ns
 
 
@@ -212,10 +215,10 @@ scene("s3", "#0b0b0b", 1.8, n3, kind="cut")
 GLETTERS = [("F", "#4285f4"), ("o", "#ea4335"), ("u", "#fbbc05"),
             ("n", "#4285f4"), ("d", "#34a853")]
 n4 = []
-lx = 495
+lx = 478
 for i, (ch, col) in enumerate(GLETTERS):
     n4.append(text(f"s4_g{i}", ch, lx, 290, 116, col, weight=600))
-    lx += 74 if ch != "F" else 70
+    lx += 82 if ch != "F" else 76
 n4 += [
     rect("s4_gbar", 640, 430, 640, 58, 29, "#ffffff",
          glow={"sigma": 14, "opacity": 0.55, "color": "#c9c9c9"}),
@@ -262,9 +265,9 @@ n5 = [
 # chat panel
 n5 += [
     rect("s5_chat", 372, 380, 268, 540, 10, "#161616"),
-    rect("s5_uchip", 440, 140, 210, 40, 12, "#242424"),
-    ltext("s5_ut1", "Create a rental property", 350, 132, 13, "#e2e2e2"),
-    ltext("s5_ut2", "management app", 350, 150, 13, "#e2e2e2"),
+    rect("s5_uchip", 418, 140, 172, 40, 12, "#242424"),
+    ltext("s5_ut1", "Create a rental property", 340, 132, 13, "#e2e2e2"),
+    ltext("s5_ut2", "management app", 340, 150, 13, "#e2e2e2"),
     ltext("s5_th", "Thought for 34s", 252, 186, 12, "#8a8a8a"),
     ltext("s5_b1", "SEO-optimized architecture with", 252, 222, 12,
           "#9a9a9a"),
@@ -274,7 +277,7 @@ n5 += [
     ltext("s5_b4", "High-performance backend with", 252, 298, 12, "#9a9a9a"),
     ltext("s5_b5", "scalable database design", 252, 318, 12, "#9a9a9a"),
     ltext("s5_edits", "10 edits made", 252, 354, 12, "#7a7a7a"),
-    ltext("s5_show", "Show all", 500, 354, 12, "#6a6a6a"),
+    ltext("s5_show", "Show all", 440, 354, 12, "#6a6a6a"),
     rect("s5_input", 372, 596, 240, 74, 12, "#1e1e1e"),
     ltext("s5_ask", "Ask Lovable...", 264, 582, 13, "#6f6f6f"),
     text("s5_typed", "Help users find my app", 372, 582, 14, "#f0f0f0"),
@@ -303,9 +306,9 @@ n5 += [
     rect("s5_st1", 900, 400, 150, 62, 10, "#eef3ee"),
     ltext("s5_st1a", "Total Payment", 838, 388, 11, "#66766b"),
     ltext("s5_st1b", "$48,000", 838, 410, 18, "#1c2a20", weight=700),
-    rect("s5_st2", 1062, 400, 140, 62, 10, "#f2f6f2"),
-    ltext("s5_st2a", "Monthly Rent", 1006, 388, 11, "#66766b"),
-    ltext("s5_st2b", "$8,500", 1006, 410, 18, "#1c2a20", weight=700),
+    rect("s5_st2", 1040, 400, 140, 62, 10, "#f2f6f2"),
+    ltext("s5_st2a", "Monthly Rent", 984, 388, 11, "#66766b"),
+    ltext("s5_st2b", "$8,500", 984, 410, 18, "#1c2a20", weight=700),
     rect("s5_ph", 680, 470, 200, 160, 10, "#dbe4dd"),
     ltext("s5_pht", "Hudson Row Residences", 596, 528, 11, "#3a463d",
           weight=600),
@@ -427,13 +430,13 @@ n9 = [
     rect("s9_qb", 880, 120, 480, 46, 23, "#2a2a2a"),
     text("s9_q", "How should I manage my rental property?", 880, 120, 18,
          "#f0f0f0"),
-    path("s9_cup", 250, 210, "M-8 -9L8 -9L7 1C6 6 3 8 0 8C-3 8 -6 6 -7 1Z"
+    path("s9_cup", 232, 208, "M-8 -9L8 -9L7 1C6 6 3 8 0 8C-3 8 -6 6 -7 1Z"
          "M-3 8L3 8M-5 12L5 12M-8 -7C-12 -7 -12 -1 -8 0M8 -7C12 -7 12 -1 8 0",
          "#f4b400", stroke=2.0),
-    ltext("s9_a1", "Top 10 BnB Property Management Software", 280, 210, 26,
+    ltext("s9_a1", "Top 10 BnB Property Management Software", 268, 210, 26,
           "#f2f2f2", weight=700),
     ltext("s9_r1", "1.  YourSpace", 250, 290, 24, "#8ab4f0", weight=600),
-    rect("s9_r1u", 344, 306, 172, 3, 1.5, "#8ab4f0"),
+    rect("s9_r1u", 358, 306, 118, 3, 1.5, "#8ab4f0"),
     ltext("s9_r1b", "-  All-in-One BnB Management Software", 440, 290, 22,
           "#e6e6e6"),
     ltext("s9_url", "https://www.yourspace.com", 288, 330, 18, "#9aa0a6"),
@@ -461,7 +464,8 @@ scene("s9", "#0f0f0f", 3.0, n9, kind="cut")
 # --------------------------------------- s10: "Chat with" + SEMRUSH logo
 n10 = [
     text("s10_l1", "Chat with", 640, 280, 78, "#ffffff", weight=700),
-    path("s10_comet", 420, 430, COMET, SEMRUSH),
+    path("s10_comet", 486, 428, COMET, SEMRUSH,
+         keys={"scale": [{"t": 0, "v": 1.6}]}),
     text("s10_sr", "SEMRUSH", 640, 430, 54, SEMRUSH, weight=800),
     text("s10_adobe", "An Adobe Company", 640, 500, 20, "#e6e6e6"),
 ]
@@ -477,7 +481,7 @@ n11 = [
     rect("s11_qb", 900, 70, 480, 44, 22, "#262626"),
     ltext("s11_q1", "Hey", 690, 70, 18, "#f0f0f0"),
     ltext("s11_q2", "Semrush,", 732, 70, 18, SEMRUSH, weight=600),
-    ltext("s11_q3", "how findable is my site?", 822, 70, 18, "#f0f0f0"),
+    ltext("s11_q3", "how findable is my site?", 808, 70, 18, "#f0f0f0"),
     rect("s11_tile", 300, 150, 34, 34, 10, "#2b2440"),
     path("s11_ci", 300, 150, COMET, SEMRUSH),
     ltext("s11_sr", "Semrush", 328, 150, 22, "#c9c9c9", weight=600),
@@ -559,7 +563,7 @@ track("s12", cam_zoom=[(0, 1.0), (1.0, 1.28, "inOutCubic")],
 scene("s12", "#587beb", 1.6, n12, kind="fade", tdur=0.3)
 
 # --------------------------------------------------- s13: Your SEO review
-n13 = aurora("s13a", 2.6)
+n13 = aurora("s13a", 2.6, dark_top=True)
 n13 += [
     rect("s13_panel", 640, 370, 880, 520, 22, PANEL),
     ltext("s13_hd", "Your SEO review", 250, 160, 36, "#ffffff", weight=700),
@@ -599,9 +603,9 @@ scene("s13", "#050505", 2.6, n13, kind="cut")
 n14 = aurora("s14a", 1.5)
 n14 += [
     text("s14_l1", "Server-Side", 640, 280, 70, "#ffffff", weight=800),
-    rect("s14_tile", 402, 380, 58, 58, 15, "#1e1e1e"),
-    path("s14_srv", 402, 380, SERVER, AURORA_ORANGE, stroke=2.4),
-    text("s14_l2", "Rendering", 700, 380, 70, "#ffffff", weight=800),
+    rect("s14_tile", 468, 380, 58, 58, 15, "#1e1e1e"),
+    path("s14_srv", 468, 380, SERVER, AURORA_ORANGE, stroke=2.4),
+    text("s14_l2", "Rendering", 692, 380, 70, "#ffffff", weight=800),
     text("s14_cap", "for new apps", 640, 470, 24, "#ffffff"),
 ]
 reveal("s14_l1", 0.1, unit="glyph", stagger=0.02, dur=0.2, rise=0,
@@ -617,8 +621,8 @@ scene("s14", "#050505", 1.5, n14, kind="dissolve", tdur=0.35)
 
 n15 = aurora("s15a", 1.5)
 n15 += [
-    rect("s15_tile", 380, 320, 58, 58, 15, "#1e1e1e"),
-    path("s15_db", 380, 320, "M-12 -10a12 5 0 1 0 24 0a12 5 0 1 0 -24 0"
+    rect("s15_tile", 408, 320, 58, 58, 15, "#1e1e1e"),
+    path("s15_db", 408, 320, "M-12 -10a12 5 0 1 0 24 0a12 5 0 1 0 -24 0"
          "M-12 -10L-12 8a12 5 0 0 0 24 0L12 -10M2 -2L-4 4L2 4L-4 12",
          AURORA_ORANGE, stroke=2.2),
     text("s15_l1", "Pre-Rendering", 700, 320, 70, "#ffffff", weight=800),
@@ -672,11 +676,11 @@ scene("s16", "#0a0a0a", 2.2, n16, kind="fade", tdur=0.3)
 # --------------------------------------------------------- s17: end card
 n17 = aurora("s17a", 3.4)
 n17 += [
-    text("s17_build", "Build something", 452, 360, 62, "#ffffff", weight=700),
-    path("s17_h", 730, 358, heart_d(0.45), "#ffffff"),
-    text("s17_find", "Findable", 916, 360, 62, "#ffffff", weight=700),
-    text("s17_srch", "Searchable", 950, 360, 62, "#ffffff", weight=700),
-    text("s17_lov", "Lovable", 900, 360, 62, "#ffffff", weight=700),
+    text("s17_build", "Build something", 430, 360, 62, "#ffffff", weight=700),
+    path("s17_h", 758, 358, heart_d(0.42), "#ffffff"),
+    text("s17_find", "Findable", 950, 360, 62, "#ffffff", weight=700),
+    text("s17_srch", "Searchable", 984, 360, 62, "#ffffff", weight=700),
+    text("s17_lov", "Lovable", 934, 360, 62, "#ffffff", weight=700),
 ]
 reveal("s17_build", 0.15, unit="word", stagger=0.1, dur=0.26, rise=0,
        accent="#ffffff")

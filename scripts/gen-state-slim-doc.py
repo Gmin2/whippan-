@@ -468,7 +468,9 @@ scene("s14", YEL, 21, n14)
 # card-scatter shape-language field
 GRAIN = "#23211a"
 n15 = [
-    circle("sc_bloom", 560, 210, 110, YEL, blur=40),
+    circle("sc_bloom", 690, 150, 45, "#fff9a0", blur=18),
+    rect("sc_ytop", 690, 150, 150, 84, 2, YEL),
+    rect("sc_h", 519, 555, 145, 80, 8, GRAIN),
     rect("sc_a", 440, 90, 105, 85, 8, GRAIN),
     circle("sc_ad", 442, 55, 8, "#ffffff"),
     path("sc_ol", 594, 92, rrect_d(200, 112, 4), YEL, stroke=1.5),
@@ -486,15 +488,21 @@ n15 = [
     circle("sc_e2", 782, 417, 10, "#ffffff"),
     rect("sc_f", 672, 540, 152, 86, 8, GRAIN),
     rect("sc_g", 425, 547, 118, 62, 3, "#171717"),
+    circle("sc_q1", 428, 424, 9, BLACK),
+    circle("sc_q2", 472, 424, 9, "#ffffff"),
+    circle("sc_q3", 512, 456, 9, BLACK),
 ]
 scene("s15", OW, 69, n15)
 drift = [("sc_a", 8, 5), ("sc_b", -6, 7), ("sc_c", 9, -6), ("sc_yl", -7, 4),
          ("sc_yg", 6, -5), ("sc_pill", -5, -6), ("sc_d", 7, 6),
-         ("sc_e", -8, 5), ("sc_f", 6, -7), ("sc_g", -6, 4), ("sc_ol", 5, 6)]
+         ("sc_e", -8, 5), ("sc_f", 6, -7), ("sc_g", -6, 4), ("sc_ol", 5, 6),
+         ("sc_ytop", -6, 5), ("sc_h", 7, -5)]
 for i, (nid, dx, dy) in enumerate(drift):
     track(nid, at=0.015 * i, opacity=[(0, 0), (0.09, 1)],
           x=[(0, 0), (2.2, dx)], y=[(0, 0), (2.2, dy)])
-track("sc_bloom", opacity=[(0, 0), (0.15, 0.5)])
+track("sc_bloom", opacity=[(0, 0), (0.15, 0.9)])
+for i, nid in enumerate(("sc_q1", "sc_q2", "sc_q3")):
+    track(nid, at=0.1 + i * 0.03, opacity=[(0, 0), (0.08, 1)])
 
 # --------------------------------------------------------------- chapter 16
 # toggle anatomy spec on yellow: track outline + knob state row
@@ -610,9 +618,9 @@ track("sys", scale=[(0, 1.0), (0.8, 1.03, "outCubic")])
 # --------------------------------------------------------------- chapter 20
 # systems never stand still, then the easing-curve spec
 scene("s20a", YEL, 39, [
-    left_text("sy1", "Systems", 55, 120, 100),
-    left_text("sy2", "never stand", 55, 258, 100),
-    left_text("sy3", "still.", 55, 396, 100),
+    left_text("sy1", "Systems", 50, 118, 120),
+    left_text("sy2", "never stand", 50, 262, 120),
+    left_text("sy3", "still.", 50, 406, 120),
 ])
 for i, nid in enumerate(("sy1", "sy2", "sy3")):
     track(nid, at=i * 0.06, opacity=[(0, 0), (0.05, 1)])
@@ -674,10 +682,10 @@ for nid in ("ia_tag", "ia_tt"):
           x=[(0, 430), (0.5, 0, "outCubic")],
           y=[(0, -300), (0.5, 0, "outCubic")])
 
-lads = [(300, 65), (600, 180), (800, 300), (500, 420), (300, 540)]
+lads = [(300, 45), (600, 178), (800, 310), (500, 442), (300, 572)]
 n22b = []
 for i, (wt, y) in enumerate(lads):
-    n22b.append(text(f"lad{i}", "It's also a", 569, y, 78, "#161616", wt))
+    n22b.append(text(f"lad{i}", "It's also a", 569, y, 94, "#161616", wt))
     track(f"lad{i}", at=0.05 + i * 0.07, opacity=[(0, 0), (0.12, 1)],
           y=[(0, 34), (0.3, 0, "outCubic")])
 scene("s22b", OW, 38, n22b)

@@ -378,9 +378,9 @@ for i, (label, wv, val, y) in enumerate(ROWS):
         track("bb0", opacity=[(0.05, 0), (0.12, 1)],
               x=[(0.1, -1350), (0.62, 0, "outCubic")])
         tracks.append({"target": "bb0", "loop": True, "at": 1.5, "keys": {
-            "glow_opacity": [{"t": 0, "v": 0.85},
-                             {"t": 0.8, "v": 1.0, "ease": "inOutCubic"},
-                             {"t": 1.6, "v": 0.85, "ease": "inOutCubic"}]}})
+            "glow_opacity": [{"t": 0, "v": 0.55},
+                             {"t": 0.8, "v": 0.75, "ease": "inOutCubic"},
+                             {"t": 1.6, "v": 0.55, "ease": "inOutCubic"}]}})
         track("bl0", opacity=[(0.55, 0), (0.7, 1)])
         track("bv0", opacity=[(0.66, 0), (0.68, 1)])
     else:
@@ -400,9 +400,9 @@ scene("s8", DARK, 4.4, n8, kind="cut")
 n9 = [
     text("m1", "Anything you can do in a browser", 640, 330, 46,
          "#f0f0f0", weight=600),
-    path("mk9_c", 408, 340, circle_d(30), STEEL, stroke=5.5),
-    path("mk9_s", 408, 340, star4_d(22), STEEL, rot=24),
-    text("m2", "Aside can do it for you", 700, 340, 52, "#f0f0f0",
+    path("mk9_c", 352, 340, circle_d(30), STEEL, stroke=5.5),
+    path("mk9_s", 352, 340, star4_d(22), STEEL, rot=24),
+    text("m2", "Aside can do it for you", 712, 340, 52, "#f0f0f0",
          weight=600),
     text("m3", "sign in  ·  payments  ·  documents  ·  presentations",
          640, 434, 20, "#7a7a7a"),
@@ -415,13 +415,13 @@ for c in ("mk9_c", "mk9_s"):
 track("m2", opacity=[(0, 0), (1.53, 0), (1.55, 1)])
 reveal("m2", 1.55, unit="word", stagger=0.1, dur=0.24, rise=12,
        accent=CYAN, color_delay=0.16, color_dur=0.3, keep=["Aside"])
-track("m3", opacity=[(2.35, 0), (2.6, 0.85)])
+track("m3", opacity=[(2.2, 0), (2.45, 0.85)])
 scene("s9", DARK, 3.0, n9, tdur=0.4)
 
 # 10 ----------------------------------- white flip: private, on-device
 n10 = [
-    path("lock_b", 362, 268, "M-11 -2L11 -2L11 14L-11 14Z", TEAL),
-    path("lock_s", 362, 258, "M-7 8C-7 -8 7 -8 7 8", TEAL, stroke=3.0),
+    path("lock_b", 398, 268, "M-11 -2L11 -2L11 14L-11 14Z", TEAL),
+    path("lock_s", 398, 258, "M-7 8C-7 -8 7 -8 7 8", TEAL, stroke=3.0),
     text("p1", "everything is private", 660, 262, 46, INK, weight=600),
     text("p2", "Data never leaves your device", 640, 348, 28, "#6a6a6a"),
     text("p3a", "Everything runs locally,", 570, 428, 28, INK),

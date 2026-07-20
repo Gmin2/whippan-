@@ -200,10 +200,10 @@ opacity_steps("p_cnt1", [(0, 0), (1.517, 1)])
 
 # camera: slow creep, crash dive into the headline, pull back onto the
 # party page top, hold, then punch through the bezel into scene 2
-key(S1, "cam_zoom", [(0, 1.0), (0.55, 1.07), (0.70, 2.8, "inCubic"),
+key(S1, "cam_zoom", [(0, 1.0), (0.55, 1.07), (0.68, 2.9, "inOutCubic"),
                      (0.98, 1.95, "outCubic"), (1.50, 2.02),
                      (1.567, 3.4, "inCubic")])
-key(S1, "cam_y", [(0, 0), (0.55, 4), (0.70, -90, "inCubic"),
+key(S1, "cam_y", [(0, 0), (0.55, 4), (0.68, -90, "inOutCubic"),
                   (0.98, -240, "outCubic"), (1.50, -244),
                   (1.567, -320, "inCubic")])
 
@@ -228,15 +228,20 @@ text(S2, "q_cnt", "1 - 3", 719, 117, 17, "#ffffff")
 t1 = text(S2, "q_t1", "your favorite", 540, 492, 112, INK, weight=800)
 t2 = text(S2, "q_t2", "frank ocean track", 540, 630, 108, GREY_T,
           weight=700)
-# list build: titles shrink and ride up; player stage lifts them again
-key("q_t1", "scale", [(0.95, 1.0), (1.20, 0.46, "outCubic"),
-                      (1.60, 0.46), (1.85, 0.56, "outCubic")])
-key("q_t1", "y", [(0.95, 0), (1.20, -244, "outCubic"),
-                  (1.60, -244), (1.85, -289, "outCubic")])
-key("q_t2", "scale", [(0.95, 1.0), (1.20, 0.51, "outCubic"),
-                      (1.60, 0.51), (1.85, 0.62, "outCubic")])
-key("q_t2", "y", [(0.95, 0), (1.20, -319, "outCubic"),
-                  (1.60, -319), (1.85, -349, "outCubic")])
+# list build: the big titles hand off to small copies riding up (text
+# scale keys spread the word layout, so this is a crossfade instead)
+opacity_steps("q_t1", [(0, 1), (0.95, 1), (1.10, 0)])
+opacity_steps("q_t2", [(0, 1), (0.95, 1), (1.10, 0)])
+key("q_t1", "y", [(0.95, 0), (1.12, -110, "outCubic")])
+key("q_t2", "y", [(0.95, 0), (1.12, -140, "outCubic")])
+text(S2, "q_t1s", "your favorite", 540, 248, 56, INK, weight=800)
+text(S2, "q_t2s", "frank ocean track", 540, 311, 54, GREY_T, weight=700)
+opacity_steps("q_t1s", [(0, 0), (0.98, 0), (1.12, 1)])
+opacity_steps("q_t2s", [(0, 0), (0.98, 0), (1.12, 1)])
+key("q_t1s", "y", [(0.98, 30), (1.18, 0, "outCubic"),
+                   (1.60, 0), (1.85, -45, "outCubic")])
+key("q_t2s", "y", [(0.98, 30), (1.18, 0, "outCubic"),
+                   (1.60, 0), (1.85, -27, "outCubic")])
 
 rect(S2, "q_field", 539, 821, 590, 100, 50, "#ffffff")
 key("q_field", "y", [(0.95, 0), (1.20, -390, "outCubic")])
@@ -287,10 +292,10 @@ for nid in list_ids:
     row = 0
     if nid[3].isdigit():
         row = int(nid[3])
-    born = 0.967 + row * 0.067
-    opacity_steps(nid, [(0, 0), (born, 0), (born + 0.18, 1),
+    born = 0.95 + row * 0.05
+    opacity_steps(nid, [(0, 0), (born, 0), (born + 0.12, 1),
                         (1.58, 1), (1.70, 0)])
-    key(nid, "y", [(born, 40), (born + 0.28, 0, "outCubic")])
+    key(nid, "y", [(born, 40), (born + 0.22, 0, "outCubic")])
 # field chrome dies with the list when the player takes over
 opacity_steps("q_field", [(0, 1), (1.58, 1), (1.70, 0)])
 opacity_steps("q_query", [(0, 0), (0.033, 1), (1.58, 1), (1.70, 0)])

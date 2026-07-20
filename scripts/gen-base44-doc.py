@@ -214,7 +214,7 @@ s4_nodes = watermark("p_") + [
      "stroke": 3.5, "d": "M-13 0L13 0M3 -10L13 0L3 10"},
     text("p_plus", "+", 492, 632, 44, "#b5b0a6"),
     left_text("p_l1", "I want to build a bike renting app that features",
-              P_L, 482, 38, "#1b1b1b"),
+              P_L - 12, 482, 38, "#1b1b1b"),
     left_text("p_l2", "terrain tracking, a social hub and events",
               P_L, 538, 38, "#1b1b1b"),
     {"id": "p_cur", "type": "cursor", "x": 1600, "y": 800, "w": 26,
@@ -250,6 +250,8 @@ s5_nodes = [
     rect("w_c", 1400, 640, 1600, 700, 0, "#8fd8ff", blur=100, rot=-4,
          gradient=grad(60, "#8fd8ff", "#fff3d8", "#ffa4c8")),
     rect("w_core", 1050, 420, 900, 500, 250, "#fff6e2", blur=120),
+    rect("w_warm", 960, 1010, 2200, 420, 0, "#ff9d4d", blur=100,
+         gradient=grad(0, "#ffab5e", "#ff8a3c", "#ffc27a")),
     rect("w_ghost", 940, 540, 1010, 300, 28, "#ffffff"),
     text("w_f1", "const orgs", 400, 110, 40, "#8fd8ff", family="mono"),
     text("w_f2", "req.que", 1500, 105, 40, "#ffffff", family="mono"),
@@ -264,6 +266,7 @@ for nid, o, dx in [("w_a", 0.95, 70), ("w_b", 0.9, -60), ("w_c", 0.85, 50)]:
                         x=[(0, 0), (1.8, dx)]))
 tracks += [
     keyed("w_core", opacity=[(0, 0), (0.4, 0.9)]),
+    keyed("w_warm", opacity=[(0, 0), (0.35, 0.9)]),
     keyed("w_ghost", opacity=[(0, 0.4), (0.55, 0)]),
 ]
 for n in range(1, 5):
@@ -282,7 +285,7 @@ CARD_LBL = [("Gravel Bikes", "Great for rough trails"),
 s6_nodes = watermark("b_") + [
     rect("b_card", 960, 540, 1330, 790, 16, "#21251f"),
     rect("b_hero", 960, 372, 1310, 448, 12, "#5a6b52",
-         gradient=grad(180, "#8e9c7e", "#5f7355", "#3f4a38")),
+         gradient=grad(90, "#a8b294", "#5f7355", "#3f4a38")),
     rect("b_chrome", 410, 190, 190, 54, 12, "#161613"),
     left_text("b_chromet", "trailride", 340, 190, 24, "#ffffff", weight=600),
     rect("b_rent", 1408, 190, 150, 42, 8, "#f0a232"),
@@ -292,9 +295,9 @@ s6_nodes = watermark("b_") + [
          family="mono"),
     left_text("b_h1", "your next adventure", 400, 585, 84, "#ffffff",
               weight=600),
-    {"id": "b_fl", "type": "path", "x": 1240, "y": 578, "fill": "#ffffff",
+    {"id": "b_fl", "type": "path", "x": 1268, "y": 578, "fill": "#ffffff",
      "d": flower(16)},
-    left_text("b_h2", "awaits", 1290, 585, 84, "#ffffff", weight=600),
+    left_text("b_h2", "awaits", 1318, 585, 84, "#ffffff", weight=600),
 ]
 for i, (lbl, sub) in enumerate(CARD_LBL):
     cx = 436 + i * 262
@@ -488,7 +491,7 @@ for bid, cx, cy, w, fill, name, sub, ink in BARS:
         left_text(f"g_{bid}s", sub, cx - w / 2 + 18, cy + 15, 15, ink),
     ]
 s9_nodes += [
-    rect("g_sc", 1580, 695, 260, 90, 14, "#f2a0c8", blur=22,
+    rect("g_sc", 1460, 690, 250, 88, 14, "#f2a0c8", blur=22,
          gradient=grad(10, "#f0a8d8", "#f0964a")),
     rect("g_qa", 1770, 258, 250, 120, 14, "#f6f1e6"),
     left_text("g_qat", "Quick Actions", 1668, 222, 22, INK, weight=600),
@@ -562,8 +565,8 @@ for i in range(3):
 s10_nodes = watermark("t_") + [
     rect("t_streak", 960, 940, 2100, 240, 0, "#ffd0e8", blur=70, rot=-5,
          gradient=grad(0, "#ffb0d8", "#ffd9a0", "#c8f0d8", "#b0d8ff")),
-    rect("t_phone", 960, 540, 390, 800, 38, "#93a084",
-         gradient=grad(180, "#e8c99a", "#98a888", "#54654a")),
+    rect("t_phone", 960, 540, 390, 850, 38, "#93a084",
+         gradient=grad(90, "#e8c99a", "#98a888", "#54654a")),
     rect("t_chrome", 872, 178, 140, 44, 12, "#161613"),
     text("t_chromet", "trailride", 872, 178, 20, "#ffffff", weight=600),
     rect("t_menu", 1116, 178, 44, 44, 12, "#161613"),
@@ -579,11 +582,11 @@ s10_nodes = watermark("t_") + [
     rect("t_tsq", 812, 788, 14, 14, 3, "#4a9de8"),
     left_text("t_tlbl", "Time", 830, 788, 18, "#ffffff", family="mono"),
     left_text("t_time", "0:07:24", 800, 856, 62, "#ffffff", weight=500),
-    rect("t_stop", 942, 950, 306, 62, 12, "#f0982e"),
-    left_text("t_stopt", "Stop Trip", 812, 950, 26, "#ffffff", weight=500),
-    {"id": "t_pause", "type": "path", "x": 1112, "y": 950, "fill": "#141414",
+    rect("t_stop", 942, 922, 306, 62, 12, "#f0982e"),
+    left_text("t_stopt", "Stop Trip", 812, 922, 26, "#ffffff", weight=500),
+    {"id": "t_pause", "type": "path", "x": 1112, "y": 922, "fill": "#141414",
      "d": disc(26)},
-    {"id": "t_pauseg", "type": "path", "x": 1112, "y": 950,
+    {"id": "t_pauseg", "type": "path", "x": 1112, "y": 922,
      "fill": "#ffffff", "stroke": 4.0, "d": "M-5 -8L-5 8M5 -8L5 8"},
 ]
 scenes.append({"id": "s10", "bg": "#f2efe8", "dur": 2.8,
@@ -695,7 +698,7 @@ for nid, at in [("dm_t", 0.3), ("dm_pub", 0.38), ("dm_pubt", 0.42),
 # up and presses (f1032-1080).
 s13_nodes = [
     rect("pb_sky", 960, 540, 1920, 1080, 0, "#f5e4d2",
-         gradient=grad(180, "#f5e4d2", "#eee6db", "#c2d3cd")),
+         gradient=grad(90, "#f5e4d2", "#eee6db", "#c2d3cd")),
     rect("pb_btn", 960, 540, 260, 100, 18, "#101010",
          states={"pressed": {"scale": 0.95, "fill": "#5a4a6a"}}),
     text("pb_t", "Publish", 960, 540, 34, "#ffffff", weight=500),

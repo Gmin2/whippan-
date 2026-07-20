@@ -289,7 +289,8 @@ scene("s1", GREY, 10.8333, n1)
 # ==================================================== scene 3+4: the sky
 n2 = []
 for i, (cx, cy, sc) in enumerate([(140, 640, 1.3), (430, 690, 1.6),
-                                  (760, 660, 1.2), (1060, 700, 1.7)]):
+                                  (760, 660, 1.2), (1060, 700, 1.7),
+                                  (260, 500, 1.0), (930, 560, 1.2)]):
     n2.append(path(f"sk_cl{i}", cx, cy, CLOUD_D, "#ffffff",
                    keys={"scale": [{"t": 0, "v": sc}]}))
     drift(f"sk_cl{i}", 14 if i % 2 else -14, 0, 9.0)
@@ -325,7 +326,9 @@ fade_in("sk_arr", 2.2, 0.25)
 scene("s2", SKY, 4.9667, n2, kind="wipe", tdur=1.2, dir="up")
 
 # ======================================================= scene 5: bamboo
-n3 = []
+# stalks rise into the still-blue sky; the white field snaps on at 1.0s
+n3 = [rect("bb_white", 640, 360, 1280, 720, 0, "#fbfbfb")]
+track("bb_white", opacity=[(0.999, 0), (1.0, 1)])
 STALKS = [(90, 40, "#a9b1ab"), (235, 30, "#b4bbb5"), (30, 22, "#c0c6c1"),
           (1155, 34, "#a9b1ab"), (1245, 26, "#b4bbb5")]
 for i, (x, w_, fill) in enumerate(STALKS):
@@ -335,16 +338,17 @@ for i, (x, w_, fill) in enumerate(STALKS):
                        "#7e857f"))
     ids = [f"bb_s{i}"] + [f"bb_s{i}j{j}" for j in range(4)]
     for nid in ids:
-        track(nid, y=[(0, 320), (0.45, 0, "outCubic")])
+        track(nid, y=[(0, 340), (0.7, 0, "outCubic")])
 n3.append(text("bb_word", "Bamboo", 560, 365, 240, KELLY, weight=500))
-tracks.append({"target": "bb_word", "at": 0.15, "reveal": {
+track("bb_word", opacity=[(0.999, 0), (1.0, 1)])
+tracks.append({"target": "bb_word", "at": 1.02, "reveal": {
     "unit": "glyph", "stagger": 0.05, "dur": 0.18, "rise": 0,
     "accent": KELLY}})
 n3 += [text("bb_q", "Qu", 607, 510, 13, INK, weight=400),
        text("bb_ep", "EP.", 617, 529, 13, INK, weight=400)]
-fade_in("bb_q", 0.5, 0.15)
-fade_in("bb_ep", 0.6, 0.15)
-scene("s3", "#fbfbfb", 1.5, n3, kind="wipe", tdur=0.45, dir="up")
+fade_in("bb_q", 1.15, 0.15)
+fade_in("bb_ep", 1.25, 0.15)
+scene("s3", SKY, 1.5, n3)
 
 # ==================================================== scene 6: Utensils
 n4 = [
@@ -425,8 +429,8 @@ for i, y in enumerate([188, 383, 690]):
 n6.append(rect("cr_sq", 640, 360, 330, 330, 0, LIME))
 n6.append(path("cr_ret", 640, 360, brackets_d(200, 46), LIME, stroke=4))
 for nid in ["cr_sq", "cr_ret"]:
-    track(nid, scale=[(0, 2.4), (1.25, 0.13, "inOutCubic")],
-          opacity=[(0, 1), (1.5, 1), (1.75, 0)])
+    track(nid, scale=[(0, 2.4), (0.45, 0.13, "inOutCubic")],
+          opacity=[(0, 1), (0.8, 1), (1.0, 0)])
 n6 += [
     text("cr_h1", "That's the", 300, 150, 76, "#f4f4f4", weight=300),
     text("cr_h2", "weight", 230, 252, 76, "#f4f4f4", weight=300),
@@ -542,21 +546,32 @@ n8 = [
     text("sf_h2", "Aviation", 116, 346, 26, "#ffffff"),
     text("sf_h3", "Fuel", 95, 386, 26, "#ffffff"),
     path("sf_ar", 400, 640, ARROW_UP_D, "#ffffff", stroke=2.5, rot=225),
+    rect("sf_lsq", 1017, 185, 112, 112, 0, LIME),
+    rect("sf_gsq", 947, 257, 26, 26, 0, "#c9cdcd"),
+    path("sf_rar", 808, 412, "M-16 0L16 0M4 -10L16 0L4 10", "#ffffff",
+         stroke=2.5),
 ]
-track("sf_grey", opacity=[(0, 0), (0.25, 1), (4.2, 1), (4.201, 0)])
-fade_in("sf_blue", 0.35, 0.2)
-fade_in("sf_blue2", 0.5, 0.2)
+for nid in ["sf_lsq", "sf_gsq", "sf_rar"]:
+    track(nid, opacity=[(3.999, 0), (4.0, 1)])
+track("sf_grey", opacity=[(0, 0), (0.25, 1)],
+      w=[(3.999, 407), (4.0, 848)],
+      x=[(3.999, 0), (4.0, -222)])
+track("sf_blue", opacity=[(0.35, 0), (0.55, 1), (3.999, 1), (4.0, 0)])
+track("sf_blue2", opacity=[(0.5, 0), (0.7, 1)],
+      h=[(3.999, 600), (4.0, 348)],
+      y=[(3.999, 0), (4.0, 126)])
 for nid, at in [("sf_cl1", 0.5), ("sf_cl2", 0.6), ("sf_cl3", 0.7)]:
     fade_in(nid, at, 0.25)
-track("sf_blk", opacity=[(0, 0), (0.001, 0), (2.1, 0), (2.101, 1)])
-fade_in("sf_bottle", 0.6, 0.25)
-track("sf_stream", opacity=[(0.9, 0), (1.2, 0.9)])
-track("sf_fin", y=[(0.4, 420), (1.1, 0, "outCubic")],
-      opacity=[(0.4, 0), (0.5, 1)])
-track("sf_fin_s1", y=[(0.4, 420), (1.1, 0, "outCubic")],
-      opacity=[(0.4, 0), (0.5, 1)])
-track("sf_fin_s2", y=[(0.4, 420), (1.1, 0, "outCubic")],
-      opacity=[(0.4, 0), (0.5, 1)])
+track("sf_blk", opacity=[(0, 0), (0.001, 0), (2.1, 0), (2.101, 1)],
+      w=[(3.999, 443), (4.0, 848)],
+      x=[(3.999, 0), (4.0, 203)])
+track("sf_bottle", opacity=[(0.6, 0), (0.85, 1)],
+      x=[(3.999, 0), (4.0, -440)])
+track("sf_stream", opacity=[(0.9, 0), (1.2, 0.9)],
+      x=[(3.999, 0), (4.0, -346)])
+for nid in ["sf_fin", "sf_fin_s1", "sf_fin_s2"]:
+    track(nid, y=[(0.4, 420), (1.1, 0, "outCubic")],
+          opacity=[(0.4, 0), (0.5, 1), (3.999, 1), (4.0, 0)])
 track("sf_h1", opacity=[(0.25, 0), (0.4, 1)])
 track("sf_h2", opacity=[(0.55, 0), (0.7, 1), (2.1, 1), (2.3, 0)])
 track("sf_h3", opacity=[(0.85, 0), (1.0, 1), (2.1, 1), (2.3, 0)])
@@ -571,8 +586,8 @@ scene("s8", KELLY, 5.1667, n8, kind="fade", tdur=0.2)
 
 # ========================================= scene 11: the takeaway tarmac
 n9 = [
-    rect("tk_patch1", 300, 620, 700, 260, 0, "#878b8d"),
-    rect("tk_patch2", 1000, 150, 620, 340, 0, "#9b9fa1"),
+    rect("tk_patch1", 300, 620, 700, 260, 0, "#94989a"),
+    rect("tk_patch2", 1000, 150, 620, 340, 0, "#a6a9ab"),
     rect("tk_ln1", 500, 160, 3, 340, 0, "#e6e6e6", rot=38),
     rect("tk_ln2", 940, 210, 3, 280, 0, "#e6e6e6", rot=-24),
     rect("tk_ln3", 210, 590, 3, 320, 0, "#dddddd", rot=14),
@@ -617,7 +632,7 @@ for nid, at in [("tk_pret", 0.35), ("tk_pret2", 0.35), ("tk_t0", 0.35),
 word_reveal("tk_t1", 0.55, rise=0)
 word_reveal("tk_t2", 0.8, stagger=0.12, rise=0)
 word_reveal("tk_t3", 1.15, stagger=0.12, rise=0)
-scene("s9", "#94989a", 2.1667, n9)
+scene("s9", "#9da0a2", 2.1667, n9)
 
 # ================================================== scene 12: the globe
 n10 = [path("gl_e", 640, 360, circle_d(262), "#86b6e6")]
