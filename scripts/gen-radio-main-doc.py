@@ -431,13 +431,24 @@ def v_at(t):
     return VKEYS[-1][1]
 
 
-def fade_time(i):
-    # when row i scrolls under the transport band
-    vth = -(7 + 25.4 * i)
+def v_cross(vth):
+    # when the vertical scroll passes vth (vth negative)
+    if vth >= 0:
+        return None
     for (t0, v0), (t1, v1) in zip(VKEYS, VKEYS[1:]):
         if v1 <= vth < v0:
             return t0 + (t1 - t0) * (vth - v0) / (v1 - v0)
     return None
+
+
+def fade_time(i):
+    # when row i scrolls under the transport band
+    return v_cross(-(7 + 25.4 * i))
+
+
+def enter_time(i):
+    # when row i scrolls up into the viewport from below the lanes
+    return v_cross(266 - 25.4 * i)
 
 
 for i, (name, s, e) in enumerate(CLIPS):
@@ -459,11 +470,19 @@ for i, (name, s, e) in enumerate(CLIPS):
         state_at(pid, a0, "on")
         state_at(pid, a1, "off")
     ft = fade_time(i)
+    et = enter_time(i)
+    ks = []
+    if et:
+        ks += [(0, 0), (et - 0.03, 0), (et + 0.05, 1)]
+    if ft:
+        if not ks:
+            ks.append((0, 1))
+        ks += [(ft - 0.06, 1), (ft + 0.04, 0)]
     for nid in ids:
         scroll_ids.append(nid)
         vroll_ids.append(nid)
-        if ft:
-            track(nid, opacity=[(0, 1), (ft - 0.06, 1), (ft + 0.04, 0)])
+        if ks:
+            track(nid, opacity=list(ks))
 
 # orange keyframe lane + diamonds
 n = rect("kf_lane", (xb(0) + xb(7.55)) / 2, 907, 7.55 * PPS, 7, 3,
@@ -497,6 +516,17 @@ rect("playhead", 129, 775, 2.5, 340, 1, "#5560d8")
 track("playhead",
       x=[(0, 0), (2.5, 30), (7.583, 561), (7.66, 322, "outCubic"),
          (8.50, 401), (8.62, 176, "outCubic"), (9.5, 239)])
+
+# desktop strips over the timeline overflow left/right/below the window
+rect("strip_l", 16, 540, 32, 1082, 0, "#232323",
+     gradient={"angle": 180, "stops": [
+         {"at": 0.0, "color": "#5c5a5b"}, {"at": 1.0, "color": "#1c1c1c"}]})
+rect("strip_r", 1048, 540, 64, 1082, 0, "#8a8888",
+     gradient={"angle": 180, "stops": [
+         {"at": 0.0, "color": "#cac6c7"}, {"at": 1.0, "color": "#4a4a4a"}]})
+rect("strip_b", 540, 1019, 1082, 122, 0, "#3a3a3a",
+     gradient={"angle": 90, "stops": [
+         {"at": 0.0, "color": "#181818"}, {"at": 1.0, "color": "#565454"}]})
 
 # ------------------------------------------------------------ transport
 rect("tp_pause", 65, 576, 26, 26, 7, "#1c1c1c")
@@ -559,7 +589,7 @@ path("dock_ch2", 600, 511, "M-3 -2L0 2L3 -2", "#9a9a9a", stroke=1.6)
 
 # ------------------------------------------------------------ camera zoom
 track("s", cam_zoom=[(0, 1.0), (7.583, 1.0), (7.617, 2.2, "outCubic")],
-      cam_y=[(0, 0), (7.583, 0), (7.617, 242, "outCubic")])
+      cam_y=[(0, 0), (7.583, 0), (7.617, -242, "outCubic")])
 
 stage = {
     "fps": 30,

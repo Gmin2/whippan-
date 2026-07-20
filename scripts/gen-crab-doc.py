@@ -47,6 +47,14 @@ def path(id, x, y, d, fill, **kw):
     return n
 
 
+def set_static(n, **props):
+    # static per-node values (opacity, scale) via stage keys
+    ks = n.setdefault("keys", {})
+    for name, v in props.items():
+        ks[name] = [{"t": 0, "v": v}]
+    return n
+
+
 def track(nid, at=0.0, **props):
     keys = {}
     for name, seq in props.items():
@@ -91,13 +99,13 @@ def star_d(r):
 
 
 # pointing-hand cursor: index finger up + palm; drawn as fill union
-HAND_D = ("M-4 -24C-4 -29 4 -29 4 -24L4 -2L-4 -2Z"
-          "M-13 2C-13 -5 -4 -5 -4 1L-4 -2L12 -2C19 -2 22 3 22 9"
-          "C22 17 17 23 9 23L-2 23C-9 23 -13 17 -13 10Z")
-HAND_LINES = "M4 -1L4 9M11 0L11 9M17 2L17 9"
+HAND_D = ("M-5 -26C-5 -32 5 -32 5 -26L5 -2L-5 -2Z"
+          "M-16 2C-16 -6 -5 -7 -5 0L-5 -2L14 -2C22 -2 26 3 26 10"
+          "C26 19 19 26 9 26L-4 26C-12 26 -16 19 -16 12Z")
+HAND_LINES = "M5 -1L5 9M13 0L13 9M20 3L20 9"
 # closed grabbing fist
-FIST_D = ("M-16 -3C-16 -14 16 -14 16 -3L16 8C16 17 -16 17 -16 8Z")
-FIST_LINES = "M-8 -9L-8 -1M0 -10L0 -1M8 -9L8 -1"
+FIST_D = ("M-16 -4C-16 -15 16 -15 16 -4L16 8C16 17 -16 17 -16 8Z")
+FIST_LINES = "M-8 -7L-8 2M0 -8L0 2M8 -7L8 2"
 
 
 def cursor_group(prefix, x, y, kind, scale=1.0):

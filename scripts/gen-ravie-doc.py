@@ -114,7 +114,7 @@ def fade_in(nid, at, dur=0.35, to=1.0):
 s1 = []
 
 # green underglow bleeding from the bar's bottom edge, pulses on submit
-s1.append(rect("s1_glow", 569, 348, 780, 24, 12, GREEN, blur=18))
+s1.append(rect("s1_glow", 569, 344, 700, 16, 8, GREEN, blur=16))
 s1.append(rect("s1_bar", 569, 285, 1010, 108, 54, "#ffffff",
                glow={"sigma": 14, "opacity": 0.5, "color": "#c8d2d6",
                      "dy": 6}))
@@ -122,13 +122,13 @@ s1.append(path("s1_mag", 140, 283, magnifier_d(13), GREY, stroke=2.6))
 s1.append(rect("s1_caret", 194, 285, 4, 50, 1, BLUE))
 s1.append(ltext("s1_q", "How much is rent in Seattle?", 190, 285, 30, INK))
 # mic, lens, AI Mode pill at the bar's right end
-s1.append(rect("s1_mic", 950, 282, 11, 18, 5, BLUE))
-s1.append(path("s1_mica", 950, 288, "M-8 -2a8 8 0 0 0 16 0M0 6L0 11",
+s1.append(rect("s1_mic", 880, 282, 11, 18, 5, BLUE))
+s1.append(path("s1_mica", 880, 288, "M-8 -2a8 8 0 0 0 16 0M0 6L0 11",
                GREY, stroke=2.0))
-s1.append(path("s1_lens", 1000, 285, circle_d(9) + "M0 0", GREY, stroke=2.2))
-s1.append(rect("s1_aipill", 1092, 285, 128, 62, 31, "#eef4fe"))
-s1.append(path("s1_aisp", 1052, 285, spark_d(9), BLUE))
-s1.append(text("s1_ait", "AI Mode", 1104, 285, 19, BLUE, weight=500))
+s1.append(path("s1_lens", 928, 285, circle_d(9) + "M0 0", GREY, stroke=2.2))
+s1.append(rect("s1_aipill", 1010, 285, 125, 60, 30, "#eef4fe"))
+s1.append(path("s1_aisp", 972, 285, spark_d(9), BLUE))
+s1.append(text("s1_ait", "AI Mode", 1024, 285, 19, BLUE, weight=500))
 # wordmark + buttons live outside the close-up frame, revealed by the pull
 for i, (ch, col, ax) in enumerate([("G", BLUE, 445), ("o", RED, 507),
                                    ("o", YELLOW, 563), ("g", BLUE, 619),
@@ -150,8 +150,9 @@ keyed("s1", cam_zoom=ZS,
       cam_y=[(k[0], round(-35.0 * (k[1] - 1) / 1.9, 1), *k[2:])
              for k in ZS])
 typed("s1_q", 0.35, 0.05, cadence_end=0.032)
+keyed("s1_q", opacity=[(0, 0), (0.34, 0), (0.345, 1)])
 keyed("s1_caret", opacity=[(0.0, 1), (0.34, 1), (0.35, 0)])
-keyed("s1_glow", opacity=[(0.0, 0), (0.3, 0.55), (3.0, 0.55), (3.25, 0.9)])
+keyed("s1_glow", opacity=[(0.0, 0), (0.3, 0.4), (3.0, 0.4), (3.25, 0.75)])
 
 # ---------------------------------------------------------------- scene s2
 # the budget sheet (f0250): one highlighted row, salary then rent typed in.
