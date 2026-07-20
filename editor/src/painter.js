@@ -36,8 +36,8 @@ function drawOne(CK, skc, paint, c, images) {
   if (c.rot) skc.rotate(c.rot, 0, 0);
   skc.scale(c.scale, c.scale);
   if (c.op === 'path') {
-    const p = CK.Path.MakeFromSVGString(c.d);
-    if (p) { skc.drawPath(p, paint); p.delete(); }
+    const p = cachedPath(CK, c.d);
+    if (p) skc.drawPath(p, paint);
   } else if (c.op === 'rect') {
     const rr = CK.RRectXY(
       CK.LTRBRect(-c.w / 2, -c.h / 2, c.w / 2, c.h / 2),
@@ -100,4 +100,25 @@ export function paintFrame(CK, skc, paint, cmds, images) {
     }
     drawOne(CK, skc, paint, c, images);
   }
+}
+
+// parsed-path cache: glyph outlines and big static paths repeat every
+// frame, and MakeFromSVGString is the hottest call in the painter. morphing
+// paths churn, so the cache is bounded and evicts oldest-first.
+const pathCache = new Map();
+function cachedPath(CK, d) {
+  let p = pathCache.get(d);
+  if (p) return p;
+  p = CK.Path.MakeFromSVGString(d);
+  if (!p) return null;
+  if (pathCache.size > 800) {
+    let drop = pathCache.size - 400;
+    for (const [k, v] of pathCache) {
+      v.delete();
+      pathCache.delete(k);
+      if (--drop <= 0) break;
+    }
+  }
+  pathCache.set(d, p);
+  return p;
 }

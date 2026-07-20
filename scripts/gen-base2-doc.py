@@ -185,13 +185,13 @@ DSEQ = [
 
 def grain():
     parts = []
-    step = 9
+    step = 14
     for gy in range(0, H, step):
         for gx in range(0, W, step):
             # deterministic scatter
             jx = (gx * 7 + gy * 13) % 5 - 2
             jy = (gx * 11 + gy * 3) % 5 - 2
-            if (gx + gy) % 27 < 9:
+            if (gx + gy) % 42 < 14:
                 parts.append(f"M{gx + jx} {gy + jy}L{gx + jx + 1.2} {gy + jy}"
                              f"L{gx + jx + 1.2} {gy + jy + 1.2}L{gx + jx} {gy + jy + 1.2}Z")
     return "".join(parts)
