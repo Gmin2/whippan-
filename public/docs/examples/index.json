@@ -144,6 +144,18 @@
   "anim": "/docs/noscroll.anim.json"
  },
  {
+  "slug": "state-slim",
+  "title": "state-slim (repro)",
+  "dur": 55.53,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/state-slim.stage.json",
+  "anim": "/docs/state-slim.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,
