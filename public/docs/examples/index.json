@@ -192,6 +192,18 @@
   "anim": "/docs/lovable-main.anim.json"
  },
  {
+  "slug": "ai-1",
+  "title": "ai-1 (repro)",
+  "dur": 35.5,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/ai-1.stage.json",
+  "anim": "/docs/ai-1.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,
