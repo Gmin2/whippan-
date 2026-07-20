@@ -412,23 +412,34 @@ rect("bz_b", 540, 1640, 3400, 640, 64, "#3e3d42")
 rect("bz_corner", 1452, 1452, 400, 400, 90, "#3e3d42", rot=0)
 
 # --------------------------------------------------- ragdoll drag simulation
-# handle waypoints (t, x, y) scene-local; catmull-ish eased between stops
+# handle waypoints authored in the SCREEN coords of the reference frames,
+# mapped to world through the camera framing active at that moment.
+# close framing: zoom 1.32 cam (-58, 12); mid: zoom 0.62 cam (0, 0);
+# end framing zoom ~1.18 is solved after the sim from the crab's end pos.
+def close_w(sx, sy):
+    return ((sx - 540) / 1.32 + 482, (sy - 540) / 1.32 + 552)
+
+
+def mid_w(sx, sy):
+    return ((sx - 540) / 0.62 + 540, (sy - 540) / 0.62 + 540)
+
+
 HANDLE_WP = [
-    (0.00, 790, 475),
-    (0.14, 862, 566),
-    (0.28, 706, 700),
-    (0.42, 900, 528),
-    (0.58, 915, 520),
-    (0.68, 700, 810),
-    (0.80, 685, 840),
-    (0.95, 700, 560),
-    (1.15, 660, 480),
-    (1.35, 705, 532),
-    (1.55, 668, 498),
-    (1.75, 762, 470),
-    (1.93, 556, 700),
-    (2.08, 498, 730),
-    (2.30, 478, 738),
+    (0.00, *close_w(790, 475)),
+    (0.14, *close_w(862, 566)),
+    (0.28, *close_w(706, 700)),
+    (0.42, *close_w(900, 528)),
+    (0.58, *close_w(915, 520)),
+    (0.68, *close_w(700, 810)),
+    (0.80, *close_w(685, 840)),
+    (0.95, *mid_w(700, 560)),
+    (1.15, *mid_w(660, 480)),
+    (1.35, *mid_w(705, 532)),
+    (1.55, *mid_w(668, 498)),
+    (1.75, 738, 491),
+    (2.02, 752, 472),
+    (2.12, 700, 545),
+    (2.30, 430, 800),
 ]
 
 
@@ -445,9 +456,9 @@ def handle_pos(t):
 
 DT = 1 / 240
 STEPS = int(2.30 / DT) + 1
-L_REST = 128
+L_REST = 118
 BODY_K = 42.0
-BODY_DAMP = 3.4
+BODY_DAMP = 3.0
 LIMB_OM = 13.5
 LIMB_Z = 0.22
 
@@ -490,8 +501,8 @@ for step in range(STEPS):
         ox += vx * DT
         oy += vy * DT
         m = math.hypot(ox, oy)
-        if m > 34:
-            ox, oy = ox / m * 34, oy / m * 34
+        if m > 40:
+            ox, oy = ox / m * 40, oy / m * 40
         new_off.append((ox, oy))
         new_vel.append((vx, vy))
     limb_off, limb_vel = new_off, new_vel
@@ -594,20 +605,28 @@ for di in range(13):
 
 # handle dot + grabbing fist cursor riding it
 rect("hd", h0x, h0y, 24, 24, 12, "#f79f28",
-     streak={"samples": 5, "window": 0.05, "gain": 0.45})
+     streak={"samples": 4, "window": 0.04, "gain": 0.3})
 track("hd", x=handle_kx, y=handle_ky)
-c2 = cursor_group("cur2", h0x + 2, h0y + 52, "fist", 1.15)
+c2 = cursor_group("cur2", h0x + 2, h0y + 46, "fist", 1.5)
 for nid in c2:
     track(nid, x=cur_kx, y=cur_ky)
 
-# camera: close on the toy -> pull back to the bezel -> drift back in
+# camera: close on the toy -> pull back to the bezel -> drift back in.
+# the end framing centers on wherever the simulated crab actually is at
+# the final frame so the clip ends mid-drag on the crab.
+cex, cey, cez = samples[-1][1], samples[-1][2], 1.18
+end_cam_x = cex - 540 + (540 - 650) / cez
+end_cam_y = cey - 540 + (540 - 470) / cez
 track("s2",
-      cam_zoom=[(0, 1.05), (52 * F, 1.05), (78 * F, 0.62, EZ), (104 * F, 0.62),
-                (128 * F, 0.90, [0.4, 0, 0.3, 1]), (138 * F, 0.925)],
-      cam_x=[(0, 0), (52 * F, 0), (78 * F, 0, EZ), (104 * F, 0),
-             (128 * F, 60, [0.4, 0, 0.3, 1]), (138 * F, 64)],
-      cam_y=[(0, 0), (52 * F, 0), (78 * F, 0, EZ), (104 * F, 0),
-             (128 * F, -20, [0.4, 0, 0.3, 1]), (138 * F, -24)])
+      cam_zoom=[(0, 1.32), (50 * F, 1.32), (76 * F, 0.62, EZ),
+                (102 * F, 0.62), (126 * F, 1.13, [0.4, 0, 0.3, 1]),
+                (138 * F, cez)],
+      cam_x=[(0, -58), (50 * F, -58), (76 * F, 0, EZ), (102 * F, 0),
+             (126 * F, end_cam_x * 0.85, [0.4, 0, 0.3, 1]),
+             (138 * F, end_cam_x)],
+      cam_y=[(0, 12), (50 * F, 12), (76 * F, 0, EZ), (102 * F, 0),
+             (126 * F, end_cam_y * 0.85, [0.4, 0, 0.3, 1]),
+             (138 * F, end_cam_y)])
 
 stage = {
     "fps": 30,

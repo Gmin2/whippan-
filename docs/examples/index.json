@@ -264,6 +264,18 @@
   "anim": "/docs/ravie.anim.json"
  },
  {
+  "slug": "higgsfield",
+  "title": "higgsfield (repro)",
+  "dur": 37.8,
+  "size": [
+   1138,
+   640
+  ],
+  "group": "reproductions",
+  "stage": "/docs/higgsfield.stage.json",
+  "anim": "/docs/higgsfield.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,

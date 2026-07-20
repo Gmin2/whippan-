@@ -143,8 +143,12 @@ ED_END = 98 * F
 
 node(ed, "e_bg", "rect", 540, 540, w=1084, h=1084, radius=0, fill="#59585e",
      gradient={"angle": 90, "stops": [
-         {"at": 0.0, "color": "#5a595f"}, {"at": 0.45, "color": "#454449"},
-         {"at": 0.78, "color": "#1a1a1c"}, {"at": 1.0, "color": "#000000"}]})
+         {"at": 0.0, "color": "#535258"}, {"at": 0.06, "color": "#5d5c62"},
+         {"at": 0.14, "color": "#717076"}, {"at": 0.23, "color": "#86858a"},
+         {"at": 0.32, "color": "#96959a"}, {"at": 0.42, "color": "#8b8d8d"},
+         {"at": 0.51, "color": "#515455"}, {"at": 0.60, "color": "#252929"},
+         {"at": 0.69, "color": "#131314"}, {"at": 0.78, "color": "#050505"},
+         {"at": 0.86, "color": "#000000"}, {"at": 1.0, "color": "#000000"}]})
 rect(ed, "e_app", 540, 539, 920, 712, 26, "#d4d4d4")
 rect(ed, "e_canvas", 538, 500, 503, 500, 6, "#ffffff")
 text(ed, "e_hello", "hello", 540, 500, 156, "#1287ff", weight=800)
@@ -198,6 +202,8 @@ text(ed, "e_rt5", "clear", 870, 582, 8, "#777777")
 
 # bottom timeline
 rect(ed, "e_tl", 539, 823, 574, 85, 20, "#fafafa")
+for i in range(6):
+    rect(ed, f"e_ts{i}", 380 + i * 72, 823, 36, 81, 0, "#f2f2f2")
 rect(ed, "e_play", 274, 823, 34, 56, 11, "#ffffff")
 path(ed, "e_playg", 271, 823, "M-6 -6L3 0L-6 6Z", "#141414")
 path(ed, "e_playb", 280, 823, "M0 -6L0 6M4 -6L4 6", "#141414", stroke=2.0)
@@ -209,31 +215,34 @@ rect(ed, "e_ph", 358, 824, 2.5, 79, 1, "#ea6f34")
 rect(ed, "e_phk", 358, 804, 15, 15, 7.5, "#d8da6c")
 path(ed, "e_phr", 358, 804, circle_d(9), "#ea6f34", stroke=2.0)
 
-# color wheel: blooms out of the dot f26-40
-WCX, WCY = 205, 487
+# color wheel: blooms out of the dot f26-40. packed 14-swatch ring, muted
+# designer palette, slightly right of and above the dot like the source
+WCX, WCY = 210.5, 484
 rect(ed, "e_disc", WCX, WCY, 127, 127, 63.5, "#ffffff",
      glow={"sigma": 5, "opacity": 0.15, "color": "#888888", "dy": 2})
 track("e_disc", scale=[(24 * F, 0.0), (25 * F, 0.0), (33 * F, 1.0, "outCubic")],
       opacity=steps([(25 * F, 0), (25.5 * F, 1)]))
-SWATCH = ["#b31217", "#3a3a3a", "#e9e9e6", "#6c6459", "#4a3a2c", "#5b2d8e",
-          "#1287f8", "#3b2ba0", "#2f8030", "#42a338", "#f0c14b", "#f5df9a"]
+SWATCH = ["#b31217", "#37373a", "#eae8e5", "#6c6459", "#4a3a2c", "#5e2f96",
+          "#1287f8", "#3f2bb0", "#2e7f2c", "#43a339", "#f0c14b", "#f5df9a",
+          "#0a0a0a", "#a63c08"]
 import math
 for i, col in enumerate(SWATCH):
-    a = -math.pi / 2 + i * 2 * math.pi / 12
-    sx = WCX + 41 * math.cos(a)
-    sy = WCY + 41 * math.sin(a)
-    rect(ed, f"e_sw{i}", sx, sy, 23, 23, 11.5, col)
-    t0 = (26 + i * 0.5) * F
-    t1 = (34 + i * 0.5) * F
+    a = -math.pi / 2 + i * 2 * math.pi / 14
+    sx = WCX + 40 * math.cos(a)
+    sy = WCY + 40 * math.sin(a)
+    rect(ed, f"e_sw{i}", sx, sy, 25, 25, 12.5, col)
+    t0 = (26 + i * 0.45) * F
+    t1 = (34 + i * 0.45) * F
     track(f"e_sw{i}",
           x=[(t0, WCX - sx), (t1, 0, "outCubic")],
           y=[(t0, WCY - sy), (t1, 0, "outCubic")],
           scale=[(t0, 0.1), (t1, 1.0, "outCubic")],
           opacity=steps([(t0, 0), (t0 + 0.5 * F, 1)]))
-rect(ed, "e_win", WCX, WCY, 36, 36, 18, "#f6f6f6")
+rect(ed, "e_win", WCX, WCY, 34, 34, 17, "#f6f6f6")
 path(ed, "e_drop", WCX, WCY,
-     "M0 -7C4 -2 6 1 6 4C6 8 3 11 0 11C-3 11 -6 8 -6 4C-6 1 -4 -2 0 -7Z",
-     "#333333")
+     "M0 -6C3.4 -1.7 5.1 0.9 5.1 3.4C5.1 6.8 2.6 9.4 0 9.4"
+     "C-2.6 9.4 -5.1 6.8 -5.1 3.4C-5.1 0.9 -3.4 -1.7 0 -6Z",
+     "#3c3c3c")
 for nid in ("e_win", "e_drop"):
     track(nid, scale=[(24 * F, 0.0), (25 * F, 0.0), (33 * F, 1.0, "outCubic")],
           opacity=steps([(25 * F, 0), (25.5 * F, 1)]))
@@ -241,12 +250,12 @@ for nid in ("e_win", "e_drop"):
 # gradient sphere blooms in one frame at f57
 rect(ed, "e_sph", 223, 524, 69, 69, 34.5, "#2b7cf0",
      gradient={"angle": 135, "stops": [
-         {"at": 0.0, "color": "#72f7f4"}, {"at": 0.55, "color": "#1f7cf2"},
+         {"at": 0.0, "color": "#72f7f4"}, {"at": 0.35, "color": "#2f8cf0"},
          {"at": 1.0, "color": "#0535df"}]},
      glow={"sigma": 8, "opacity": 0.3, "color": "#2255cc", "dy": 4})
 track("e_sph", scale=[(55 * F, 0.0), (56 * F, 0.55), (58 * F, 1.0, "outCubic")],
       opacity=steps([(56 * F, 0), (56.5 * F, 1)]))
-path(ed, "e_ringO", 212, 530, circle_d(3.8), "#ffffff", stroke=1.5)
+path(ed, "e_ringO", 212, 526, circle_d(3.8), "#ffffff", stroke=1.5)
 track("e_ringO",
       opacity=steps([(56.5 * F, 0), (57 * F, 1)]),
       x=[(57 * F, 2), (70 * F, 0), (98 * F, -7)],

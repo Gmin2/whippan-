@@ -144,6 +144,23 @@ def ostep(nid, pairs):
     tracks.append({"target": nid, "keys": {"opacity": steps(pairs)}})
 
 
+def exit_fade(nids, t0, t1):
+    """append a fade-out into each node's existing opacity track (one track
+    per node per prop), or make one if the node has none."""
+    for nid in nids:
+        host = None
+        for t in tracks:
+            if t["target"] == nid and "opacity" in t.get("keys", {}) \
+                    and "at" not in t:
+                host = t
+        if host:
+            ks = host["keys"]["opacity"]
+            last = ks[-1]["v"]
+            ks += [{"t": round(t0, 3), "v": last}, {"t": round(t1, 3), "v": 0}]
+        else:
+            ostep(nid, [(0, 1), (t0, 1), (t1, 0)])
+
+
 # ------------------------------------------------------------ chrome
 # scrubber boxes, playhead, waveform, halftone dots. present every scene.
 BOXES = [(71, 110, None), (184, 167, "Use case 1"), (354, 105, "Use case 2"),
@@ -160,20 +177,7 @@ def waveform_d():
     return "".join(parts)
 
 
-def dots_d():
-    parts = []
-    bands = [(140, 400, 8, 44), (952, 994, 240, 556), (4, 44, 180, 430)]
-    for x0, x1, y0, y1 in bands:
-        for gy in range(y0, y1, 8):
-            for gx in range(x0, x1, 8):
-                if (gx * 3 + gy * 7) % 31 < 7:
-                    parts.append(f"M{gx} {gy}L{gx + 2.2} {gy}"
-                                 f"L{gx + 2.2} {gy + 2.2}L{gx} {gy + 2.2}Z")
-    return "".join(parts)
-
-
 WAVE_D = waveform_d()
-DOTS_D = dots_d()
 SCRUB_D = "".join(rrect_d(x0, 596, w, 55, 8) for x0, w, _ in BOXES)
 TOTAL = 39.8
 
@@ -181,7 +185,6 @@ TOTAL = 39.8
 def chrome(si, g0, dur):
     s = f"_c{si}"
     ns = [
-        path("dots" + s, 0, 0, DOTS_D, "#e8e5dc"),
         path("scrub" + s, 0, 0, SCRUB_D, "#c9c7c0", stroke=1.3),
         text("lbl_do1" + s, "Dream", 126, 617, 13, "#26241f"),
         text("lbl_do2" + s, "outcome", 126, 633, 13, "#26241f"),
@@ -246,14 +249,16 @@ def postinify(prefix, cx, cy, s):
     return ns
 
 
-def cursor_chip(idp, x, y, color, name, chip_dx, chip_dy):
-    cw = len(name) * 7.5 + 26
+def cursor_chip(idp, x, y, color, name, chip_dx, chip_dy, big=False):
+    cw = len(name) * (10 if big else 7.5) + (50 if big else 30)
+    ch = 40 if big else 30
+    fs = 18 if big else 14
     return [
         {"id": idp + "cur", "type": "cursor", "x": x, "y": y, "w": 20,
          "fill": color},
-        rect(idp + "chipf", x + chip_dx, y + chip_dy, cw, 30, 15, "#ffffff"),
-        border(idp + "chipb", x + chip_dx, y + chip_dy, cw, 30, 15),
-        text(idp + "chipt", name, x + chip_dx, y + chip_dy, 14, color, 600),
+        rect(idp + "chipf", x + chip_dx, y + chip_dy, cw, ch, ch / 2, "#ffffff"),
+        border(idp + "chipb", x + chip_dx, y + chip_dy, cw, ch, ch / 2),
+        text(idp + "chipt", name, x + chip_dx, y + chip_dy, fs, color, 600),
     ]
 
 

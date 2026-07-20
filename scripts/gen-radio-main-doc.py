@@ -119,7 +119,7 @@ vroll_ids = []    # clip rows that ride the vertical track scroll
 
 # ------------------------------------------------------------ desktop
 rect("desk", 540, 540, 1082, 1082, 0, "#3a3a3a",
-     gradient={"angle": 315, "stops": [
+     gradient={"angle": 135, "stops": [
          {"at": 0.0, "color": "#d6d2d3"}, {"at": 0.45, "color": "#6e6c6d"},
          {"at": 1.0, "color": "#232323"}]})
 rect("win_rim", 524, 522, 988, 876, 26, "#4a4a4a")
@@ -250,13 +250,13 @@ text("t_wooh", "wooh!", CX, 330, 300, "#c2c2c2", 900, rot=-3)
 track("t_wooh", scale=[(4.28, 1.16), (4.44, 1.0, "outCubic")])
 windows("t_wooh", [(4.28, 4.70)])
 
-AX, AY = 790, 430
-path("al_head", AX, AY, ellipse_d(82, 92), "#ccd4d1")
-path("al_eye_l", AX - 34, AY - 8, ellipse_d(24, 37), "#0c0c0c", rot=18)
-path("al_eye_r", AX + 34, AY - 8, ellipse_d(24, 37), "#0c0c0c", rot=-18)
-path("al_sp_l", AX - 42, AY - 22, circle_d(5.5), "#e8eeec")
-path("al_sp_r", AX + 26, AY - 22, circle_d(5.5), "#e8eeec")
-path("al_mouth", AX, AY + 52, "M-12 0C-4 7 4 7 12 0", "#2a2f2d", stroke=3.0)
+AX, AY = 815, 448
+path("al_head", AX, AY, ellipse_d(70, 80), "#ccd4d1")
+path("al_eye_l", AX - 29, AY - 8, ellipse_d(20, 31), "#0c0c0c", rot=18)
+path("al_eye_r", AX + 29, AY - 8, ellipse_d(20, 31), "#0c0c0c", rot=-18)
+path("al_sp_l", AX - 36, AY - 20, circle_d(4.5), "#e8eeec")
+path("al_sp_r", AX + 22, AY - 20, circle_d(4.5), "#e8eeec")
+path("al_mouth", AX, AY + 44, "M-10 0C-3 6 3 6 10 0", "#2a2f2d", stroke=3.0)
 for nid in ("al_head", "al_eye_l", "al_eye_r", "al_sp_l", "al_sp_r",
             "al_mouth"):
     windows(nid, [(4.32, 4.70)])
@@ -343,10 +343,10 @@ for i in range(7):
     windows(f"ln_r{i}", [(6.48, 6.88)])
 
 # ------------------------------------------------------------ move around
-text("mv_move", "move", 425, 288, 88, "#141414", 800)
+text("mv_move", "move", 405, 288, 88, "#141414", 800)
 track("mv_move", x=[(6.92, -120), (7.18, 0, "outCubic")])
 windows("mv_move", [(6.92, 7.585)])
-text("mv_them", "them", 648, 288, 88, "#141414", 800)
+text("mv_them", "them", 665, 288, 88, "#141414", 800)
 track("mv_them", x=[(6.95, 150), (7.25, 0, "outCubic")],
       y=[(6.95, 110), (7.25, 0, "outCubic")])
 windows("mv_them", [(6.95, 7.585)])
@@ -370,7 +370,7 @@ def sel_box(id, x, y, w, h, wins):
     windows(id, wins)
 
 
-sel_box("box_them", 648, 288, 220, 92, [(7.15, 7.36)])
+sel_box("box_them", 665, 288, 220, 92, [(7.15, 7.36)])
 sel_box("box_all", 408, 352, 150, 84, [(7.25, 7.46)])
 sel_box("box_around", 622, 352, 280, 92, [(7.30, 7.585)])
 nodes.append({"id": "mv_cur1", "type": "cursor", "x": 764, "y": 330,
@@ -519,13 +519,13 @@ track("playhead",
 
 # desktop strips over the timeline overflow left/right/below the window
 rect("strip_l", 16, 540, 32, 1082, 0, "#232323",
-     gradient={"angle": 180, "stops": [
-         {"at": 0.0, "color": "#5c5a5b"}, {"at": 1.0, "color": "#1c1c1c"}]})
+     gradient={"angle": 90, "stops": [
+         {"at": 0.0, "color": "#4c4a4b"}, {"at": 1.0, "color": "#1c1c1c"}]})
 rect("strip_r", 1048, 540, 64, 1082, 0, "#8a8888",
-     gradient={"angle": 180, "stops": [
+     gradient={"angle": 90, "stops": [
          {"at": 0.0, "color": "#cac6c7"}, {"at": 1.0, "color": "#4a4a4a"}]})
 rect("strip_b", 540, 1019, 1082, 122, 0, "#3a3a3a",
-     gradient={"angle": 90, "stops": [
+     gradient={"angle": 0, "stops": [
          {"at": 0.0, "color": "#181818"}, {"at": 1.0, "color": "#565454"}]})
 
 # ------------------------------------------------------------ transport

@@ -156,10 +156,9 @@ def fluid_badge(p):
                "C-660 130 -260 -160 -215 -540Z")
     n = [
         path(p + "cur", 960, 540, curtain, "#16f4f9"),
-        rect(p + "fl1", 620, 960, 900, 320, 160, "#2a9ded", blur=70,
-             opacity=0.75),
-        rect(p + "fl2", 1450, 1010, 900, 300, 150, "#1c62c9", blur=80,
-             opacity=0.6),
+        rect(p + "fl0", 960, 1010, 2200, 380, 120, "#1e88e0", blur=90),
+        rect(p + "fl1", 620, 960, 900, 320, 160, "#2a9ded", blur=70),
+        rect(p + "fl2", 1450, 1010, 900, 300, 150, "#1c62c9", blur=80),
         path(p + "ring1", 958, 538, circle_d(214), "#ffffff", stroke=3.0),
         path(p + "ring2", 958, 538, circle_d(186), "#ffffff", stroke=2.5),
         sphere(p + "sph", 958, 538, 100),
@@ -322,11 +321,11 @@ scene("s11", "#000000", 1.50, n11)
 
 # 12 -------------------------------------------------------- browser rise
 n12 = [
-    rect("br_wc2", 990, 155, 1160, 380, 26, "#2a2a2a"),
-    rect("br_wc", 960, 185, 1150, 400, 26, "#ffffff"),
-    text("br_wt1", "MOVE YOUR", 960, 200, 12, "#9a9a9a"),
-    text("br_wt2", "MOUSE TO SEE", 960, 217, 12, "#9a9a9a"),
-    text("br_wt3", "THE TRAIL", 960, 234, 12, "#9a9a9a"),
+    rect("br_wc2", 990, 265, 1160, 380, 26, "#2a2a2a"),
+    rect("br_wc", 960, 300, 1150, 380, 26, "#ffffff"),
+    text("br_wt1", "MOVE YOUR", 960, 375, 12, "#9a9a9a"),
+    text("br_wt2", "MOUSE TO SEE", 960, 392, 12, "#9a9a9a"),
+    text("br_wt3", "THE TRAIL", 960, 409, 12, "#9a9a9a"),
     rect("br_body", 960, 990, 1730, 1060, 22, "#333333"),
     rect("br_tab", 630, 500, 930, 82, 26, "#3f3f3f"),
     path("br_d1", 200, 497, circle_d(15), "#f2595e"),
@@ -376,8 +375,9 @@ n13 += [
         "sigma": 8, "opacity": 0.8, "color": "#ffffff"}),
     # white components card (enters phase 2)
     rect("wc_card", 1490, 780, 980, 830, 42, "#ffffff", gradient={
-        "angle": 250, "stops": [{"at": 0, "color": "#ffffff"},
-                                {"at": 1, "color": "#cfcfcf"}]}),
+        "angle": 0, "stops": [{"at": 0, "color": "#ffffff"},
+                              {"at": 0.65, "color": "#f0f0f0"},
+                              {"at": 1, "color": "#bdbdbd"}]}),
     path("wc_sp", 1105, 470, "M0 -34C4 -12 12 -4 34 0C12 4 4 12 0 34"
          "C-4 12 -12 4 -34 0C-12 -4 -4 -12 0 -34Z", "#111111"),
     text("wc_h", "72+ Components", 1490, 480, 62, "#1a1a1a", 600),
@@ -571,7 +571,22 @@ for i, (x, y, r, c) in enumerate(heads):
     nid = f"cw_h{i}o" if c == "#ffffff" else f"cw_h{i}"
     track(nid, y=[(0, 170), (0.3, 0, "outCubic")])
     track(f"cw_b{i}", y=[(0, 170), (0.3, 0, "outCubic")])
-scene("s15i", "#ffffff", 0.47, n15i)
+scene("s15i", "#ffffff", 0.20, n15i)
+
+# 15i1 -------------------------------------------------- poster marquee
+n15p = []
+POSTERS = [(160, "#2e2e2e"), (300, "#d63040"), (1140, "#111111"),
+           (1275, "#1c1c1c"), (1420, "#f2f2f0"), (1560, "#e8e4d8"),
+           (1700, "#8a8a88"), (1855, "#4a5fd0")]
+for i, (x, c) in enumerate(POSTERS):
+    n15p.append(rect(f"po_{i}", x, 585, 130, 660, 60, c))
+n15p.append(rect("po_it", 690, 585, 630, 660, 44, "#d2d2d0",
+                 gradient={"angle": 90, "stops": [
+                     {"at": 0, "color": "#dedede"},
+                     {"at": 1, "color": "#c2c2c0"}]}))
+n15p.append(text("po_itt", "Italy", 700, 580, 150, "#2222cc", 600))
+n15p.append(text("po_75", "75", 1140, 460, 90, "#111111", 800))
+scene("s15p", "#ffffff", 0.34, n15p)
 
 # 15i2 ------------------------------------- scroll-effect-with-gsap mosaic
 n15i2 = [
@@ -590,6 +605,7 @@ for i, (x, y, w, h, c) in enumerate(TILES):
     n15i2.append(rect(f"mo_t{i}", x, y, w, h, 10, c))
     track(f"mo_t{i}", y=[(0, 260), (0.32, 0, "outCubic")])
 scene("s15i2", DK, 0.33, n15i2)
+# ledger note: crowd 0.20 + posters 0.34 + mosaic 0.33 keeps the 18.40 cut
 
 # 15j -------------------------------------------------------- ascii site
 n15j = [
@@ -626,7 +642,7 @@ n15j = [
     {"id": "as_f4", "type": "text", "text": "IN PERSON  $600", "x": 1790,
      "y": 1018, "color": "#333333", "font": {"size": 17, "family": "mono"}},
 ]
-scene("s15j", "#f2f2ed", 0.67, n15j)
+scene("s15j", "#f2f2ed", 0.60, n15j)
 
 # 15k -------------------------------------------------------- gsap scroll
 n15k = [

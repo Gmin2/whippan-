@@ -146,7 +146,7 @@ nodes.append(rect("pvbase", PX + 1.5, 705, 1407, 1410, 0, "#bfbfbf"))
 nodes.append(rect("pvblack", PX + 1.5, 705, 1407, 1410, 0, "#0a0a0a"))
 tracks.append(vis("pvblack", 1.78, 2.12))
 nodes.append(rect("pvgreen", PX + 1.5, 705, 1407, 1410, 0, GREEN))
-tracks.append(vis("pvgreen", 5.8, 6.06))
+tracks.append(vis("pvgreen", 5.75, 5.98))
 
 # ===================================================== s1: glyph drop-in
 # small white lozenge with the black player glyph, grows on a long ease
@@ -224,15 +224,15 @@ nodes.append(rect("cover", PX, 705, 100, 100, 44,
                   "#8a6a4e", gradient=grad(30, "#c09468", "#5e4736")))
 tracks.append(keyed(
     "cover",
-    w=[(1.08, 240), (1.5, 1410, "outCubic"), (1.95, 1410),
+    w=[(1.05, 240), (1.38, 1410, "outCubic"), (1.95, 1410),
        (2.3, 760, "inOutCubic"), (4.0, 760), (4.35, 470, "inOutCubic")],
-    h=[(1.08, 240), (1.5, 1414, "outCubic"), (1.95, 1414),
+    h=[(1.05, 240), (1.38, 1414, "outCubic"), (1.95, 1414),
        (2.3, 760, "inOutCubic"), (4.0, 760), (4.35, 470, "inOutCubic")],
     y=[(1.95, 0), (2.3, -15, "inOutCubic"), (4.0, -15),
        (4.35, -385, "inOutCubic"), (4.9, -385), (5.3, -455, "inOutCubic")],
     scale=[(2.9, 1), (3.4, 0.95, "inOutCubic"), (3.95, 1.0, "inOutCubic")],
     rot=[(4.9, 0), (5.25, -5, "inOutCubic")],
-    opacity=[(0, 0), (1.05, 0), (1.22, 1), (5.45, 1), (5.8, 0)]))
+    opacity=[(0, 0), (1.05, 0), (1.22, 1), (5.3, 1), (5.6, 0)]))
 # full-bleed labels, lower left
 nodes.append(ltext("cvt1", "Seigfried", 1210, 1160, 66, "#f5f5f5",
                    weight=700))
@@ -263,9 +263,17 @@ nodes.append(ltext("npt0b", "1:52", 1455, 1030, 32, "#efefef"))
 tracks.append({"target": "npt0b", "keys": {"opacity": [
     {"t": 0, "v": 0}, {"t": 3.349, "v": 0}, {"t": 3.35, "v": 1},
     {"t": 3.8, "v": 1}, {"t": 4.0, "v": 0}]}})
-# canvas mirror card
+# canvas mirror: the cover reads as a light grey slab that fills the
+# canvas with the expand, then collapses into the card
+nodes.append(rect("mcard", 560, 760, 240, 240, 30, "#9b9b9b"))
+tracks.append(keyed(
+    "mcard",
+    w=[(1.05, 240), (1.38, 1000, "outCubic"), (1.95, 1000),
+       (2.3, 600, "inOutCubic")],
+    h=[(1.05, 240), (1.38, 1030, "outCubic"), (1.95, 1030),
+       (2.3, 600, "inOutCubic")],
+    opacity=[(0, 0), (1.05, 0), (1.25, 1), (3.8, 1), (4.0, 0)]))
 m_card = [
-    rect("mcard", 620, 780, 600, 600, 36, "#8f8f8f"),
     ltext("mct1", "Seigfried", 340, 900, 52, "#f2f2f2", weight=700),
     ltext("mct2", "Frank Ocean", 342, 955, 36, "#dedede"),
     rect("mcsc", 620, 1010, 520, 6, 3, "#cccccc"),
@@ -292,7 +300,7 @@ for nid in ("tabbar", "tabicons"):
 
 CARD2_Y = [(3.45, -420), (3.9, 0, "outCubic"), (4.8, 0),
            (5.2, 60, "inOutCubic")]
-CARD2_OP = [(0, 0), (3.4, 0), (3.6, 1), (5.45, 1), (5.8, 0)]
+CARD2_OP = [(0, 0), (3.4, 0), (3.6, 1), (5.3, 1), (5.6, 0)]
 nodes.append(rect("card2", PX, 150, 560, 330, 40, "#a03326",
                   gradient=grad(40, "#c8402e", "#6f1c14")))
 nodes.append(text("c2t1", "Illegal", PX, 130, 40, "#ffffff", weight=700))
@@ -302,7 +310,7 @@ for nid in ("card2", "c2t1", "c2t2"):
                         rot=[(4.8, 0), (5.15, 5, "inOutCubic")]))
 
 # ===================================================== s6: iPod device
-DEV_OP = [(0, 0), (3.9, 0), (4.2, 1), (5.4, 1), (5.7, 0)]
+DEV_OP = [(0, 0), (3.9, 0), (4.2, 1), (5.3, 1), (5.58, 0)]
 DEV_SC = [(3.9, 0.92), (4.25, 1.0, "outCubic")]
 dev_parts = [
     rect("devbody", PX, 800, 700, 880, 90, "#f3f3f4"),
@@ -324,7 +332,7 @@ for i in range(4):
         f"mstack{i}",
         y=[(4.1 + i * 0.12, 90), (4.5 + i * 0.12, 0, "outCubic")],
         opacity=[(0, 0), (4.1 + i * 0.12, 0), (4.3 + i * 0.12, 1),
-                 (5.5, 1), (5.8, 0)]))
+                 (5.35, 1), (5.62, 0)]))
 
 # ===================================================== s6/7: card3 + fan
 nodes.append(rect("card3", PX, 335, 500, 310, 38, "#1e3a52",
@@ -338,7 +346,7 @@ for nid in ("card3", "c3t1", "c3t2"):
         y=[(4.15, 80), (4.5, 0, "outCubic"), (4.9, 0),
            (5.3, -55, "inOutCubic")],
         rot=[(4.9, 0), (5.25, 4, "inOutCubic")],
-        opacity=[(0, 0), (4.15, 0), (4.4, 1), (5.5, 1), (5.85, 0)]))
+        opacity=[(0, 0), (4.15, 0), (4.4, 1), (5.35, 1), (5.62, 0)]))
 nodes.append(rect("card4", PX, 240, 560, 350, 40, "#4a86c2",
                   gradient=grad(30, "#62a0dc", "#2d69a8")))
 nodes.append(text("c4t1", "The Rockafeller Skank", PX - 60, 190, 40,
@@ -348,17 +356,17 @@ for nid in ("card4", "c4t1", "c4t2"):
     tracks.append(keyed(
         nid,
         y=[(4.85, 300), (5.25, 0, "outCubic")],
-        opacity=[(0, 0), (4.85, 0), (5.05, 1), (5.62, 1), (5.92, 0)]))
+        opacity=[(0, 0), (4.85, 0), (5.05, 1), (5.45, 1), (5.72, 0)]))
 
 # ===================================================== s8: itunes bubbles
-BUBS = [(1265, 200, 150, "#3f3f41"), (2300, 250, 170, "#5c554f"),
-        (1430, 730, 95, "#71604f"), (2190, 770, 120, "#4b5560"),
-        (1310, 1210, 105, "#635a63"), (2340, 1180, 80, "#454a52"),
-        (2060, 1050, 70, "#56606b"), (1650, 1290, 88, "#4e463f")]
+BUBS = [(1265, 200, 150, "#575759"), (2300, 250, 170, "#7a6f63"),
+        (1430, 730, 95, "#8a7460"), (2190, 770, 120, "#5f6c7a"),
+        (1310, 1210, 105, "#7d6f7d"), (2340, 1180, 80, "#585f6b"),
+        (2060, 1050, 70, "#6d7a88"), (1650, 1290, 88, "#665c50")]
 for i, (bx, by, br, bc) in enumerate(BUBS):
     nodes.append(rect(f"bub{i}", bx, by, br * 2, br * 2, br, bc))
     tracks.append(vis(f"bub{i}", 4.9 + (i % 3) * 0.1, 5.2 + (i % 3) * 0.1,
-                      5.78, 6.02, hi=0.92))
+                      5.72, 5.95, hi=0.92))
     tracks.append({"target": f"bub{i}", "at": 4.9, "loop": True,
                    "keys": {"y": [
                        {"t": 0, "v": 0},
@@ -366,13 +374,15 @@ for i, (bx, by, br, bc) in enumerate(BUBS):
                         "ease": "inOutCubic"},
                        {"t": 2.4 + (i % 4) * 0.4, "v": 0,
                         "ease": "inOutCubic"}]}})
-for i, (bx, by, br) in enumerate([(260, 240, 110), (830, 330, 130),
-                                  (360, 780, 80), (860, 950, 95),
-                                  (240, 1150, 70)]):
-    g = ["#7a7a7a", "#8f8f8f", "#6b6b6b", "#9b9b9b", "#818181"][i]
+MBUBS = [(160, 240, 165), (515, 130, 120), (870, 320, 175), (130, 620, 95),
+         (460, 590, 130), (940, 700, 110), (250, 1000, 150), (640, 950, 90),
+         (900, 1180, 130), (420, 1290, 105)]
+for i, (bx, by, br) in enumerate(MBUBS):
+    g = ["#7a7a7a", "#8f8f8f", "#6b6b6b", "#9b9b9b", "#818181",
+         "#747474", "#989898", "#888888", "#6f6f6f", "#929292"][i]
     nodes.append(rect(f"mbub{i}", bx, by, br * 2, br * 2, br, g))
-    tracks.append(vis(f"mbub{i}", 4.95, 5.25, 5.85, 6.15, hi=0.9))
-IT_OP = [(0, 0), (5.4, 0), (5.62, 1), (5.85, 1), (6.08, 0)]
+    tracks.append(vis(f"mbub{i}", 4.95, 5.25, 5.85, 6.1, hi=0.9))
+IT_OP = [(0, 0), (5.3, 0), (5.55, 1), (5.82, 1), (6.02, 0)]
 IT_SC = [(5.4, 0.8), (5.72, 1.0, "outCubic")]
 note_d = (circle(-52, 52, 30) + circle(40, 64, 30)
           + poly([(-30, 52), (-22, 52), (-22, -58), (-30, -58)])

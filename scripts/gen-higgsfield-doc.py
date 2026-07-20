@@ -513,6 +513,7 @@ for nid, d, ry in [("s7_lpb", 0.35, 14), ("s7_lprg", 0.4, 14),
                    ("s7_lpfb", 0.45, 14), ("s7_lpfh", 0.45, 14),
                    ("s7_lc", 0.55, 10), ("s7_rpb", 0.5, 14),
                    ("s7_rpc", 0.55, 14), ("s7_rpf", 0.55, 14),
+                   ("s7_rpmh", 0.55, 14),
                    ("s7_rph", 0.55, 14), ("s7_rt1", 0.65, 10),
                    ("s7_rt2", 0.7, 10), ("s7_band", 0.9, 18),
                    ("s7_bt", 1.0, 12), ("s7_mk", 0.1, 0), ("s7_ml", 0.1, 0)]:
@@ -584,7 +585,7 @@ for i in range(4):
     xs = 205 + i * 115
     macro_tile(f"s8_a{i}", xs, 575, 105, 78, n8,
                dx=(i - 1.5) * 14, dy=(i % 2) * 8 - 4, ws=44 + i * 6)
-    for suf in ("b", "c", "f", "h"):
+    for suf in ("b", "c", "f", "mh", "h"):
         nid = f"s8_a{i}{suf}"
         gate(nid, 2.0 + i * 0.07, fade=0.1)
         track(nid, scale=[(2.0 + i * 0.07, 1.08),
@@ -616,52 +617,54 @@ actor("s9_dm", "Demius", GREEN, GREEN, "#083c26", 560, 320, n9,
       moves=[(0.3, 40, 30), (0.9, 0, 0, "outCubic")])
 actor("s9_jg", "Jagan96", MAG, MAG_CHIP, "#ffffff", 620, 180, n9,
       moves=[(0.2, -30, -20), (0.8, 0, 0, "outCubic")])
-# mockup studio panel lives 680px to the right on the same board
-n9.append(rect("s9_mp", 1250, 300, 430, 520, 18, PANEL))
-n9.append(ltext("s9_mt", "Mockup Studio", 1060, 80, 14, "#ffffff",
+# mockup studio panel lives far right on the same board, out of the first
+# framing entirely
+MX = 1500
+n9.append(rect("s9_mp", MX, 300, 430, 520, 18, PANEL))
+n9.append(ltext("s9_mt", "Mockup Studio", MX - 190, 80, 14, "#ffffff",
                 weight=700))
-n9.append(ltext("s9_ms", "Pick a preset", 1060, 98, 8, "#77777d"))
-PRESETS = [("s9_pa", 1120, 185, 120, 110, "#8f9aa5", "BILLBOARD"),
-           ("s9_pb", 1380, 185, 120, 110, "#c9c2b2", "NEWSPAPER"),
-           ("s9_pc", 1120, 330, 120, 140, "#d8d8d8", "LAPTOP"),
-           ("s9_pd", 1380, 330, 120, 140, "#99b4c9", "CUP"),
-           ("s9_pe", 1120, 470, 120, 90, "#cfc9bf", "TOTE"),
-           ("s9_pf", 1380, 470, 120, 90, "#b5a9a0", "CARDS")]
+n9.append(ltext("s9_ms", "Pick a preset", MX - 190, 98, 8, "#77777d"))
+PRESETS = [("s9_pa", MX - 150, 185, 120, 110, "#8f9aa5", "BILLBOARD"),
+           ("s9_pb", MX + 150, 185, 120, 110, "#c9c2b2", "NEWSPAPER"),
+           ("s9_pc", MX - 150, 330, 120, 140, "#d8d8d8", "LAPTOP"),
+           ("s9_pd", MX + 150, 330, 120, 140, "#99b4c9", "CUP"),
+           ("s9_pe", MX - 150, 470, 120, 90, "#cfc9bf", "TOTE"),
+           ("s9_pf", MX + 150, 470, 120, 90, "#b5a9a0", "CARDS")]
 for nid, cx, cy, w, h, col, lbl in PRESETS:
     n9.append(rect(nid, cx, cy, w, h, 8, col))
     n9.append(text(nid + "t", lbl, cx, cy, 7, "#ffffff", weight=700))
 # the chosen billboard tile, center
-n9.append(rect("s9_bt", 1250, 300, 170, 230, 8, "#6f7a85"))
-n9.append(rect("s9_bs", 1250, 210, 170, 50, 0, "#55606b"))
-n9.append(rect("s9_bb", 1250, 292, 132, 112, 4, "#17171b"))
-n9.append(text("s9_bb1", "MOCKUP BOARD", 1250, 288, 10, "#d8d8dc",
+n9.append(rect("s9_bt", MX, 300, 170, 230, 8, "#6f7a85"))
+n9.append(rect("s9_bs", MX, 210, 170, 50, 0, "#55606b"))
+n9.append(rect("s9_bb", MX, 292, 132, 112, 4, "#17171b"))
+n9.append(text("s9_bb1", "MOCKUP BOARD", MX, 288, 10, "#d8d8dc",
                weight=800))
-n9.append(rect("s9_rw", 1250, 400, 170, 30, 0, "#3c434a"))
+n9.append(rect("s9_rw", MX, 400, 170, 30, 0, "#3c434a"))
 for i in range(3):
-    n9.append(rect(f"s9_rn{i}", 1206 + i * 42, 398, 5, 12, 2, "#d8d0c4"))
+    n9.append(rect(f"s9_rn{i}", MX - 44 + i * 42, 398, 5, 12, 2, "#d8d0c4"))
 # generate button + the render swap
-n9.append(rect("s9_gen", 1250, 448, 122, 28, 14, LIME,
+n9.append(rect("s9_gen", MX, 448, 122, 28, 14, LIME,
                states={"pressed": {"scale": 0.9}}))
-n9.append(text("s9_gent", "GENERATE", 1250, 448, 10, "#101014", weight=800))
+n9.append(text("s9_gent", "GENERATE", MX, 448, 10, "#101014", weight=800))
 for nid in ("s9_gen", "s9_gent"):
     gate(nid, 2.2, fade=0.12)
 tracks.append({"target": "s9_gen", "at": 3.0, "state": "pressed"})
-n9.append(rect("s9_flash", 1250, 300, 430, 520, 18, "#ffffff"))
+n9.append(rect("s9_flash", MX, 300, 430, 520, 18, "#ffffff"))
 track("s9_flash", opacity=[(0, 0), (3.15, 0), (3.18, 0.4), (3.45, 0)])
-n9.append(text("s9_hw", "HIGGSWATCH", 1250, 268, 6, LIME, weight=700))
-n9.append(text("s9_pp", "PURE PRECISION", 1250, 288, 10, "#ffffff",
+n9.append(text("s9_hw", "HIGGSWATCH", MX, 268, 6, LIME, weight=700))
+n9.append(text("s9_pp", "PURE PRECISION", MX, 288, 10, "#ffffff",
                weight=800))
-n9.append(text("s9_pp2", "SCULPTED IN TITANIUM", 1250, 302, 5, "#9a9aa0"))
+n9.append(text("s9_pp2", "SCULPTED IN TITANIUM", MX, 302, 5, "#9a9aa0"))
 track("s9_bb1", opacity=[(0, 1), (3.2, 1), (3.3, 0)])
 for nid in ("s9_hw", "s9_pp", "s9_pp2"):
     gate(nid, 3.25, fade=0.1)
-actor("s9_cl", "CalmLama", BLUE, BLUE_CHIP, "#0a3a4a", 1050, 540, n9,
+actor("s9_cl", "CalmLama", BLUE, BLUE_CHIP, "#0a3a4a", MX - 200, 540, n9,
       moves=[(2.1, -80, 40), (2.7, 0, 0, "outCubic"),
              (2.75, 0, 0), (3.0, 208, -80, "outCubic")], t_in=2.05)
-deadline("s9_dl", n9, 1000, 50, "18:3", "2", "1", 0.8)
-deadline("s9_dr", n9, 1690, 50, "17:5", "8", "7", 3.4, t_in=2.0)
-track("s9", cam_x=[(0, 0), (1.5, 0), (1.75, 430, "inCubic"),
-                   (2.05, 681, "outCubic")])
+deadline("s9_dl", n9, 1000, 50, "18:3", "2", "1", 0.8, t_out=1.45)
+deadline("s9_dr", n9, MX + 440, 50, "17:5", "8", "7", 3.4, t_in=2.0)
+track("s9", cam_x=[(0, 0), (1.5, 0), (1.75, 590, "inCubic"),
+                   (2.05, 931, "outCubic")])
 scenes.append({"id": "s9", "bg": BG, "dur": 3.8,
                "transition": {"kind": "whip", "dur": 0.3, "dir": "left"},
                "nodes": n9})
@@ -678,23 +681,23 @@ n10.append(text("s10_tg2", "@image2", 300, 248, 8, LIME, weight=600))
 n10.append(ltext("s10_p1", "Create high quality commercial video with",
                  175, 320, 17, "#f2f2f2"))
 reveal("s10_p1", 0.3, cadence=0.02, caret="bar")
-SEG = [("s10_s1", "my character ", "#f2f2f2", 1.15),
+SEG = [("s10_s1", "my character", "#f2f2f2", 1.15),
        ("s10_s2", "@image2", LIME, 1.35),
-       ("s10_s3", " and my product ", "#f2f2f2", 1.55),
+       ("s10_s3", "and my product", "#f2f2f2", 1.55),
        ("s10_s4", "@image1", LIME, 1.8)]
 segleft = 175
 for nid, s, col, at in SEG:
     n10.append(ltext(nid, s, segleft, 350, 17, col,
                      weight=600 if col == LIME else 400))
     gate(nid, at, fade=0.08)
-    segleft += len(s) * 17 * 0.5
+    segleft += len(s) * 17 * 0.52 + 9
 n10.append(ltext("s10_mdl", "Seedance 2.0   ·   16:9   ·   1080p", 175, 445,
                  10, "#8a8a90"))
 submit_btn("s10_", n10, 930, 452, r=21, glyph="spark")
 prompt10 = ["s10_sb", "s10_sg", "s10_p1", "s10_s1", "s10_s2", "s10_s3",
             "s10_s4", "s10_mdl", "s10_tg1", "s10_tg2", "s10_t1b", "s10_t1c",
-            "s10_t1f", "s10_t1h", "s10_t2b", "s10_t2sh", "s10_t2hd",
-            "s10_t2hr"]
+            "s10_t1f", "s10_t1mh", "s10_t1h", "s10_t2b", "s10_t2sh",
+            "s10_t2hd", "s10_t2hr"]
 actor("s10_dm", "Demius", GREEN, GREEN, "#083c26", 700, 580, n10,
       moves=[(1.5, 0, 0), (2.0, 222, -122, "outCubic")], t_out=2.4)
 tracks.append({"target": "s10_sb", "at": 2.1, "state": "pressed"})
@@ -801,11 +804,11 @@ n11.append(text("s11_fc", "PRODUCT        COMPANY        SUPPORT", PX + 150,
 n11.append(text("s11_cp", "© 2026 Higgswatch", PX + 150, 1345, 8, "#8a8a90"))
 # the distilled cta: lime pre-order pill, glow pulsing
 n11.append(rect("s11_pill", PX, 1560, 150, 44, 22, LIME,
-                glow={"sigma": 26, "opacity": 0.5, "color": LIME}))
+                glow={"sigma": 18, "opacity": 0.4, "color": LIME}))
 n11.append(text("s11_pt", "Pre-order", PX, 1560, 15, INK, weight=700))
 track("s11_pill",
-      glow_opacity=[(3.9, 0.35), (4.25, 0.9, "inOutCubic"),
-                    (4.6, 0.35, "inOutCubic")])
+      glow_opacity=[(3.9, 0.25), (4.25, 0.65, "inOutCubic"),
+                    (4.6, 0.25, "inOutCubic")])
 actor("s11_jp", "Jagan96", MAG, MAG_CHIP, "#ffffff", PX + 88, 1588, n11,
       moves=[(3.9, 40, 30), (4.4, 0, 0, "outCubic")], t_in=3.85)
 track("s11", cam_x=[(0, 0), (1.3, 0), (1.55, 760, "inCubic"),
