@@ -1082,6 +1082,17 @@
      "fill": "#16f4f9"
     },
     {
+     "id": "fb_fl0",
+     "type": "rect",
+     "x": 960,
+     "y": 1010,
+     "w": 2200,
+     "h": 380,
+     "radius": 120,
+     "fill": "#1e88e0",
+     "blur": 90
+    },
+    {
      "id": "fb_fl1",
      "type": "rect",
      "x": 620,
@@ -1090,8 +1101,7 @@
      "h": 320,
      "radius": 160,
      "fill": "#2a9ded",
-     "blur": 70,
-     "opacity": 0.75
+     "blur": 70
     },
     {
      "id": "fb_fl2",
@@ -1102,8 +1112,7 @@
      "h": 300,
      "radius": 150,
      "fill": "#1c62c9",
-     "blur": 80,
-     "opacity": 0.6
+     "blur": 80
     },
     {
      "id": "fb_ring1",
@@ -1411,7 +1420,7 @@
      "id": "br_wc2",
      "type": "rect",
      "x": 990,
-     "y": 155,
+     "y": 265,
      "w": 1160,
      "h": 380,
      "radius": 26,
@@ -1421,9 +1430,9 @@
      "id": "br_wc",
      "type": "rect",
      "x": 960,
-     "y": 185,
+     "y": 300,
      "w": 1150,
-     "h": 400,
+     "h": 380,
      "radius": 26,
      "fill": "#ffffff"
     },
@@ -1432,7 +1441,7 @@
      "type": "text",
      "text": "MOVE YOUR",
      "x": 960,
-     "y": 200,
+     "y": 375,
      "color": "#9a9a9a",
      "font": {
       "size": 12,
@@ -1444,7 +1453,7 @@
      "type": "text",
      "text": "MOUSE TO SEE",
      "x": 960,
-     "y": 217,
+     "y": 392,
      "color": "#9a9a9a",
      "font": {
       "size": 12,
@@ -1456,7 +1465,7 @@
      "type": "text",
      "text": "THE TRAIL",
      "x": 960,
-     "y": 234,
+     "y": 409,
      "color": "#9a9a9a",
      "font": {
       "size": 12,
@@ -1951,15 +1960,19 @@
      "radius": 42,
      "fill": "#ffffff",
      "gradient": {
-      "angle": 250,
+      "angle": 0,
       "stops": [
        {
         "at": 0,
         "color": "#ffffff"
        },
        {
+        "at": 0.65,
+        "color": "#f0f0f0"
+       },
+       {
         "at": 1,
-        "color": "#cfcfcf"
+        "color": "#bdbdbd"
        }
       ]
      }
@@ -2283,6 +2296,17 @@
      "fill": "#16f4f9"
     },
     {
+     "id": "f2_fl0",
+     "type": "rect",
+     "x": 960,
+     "y": 1010,
+     "w": 2200,
+     "h": 380,
+     "radius": 120,
+     "fill": "#1e88e0",
+     "blur": 90
+    },
+    {
      "id": "f2_fl1",
      "type": "rect",
      "x": 620,
@@ -2291,8 +2315,7 @@
      "h": 320,
      "radius": 160,
      "fill": "#2a9ded",
-     "blur": 70,
-     "opacity": 0.75
+     "blur": 70
     },
     {
      "id": "f2_fl2",
@@ -2303,8 +2326,7 @@
      "h": 300,
      "radius": 150,
      "fill": "#1c62c9",
-     "blur": 80,
-     "opacity": 0.6
+     "blur": 80
     },
     {
      "id": "f2_ring1",
@@ -2978,7 +3000,7 @@
   {
    "id": "s15i",
    "bg": "#ffffff",
-   "dur": 0.47,
+   "dur": 0.2,
    "transition": {
     "kind": "cut"
    },
@@ -3386,6 +3408,143 @@
    ]
   },
   {
+   "id": "s15p",
+   "bg": "#ffffff",
+   "dur": 0.34,
+   "transition": {
+    "kind": "cut"
+   },
+   "nodes": [
+    {
+     "id": "po_0",
+     "type": "rect",
+     "x": 160,
+     "y": 585,
+     "w": 130,
+     "h": 660,
+     "radius": 60,
+     "fill": "#2e2e2e"
+    },
+    {
+     "id": "po_1",
+     "type": "rect",
+     "x": 300,
+     "y": 585,
+     "w": 130,
+     "h": 660,
+     "radius": 60,
+     "fill": "#d63040"
+    },
+    {
+     "id": "po_2",
+     "type": "rect",
+     "x": 1140,
+     "y": 585,
+     "w": 130,
+     "h": 660,
+     "radius": 60,
+     "fill": "#111111"
+    },
+    {
+     "id": "po_3",
+     "type": "rect",
+     "x": 1275,
+     "y": 585,
+     "w": 130,
+     "h": 660,
+     "radius": 60,
+     "fill": "#1c1c1c"
+    },
+    {
+     "id": "po_4",
+     "type": "rect",
+     "x": 1420,
+     "y": 585,
+     "w": 130,
+     "h": 660,
+     "radius": 60,
+     "fill": "#f2f2f0"
+    },
+    {
+     "id": "po_5",
+     "type": "rect",
+     "x": 1560,
+     "y": 585,
+     "w": 130,
+     "h": 660,
+     "radius": 60,
+     "fill": "#e8e4d8"
+    },
+    {
+     "id": "po_6",
+     "type": "rect",
+     "x": 1700,
+     "y": 585,
+     "w": 130,
+     "h": 660,
+     "radius": 60,
+     "fill": "#8a8a88"
+    },
+    {
+     "id": "po_7",
+     "type": "rect",
+     "x": 1855,
+     "y": 585,
+     "w": 130,
+     "h": 660,
+     "radius": 60,
+     "fill": "#4a5fd0"
+    },
+    {
+     "id": "po_it",
+     "type": "rect",
+     "x": 690,
+     "y": 585,
+     "w": 630,
+     "h": 660,
+     "radius": 44,
+     "fill": "#d2d2d0",
+     "gradient": {
+      "angle": 90,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#dedede"
+       },
+       {
+        "at": 1,
+        "color": "#c2c2c0"
+       }
+      ]
+     }
+    },
+    {
+     "id": "po_itt",
+     "type": "text",
+     "text": "Italy",
+     "x": 700,
+     "y": 580,
+     "color": "#2222cc",
+     "font": {
+      "size": 150,
+      "weight": 600
+     }
+    },
+    {
+     "id": "po_75",
+     "type": "text",
+     "text": "75",
+     "x": 1140,
+     "y": 460,
+     "color": "#111111",
+     "font": {
+      "size": 90,
+      "weight": 800
+     }
+    }
+   ]
+  },
+  {
    "id": "s15i2",
    "bg": "#292929",
    "dur": 0.33,
@@ -3544,7 +3703,7 @@
   {
    "id": "s15j",
    "bg": "#f2f2ed",
-   "dur": 0.67,
+   "dur": 0.6,
    "transition": {
     "kind": "cut"
    },
