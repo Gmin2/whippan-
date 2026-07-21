@@ -4586,8 +4586,9 @@
   }
  ],
  "audio": {
-  "src": "/assets/audio/pad.m4a",
-  "gain": 0.6,
-  "fade_out": 0.8
+  "src": "/assets/audio/refs/state-slim.m4a",
+  "gain": 0.95,
+  "fade_out": 0.3,
+  "events": false
  }
 }

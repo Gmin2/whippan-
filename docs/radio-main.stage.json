@@ -5,9 +5,10 @@
   1080
  ],
  "audio": {
-  "src": "/assets/audio/pad.m4a",
-  "gain": 0.55,
-  "fade_out": 0.7
+  "src": "/assets/audio/refs/radio-main.m4a",
+  "gain": 0.95,
+  "fade_out": 0.3,
+  "events": false
  },
  "scenes": [
   {

@@ -1,36 +1,67 @@
 {
-  "fps": 30,
-  "size": [1148, 712],
-  "scenes": [
+ "fps": 30,
+ "size": [
+  1148,
+  712
+ ],
+ "scenes": [
+  {
+   "id": "pill",
+   "bg": "#000000",
+   "dur": 4.23,
+   "nodes": [
     {
-      "id": "pill",
-      "bg": "#000000",
-      "dur": 4.23,
-      "nodes": [
-        {
-          "id": "pill",
-          "type": "rect",
-          "x": 564, "y": 336, "w": 507, "h": 83, "radius": 41,
-          "fill": "#4a2ab2",
-          "gradient": {
-            "angle": 90,
-            "stops": [
-              { "at": 0, "color": "#401eb1" },
-              { "at": 0.5, "color": "#5130b5" },
-              { "at": 1, "color": "#3f1ead" }
-            ]
-          },
-          "glow": { "sigma": 34, "opacity": 0.8, "dy": 0 }
-        },
-        {
-          "id": "cmd",
-          "type": "text",
-          "text": "$ npm init @shopify/shop-mini@latest",
-          "x": 564, "y": 336,
-          "font": { "family": "mono", "weight": 400, "size": 20 },
-          "color": "#d4bcfe"
-        }
+     "id": "pill",
+     "type": "rect",
+     "x": 564,
+     "y": 336,
+     "w": 507,
+     "h": 83,
+     "radius": 41,
+     "fill": "#4a2ab2",
+     "gradient": {
+      "angle": 90,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#401eb1"
+       },
+       {
+        "at": 0.5,
+        "color": "#5130b5"
+       },
+       {
+        "at": 1,
+        "color": "#3f1ead"
+       }
       ]
+     },
+     "glow": {
+      "sigma": 34,
+      "opacity": 0.8,
+      "dy": 0
+     }
+    },
+    {
+     "id": "cmd",
+     "type": "text",
+     "text": "$ npm init @shopify/shop-mini@latest",
+     "x": 564,
+     "y": 336,
+     "font": {
+      "family": "mono",
+      "weight": 400,
+      "size": 20
+     },
+     "color": "#d4bcfe"
     }
-  ]
+   ]
+  }
+ ],
+ "audio": {
+  "src": "/assets/audio/refs/terminal.m4a",
+  "gain": 0.95,
+  "fade_out": 0.3,
+  "events": false
+ }
 }

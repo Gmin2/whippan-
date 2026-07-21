@@ -224,7 +224,9 @@ pub fn run() {
     });
     // the motion's own score: derived keystrokes/clicks/whooshes, mixed
     // under the bed. explicit stage-level sfx events join the same list.
+    let derive = parsed["audio"]["events"].as_bool().unwrap_or(true);
     let mut events: Vec<(f32, String, f32)> = Vec::new();
+    if derive {
     if let Ok(evj) = sfx_events(&stage, &anim) {
         if let Ok(list) = serde_json::from_str::<serde_json::Value>(&evj) {
             for e in list.as_array().into_iter().flatten() {
@@ -242,6 +244,7 @@ pub fn run() {
                 ));
             }
         }
+    }
     }
     for e in parsed.get("sfx").and_then(|v| v.as_array()).into_iter().flatten() {
         events.push((

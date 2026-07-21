@@ -5,9 +5,10 @@
   1168
  ],
  "audio": {
-  "src": "/assets/audio/drive-112.m4a",
-  "gain": 0.75,
-  "fade_out": 0.8
+  "src": "/assets/audio/refs/x-anim.m4a",
+  "gain": 0.95,
+  "fade_out": 0.3,
+  "events": false
  },
  "scenes": [
   {

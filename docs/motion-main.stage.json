@@ -4278,5 +4278,11 @@
     }
    ]
   }
- ]
+ ],
+ "audio": {
+  "src": "/assets/audio/refs/motion-main.m4a",
+  "gain": 0.95,
+  "fade_out": 0.3,
+  "events": false
+ }
 }
