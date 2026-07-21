@@ -4,6 +4,11 @@
   2274,
   1168
  ],
+ "audio": {
+  "src": "/assets/audio/pad.m4a",
+  "gain": 0.5,
+  "fade_out": 0.8
+ },
  "scenes": [
   {
    "id": "s",
