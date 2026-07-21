@@ -343,6 +343,7 @@ tracks += [
 stage = {
     "fps": 30,
     "size": [W, H],
+    "audio": {"src": "/assets/audio/pad.m4a", "gain": 0.5, "fade_out": 0.8},
     "scenes": [
         {"id": "s1", "bg": "#f2f2f2", "dur": 3.375,
          "transition": {"kind": "cut"}, "nodes": sc1_nodes},

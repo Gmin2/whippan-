@@ -10,7 +10,7 @@ use skia_safe::{
 use std::collections::HashMap;
 use std::io::Write;
 use std::process::{Command, Stdio};
-use whippan_engine::{doc_duration, doc_size, register_font, render_cmds, DrawCmd};
+use whippan_engine::{doc_duration, doc_size, register_font, render_cmds, sfx_events, DrawCmd};
 
 fn hex_color(c: &str, alpha: f32) -> Color {
     let h = c.trim_start_matches('#');
@@ -222,7 +222,36 @@ pub fn run() {
             a["fade_out"].as_f64().unwrap_or(0.6) as f32,
         )
     });
-    let video_out = if audio.is_some() {
+    // the motion's own score: derived keystrokes/clicks/whooshes, mixed
+    // under the bed. explicit stage-level sfx events join the same list.
+    let mut events: Vec<(f32, String, f32)> = Vec::new();
+    if let Ok(evj) = sfx_events(&stage, &anim) {
+        if let Ok(list) = serde_json::from_str::<serde_json::Value>(&evj) {
+            for e in list.as_array().into_iter().flatten() {
+                let kind = e["kind"].as_str().unwrap_or("tick");
+                let variant = e["variant"].as_u64().unwrap_or(0);
+                let file = match kind {
+                    "tick" => format!("assets/sfx/tick_{:02}.wav", variant % 8 + 1),
+                    "pop" => format!("assets/sfx/pop_{:02}.wav", variant % 8 + 1),
+                    other => format!("assets/sfx/{}.wav", other),
+                };
+                events.push((
+                    e["t"].as_f64().unwrap_or(0.0) as f32,
+                    file,
+                    e["gain"].as_f64().unwrap_or(0.5) as f32,
+                ));
+            }
+        }
+    }
+    for e in parsed.get("sfx").and_then(|v| v.as_array()).into_iter().flatten() {
+        events.push((
+            e["at"].as_f64().unwrap_or(0.0) as f32,
+            e["src"].as_str().unwrap_or("").trim_start_matches('/').to_string(),
+            e["gain"].as_f64().unwrap_or(0.7) as f32,
+        ));
+    }
+    events.retain(|(t, f, _)| *t < dur && root.join(f).exists());
+    let video_out = if audio.is_some() || !events.is_empty() {
         format!("{out}.video.mp4")
     } else {
         out.clone()
@@ -267,32 +296,77 @@ pub fn run() {
     let status = ffmpeg.wait().expect("ffmpeg wait");
     let secs = start.elapsed().as_secs_f32();
 
-    if let Some((src, gain, fade)) = audio {
-        let bed = root.join(src.trim_start_matches('/'));
-        let filter = format!(
-            "[1:a]atrim=0:{dur},volume={gain},afade=t=out:st={}:d={fade}[a]",
-            (dur - fade).max(0.0)
-        );
+    if audio.is_some() || !events.is_empty() {
+        let mut args: Vec<String> = vec!["-y".into(), "-i".into(), video_out.clone()];
+        let mut filters: Vec<String> = Vec::new();
+        let mut mix_inputs: Vec<String> = Vec::new();
+        let mut input_idx = 1usize;
+        if let Some((src, gain, fade)) = &audio {
+            let bed = root.join(src.trim_start_matches('/'));
+            args.push("-i".into());
+            args.push(bed.to_str().unwrap().to_string());
+            filters.push(format!(
+                "[{input_idx}:a]atrim=0:{dur},volume={gain},afade=t=out:st={}:d={fade}[bed]",
+                (dur - fade).max(0.0)
+            ));
+            mix_inputs.push("[bed]".into());
+            input_idx += 1;
+        }
+        // unique sfx files become inputs, split per event and delayed
+        let mut files: Vec<String> = Vec::new();
+        for (_, f, _) in &events {
+            if !files.contains(f) {
+                files.push(f.clone());
+            }
+        }
+        for f in &files {
+            args.push("-i".into());
+            args.push(root.join(f).to_str().unwrap().to_string());
+        }
+        for (fi, f) in files.iter().enumerate() {
+            let idx = input_idx + fi;
+            let mine: Vec<&(f32, String, f32)> =
+                events.iter().filter(|(_, ef, _)| ef == f).collect();
+            let names: Vec<String> =
+                (0..mine.len()).map(|k| format!("[s{fi}_{k}]")).collect();
+            if mine.len() > 1 {
+                filters.push(format!("[{idx}:a]asplit={}{}", mine.len(), names.join("")));
+            } else {
+                filters.push(format!("[{idx}:a]acopy{}", names[0]));
+            }
+            for (k, (t, _, g)) in mine.iter().enumerate() {
+                let ms = (*t * 1000.0).max(0.0) as u64;
+                filters.push(format!(
+                    "{}adelay={ms}|{ms},volume={g:.2}[d{fi}_{k}]",
+                    names[k]
+                ));
+                mix_inputs.push(format!("[d{fi}_{k}]"));
+            }
+        }
+        filters.push(format!(
+            "{}amix=inputs={}:normalize=0:duration=first[a]",
+            mix_inputs.join(""),
+            mix_inputs.len()
+        ));
+        args.extend([
+            "-filter_complex".into(), filters.join(";"),
+            "-map".into(), "0:v".into(),
+            "-map".into(), "[a]".into(),
+            "-c:v".into(), "copy".into(),
+            "-c:a".into(), "aac".into(),
+            "-b:a".into(), "192k".into(),
+            "-movflags".into(), "+faststart".into(),
+            out.clone(),
+        ]);
         let mux = Command::new("ffmpeg")
-            .args([
-                "-y",
-                "-i", &video_out,
-                "-i", bed.to_str().unwrap(),
-                "-filter_complex", &filter,
-                "-map", "0:v",
-                "-map", "[a]",
-                "-c:v", "copy",
-                "-c:a", "aac",
-                "-b:a", "192k",
-                "-movflags", "+faststart",
-                &out,
-            ])
+            .args(&args)
             .stderr(Stdio::null())
             .status()
             .expect("mux");
         let _ = std::fs::remove_file(&video_out);
         println!(
-            "{out}: {frames} frames + audio in {secs:.1}s ({:.0} fps), mux {mux}",
+            "{out}: {frames} frames + audio ({} events) in {secs:.1}s ({:.0} fps), mux {mux}",
+            events.len(),
             frames as f32 / secs
         );
     } else {

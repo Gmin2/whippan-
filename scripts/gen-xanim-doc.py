@@ -416,6 +416,7 @@ nodes.append({"id": "cursor", "type": "cursor", "x": CURSOR[0],
 stage = {
     "fps": 30,
     "size": [W, H],
+    "audio": {"src": "/assets/audio/pad.m4a", "gain": 0.5, "fade_out": 0.8},
     "scenes": [
         {"id": "s", "bg": "#ffffff", "dur": 14.24,
          "transition": {"kind": "cut"}, "nodes": nodes},

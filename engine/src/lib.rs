@@ -1402,6 +1402,121 @@ pub fn render_cmds(
 }
 
 /// total timeline length of a stage doc in seconds
+
+/// the sound a doc's motion implies, derived deterministically: typewriter
+/// reveals emit keystroke ticks at their own cadence (accent on the final
+/// glyph, thock on spaces), scramble locks tick sparsely, state flips
+/// click, and fast camera moves whoosh on their rising edge. returns a
+/// json array of {t, kind, variant, gain} in global seconds for the
+/// export mixer. docs need no changes -- the motion is the score.
+pub fn sfx_events(stage_json: &str, overlay_json: &str) -> Result<String, String> {
+    let mut stage: Stage = serde_json::from_str(stage_json).map_err(|e| e.to_string())?;
+    if !overlay_json.trim().is_empty() {
+        let o: Overlay = serde_json::from_str(overlay_json).map_err(|e| e.to_string())?;
+        merge(&mut stage, &o);
+    }
+    let mut ev: Vec<(f32, &'static str, u32, f32)> = Vec::new();
+    let mut start = 0.0f32;
+    for scene in &stage.scenes {
+        for node in &scene.nodes {
+            // typewriter and scramble reveals -> keystrokes
+            if let (Some((at, r)), Some(txt)) = (&node.reveal, &node.text) {
+                let (size, weight, family) = node
+                    .font
+                    .as_ref()
+                    .map(|f| (f.size, f.weight as f32, f.family.clone()))
+                    .unwrap_or((48.0, 400.0, "inter".into()));
+                let line = match text::shape_line(txt, size, weight, &family) {
+                    Some(l) => l,
+                    None => continue,
+                };
+                let mut slots: Vec<(usize, bool)> = Vec::new(); // (slot, is_space)
+                let mut idx = 0usize;
+                for (wi, w) in line.words.iter().enumerate() {
+                    for _ in &w.glyphs {
+                        slots.push((idx, false));
+                        idx += 1;
+                    }
+                    if wi + 1 < line.words.len() {
+                        slots.push((idx, true));
+                        idx += 1;
+                    }
+                }
+                let total = slots.len();
+                match r.unit.as_str() {
+                    "type" => {
+                        let mut acc = *at;
+                        for (i, (slot, is_space)) in slots.iter().enumerate() {
+                            let last = i + 1 == total;
+                            let kind = if *is_space { "thock" } else { "tick" };
+                            let variant = (*slot as u32).wrapping_mul(2654435761) % 8;
+                            let gain = if last { 0.9 } else { 0.55 };
+                            ev.push((start + acc, kind, variant, gain));
+                            acc += match r.cadence_end {
+                                Some(e) if total > 1 => {
+                                    r.cadence + (e - r.cadence) * i as f32 / (total - 1) as f32
+                                }
+                                _ => r.cadence,
+                            };
+                        }
+                        if let Some(u) = r.untype_at {
+                            for i in 0..total {
+                                ev.push((start + at + u + i as f32 * r.cadence,
+                                         "tick", (i as u32 * 7) % 8, 0.45));
+                            }
+                        }
+                    }
+                    "scramble" => {
+                        for (i, (slot, _)) in slots.iter().enumerate() {
+                            if i % 3 != 0 {
+                                continue;
+                            }
+                            ev.push((start + at + *slot as f32 * r.cadence,
+                                     "tick", (*slot as u32 * 5) % 8, 0.35));
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            // button state flips -> clicks
+            for (ft, _) in &node.flips {
+                ev.push((start + ft, "click", 0, 0.8));
+            }
+        }
+        // camera velocity rising edges -> whoosh
+        let dur = scene.dur;
+        let mut above = false;
+        let mut n = 0.0f32;
+        while n < dur {
+            let t0 = (n - 1.0 / 30.0).max(0.0);
+            let z = eval_prop(&scene.keys, "cam_zoom", 1.0, n);
+            let z0 = eval_prop(&scene.keys, "cam_zoom", 1.0, t0);
+            let x = eval_prop(&scene.keys, "cam_x", 0.0, n);
+            let x0 = eval_prop(&scene.keys, "cam_x", 0.0, t0);
+            let y = eval_prop(&scene.keys, "cam_y", 0.0, n);
+            let y0 = eval_prop(&scene.keys, "cam_y", 0.0, t0);
+            let v = (x0 - x).abs() * z + (y0 - y).abs() * z + (z - z0).abs() * 220.0;
+            if v > 18.0 && !above {
+                ev.push(((start + n - 0.05).max(0.0), "whoosh", 0, 0.7));
+                above = true;
+            } else if v < 6.0 {
+                above = false;
+            }
+            n += 1.0 / 60.0;
+        }
+        start += dur;
+    }
+    ev.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
+    ev.truncate(160);
+    let json: Vec<String> = ev
+        .iter()
+        .map(|(t, k, v, g)| {
+            format!("{{\"t\":{:.3},\"kind\":\"{}\",\"variant\":{},\"gain\":{:.2}}}", t, k, v, g)
+        })
+        .collect();
+    Ok(format!("[{}]", json.join(",")))
+}
+
 pub fn doc_duration(stage_json: &str) -> Result<f32, String> {
     let stage: Stage = serde_json::from_str(stage_json).map_err(|e| e.to_string())?;
     Ok(stage.scenes.iter().map(|s| s.dur).sum())
