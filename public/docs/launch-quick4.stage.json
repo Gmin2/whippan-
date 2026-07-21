@@ -219,5 +219,11 @@
     }
    ]
   }
- ]
+ ],
+ "audio": {
+  "src": "/assets/audio/refs/launch-quick4.m4a",
+  "gain": 0.95,
+  "fade_out": 0.3,
+  "events": false
+ }
 }
