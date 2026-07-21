@@ -2267,6 +2267,10 @@ mod wasm {
     pub fn register_font(name: &str, bytes: &[u8]) {
         super::register_font(name, bytes.to_vec());
     }
+    #[wasm_bindgen]
+    pub fn sfx(stage_json: &str, overlay_json: &str) -> String {
+        super::sfx_events(stage_json, overlay_json).unwrap_or_else(|_| "[]".into())
+    }
 }
 
 #[cfg(test)]
