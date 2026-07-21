@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { Navigate, Route, Routes, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { boot, loadDoc, docDur, render, paintFrame } from './engine.js'
+import { createSound } from './sound.js'
 import { fisheyeList, pressFeedback } from './tools/interaction.js'
 
 // The whippan gallery, a faithful port of the svg-harness playground
@@ -295,6 +296,7 @@ function Playground({ ck, registry }) {
   const [t, setT] = useState(0)
   const [playing, setPlaying] = useState(true)
   const rafRef = useRef(null)
+  const soundRef = useRef(null)
   const [hovered, setHovered] = useState(null)
   const zen = false
   const [stageScale, setStageScale] = useState(1)
@@ -321,24 +323,40 @@ function Playground({ ck, registry }) {
     setT(0)
     setPlaying(true)
     if (entry) loadDoc(entry).then(
-      d => { if (alive) setDoc(d) },
+      d => {
+        if (!alive) return
+        soundRef.current?.dispose()
+        soundRef.current = createSound(d)
+        setDoc(d)
+      },
       err => { if (alive) setLoadError(String(err)) },
     )
-    return () => { alive = false }
+    return () => { alive = false; soundRef.current?.dispose() }
   }, [name, runKey])
 
   const dur = doc ? docDur(doc.stage) : 1
   useEffect(() => {
     if (!playing || !doc) return
+    soundRef.current?.play(t)
     let last = performance.now()
     const tick = now => {
       const dt = (now - last) / 1000
       last = now
-      setT(prev => (prev + dt) % dur)
+      setT(prev => {
+        const next = prev + dt
+        if (next >= dur) {
+          soundRef.current?.loop(0)
+          return next % dur
+        }
+        return next
+      })
       rafRef.current = requestAnimationFrame(tick)
     }
     rafRef.current = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(rafRef.current)
+    return () => {
+      cancelAnimationFrame(rafRef.current)
+      soundRef.current?.pause()
+    }
   }, [playing, doc, dur])
 
   // wheel over the canvas zooms; horizontal (or shift) pans; dblclick resets
@@ -531,7 +549,12 @@ function Playground({ ck, registry }) {
             </PillAction>
             <input
               type="range" min={0} max={dur} step={1 / 60} value={t}
-              onChange={e => { setPlaying(false); setT(parseFloat(e.target.value)) }}
+              onChange={e => {
+                const v = parseFloat(e.target.value)
+                setPlaying(false)
+                soundRef.current?.seek(v)
+                setT(v)
+              }}
               className="w-56 accent-sky-500"
             />
             <span className="w-12 text-right font-mono text-[11px] tracking-tight text-neutral-400">

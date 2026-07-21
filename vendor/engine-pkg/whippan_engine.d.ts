@@ -7,6 +7,8 @@ export function register_font(name: string, bytes: Uint8Array): void;
 
 export function render(stage_json: string, overlay_json: string, t: number): string;
 
+export function sfx(stage_json: string, overlay_json: string): string;
+
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
@@ -14,6 +16,7 @@ export interface InitOutput {
     readonly init_font: (a: number, b: number) => number;
     readonly register_font: (a: number, b: number, c: number, d: number) => void;
     readonly render: (a: number, b: number, c: number, d: number, e: number) => [number, number];
+    readonly sfx: (a: number, b: number, c: number, d: number) => [number, number];
     readonly __wbindgen_externrefs: WebAssembly.Table;
     readonly __wbindgen_malloc: (a: number, b: number) => number;
     readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
