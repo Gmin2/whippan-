@@ -3472,8 +3472,9 @@
   }
  ],
  "audio": {
-  "src": "/assets/audio/pad.m4a",
-  "gain": 0.55,
-  "fade_out": 0.8
+  "src": "/assets/audio/refs/cuttlery.m4a",
+  "gain": 0.95,
+  "fade_out": 0.3,
+  "events": false
  }
 }
