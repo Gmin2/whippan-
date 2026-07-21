@@ -180,8 +180,8 @@
   }
  ],
  "audio": {
-  "src": "/assets/audio/pad.m4a",
-  "gain": 0.5,
+  "src": "/assets/audio/drive-122.m4a",
+  "gain": 0.75,
   "fade_out": 0.6
  }
 }

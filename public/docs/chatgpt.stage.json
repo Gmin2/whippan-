@@ -5,8 +5,8 @@
   1618
  ],
  "audio": {
-  "src": "/assets/audio/pad.m4a",
-  "gain": 0.5,
+  "src": "/assets/audio/drive-112.m4a",
+  "gain": 0.75,
   "fade_out": 0.8
  },
  "scenes": [
