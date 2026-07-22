@@ -180,8 +180,10 @@
   }
  ],
  "audio": {
-  "src": "/assets/audio/drive-122.m4a",
-  "gain": 0.75,
-  "fade_out": 0.6
+  "src": "/assets/audio/lib/Cyborg-Ninja.mp3",
+  "gain": 0.8,
+  "fade_out": 0.6,
+  "bpm": 161.5,
+  "offset": 0.16
  }
 }

@@ -2254,8 +2254,10 @@
   }
  ],
  "audio": {
-  "src": "/assets/audio/pad.m4a",
-  "gain": 0.6,
-  "fade_out": 0.6
+  "src": "/assets/audio/lib/Exhilarate.mp3",
+  "gain": 0.8,
+  "fade_out": 0.8,
+  "bpm": 172.3,
+  "offset": 0.743
  }
 }

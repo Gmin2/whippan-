@@ -1,0 +1,37 @@
+{
+ "Cyborg-Ninja.mp3": {
+  "bpm": 161.5,
+  "offset": 0.163,
+  "dur": 180.1
+ },
+ "Deadly-Roulette.mp3": {
+  "bpm": 103.4,
+  "offset": 0.07,
+  "dur": 159.3
+ },
+ "Electrodoodle.mp3": {
+  "bpm": 161.5,
+  "offset": 0.441,
+  "dur": 166.1
+ },
+ "Exhilarate.mp3": {
+  "bpm": 172.3,
+  "offset": 0.743,
+  "dur": 145.5
+ },
+ "Overworld.mp3": {
+  "bpm": 66.3,
+  "offset": 1.393,
+  "dur": 172.9
+ },
+ "Pixelland.mp3": {
+  "bpm": 117.5,
+  "offset": 0.488,
+  "dur": 233.8
+ },
+ "Spellbound.mp3": {
+  "bpm": 92.3,
+  "offset": 0.07,
+  "dur": 229.8
+ }
+}

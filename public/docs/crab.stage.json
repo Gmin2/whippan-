@@ -1791,5 +1791,12 @@
     }
    ]
   }
- ]
+ ],
+ "audio": {
+  "src": "/assets/audio/lib/Electrodoodle.mp3",
+  "gain": 0.7,
+  "fade_out": 0.8,
+  "bpm": 161.5,
+  "offset": 0.441
+ }
 }
