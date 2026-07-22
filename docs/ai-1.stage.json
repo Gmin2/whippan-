@@ -2953,8 +2953,10 @@
   }
  ],
  "audio": {
-  "src": "/assets/audio/pad.m4a",
-  "gain": 0.6,
-  "fade_out": 0.8
+  "src": "/assets/audio/lib/Deadly-Roulette.mp3",
+  "gain": 0.8,
+  "fade_out": 0.8,
+  "bpm": 103.4,
+  "offset": 0.07
  }
 }

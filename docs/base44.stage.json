@@ -3202,5 +3202,12 @@
     }
    ]
   }
- ]
+ ],
+ "audio": {
+  "src": "/assets/audio/lib/Deadly-Roulette.mp3",
+  "gain": 0.8,
+  "fade_out": 0.8,
+  "bpm": 103.4,
+  "offset": 0.07
+ }
 }
