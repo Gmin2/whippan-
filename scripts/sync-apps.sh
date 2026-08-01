@@ -14,6 +14,8 @@ for app in ../whippan-studio ../whippan-gallery; do
   cp assets/audio/refs/*.m4a "$app/public/assets/audio/refs/" 2>/dev/null || true
   mkdir -p "$app/public/assets/audio/lib"
   cp assets/audio/lib/*.mp3 assets/audio/lib/*.json "$app/public/assets/audio/lib/" 2>/dev/null || true
+  mkdir -p "$app/public/assets/audio/gen"
+  cp assets/audio/gen/*.mp3 "$app/public/assets/audio/gen/" 2>/dev/null || true
   cp assets/sfx/*.wav "$app/public/assets/sfx/" 2>/dev/null || true
   cp docs/examples/*.json "$app/public/docs/examples/"
   echo "synced $app"

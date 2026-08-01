@@ -28,6 +28,10 @@ mood = sys.argv[2] if len(sys.argv) > 2 else \
     "driving minimal electronic, dark, four on the floor kick, tight hats"
 bpm_hint = sys.argv[3] if len(sys.argv) > 3 else None
 
+out_path = f"assets/audio/gen/{slug}.mp3"
+if os.path.exists(out_path) and "--force" not in sys.argv:
+    sys.exit(f"{out_path} exists; pass --force to regenerate (costs $0.04)")
+
 stage = json.load(open(f"docs/{slug}.stage.json"))
 scenes = stage.get("scenes", [])
 total = sum(s.get("dur", 0) for s in scenes) or stage.get("dur", 10)
