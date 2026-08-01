@@ -32,6 +32,7 @@ export function createSound(doc) {
   const events = JSON.parse(sfx(JSON.stringify(doc.stage), JSON.stringify(doc.anim)))
   const bed = audio?.src ? new Audio(audio.src) : null
   if (bed) bed.volume = Math.min(1, audio.gain ?? 0.8)
+  const bedStart = audio?.start ?? 0
   let scheduled = []
   let playing = false
 
@@ -69,7 +70,7 @@ export function createSound(doc) {
     play(t) {
       playing = true
       if (bed) {
-        bed.currentTime = t
+        bed.currentTime = bedStart + t
         bed.play().catch(() => {})
       }
       scheduleFrom(t)
@@ -80,7 +81,7 @@ export function createSound(doc) {
       stopScheduled()
     },
     seek(t) {
-      if (bed) bed.currentTime = t
+      if (bed) bed.currentTime = bedStart + t
       if (playing) {
         stopScheduled()
         scheduleFrom(t)
@@ -89,7 +90,7 @@ export function createSound(doc) {
     loop(t) {
       // the film wrapped: restart the score from the top
       if (!playing) return
-      if (bed) bed.currentTime = t
+      if (bed) bed.currentTime = bedStart + t
       stopScheduled()
       scheduleFrom(t)
     },
