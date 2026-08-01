@@ -1691,10 +1691,10 @@
   }
  ],
  "audio": {
-  "src": "/assets/audio/lib/Cyborg-Ninja.mp3",
-  "gain": 0.8,
-  "fade_out": 0.8,
-  "bpm": 161.5,
-  "offset": 0.163
+  "src": "/assets/audio/gen/skale.mp3",
+  "gain": 0.85,
+  "fade_out": 0.5,
+  "bpm": 129.2,
+  "offset": 0.72
  }
 }

@@ -1905,10 +1905,10 @@
   }
  ],
  "audio": {
-  "src": "/assets/audio/lib/Spellbound.mp3",
-  "gain": 0.8,
-  "fade_out": 0.8,
-  "bpm": 92.3,
-  "offset": 0.07
+  "src": "/assets/audio/gen/bevel.mp3",
+  "gain": 0.85,
+  "fade_out": 0.5,
+  "bpm": 184.6,
+  "offset": 7.755
  }
 }

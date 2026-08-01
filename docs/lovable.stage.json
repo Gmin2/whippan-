@@ -1851,10 +1851,10 @@
   }
  ],
  "audio": {
-  "src": "/assets/audio/lib/Pixelland.mp3",
-  "gain": 0.8,
-  "fade_out": 0.8,
+  "src": "/assets/audio/gen/lovable.mp3",
+  "gain": 0.85,
+  "fade_out": 0.5,
   "bpm": 117.5,
-  "offset": 0.488
+  "offset": 0.186
  }
 }
