@@ -4439,10 +4439,10 @@
   }
  ],
  "audio": {
-  "src": "/assets/audio/lib/Exhilarate.mp3",
-  "gain": 0.8,
-  "fade_out": 0.8,
-  "bpm": 172.3,
-  "offset": 0.743
+  "src": "/assets/audio/gen/replit.mp3",
+  "gain": 0.85,
+  "fade_out": 0.5,
+  "bpm": 86.1,
+  "offset": 0.302
  }
 }
