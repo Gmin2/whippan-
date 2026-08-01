@@ -220,6 +220,7 @@ pub fn run() {
             a["src"].as_str().unwrap_or("").to_string(),
             a["gain"].as_f64().unwrap_or(0.8) as f32,
             a["fade_out"].as_f64().unwrap_or(0.6) as f32,
+            a["start"].as_f64().unwrap_or(0.0) as f32,
         )
     });
     // the motion's own score: derived keystrokes/clicks/whooshes, mixed
@@ -304,12 +305,13 @@ pub fn run() {
         let mut filters: Vec<String> = Vec::new();
         let mut mix_inputs: Vec<String> = Vec::new();
         let mut input_idx = 1usize;
-        if let Some((src, gain, fade)) = &audio {
+        if let Some((src, gain, fade, astart)) = &audio {
             let bed = root.join(src.trim_start_matches('/'));
             args.push("-i".into());
             args.push(bed.to_str().unwrap().to_string());
             filters.push(format!(
-                "[{input_idx}:a]atrim=0:{dur},volume={gain},afade=t=out:st={}:d={fade}[bed]",
+                "[{input_idx}:a]atrim={astart}:{},asetpts=PTS-STARTPTS,volume={gain},afade=t=out:st={}:d={fade}[bed]",
+                astart + dur,
                 (dur - fade).max(0.0)
             ));
             mix_inputs.push("[bed]".into());

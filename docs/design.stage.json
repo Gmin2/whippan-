@@ -2123,10 +2123,11 @@
   }
  ],
  "audio": {
-  "src": "/assets/audio/lib/Pixelland.mp3",
-  "gain": 0.6,
-  "fade_out": 0.8,
-  "bpm": 117.5,
-  "offset": 0.488
+  "src": "/assets/audio/gen/design.mp3",
+  "gain": 0.85,
+  "fade_out": 0.3,
+  "bpm": 129.2,
+  "offset": 0.209,
+  "start": 10.27
  }
 }
