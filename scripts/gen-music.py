@@ -41,28 +41,38 @@ def ts(t):
     return f"{int(t // 60)}:{t % 60:04.1f}"
 
 
+model = "lyria-3-pro-preview" if total > 28 else "lyria-3-clip-preview"
 lines = [f"Instrumental only, no vocals. {mood}."]
+if total > 28:
+    lines[0] += f" The piece is {int(total) + 4} seconds long."
 if bpm_hint:
     lines[0] += f" Exactly {bpm_hint} bpm, steady tempo throughout."
-t = 0.0
-for i, s in enumerate(scenes):
-    d = s.get("dur", 0)
-    if i == 0:
-        part = "sparse intro, percussion enters with a clear downbeat at 0:00"
-    elif i == len(scenes) - 1:
-        part = "final section, biggest energy, hard hit on the downbeat"
-    else:
-        part = "add a layer, energy step up, accent hit on the downbeat"
-    lines.append(f"[{ts(t)} - {ts(t + d)}] {part}.")
-    t += d
+# many-scene films collapse to at most 5 sections; too many repeated
+# timestamp lines trips the content filter
+bounds = [0.0]
+for s in scenes:
+    bounds.append(bounds[-1] + s.get("dur", 0))
+if len(scenes) > 5:
+    n = 5
+    marks = [bounds[round(i * (len(bounds) - 1) / n)] for i in range(n + 1)]
+else:
+    marks = bounds
+names = ["sparse intro, percussion enters with a clear downbeat at 0:00",
+         "add a layer, energy steps up",
+         "fuller groove, accent hit on the downbeat",
+         "peak energy",
+         "final section, biggest energy, hard hit on the downbeat"]
+for i in range(len(marks) - 1):
+    part = names[0] if i == 0 else (names[-1] if i == len(marks) - 2
+                                    else names[min(i, 3)])
+    lines.append(f"[{ts(marks[i])} - {ts(marks[i + 1])}] {part}.")
 lines.append(f"[{ts(total)}] everything cuts to silence.")
 prompt = "\n".join(lines)
 print(prompt)
 
 req = urllib.request.Request(
     "https://generativelanguage.googleapis.com/v1beta/interactions",
-    data=json.dumps({"model": "lyria-3-clip-preview",
-                     "input": prompt}).encode(),
+    data=json.dumps({"model": model, "input": prompt}).encode(),
     headers={"Content-Type": "application/json", "x-goog-api-key": KEY})
 resp = json.load(urllib.request.urlopen(req, timeout=300))
 
