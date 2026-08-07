@@ -681,7 +681,7 @@ ns = [
     path("rt13", 499, 300, rt, "#ffffff", stroke=1.5),
     rect("pill13", 499, 300, 520, 180, 92, STAGE_BG),
     text("t13a", "Build More", 499, 300, 52, INK, 700),
-    text("t13b", "Move Faster", 499, 300, 52, INK, 700),
+    text("t13b", "Now agents do the same.", 499, 300, 44, INK, 700),
 ]
 track("flood",
       w=[(2.5, 906), (2.8, 104, "inCubic")],

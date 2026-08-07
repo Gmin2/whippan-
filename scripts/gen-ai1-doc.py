@@ -111,7 +111,7 @@ def drift(sid, dur, z0=1.0, z1=1.035, x=0.0, y=0.0):
 
 
 # scene 1 --------------------------------------------- hook (real f48-74)
-n1 = [text("t1", "The fastest way to scale", 960, 540, 96, weight=600)]
+n1 = [text("t1", "Performance Marketing", 960, 540, 96, weight=600)]
 word_ritual("t1", 0.12, stagger=0.06, keep=["scale"])
 drift("s1", 2.2, 1.0, 1.045)
 scene("s1", CREAM, 2.2, n1)
