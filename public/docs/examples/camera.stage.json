@@ -91,7 +91,7 @@
     {
      "id": "pa_t",
      "type": "text",
-     "text": "panel A",
+     "text": "Deploy log",
      "x": 600,
      "y": 540,
      "color": "#e8e8e6",
@@ -113,7 +113,7 @@
     {
      "id": "pb_t",
      "type": "text",
-     "text": "panel B",
+     "text": "build passed in 41s",
      "x": 2400,
      "y": 540,
      "color": "#e8e8e6",

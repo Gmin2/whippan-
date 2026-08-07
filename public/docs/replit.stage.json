@@ -4142,12 +4142,12 @@
     {
      "id": "t13b",
      "type": "text",
-     "text": "Move Faster",
+     "text": "Now agents do the same.",
      "x": 499,
      "y": 300,
      "color": "#1a1a1a",
      "font": {
-      "size": 52,
+      "size": 44,
       "weight": 700
      }
     },
