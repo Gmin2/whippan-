@@ -85,7 +85,8 @@
      "radius": 1,
      "fill": "#f4f4f4"
     }
-   ]
+   ],
+   "note": "A stage.json snippet types itself in a dark editor. Every keystroke ticks. The doc is the hero."
   },
   {
    "id": "j2",
@@ -187,7 +188,8 @@
       "family": "inter"
      }
     }
-   ]
+   ],
+   "note": "Hard cut: the exact screen that json described materializes -- navbar rises, headline lands, the orange cta pops in."
   },
   {
    "id": "j3",
@@ -325,7 +327,8 @@
       "family": "mono"
      }
     }
-   ]
+   ],
+   "note": "An anim.json one-liner types in the code strip; the moment it completes, the camera crash-zooms onto the cta."
   },
   {
    "id": "j4",
@@ -634,7 +637,8 @@
       "family": "inter"
      }
     }
-   ]
+   ],
+   "note": "Whip-pan across three browser frames holding films we reproduced: atlas terminal, chatgpt pill, base-2."
   },
   {
    "id": "j5",
@@ -677,7 +681,8 @@
       "family": "inter"
      }
     }
-   ]
+   ],
+   "note": "End card: wordmark, orange pill sweep, tagline. Music cuts to silence."
   }
  ],
  "audio": {
