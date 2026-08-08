@@ -1,5 +1,4 @@
 /target
-/editor/src/engine-pkg/
 /analysis
 /reference
 /tmp
@@ -9,3 +8,5 @@
 /ref
 /out
 .env
+node_modules/
+dist/
