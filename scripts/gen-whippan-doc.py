@@ -200,11 +200,21 @@ tracks += [
 ]
 
 scenes = [
-    {"id": "j1", "bg": "#0d0d0d", "dur": 3.2, "nodes": sc1_nodes},
-    {"id": "j2", "bg": "#fafafa", "dur": 3.2, "nodes": sc2_nodes},
-    {"id": "j3", "bg": "#fafafa", "dur": 3.4, "nodes": sc3_nodes},
-    {"id": "j4", "bg": "#e9e6e0", "dur": 3.0, "nodes": sc4_nodes},
-    {"id": "j5", "bg": "#0b0b0b", "dur": 2.8, "nodes": sc5_nodes},
+    {"id": "j1", "bg": "#0d0d0d", "dur": 3.2, "nodes": sc1_nodes,
+     "note": "A stage.json snippet types itself in a dark editor. "
+             "Every keystroke ticks. The doc is the hero."},
+    {"id": "j2", "bg": "#fafafa", "dur": 3.2, "nodes": sc2_nodes,
+     "note": "Hard cut: the exact screen that json described materializes "
+             "-- navbar rises, headline lands, the orange cta pops in."},
+    {"id": "j3", "bg": "#fafafa", "dur": 3.4, "nodes": sc3_nodes,
+     "note": "An anim.json one-liner types in the code strip; the moment "
+             "it completes, the camera crash-zooms onto the cta."},
+    {"id": "j4", "bg": "#e9e6e0", "dur": 3.0, "nodes": sc4_nodes,
+     "note": "Whip-pan across three browser frames holding films we "
+             "reproduced: atlas terminal, chatgpt pill, base-2."},
+    {"id": "j5", "bg": "#0b0b0b", "dur": 2.8, "nodes": sc5_nodes,
+     "note": "End card: wordmark, orange pill sweep, tagline. Music cuts "
+             "to silence."},
 ]
 
 stage = {"fps": 30, "size": [W, H], "scenes": scenes}
