@@ -1,0 +1,10 @@
+{
+  "name": "@whippan/engine-web",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./pkg/whippan_engine.js",
+    "./painter": "./painter.js",
+    "./pkg/*": "./pkg/*"
+  }
+}

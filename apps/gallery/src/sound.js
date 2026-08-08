@@ -2,7 +2,7 @@
 // element and the engine-derived sfx events through webaudio, both slaved
 // to the film clock. create one per loaded doc, drive it with the same
 // play/pause/seek the canvas uses.
-import { sfx } from '../vendor/engine-pkg/whippan_engine.js'
+import { sfx } from '@whippan/engine-web'
 
 const bufferCache = new Map()
 let ctx = null

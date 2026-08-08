@@ -31,6 +31,7 @@ function saveEndpoint() {
 }
 
 export default defineConfig({
+  optimizeDeps: { exclude: ['@whippan/engine-web'] },
   plugins: [react(), saveEndpoint()],
-  server: { port: 8900 },
+  server: { port: 8900, fs: { allow: ['../..'] } },
 })

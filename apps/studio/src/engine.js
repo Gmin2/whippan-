@@ -1,8 +1,9 @@
 // one-time boot of everything the canvas needs: canvaskit, the wasm engine,
 // fonts, and the doc registry. react components await `boot()` and then draw
 // synchronously through the shared painter.
-import init, { render, register_font } from '../vendor/engine-pkg/whippan_engine.js'
-import { paintFrame } from '../vendor/painter.js'
+import init, { render, register_font } from '@whippan/engine-web'
+import wasmUrl from '@whippan/engine-web/pkg/whippan_engine_bg.wasm?url'
+import { paintFrame } from '@whippan/engine-web/painter'
 
 let booted = null
 
@@ -11,7 +12,7 @@ export function boot() {
   booted = (async () => {
     const [CK, , inter, mono, registry] = await Promise.all([
       window.CanvasKitInit({ locateFile: f => '/canvaskit/' + f }),
-      init(),
+      init(wasmUrl),
       fetch('/fonts/Inter-Variable.ttf').then(r => r.arrayBuffer()),
       fetch('/fonts/JetBrainsMono-Regular.ttf').then(r => r.arrayBuffer()),
       fetch('/docs/examples/index.json').then(r => r.json()),

@@ -19,4 +19,3 @@ if not any(e['slug'] == slug for e in reg):
 else:
     print(f"{slug} already registered")
 PY
-./scripts/sync-apps.sh
