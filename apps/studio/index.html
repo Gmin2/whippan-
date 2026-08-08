@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>whippan studio</title>
+  <script src="/canvaskit/canvaskit.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body, #root { height: 100%; }
+    body { margin: 0; background: #161616; color: #d9d9d6;
+           font: 13px/1.45 -apple-system, "SF Pro Text", Inter, sans-serif;
+           overflow: hidden; user-select: none; }
+    input, select { font: inherit; }
+    /* native number spinners look like a form, not a tool */
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button {
+      -webkit-appearance: none; margin: 0;
+    }
+    input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>
