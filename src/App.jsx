@@ -8,20 +8,23 @@ import { Pointer, TextTool, Shapes, Picture, PenNib, Play, Pause, Floppy } from 
 import Timeline from './Timeline.jsx'
 import Inspector from './Inspector.jsx'
 import Gallery from './Gallery.jsx'
+import Boards from './Boards.jsx'
 
 const ACCENT = '#606de0'
 
 export default function App() {
   const [ck, setCk] = useState(null)
   const [registry, setRegistry] = useState([])
-  const [inEditor, setInEditor] = useState(location.hash.startsWith('#/edit/'))
+  const mode = h => h.startsWith('#/edit/') ? 'edit'
+    : h.startsWith('#/boards/') ? 'boards' : 'gallery'
+  const [view, setView] = useState(mode(location.hash))
 
   useEffect(() => {
     boot().then(({ CK, registry }) => {
       setCk(CK)
       setRegistry(registry)
     })
-    const onHash = () => setInEditor(location.hash.startsWith('#/edit/'))
+    const onHash = () => setView(mode(location.hash))
     addEventListener('hashchange', onHash)
     return () => removeEventListener('hashchange', onHash)
   }, [])
@@ -29,16 +32,16 @@ export default function App() {
   if (!ck || !registry.length) {
     return <Center>whippan studio — engine loading</Center>
   }
-  if (!inEditor) {
+  if (view === 'gallery') {
     return <Gallery ck={ck} registry={registry}
                     onEdit={slug => { location.hash = '/edit/' + slug }} />
   }
-  const slug = location.hash.replace('#/edit/', '') || registry[0].slug
-  return <Editor ck={ck} registry={registry} slug={slug}
+  const slug = location.hash.replace(/#\/(edit|boards)\//, '') || registry[0].slug
+  return <Editor ck={ck} registry={registry} slug={slug} boards={view === 'boards'}
                  onGallery={s => { location.hash = '/' + s }} />
 }
 
-function Editor({ ck, registry, slug, onGallery }) {
+function Editor({ ck, registry, slug, boards, onGallery }) {
   const [doc, setDoc] = useState(null)
   const [t, setT] = useState(0)
   const [playing, setPlaying] = useState(false)
@@ -112,17 +115,30 @@ function Editor({ ck, registry, slug, onGallery }) {
               onGallery={() => onGallery(doc.entry.slug)} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
           <div style={{
-            flex: 1, display: 'grid', placeItems: 'center', minHeight: 0,
+            flex: 1, display: boards ? 'block' : 'grid', placeItems: 'center',
+            minHeight: 0,
             background: 'radial-gradient(120% 100% at 70% 0%, #242426 0%, #171717 60%)',
-            position: 'relative', padding: 28,
+            position: 'relative', padding: boards ? 0 : 28,
           }}>
-            <Stage ck={ck} doc={doc} t={t} selection={selection}
-                   onSelect={setSelection} onEdit={edit} />
-            <Dock />
+            {boards
+              ? <Boards ck={ck} doc={doc}
+                        onJump={(start) => {
+                          setT(start + 0.01)
+                          location.hash = '/edit/' + doc.entry.slug
+                        }} />
+              : <>
+                  <Stage ck={ck} doc={doc} t={t} selection={selection}
+                         onSelect={setSelection} onEdit={edit} />
+                  <Dock />
+                </>}
           </div>
-          <Transport t={t} dur={dur} playing={playing}
+          <Transport t={t} dur={dur} playing={playing} boards={boards}
                      onPlay={() => setPlaying(p => !p)}
                      onScrub={v => { setPlaying(false); setT(v) }}
+                     onBoards={() => {
+                       location.hash = (boards ? '/edit/' : '/boards/') +
+                         doc.entry.slug
+                     }}
                      onSave={save} />
         </div>
         <Inspector doc={doc} selection={selection} onEdit={edit} />
@@ -205,7 +221,7 @@ function Dock() {
   )
 }
 
-function Transport({ t, dur, playing, onPlay, onScrub, onSave }) {
+function Transport({ t, dur, playing, boards, onPlay, onScrub, onBoards, onSave }) {
   return (
     <div style={{
       height: 44, display: 'flex', alignItems: 'center', gap: 12,
@@ -223,6 +239,11 @@ function Transport({ t, dur, playing, onPlay, onScrub, onSave }) {
                      color: '#8a8a88', width: 96, textAlign: 'right' }}>
         {t.toFixed(2)} / {dur.toFixed(2)}s
       </span>
+      <button onClick={onBoards} title="storyboard" style={{
+        border: '1px solid #2c2c2c', background: boards ? ACCENT : 'none',
+        color: boards ? '#fff' : '#c9c9c6', borderRadius: 8,
+        padding: '4px 10px', cursor: 'pointer', font: 'inherit',
+      }}>boards</button>
       <button onClick={onSave} title="save" style={{
         border: '1px solid #2c2c2c', background: 'none', color: '#c9c9c6',
         borderRadius: 8, padding: '4px 10px', cursor: 'pointer',
