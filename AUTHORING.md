@@ -317,7 +317,7 @@ pure arithmetic; do it while writing the stage doc:
    ```
    add an entry to `docs/examples/index.json` (group it, stage/anim
    paths) and it appears in the gallery
-   (`http://localhost:8777/editor/gallery.html`) for scrubbing, and in
+   (the gallery app, `apps/gallery`) for scrubbing, and in
    the editor (`/editor/edit.html?doc=<slug>`) for direct polishing.
 5. **judge like a reviewer.** scrub the boundaries: does every cut land
    on a beat? does anything move without a reason? is there exactly one

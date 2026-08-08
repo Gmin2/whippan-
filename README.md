@@ -7,9 +7,9 @@ launch-video mp4. see PLAN.md for the full plan.
 ## layout
 
 - `engine/` — rust core. schema, overlay merge, keyframe evaluator, wasm export
-- `editor/` — plain html tracer page for now (react editor comes at step 5)
-- `editor/vendor/canvaskit/` — canvaskit-wasm 0.40.0 (skia), vendored
-- `editor/assets/fonts/` — pinned Inter-Variable.ttf
+- `apps/studio/` — react editor (design view, storyboard canvas)
+- `apps/gallery/` — react gallery (svg-harness layout, sound playback)
+- `packages/engine-web/` — wasm engine pkg + shared canvas painter
 - `analysis`, `reference` — local symlinks to the private teardown research
   (frame-precise analyses of 29 reference launch videos) and cloned reference
   runtimes. never committed; the teardowns are the craft spec and acceptance
@@ -36,7 +36,7 @@ must match the crate version pinned in engine/Cargo.toml):
 ```sh
 cargo build --target wasm32-unknown-unknown -p whippan-engine
 $CARGO_HOME/bin/wasm-bindgen target/wasm32-unknown-unknown/debug/whippan_engine.wasm \
-  --target web --out-dir editor/src/engine-pkg
+  --target web --out-dir packages/engine-web/pkg
 ```
 
 export any doc to mp4 (same engine, native skia, frames piped to ffmpeg):
@@ -53,11 +53,8 @@ cargo build --release -p whippan-engine --bin export
 run the tracer page:
 
 ```sh
-python3 scripts/dev-server.py   # static serving + the editor's save endpoint
-# editor:   http://localhost:8777/editor/edit.html?doc=<slug>
-# gallery:  http://localhost:8777/editor/gallery.html
-# tracer:   http://localhost:8777/editor/index.html
-# conform:  http://localhost:8777/editor/conform.html
+# studio:   cd apps/studio && npx vite    (port 8900)
+# gallery:  cd apps/gallery && npx vite   (port 8901)
 ```
 
 ## engine features so far
