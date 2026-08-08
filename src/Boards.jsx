@@ -1,96 +1,138 @@
 /*
  * BOARDS — the storyboard canvas
  *
- * every scene of the film rendered side by side on one pannable,
- * zoomable surface: the wall of boards a motion designer pins up before
- * animating. each board is the engine's own render of that scene partway
- * through (so reveals and rises have landed), labels carry id, start and
- * duration, and clicking a board drops into the editor at that moment.
+ * laid out the way motion designers pin boards in figma: one COLUMN per
+ * scene with its script note on a dark card up top, and the scene's
+ * progression flowing downward — sampled moments through the scene so
+ * you see entrance, settled state and exit at a glance. pannable,
+ * zoomable, click any frame to drop into the editor at that moment.
+ *
+ * every frame is the engine's own render, cached once per doc into
+ * half-res snapshots so pan/zoom repaints stay cheap.
  */
 import { useEffect, useRef, useState } from 'react'
 import { render, paintFrame, timing } from './engine.js'
 
-const GAP = 140
-const LABEL = 74
+const GAP = 90
+const VGAP = 56
+const NOTE_H = 150
 
 export default function Boards({ ck, doc, onJump }) {
   const canvasRef = useRef(null)
   const surfRef = useRef(null)
+  const cacheRef = useRef(null)
   const [vp, setVp] = useState(null)
-  const [hover, setHover] = useState(-1)
+  const [hover, setHover] = useState(null)
 
   const [sw, sh] = doc.stage.size ?? [1920, 1080]
+  const bw = sw / 2
+  const bh = sh / 2
   const tl = timing(doc.stage)
-  const boards = tl.scenes.map((s, i) => ({
-    ...s,
-    x: i * (sw + GAP),
-    // far enough in that entrances have settled, before exit motion
-    at: s.start + Math.min(s.dur * 0.55, s.dur - 0.05),
-  }))
-  const worldW = boards.length * (sw + GAP) - GAP
-  const worldH = sh + LABEL
+
+  // one column per scene, 2-5 sampled moments spread through its length
+  const cols = tl.scenes.map((s, i) => {
+    const n = Math.max(2, Math.min(5, Math.round(s.dur / 1.1)))
+    const frames = Array.from({ length: n }, (_, j) => {
+      const f = n === 1 ? 0.5 : j / (n - 1)
+      return {
+        at: s.start + s.dur * (0.12 + f * 0.84),
+        y: NOTE_H + VGAP + j * (bh + VGAP),
+      }
+    })
+    return {
+      ...s, i, frames,
+      x: i * (bw + GAP),
+      note: doc.stage.scenes[i].note ?? null,
+    }
+  })
+  const worldW = cols.length * (bw + GAP) - GAP
+  const worldH = Math.max(...cols.map(c => NOTE_H + VGAP +
+    c.frames.length * (bh + VGAP)))
 
   useEffect(() => {
     const el = canvasRef.current
-    const fit = () => {
-      const box = el.parentElement.getBoundingClientRect()
-      el.width = box.width * devicePixelRatio
-      el.height = box.height * devicePixelRatio
-      el.style.width = box.width + 'px'
-      el.style.height = box.height + 'px'
-      const k = Math.min(box.width / (worldW + 240), (box.height - 120) / worldH)
-      setVp(v => v ?? {
-        k,
-        x: (box.width - worldW * k) / 2,
-        y: (box.height - worldH * k) / 2,
-      })
-    }
-    fit()
+    const box = el.parentElement.getBoundingClientRect()
+    el.width = box.width * devicePixelRatio
+    el.height = box.height * devicePixelRatio
+    el.style.width = box.width + 'px'
+    el.style.height = box.height + 'px'
+    setVp({
+      k: Math.min(box.width / (worldW + 200), (box.height - 60) / worldH, 1.2),
+      x: 100 * Math.min(box.width / (worldW + 200), 1),
+      y: 40,
+    })
     const surface = ck.MakeCanvasSurface(el)
     const paint = new ck.Paint()
     paint.setAntiAlias(true)
     surfRef.current = { surface, skc: surface.getCanvas(), paint }
-    return () => { paint.delete(); surface.delete(); surfRef.current = null }
+
+    // render every sampled frame once into half-res snapshots
+    const cache = new Map()
+    const off = ck.MakeSurface(bw, bh)
+    const oc = off.getCanvas()
+    const op = new ck.Paint()
+    op.setAntiAlias(true)
+    for (const c of cols) {
+      for (const f of c.frames) {
+        const cmds = JSON.parse(render(
+          JSON.stringify(doc.stage), JSON.stringify(doc.anim), f.at))
+        oc.save()
+        oc.scale(0.5, 0.5)
+        if (cmds[0]?.op === 'clear') {
+          op.setColor(ck.parseColorString(cmds[0].color))
+          oc.drawRect(ck.XYWHRect(0, 0, sw, sh), op)
+          cmds.shift()
+        }
+        paintFrame(ck, oc, op, cmds, doc.images)
+        oc.restore()
+        cache.set(c.id + ':' + f.at, off.makeImageSnapshot())
+      }
+    }
+    op.delete()
+    off.delete()
+    cacheRef.current = cache
+    return () => {
+      paint.delete()
+      surface.delete()
+      for (const img of cache.values()) img.delete()
+      surfRef.current = null
+      cacheRef.current = null
+    }
   }, [doc])
 
   useEffect(() => {
     const s = surfRef.current
-    if (!s || !vp) return
+    const cache = cacheRef.current
+    if (!s || !cache || !vp) return
     const { skc } = s
     skc.clear(ck.Color(23, 23, 23, 1))
-    for (const b of boards) {
-      const cmds = JSON.parse(render(
-        JSON.stringify(doc.stage), JSON.stringify(doc.anim), b.at))
-      skc.save()
-      skc.scale(devicePixelRatio, devicePixelRatio)
-      skc.translate(vp.x + b.x * vp.k, vp.y)
-      skc.scale(vp.k, vp.k)
-      skc.clipRect(ck.XYWHRect(0, 0, sw, sh), ck.ClipOp.Intersect, true)
-      // the engine's leading clear would wipe the whole surface (clear
-      // ignores clip); paint it as this board's backdrop instead
-      if (cmds[0]?.op === 'clear') {
-        s.paint.setColor(ck.parseColorString(cmds[0].color))
-        skc.drawRect(ck.XYWHRect(0, 0, sw, sh), s.paint)
-        cmds.shift()
+    skc.save()
+    skc.scale(devicePixelRatio, devicePixelRatio)
+    skc.translate(vp.x, vp.y)
+    skc.scale(vp.k, vp.k)
+    for (const c of cols) {
+      for (const f of c.frames) {
+        const img = cache.get(c.id + ':' + f.at)
+        if (img) skc.drawImageRect(img,
+          ck.XYWHRect(0, 0, bw, bh),
+          ck.XYWHRect(c.x, f.y, bw, bh), s.paint)
       }
-      paintFrame(ck, skc, s.paint, cmds, doc.images)
-      skc.restore()
     }
+    skc.restore()
     s.surface.flush()
-  }, [vp, doc, hover])
+  }, [vp, doc])
 
-  function toWorld(e) {
+  function frameAt(e) {
     const box = canvasRef.current.getBoundingClientRect()
-    return [(e.clientX - box.left - vp.x) / vp.k,
-            (e.clientY - box.top - vp.y) / vp.k]
-  }
-
-  function boardAt(e) {
-    const [wx, wy] = toWorld(e)
-    if (wy < 0 || wy > sh) return -1
-    const slot = Math.floor(wx / (sw + GAP))
-    if (slot < 0 || slot >= boards.length) return -1
-    return wx - slot * (sw + GAP) <= sw ? slot : -1
+    const wx = (e.clientX - box.left - vp.x) / vp.k
+    const wy = (e.clientY - box.top - vp.y) / vp.k
+    for (const c of cols) {
+      if (wx < c.x || wx > c.x + bw) continue
+      for (const f of c.frames) {
+        if (wy >= f.y && wy <= f.y + bh) return { col: c, frame: f }
+      }
+    }
+    return null
   }
 
   function onWheel(e) {
@@ -100,7 +142,7 @@ export default function Boards({ ck, doc, onJump }) {
       const mx = e.clientX - box.left
       const my = e.clientY - box.top
       setVp(v => {
-        const k = Math.min(2, Math.max(0.02, v.k * Math.exp(-e.deltaY * 0.01)))
+        const k = Math.min(3, Math.max(0.02, v.k * Math.exp(-e.deltaY * 0.01)))
         return { k, x: mx - (mx - v.x) * (k / v.k), y: my - (my - v.y) * (k / v.k) }
       })
     } else {
@@ -108,45 +150,74 @@ export default function Boards({ ck, doc, onJump }) {
     }
   }
 
-  if (!vp) return <canvas ref={canvasRef} style={{ display: 'block' }} />
+  if (!vp) {
+    return (
+      <div style={{ width: '100%', height: '100%' }}>
+        <canvas ref={canvasRef} style={{ display: 'block' }} />
+      </div>
+    )
+  }
+
+  const px = (wx, wy) => [vp.x + wx * vp.k, vp.y + wy * vp.k]
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%',
                   overflow: 'hidden' }}
          onWheel={onWheel}>
       <canvas ref={canvasRef} style={{ display: 'block' }}
-              onMouseMove={e => setHover(boardAt(e))}
-              onMouseLeave={() => setHover(-1)}
+              onMouseMove={e => {
+                const h = frameAt(e)
+                setHover(h ? h.col.id + ':' + h.frame.at : null)
+              }}
+              onMouseLeave={() => setHover(null)}
               onClick={e => {
-                const i = boardAt(e)
-                if (i >= 0) onJump(boards[i].start, boards[i].id)
+                const h = frameAt(e)
+                if (h) onJump(h.frame.at, h.col.id)
               }} />
-      {boards.map((b, i) => (
-        <div key={b.id} style={{
-          position: 'absolute', pointerEvents: 'none',
-          left: vp.x + b.x * vp.k,
-          top: vp.y + sh * vp.k + 10,
-          width: sw * vp.k,
-          display: 'flex', justifyContent: 'space-between',
-          fontSize: 12, color: i === hover ? '#fff' : '#8a8a88',
-          fontVariantNumeric: 'tabular-nums',
-        }}>
-          <span>{i + 1} · {b.id}</span>
-          <span>{b.start.toFixed(1)}s + {b.dur.toFixed(1)}s</span>
-        </div>
-      ))}
-      {boards.map((b, i) => i === hover && (
-        <div key={'h' + b.id} style={{
-          position: 'absolute', pointerEvents: 'none',
-          left: vp.x + b.x * vp.k - 2, top: vp.y - 2,
-          width: sw * vp.k + 4, height: sh * vp.k + 4,
-          border: '2px solid #606de0', borderRadius: 3,
-        }} />
-      ))}
-      <div style={{ position: 'absolute', top: 14, left: 18, fontSize: 12,
+      {cols.map(c => {
+        const [lx, ly] = px(c.x, 0)
+        return (
+          <div key={'n' + c.id} style={{
+            position: 'absolute', pointerEvents: 'none',
+            left: lx, top: ly, width: bw * vp.k, height: NOTE_H * vp.k,
+            background: '#101d16', border: '1px solid #1d3327',
+            borderRadius: 6 * vp.k, boxSizing: 'border-box',
+            padding: `${14 * vp.k}px ${18 * vp.k}px`,
+            color: '#cfe3d6', fontSize: Math.max(4, 15 * vp.k),
+            lineHeight: 1.45, overflow: 'hidden',
+          }}>
+            <div style={{ color: '#6fa887', fontSize: Math.max(4, 12 * vp.k),
+                          marginBottom: 5 * vp.k }}>
+              {c.i + 1} · {c.id} · {c.start.toFixed(1)}s + {c.dur.toFixed(1)}s
+            </div>
+            {c.note ?? ''}
+          </div>
+        )
+      })}
+      {cols.map(c => c.frames.map(f => {
+        const key = c.id + ':' + f.at
+        const [lx, ly] = px(c.x, f.y)
+        return (
+          <div key={key} style={{
+            position: 'absolute', pointerEvents: 'none',
+            left: lx - 1.5, top: ly - 1.5,
+            width: bw * vp.k + 3, height: bh * vp.k + 3,
+            border: hover === key ? '2px solid #606de0'
+                                  : '1px solid rgba(255,255,255,.08)',
+            borderRadius: 3,
+          }}>
+            <span style={{
+              position: 'absolute', top: '100%', right: 0, marginTop: 3,
+              fontSize: 11, color: hover === key ? '#aab2f0' : '#6a6a68',
+              fontVariantNumeric: 'tabular-nums',
+            }}>{f.at.toFixed(2)}s</span>
+          </div>
+        )
+      }))}
+      <div style={{ position: 'absolute', top: 12, left: 16, fontSize: 12,
                     color: '#8a8a88' }}>
-        {doc.entry.title} — {boards.length} boards, {tl.dur.toFixed(1)}s ·
-        scroll to pan, ⌘scroll to zoom, click a board to edit
+        {doc.entry.title} — {cols.length} scenes, {tl.dur.toFixed(1)}s ·
+        scroll to pan, ⌘scroll to zoom, click a frame to edit
       </div>
     </div>
   )
