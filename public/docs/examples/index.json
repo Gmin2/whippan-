@@ -348,6 +348,18 @@
   "anim": "/docs/motion-main.anim.json"
  },
  {
+  "slug": "whippan",
+  "title": "whippan \u2014 our launch film",
+  "dur": 15.6,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/whippan.stage.json",
+  "anim": "/docs/whippan.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,
