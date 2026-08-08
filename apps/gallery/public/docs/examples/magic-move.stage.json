@@ -1,0 +1,84 @@
+{
+  "fps": 30,
+  "size": [
+    1920,
+    1080
+  ],
+  "scenes": [
+    {
+      "id": "a",
+      "bg": "#fafafa",
+      "dur": 1.6,
+      "nodes": [
+        {
+          "id": "hero",
+          "type": "text",
+          "text": "whippan",
+          "x": 960,
+          "y": 420,
+          "font": {
+            "family": "inter",
+            "weight": 700,
+            "size": 160
+          },
+          "color": "#161616"
+        },
+        {
+          "id": "chip",
+          "type": "rect",
+          "x": 960,
+          "y": 640,
+          "w": 360,
+          "h": 84,
+          "radius": 42,
+          "fill": "#ea752f"
+        }
+      ]
+    },
+    {
+      "id": "b",
+      "bg": "#fafafa",
+      "dur": 2.2,
+      "transition": {
+        "kind": "fade",
+        "dur": 0.3,
+        "morph": true
+      },
+      "nodes": [
+        {
+          "id": "hero",
+          "type": "text",
+          "text": "whippan",
+          "x": 340,
+          "y": 140,
+          "font": {
+            "family": "inter",
+            "weight": 700,
+            "size": 54
+          },
+          "color": "#e8671f"
+        },
+        {
+          "id": "chip",
+          "type": "rect",
+          "x": 1360,
+          "y": 140,
+          "w": 200,
+          "h": 60,
+          "radius": 30,
+          "fill": "#161616"
+        },
+        {
+          "id": "joined",
+          "type": "rect",
+          "x": 960,
+          "y": 620,
+          "w": 900,
+          "h": 420,
+          "radius": 32,
+          "fill": "#ffffff"
+        }
+      ]
+    }
+  ]
+}

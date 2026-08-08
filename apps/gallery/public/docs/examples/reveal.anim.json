@@ -1,0 +1,15 @@
+{
+  "tracks": [
+    {
+      "target": "title",
+      "at": 0.3,
+      "reveal": {
+        "unit": "glyph",
+        "stagger": 0.03,
+        "keep": [
+          "scale"
+        ]
+      }
+    }
+  ]
+}
