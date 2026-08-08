@@ -1,0 +1,691 @@
+{
+ "fps": 30,
+ "size": [
+  1920,
+  1080
+ ],
+ "scenes": [
+  {
+   "id": "j1",
+   "bg": "#0d0d0d",
+   "dur": 3.2,
+   "nodes": [
+    {
+     "id": "kicker",
+     "type": "text",
+     "text": "stage.json",
+     "x": 960,
+     "y": 300,
+     "color": "#6b6b6b",
+     "font": {
+      "size": 34,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "l1",
+     "type": "text",
+     "text": "{ \"id\": \"cta\", \"type\": \"rect\",",
+     "x": 956.0,
+     "y": 430,
+     "color": "#e8e8e8",
+     "font": {
+      "size": 44,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "l2",
+     "type": "text",
+     "text": "  \"w\": 320, \"h\": 96, \"radius\": 48,",
+     "x": 1008.8,
+     "y": 506,
+     "color": "#e8e8e8",
+     "font": {
+      "size": 44,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "l3",
+     "type": "text",
+     "text": "  \"fill\": \"#ff5c1a\",",
+     "x": 824.0,
+     "y": 582,
+     "color": "#e8e8e8",
+     "font": {
+      "size": 44,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "l4",
+     "type": "text",
+     "text": "  \"label\": \"Get started\" }",
+     "x": 903.2,
+     "y": 658,
+     "color": "#e8e8e8",
+     "font": {
+      "size": 44,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "caret",
+     "type": "rect",
+     "x": 561.5,
+     "y": 430,
+     "w": 3,
+     "h": 48,
+     "radius": 1,
+     "fill": "#f4f4f4"
+    }
+   ]
+  },
+  {
+   "id": "j2",
+   "bg": "#fafafa",
+   "dur": 3.2,
+   "nodes": [
+    {
+     "id": "nav",
+     "type": "rect",
+     "x": 960,
+     "y": 64,
+     "w": 1920,
+     "h": 128,
+     "radius": 0,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "brand",
+     "type": "text",
+     "text": "whippan",
+     "x": 220,
+     "y": 64,
+     "color": "#111111",
+     "font": {
+      "size": 40,
+      "weight": 700,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "navpill",
+     "type": "rect",
+     "x": 1700,
+     "y": 64,
+     "w": 150,
+     "h": 56,
+     "radius": 28,
+     "fill": "#f0f0f0"
+    },
+    {
+     "id": "navdocs",
+     "type": "text",
+     "text": "Docs",
+     "x": 1700,
+     "y": 64,
+     "color": "#444444",
+     "font": {
+      "size": 28,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "hl",
+     "type": "text",
+     "text": "Ship the film with the feature",
+     "x": 960,
+     "y": 420,
+     "color": "#111111",
+     "font": {
+      "size": 84,
+      "weight": 700,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "sub",
+     "type": "text",
+     "text": "Two JSON files. One render.",
+     "x": 960,
+     "y": 540,
+     "color": "#777777",
+     "font": {
+      "size": 40,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "cta",
+     "type": "rect",
+     "x": 960,
+     "y": 720,
+     "w": 320,
+     "h": 96,
+     "radius": 48,
+     "fill": "#ff5c1a"
+    },
+    {
+     "id": "ctat",
+     "type": "text",
+     "text": "Get started",
+     "x": 960,
+     "y": 720,
+     "color": "#ffffff",
+     "font": {
+      "size": 38,
+      "weight": 600,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "j3",
+   "bg": "#fafafa",
+   "dur": 3.4,
+   "nodes": [
+    {
+     "id": "nav3",
+     "type": "rect",
+     "x": 960,
+     "y": 64,
+     "w": 1920,
+     "h": 128,
+     "radius": 0,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "brand3",
+     "type": "text",
+     "text": "whippan",
+     "x": 220,
+     "y": 64,
+     "color": "#111111",
+     "font": {
+      "size": 40,
+      "weight": 700,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "navpill3",
+     "type": "rect",
+     "x": 1700,
+     "y": 64,
+     "w": 150,
+     "h": 56,
+     "radius": 28,
+     "fill": "#f0f0f0"
+    },
+    {
+     "id": "navdocs3",
+     "type": "text",
+     "text": "Docs",
+     "x": 1700,
+     "y": 64,
+     "color": "#444444",
+     "font": {
+      "size": 28,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "hl3",
+     "type": "text",
+     "text": "Ship the film with the feature",
+     "x": 960,
+     "y": 420,
+     "color": "#111111",
+     "font": {
+      "size": 84,
+      "weight": 700,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "sub3",
+     "type": "text",
+     "text": "Two JSON files. One render.",
+     "x": 960,
+     "y": 540,
+     "color": "#777777",
+     "font": {
+      "size": 40,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "cta3",
+     "type": "rect",
+     "x": 960,
+     "y": 720,
+     "w": 320,
+     "h": 96,
+     "radius": 48,
+     "fill": "#ff5c1a"
+    },
+    {
+     "id": "ctat3",
+     "type": "text",
+     "text": "Get started",
+     "x": 960,
+     "y": 720,
+     "color": "#ffffff",
+     "font": {
+      "size": 38,
+      "weight": 600,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "strip",
+     "type": "rect",
+     "x": 960,
+     "y": 1002,
+     "w": 1920,
+     "h": 156,
+     "radius": 0,
+     "fill": "#0d0d0d"
+    },
+    {
+     "id": "stripk",
+     "type": "text",
+     "text": "anim.json",
+     "x": 250,
+     "y": 964,
+     "color": "#6b6b6b",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "aline",
+     "type": "text",
+     "text": "{ \"target\": \"cta\", \"cam\": { \"preset\": \"crash-zoom\" } }",
+     "x": 800.8,
+     "y": 1022,
+     "color": "#e8e8e8",
+     "font": {
+      "size": 34,
+      "weight": 400,
+      "family": "mono"
+     }
+    }
+   ]
+  },
+  {
+   "id": "j4",
+   "bg": "#e9e6e0",
+   "dur": 3.0,
+   "nodes": [
+    {
+     "id": "wall",
+     "type": "text",
+     "text": "every frame here renders from the format",
+     "x": 960,
+     "y": 60,
+     "color": "#8a8a8a",
+     "font": {
+      "size": 30,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "v1win",
+     "type": "rect",
+     "x": 960,
+     "y": 560,
+     "w": 1400,
+     "h": 820,
+     "radius": 18,
+     "fill": "#101010"
+    },
+    {
+     "id": "v1bar",
+     "type": "rect",
+     "x": 960,
+     "y": 190,
+     "w": 1400,
+     "h": 80,
+     "radius": 18,
+     "fill": "#ececec"
+    },
+    {
+     "id": "v1d1",
+     "type": "rect",
+     "x": 320,
+     "y": 190,
+     "w": 22,
+     "h": 22,
+     "radius": 11,
+     "fill": "#e0645c"
+    },
+    {
+     "id": "v1d2",
+     "type": "rect",
+     "x": 360,
+     "y": 190,
+     "w": 22,
+     "h": 22,
+     "radius": 11,
+     "fill": "#e0b55c"
+    },
+    {
+     "id": "v1d3",
+     "type": "rect",
+     "x": 400,
+     "y": 190,
+     "w": 22,
+     "h": 22,
+     "radius": 11,
+     "fill": "#79c979"
+    },
+    {
+     "id": "v1d",
+     "type": "text",
+     "text": "$",
+     "x": 560,
+     "y": 480,
+     "color": "#565656",
+     "font": {
+      "size": 60,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "v1cmd",
+     "type": "text",
+     "text": "git push",
+     "x": 764.0,
+     "y": 482,
+     "color": "#ffffff",
+     "font": {
+      "size": 60,
+      "weight": 400,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "v1dot",
+     "type": "rect",
+     "x": 700,
+     "y": 640,
+     "w": 22,
+     "h": 22,
+     "radius": 11,
+     "fill": "#b55b01",
+     "glow": {
+      "sigma": 7,
+      "opacity": 0.8,
+      "color": "#b55b01"
+     }
+    },
+    {
+     "id": "v1b",
+     "type": "text",
+     "text": "Building",
+     "x": 840,
+     "y": 640,
+     "color": "#f2f2f2",
+     "font": {
+      "size": 42,
+      "weight": 500,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "v2win",
+     "type": "rect",
+     "x": 2760,
+     "y": 560,
+     "w": 1400,
+     "h": 820,
+     "radius": 18,
+     "fill": "#161616"
+    },
+    {
+     "id": "v2bar",
+     "type": "rect",
+     "x": 2760,
+     "y": 190,
+     "w": 1400,
+     "h": 80,
+     "radius": 18,
+     "fill": "#ececec"
+    },
+    {
+     "id": "v2d1",
+     "type": "rect",
+     "x": 2120,
+     "y": 190,
+     "w": 22,
+     "h": 22,
+     "radius": 11,
+     "fill": "#e0645c"
+    },
+    {
+     "id": "v2d2",
+     "type": "rect",
+     "x": 2160,
+     "y": 190,
+     "w": 22,
+     "h": 22,
+     "radius": 11,
+     "fill": "#e0b55c"
+    },
+    {
+     "id": "v2d3",
+     "type": "rect",
+     "x": 2200,
+     "y": 190,
+     "w": 22,
+     "h": 22,
+     "radius": 11,
+     "fill": "#79c979"
+    },
+    {
+     "id": "v2a",
+     "type": "text",
+     "text": "Imagine",
+     "x": 2360,
+     "y": 480,
+     "color": "#ffffff",
+     "font": {
+      "size": 62,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "v2b",
+     "type": "text",
+     "text": "anything",
+     "x": 3170,
+     "y": 480,
+     "color": "#ffffff",
+     "font": {
+      "size": 62,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "v2pill",
+     "type": "rect",
+     "x": 2762,
+     "y": 480,
+     "w": 500,
+     "h": 96,
+     "radius": 48,
+     "fill": "#2d2d2d"
+    },
+    {
+     "id": "v2btn",
+     "type": "rect",
+     "x": 2950,
+     "y": 480,
+     "w": 64,
+     "h": 64,
+     "radius": 10,
+     "fill": "#fafafa"
+    },
+    {
+     "id": "v2t",
+     "type": "text",
+     "text": "with a simple prompt...",
+     "x": 2700,
+     "y": 482,
+     "color": "#9a9a9a",
+     "font": {
+      "size": 26,
+      "weight": 400,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "v3win",
+     "type": "rect",
+     "x": 4560,
+     "y": 560,
+     "w": 1400,
+     "h": 820,
+     "radius": 18,
+     "fill": "#f2ede4"
+    },
+    {
+     "id": "v3bar",
+     "type": "rect",
+     "x": 4560,
+     "y": 190,
+     "w": 1400,
+     "h": 80,
+     "radius": 18,
+     "fill": "#ececec"
+    },
+    {
+     "id": "v3d1",
+     "type": "rect",
+     "x": 3920,
+     "y": 190,
+     "w": 22,
+     "h": 22,
+     "radius": 11,
+     "fill": "#e0645c"
+    },
+    {
+     "id": "v3d2",
+     "type": "rect",
+     "x": 3960,
+     "y": 190,
+     "w": 22,
+     "h": 22,
+     "radius": 11,
+     "fill": "#e0b55c"
+    },
+    {
+     "id": "v3d3",
+     "type": "rect",
+     "x": 4000,
+     "y": 190,
+     "w": 22,
+     "h": 22,
+     "radius": 11,
+     "fill": "#79c979"
+    },
+    {
+     "id": "v3w",
+     "type": "text",
+     "text": "base-2",
+     "x": 4560,
+     "y": 540,
+     "color": "#1c1a17",
+     "font": {
+      "size": 110,
+      "weight": 700,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "v3s",
+     "type": "text",
+     "text": "industrial design, resolved in 8 scenes",
+     "x": 4560,
+     "y": 660,
+     "color": "#8a8177",
+     "font": {
+      "size": 30,
+      "weight": 400,
+      "family": "inter"
+     }
+    }
+   ]
+  },
+  {
+   "id": "j5",
+   "bg": "#0b0b0b",
+   "dur": 2.8,
+   "nodes": [
+    {
+     "id": "wm",
+     "type": "text",
+     "text": "whippan",
+     "x": 960,
+     "y": 500,
+     "color": "#f4f4f4",
+     "font": {
+      "size": 130,
+      "weight": 700,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "wpill",
+     "type": "rect",
+     "x": 960,
+     "y": 610,
+     "w": 260,
+     "h": 26,
+     "radius": 13,
+     "fill": "#ff5c1a"
+    },
+    {
+     "id": "tag",
+     "type": "text",
+     "text": "Launch films, written in JSON",
+     "x": 960,
+     "y": 700,
+     "color": "#9a9a9a",
+     "font": {
+      "size": 40,
+      "weight": 400,
+      "family": "inter"
+     }
+    }
+   ]
+  }
+ ],
+ "audio": {
+  "src": "/assets/audio/gen/whippan.mp3",
+  "gain": 0.85,
+  "fade_out": 0.5,
+  "bpm": 89.1,
+  "offset": 0.116,
+  "start": 0.43
+ }
+}
