@@ -399,25 +399,185 @@
      "id": "glow7",
      "type": "rect",
      "x": 960,
-     "y": 520,
-     "w": 900,
-     "h": 380,
-     "radius": 190,
+     "y": 510,
+     "w": 980,
+     "h": 400,
+     "radius": 200,
      "fill": "#5e7cf7",
      "blur": 130,
      "opacity": 0.55
     },
     {
-     "id": "wm7i",
+     "id": "l7m0",
+     "type": "rect",
+     "x": 700.0,
+     "y": 510.0,
+     "w": 150.0,
+     "h": 150.0,
+     "radius": 35.2,
+     "fill": "#2d52f0"
+    },
+    {
+     "id": "l7m1",
+     "type": "rect",
+     "x": 669.2,
+     "y": 494.8,
+     "w": 10.0,
+     "h": 7.0,
+     "radius": 2.1,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "l7m2",
+     "type": "rect",
+     "x": 730.8,
+     "y": 494.8,
+     "w": 10.0,
+     "h": 7.0,
+     "radius": 2.1,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "l7m3",
+     "type": "rect",
+     "x": 684.8,
+     "y": 479.2,
+     "w": 7.0,
+     "h": 10.0,
+     "radius": 2.1,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "l7m4",
+     "type": "rect",
+     "x": 684.8,
+     "y": 540.8,
+     "w": 7.0,
+     "h": 10.0,
+     "radius": 2.1,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "l7m5",
+     "type": "rect",
+     "x": 669.2,
+     "y": 510.0,
+     "w": 10.0,
+     "h": 7.0,
+     "radius": 2.1,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "l7m6",
+     "type": "rect",
+     "x": 730.8,
+     "y": 510.0,
+     "w": 10.0,
+     "h": 7.0,
+     "radius": 2.1,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "l7m7",
+     "type": "rect",
+     "x": 700.0,
+     "y": 479.2,
+     "w": 7.0,
+     "h": 10.0,
+     "radius": 2.1,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "l7m8",
+     "type": "rect",
+     "x": 700.0,
+     "y": 540.8,
+     "w": 7.0,
+     "h": 10.0,
+     "radius": 2.1,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "l7m9",
+     "type": "rect",
+     "x": 669.2,
+     "y": 525.2,
+     "w": 10.0,
+     "h": 7.0,
+     "radius": 2.1,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "l7m10",
+     "type": "rect",
+     "x": 730.8,
+     "y": 525.2,
+     "w": 10.0,
+     "h": 7.0,
+     "radius": 2.1,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "l7m11",
+     "type": "rect",
+     "x": 715.2,
+     "y": 479.2,
+     "w": 7.0,
+     "h": 10.0,
+     "radius": 2.1,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "l7m12",
+     "type": "rect",
+     "x": 715.2,
+     "y": 540.8,
+     "w": 7.0,
+     "h": 10.0,
+     "radius": 2.1,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "l7m13",
+     "type": "rect",
+     "x": 700.0,
+     "y": 510.0,
+     "w": 51.6,
+     "h": 51.6,
+     "radius": 8.8,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "l7m14",
+     "type": "rect",
+     "x": 700.0,
+     "y": 510.0,
+     "w": 28.1,
+     "h": 28.1,
+     "radius": 5.3,
+     "fill": "#2d52f0"
+    },
+    {
+     "id": "l7m15",
+     "type": "rect",
+     "x": 691.2,
+     "y": 501.2,
+     "w": 7.0,
+     "h": 7.0,
+     "radius": 3.5,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "l7wt",
      "type": "text",
      "text": "Solder",
-     "x": 960,
-     "y": 520,
+     "x": 1092.6,
+     "y": 510,
      "color": "#ffffff",
      "font": {
-      "size": 170,
-      "weight": 600,
-      "family": "playfair"
+      "size": 165,
+      "weight": 700,
+      "family": "inter"
      }
     },
     {
@@ -425,7 +585,7 @@
      "type": "text",
      "text": "the AI that turns a prompt into buildable hardware",
      "x": 960,
-     "y": 680,
+     "y": 690,
      "color": "#dfe6ff",
      "font": {
       "size": 30,
@@ -434,7 +594,7 @@
      }
     }
    ],
-   "note": "The glowing wordmark, brew-style: 'Solder' blooms white on blue, the promise line under it."
+   "note": "The real lockup blooms on blue: chip mark + Solder, the promise line under it."
   },
   {
    "id": "s3",
@@ -694,16 +854,176 @@
      "opacity": 0
     },
     {
-     "id": "nwm",
+     "id": "nlm0",
+     "type": "rect",
+     "x": 250.0,
+     "y": 330.0,
+     "w": 52.0,
+     "h": 52.0,
+     "radius": 12.2,
+     "fill": "#2d52f0"
+    },
+    {
+     "id": "nlm1",
+     "type": "rect",
+     "x": 239.3,
+     "y": 324.7,
+     "w": 3.5,
+     "h": 2.4,
+     "radius": 0.7,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "nlm2",
+     "type": "rect",
+     "x": 260.7,
+     "y": 324.7,
+     "w": 3.5,
+     "h": 2.4,
+     "radius": 0.7,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "nlm3",
+     "type": "rect",
+     "x": 244.7,
+     "y": 319.3,
+     "w": 2.4,
+     "h": 3.5,
+     "radius": 0.7,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "nlm4",
+     "type": "rect",
+     "x": 244.7,
+     "y": 340.7,
+     "w": 2.4,
+     "h": 3.5,
+     "radius": 0.7,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "nlm5",
+     "type": "rect",
+     "x": 239.3,
+     "y": 330.0,
+     "w": 3.5,
+     "h": 2.4,
+     "radius": 0.7,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "nlm6",
+     "type": "rect",
+     "x": 260.7,
+     "y": 330.0,
+     "w": 3.5,
+     "h": 2.4,
+     "radius": 0.7,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "nlm7",
+     "type": "rect",
+     "x": 250.0,
+     "y": 319.3,
+     "w": 2.4,
+     "h": 3.5,
+     "radius": 0.7,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "nlm8",
+     "type": "rect",
+     "x": 250.0,
+     "y": 340.7,
+     "w": 2.4,
+     "h": 3.5,
+     "radius": 0.7,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "nlm9",
+     "type": "rect",
+     "x": 239.3,
+     "y": 335.3,
+     "w": 3.5,
+     "h": 2.4,
+     "radius": 0.7,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "nlm10",
+     "type": "rect",
+     "x": 260.7,
+     "y": 335.3,
+     "w": 3.5,
+     "h": 2.4,
+     "radius": 0.7,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "nlm11",
+     "type": "rect",
+     "x": 255.3,
+     "y": 319.3,
+     "w": 2.4,
+     "h": 3.5,
+     "radius": 0.7,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "nlm12",
+     "type": "rect",
+     "x": 255.3,
+     "y": 340.7,
+     "w": 2.4,
+     "h": 3.5,
+     "radius": 0.7,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "nlm13",
+     "type": "rect",
+     "x": 250.0,
+     "y": 330.0,
+     "w": 17.9,
+     "h": 17.9,
+     "radius": 3.0,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "nlm14",
+     "type": "rect",
+     "x": 250.0,
+     "y": 330.0,
+     "w": 9.8,
+     "h": 9.8,
+     "radius": 1.8,
+     "fill": "#2d52f0"
+    },
+    {
+     "id": "nlm15",
+     "type": "rect",
+     "x": 247.0,
+     "y": 327.0,
+     "w": 2.4,
+     "h": 2.4,
+     "radius": 1.2,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "nlwt",
      "type": "text",
      "text": "Solder",
-     "x": 330,
+     "x": 385.8,
      "y": 330,
-     "color": "#2d52f0",
+     "color": "#0d1017",
      "font": {
-      "size": 58,
-      "weight": 650,
-      "family": "playfair"
+      "size": 57,
+      "weight": 700,
+      "family": "inter"
      }
     },
     {
@@ -913,16 +1233,176 @@
      "opacity": 0
     },
     {
-     "id": "wm7",
+     "id": "elm0",
+     "type": "rect",
+     "x": 700.0,
+     "y": 380.0,
+     "w": 110.0,
+     "h": 110.0,
+     "radius": 25.8,
+     "fill": "#2d52f0"
+    },
+    {
+     "id": "elm1",
+     "type": "rect",
+     "x": 677.4,
+     "y": 368.8,
+     "w": 7.3,
+     "h": 5.2,
+     "radius": 1.5,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "elm2",
+     "type": "rect",
+     "x": 722.6,
+     "y": 368.8,
+     "w": 7.3,
+     "h": 5.2,
+     "radius": 1.5,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "elm3",
+     "type": "rect",
+     "x": 688.8,
+     "y": 357.4,
+     "w": 5.2,
+     "h": 7.3,
+     "radius": 1.5,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "elm4",
+     "type": "rect",
+     "x": 688.8,
+     "y": 402.6,
+     "w": 5.2,
+     "h": 7.3,
+     "radius": 1.5,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "elm5",
+     "type": "rect",
+     "x": 677.4,
+     "y": 380.0,
+     "w": 7.3,
+     "h": 5.2,
+     "radius": 1.5,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "elm6",
+     "type": "rect",
+     "x": 722.6,
+     "y": 380.0,
+     "w": 7.3,
+     "h": 5.2,
+     "radius": 1.5,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "elm7",
+     "type": "rect",
+     "x": 700.0,
+     "y": 357.4,
+     "w": 5.2,
+     "h": 7.3,
+     "radius": 1.5,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "elm8",
+     "type": "rect",
+     "x": 700.0,
+     "y": 402.6,
+     "w": 5.2,
+     "h": 7.3,
+     "radius": 1.5,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "elm9",
+     "type": "rect",
+     "x": 677.4,
+     "y": 391.2,
+     "w": 7.3,
+     "h": 5.2,
+     "radius": 1.5,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "elm10",
+     "type": "rect",
+     "x": 722.6,
+     "y": 391.2,
+     "w": 7.3,
+     "h": 5.2,
+     "radius": 1.5,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "elm11",
+     "type": "rect",
+     "x": 711.2,
+     "y": 357.4,
+     "w": 5.2,
+     "h": 7.3,
+     "radius": 1.5,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "elm12",
+     "type": "rect",
+     "x": 711.2,
+     "y": 402.6,
+     "w": 5.2,
+     "h": 7.3,
+     "radius": 1.5,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "elm13",
+     "type": "rect",
+     "x": 700.0,
+     "y": 380.0,
+     "w": 37.8,
+     "h": 37.8,
+     "radius": 6.4,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "elm14",
+     "type": "rect",
+     "x": 700.0,
+     "y": 380.0,
+     "w": 20.6,
+     "h": 20.6,
+     "radius": 3.9,
+     "fill": "#2d52f0"
+    },
+    {
+     "id": "elm15",
+     "type": "rect",
+     "x": 693.6,
+     "y": 373.6,
+     "w": 5.2,
+     "h": 5.2,
+     "radius": 2.6,
+     "fill": "#ffffff"
+    },
+    {
+     "id": "elwt",
      "type": "text",
      "text": "Solder",
-     "x": 960,
+     "x": 987.9,
      "y": 380,
-     "color": "#2d52f0",
+     "color": "#0d1017",
      "font": {
-      "size": 120,
-      "weight": 600,
-      "family": "playfair"
+      "size": 121,
+      "weight": 700,
+      "family": "inter"
      }
     },
     {

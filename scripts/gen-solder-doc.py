@@ -107,6 +107,49 @@ def scene(id, dur_beats, nodes, bg=CREAM, note=""):
                    "nodes": nodes, "note": note})
 
 
+MARK_RECTS = [
+    (0, 0, 512, 512, 120, "#2d52f0"),
+    (134, 192, 34, 24, 7, "#ffffff"), (344, 192, 34, 24, 7, "#ffffff"),
+    (192, 134, 24, 34, 7, "#ffffff"), (192, 344, 24, 34, 7, "#ffffff"),
+    (134, 244, 34, 24, 7, "#ffffff"), (344, 244, 34, 24, 7, "#ffffff"),
+    (244, 134, 24, 34, 7, "#ffffff"), (244, 344, 24, 34, 7, "#ffffff"),
+    (134, 296, 34, 24, 7, "#ffffff"), (344, 296, 34, 24, 7, "#ffffff"),
+    (296, 134, 24, 34, 7, "#ffffff"), (296, 344, 24, 34, 7, "#ffffff"),
+    (168, 168, 176, 176, 30, "#ffffff"),
+    (208, 208, 96, 96, 18, "#2d52f0"),
+    (214, 214, 24, 24, 12, "#ffffff"),
+]
+INK_BRAND = "#0d1017"
+
+
+def lockup(p, cx, cy, size, text_color=INK_BRAND, mark_only=False,
+           weight=700):
+    """the real solder lockup: chip mark + Inter-bold wordmark, sized by
+    the mark edge. text sits right of the mark like the brand svg."""
+    k = size / 512.0
+    ns = []
+    for i, (x, y, w, h, r, fill) in enumerate(MARK_RECTS):
+        ns.append(rect(f"{p}m{i}", round(cx - size / 2 + (x + w / 2) * k, 1),
+                       round(cy - size / 2 + (y + h / 2) * k, 1),
+                       round(w * k, 1), round(h * k, 1),
+                       round(r * k, 1), fill))
+    if not mark_only:
+        tsize = round(size * 1.1)
+        f = measure(tsize, weight)
+        tw = f.getlength("Solder") * CAL
+        ns.append(text(f"{p}wt", "Solder",
+                       round(cx + size / 2 + size * 0.42 + tw / 2, 1), cy,
+                       tsize, text_color, weight))
+    return ns
+
+
+def lockup_ids(p, with_text=True):
+    ids = [f"{p}m{i}" for i in range(len(MARK_RECTS))]
+    if with_text:
+        ids.append(f"{p}wt")
+    return ids
+
+
 TRI_D = "M4 3C2 3 0.8 5.2 1.8 7L10 21C11 22.8 13.5 22.8 14.5 21L22.7 7C23.7 5.2 22.5 3 20.5 3Z"
 
 
@@ -270,18 +313,19 @@ for i in range(2):
 ns, ts = word_slide("m", "Meet", 150, chip=False, color="#ffffff")
 scene("i6", 2, ns, bg=BLUE, note="'Meet' white on solder blue.")
 tracks += ts
-scene("i7", 4, [
-    rect("glow7", 960, 520, 900, 380, 190, "#5e7cf7", blur=130,
-         opacity=0.55),
-    text("wm7i", "Solder", 960, 520, 170, "#ffffff", 600, "playfair"),
-    text("sub7", "the AI that turns a prompt into buildable hardware",
-         960, 680, 30, "#dfe6ff", 500),
-], bg=BLUE,
-    note="The glowing wordmark, brew-style: 'Solder' blooms white on "
-         "blue, the promise line under it.")
+i7_nodes = [rect("glow7", 960, 510, 980, 400, 200, "#5e7cf7", blur=130,
+                 opacity=0.55)]
+i7_nodes += lockup("l7", 700, 510, 150, text_color="#ffffff")
+i7_nodes.append(text("sub7",
+                     "the AI that turns a prompt into buildable hardware",
+                     960, 690, 30, "#dfe6ff", 500))
+scene("i7", 4, i7_nodes, bg=BLUE,
+      note="The real lockup blooms on blue: chip mark + Solder, the "
+           "promise line under it.")
 tracks.append(keyed("glow7", opacity=[(0.05, 0), (0.4, 0.55)]))
-tracks.append(keyed("wm7i", opacity=[(0.05, 0), (0.32, 1)],
-                    scale=[(0.05, 0.92), (0.5, 1.0, "outCubic")]))
+for nid in lockup_ids("l7"):
+    tracks.append(keyed(nid, opacity=[(0.05, 0), (0.32, 1)],
+                        scale=[(0.05, 0.92), (0.5, 1.0, "outCubic")]))
 tracks.append(keyed("sub7", opacity=[(B, 0), (B + 0.3, 1)],
                     y=[(B, 20), (B + 0.4, 0, "outCubic")]))
 
@@ -399,7 +443,7 @@ P1Y, P2Y = 420, 640
 cnet_nodes = [
     rect("bloom", 1780, 120, 1500, 1200, 600, "#c4d2ff", blur=180,
          opacity=0),
-    text("nwm", "Solder", 330, 330, 58, BLUE, 650, "playfair"),
+] + lockup("nl", 250, 330, 52) + [
     {"id": "nw1", "type": "path", "x": 0, "y": 0, "stroke": 2.6,
      "fill": "#8fa5f2", "d": "M445 330L610 330"},
     rect("ncard", 680, 330, 120, 120, 26, "#ffffff",
@@ -432,7 +476,8 @@ scene("cnet", 6, cnet_nodes,
            "their wires from seed chips, the graph drifts as it builds, "
            "a blue bloom rises. The last wire leads out of frame.")
 tracks.append(keyed("bloom", opacity=[(0.3, 0), (B * 5, 0.5)]))
-tracks.append(keyed("nwm", opacity=[(0.05, 0), (0.25, 1)]))
+for nid in lockup_ids("nl"):
+    tracks.append(keyed(nid, opacity=[(0.05, 0), (0.25, 1)]))
 tracks.append(keyed("nw1", opacity=[(0.3, 0), (0.42, 1)]))
 tracks.append(keyed("ncard",
                     opacity=[(0.42, 0), (0.56, 1)],
@@ -477,7 +522,7 @@ scene("s7", 5, [
         opacity=0),
     img("f2", "/assets/solder/quad-blur.png", 1700, 830, 780, 532,
         opacity=0),
-    text("wm7", "Solder", 960, 380, 120, BLUE, 600, "playfair"),
+] + lockup("el", 700, 380, 110) + [
     img("bar7", "/assets/solder/bar.png", 960, 570, round(BAR_W),
         round(BAR_H)),
     rect("caret7", round(960 - BAR_W / 2 + 34), 570, 3, 30, 1, INK,
@@ -492,7 +537,8 @@ tracks.append(keyed("f1", opacity=[(0.1, 0), (0.5, 0.55)],
                     y=[(0.1, 30), (0.6, 0, "outCubic")]))
 tracks.append(keyed("f2", opacity=[(0.2, 0), (0.6, 0.55)],
                     y=[(0.2, 30), (0.7, 0, "outCubic")]))
-tracks.append(keyed("wm7", opacity=[(0, 1)]))
+for nid in lockup_ids("el"):
+    tracks.append(keyed(nid, opacity=[(0, 1)]))
 tracks.append(keyed("bar7", opacity=[(B, 0), (B + 0.25, 1)],
                     y=[(B, 34), (B + 0.4, 0, "outCubic")]))
 cx_end, cy_end = round(960 - BAR_W / 2 + 60), 596
