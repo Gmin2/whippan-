@@ -217,7 +217,7 @@ def word_slide(p, s, size, at=0.08, color=INK, chip=True, weight=650):
 
 # --------------------------------------------------- i1..i3: Today / it
 ns, ts = word_slide("i1", "Today", 170, chip=True)
-scene("i1", 3, ns, note="Brew opening copied: huge 'Today' with the "
+scene("i1", 2, ns, note="Brew opening copied: huge 'Today' with the "
                         "arrow chip. Three beats.")
 tracks += ts
 ns, ts = word_slide("i2", "it takes", 96, chip=True)
@@ -347,7 +347,7 @@ tracks.append(keyed("sub7", opacity=[(B, 0), (B + 0.3, 1)],
                     y=[(B, 20), (B + 0.4, 0, "outCubic")]))
 
 # --------------------------- s3: the real homepage, dive into the bar
-scene("s3", 4, [
+scene("s3", 3, [
     img("hb2", "/assets/solder/home-blur.png", 960, 540, 1920, 1080),
     img("home", "/assets/solder/home.png", 960, 540, 1920, 1080,
         opacity=0),
@@ -355,7 +355,7 @@ scene("s3", 4, [
         "into the input bar, cut mid-motion.")
 tracks.append({"target": "home", "keys": {"opacity": step(
     [(0, 0), (B * 0.5, 1)])}})
-tracks.append({"target": "s3", "at": B * 1.5, "cam": {
+tracks.append({"target": "s3", "at": B * 1, "cam": {
     "preset": "crash-zoom", "z": 3.1, "anchor": [960, 655], "dur": 0.7}})
 
 # ------------------------- s4: typing at zoom, send click, whiteout cut
@@ -555,51 +555,52 @@ tracks.append({"target": "cnet", "keys": {
                "ease": "inOutCubic"}],
 }})
 
-# ---------------- s7: crab ending -- the cursor comes back to the bar
+# ---------------- s7: the close -- clean, staged, and it completes.
+# lockup lands, the real bar rises, the cursor clicks it, the caret
+# starts blinking, both lines arrive, and the film HOLDS on the living
+# bar while the music resolves.
 BAR_W, BAR_H = 1044 * 0.62, 118 * 0.62
-scene("s7", 5, [
-    img("f1", "/assets/solder/home-blur.png", 260, 170, 850, 478,
-        opacity=0),
-    img("f2", "/assets/solder/quad-blur.png", 1700, 830, 780, 532,
-        opacity=0),
-] + lockup("el", 700, 380, 110) + [
-    img("bar7", "/assets/solder/bar.png", 960, 570, round(BAR_W),
+s7_nodes = lockup("el", 700, 400, 110) + [
+    img("bar7", "/assets/solder/bar.png", 960, 620, round(BAR_W),
         round(BAR_H)),
-    rect("caret7", round(960 - BAR_W / 2 + 34), 570, 3, 30, 1, INK,
+    rect("caret7", round(960 - BAR_W / 2 + 34), 620, 3, 30, 1, INK,
          opacity=0),
-    {"id": "cur", "type": "path", "x": 1400, "y": 900, "fill": "#16181d",
+    {"id": "cur", "type": "path", "x": 1500, "y": 950, "fill": "#16181d",
      "d": CURSOR, "keys": {"scale": [{"t": 0, "v": 2.2}]}},
-    text("tag7", "Lovable for hardware.", 960, 700, 40, GREY, 500),
-], note="Crab ending: blurred screens in the corners, the real bar "
-        "under the wordmark, the cursor clicks it, the caret blinks on "
-        "after the music stops.")
-tracks.append(keyed("f1", opacity=[(0.1, 0), (0.5, 0.55)],
-                    y=[(0.1, 30), (0.6, 0, "outCubic")]))
-tracks.append(keyed("f2", opacity=[(0.2, 0), (0.6, 0.55)],
-                    y=[(0.2, 30), (0.7, 0, "outCubic")]))
+    text("tag7", "Type it. Build it.", 960, 772, 44, INK, 650,
+         opacity=0),
+    text("sub7e", "Lovable for hardware.", 960, 836, 28, GREY, 500,
+         opacity=0),
+]
+scene("s7", 8, s7_nodes,
+      note="The close: lockup lands with a click, the real bar rises, "
+           "the cursor glides in and clicks it, the caret blinks, both "
+           "lines arrive -- and the film holds on the living bar while "
+           "the music resolves.")
 for nid in lockup_ids("el"):
-    tracks.append(keyed(nid, opacity=[(0, 1)]))
+    tracks.append(keyed(nid, opacity=[(0.08, 0), (0.3, 1)],
+                        y=[(0.08, 30), (0.44, 0, "outCubic")]))
+tracks.append({"target": "elm0", "at": 0.25, "state": "land"})
 tracks.append(keyed("bar7", opacity=[(B, 0), (B + 0.25, 1)],
                     y=[(B, 34), (B + 0.4, 0, "outCubic")]))
-cx_end, cy_end = round(960 - BAR_W / 2 + 60), 596
+cx_end, cy_end = round(960 - BAR_W / 2 + 60), 646
 tracks.append(keyed("cur",
-                    x=[(B, 0), (B * 3, cx_end - 1400, "inOutCubic")],
-                    y=[(B, 0), (B * 3, cy_end - 900, "inOutCubic")],
-                    opacity=[(B - 0.01, 0), (B, 1)]))
+                    x=[(B * 1.5, 0), (B * 3, cx_end - 1500,
+                        "inOutCubic")],
+                    y=[(B * 1.5, 0), (B * 3, cy_end - 950,
+                        "inOutCubic")],
+                    opacity=[(B * 1.5 - 0.01, 0), (B * 1.5, 1)]))
 tracks.append({"target": "bar7", "at": B * 3, "state": "focused"})
 tracks.append({"target": "caret7", "keys": {"opacity": step(
-    [(0, 0), (B * 3 + 0.05, 1), (B * 3 + 0.45, 0), (B * 3 + 0.85, 1),
-     (B * 4 + 0.35, 0), (B * 4 + 0.75, 1), (B * 5 + 0.25, 0),
-     (B * 5 + 0.65, 1)])}})
-tracks.append({"target": "tag7", "at": B * 3.5, "reveal": {
-    "unit": "scramble", "dur": 0.6, "churn": 4, "accent": "#6b7280"}})
+    [(0, 0), (B * 3 + 0.05, 1), (B * 3 + 0.5, 0), (B * 3 + 0.95, 1),
+     (B * 4 + 0.4, 0), (B * 4 + 0.85, 1), (B * 5 + 0.3, 0),
+     (B * 5 + 0.75, 1), (B * 6 + 0.2, 0), (B * 6 + 0.65, 1),
+     (B * 7 + 0.1, 0), (B * 7 + 0.55, 1)])}})
+tracks.append(keyed("tag7", opacity=[(B * 3.5, 0), (B * 3.5 + 0.3, 1)],
+                    y=[(B * 3.5, 26), (B * 3.5 + 0.45, 0, "outCubic")]))
+tracks.append(keyed("sub7e", opacity=[(B * 4.5, 0), (B * 4.5 + 0.3, 1)],
+                    y=[(B * 4.5, 20), (B * 4.5 + 0.45, 0, "outCubic")]))
 
-# ref order: it takes -> the counter pill -> to create... the pill
-# follows the chip inflation directly
-order = {sc["id"]: sc for sc in scenes}
-scenes = [order[k] for k in ["i1", "i2", "i5", "i3", "iq", "i4", "i6",
-                             "i7", "s3", "s4", "s6", "s6b", "s5",
-                             "cnet", "s7"]]
 total = sum(s["dur"] for s in scenes)
 stage = {"fps": 30, "size": [W, H], "scenes": scenes,
          "audio": {"src": "/assets/audio/gen/solder.mp3", "gain": 0.85,
