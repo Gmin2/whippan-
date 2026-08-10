@@ -40,34 +40,10 @@
    "note": "Design-style cold open: the line scrambles into place, the kicker snaps in on beat 2. Four beats."
   },
   {
-   "id": "s2",
+   "id": "q1",
    "bg": "#f7f8fd",
-   "dur": 1.951,
+   "dur": 0.976,
    "nodes": [
-    {
-     "id": "qw1",
-     "type": "rect",
-     "x": 640,
-     "y": 320,
-     "w": 1400,
-     "h": 1000,
-     "radius": 500,
-     "fill": "#dbe4ff",
-     "blur": 170,
-     "opacity": 0.85
-    },
-    {
-     "id": "qw2",
-     "type": "rect",
-     "x": 1560,
-     "y": 860,
-     "w": 1000,
-     "h": 800,
-     "radius": 400,
-     "fill": "#ffe9d6",
-     "blur": 160,
-     "opacity": 0.7
-    },
     {
      "id": "qseg0",
      "type": "text",
@@ -95,7 +71,7 @@
      }
     }
    ],
-   "note": "Lovable text moment: soft gradient wash, big friendly sans, the key word in solder blue."
+   "note": "Question card 1 on flat cream: word-rise entrance, hard cut out. Two beats."
   },
   {
    "id": "s3",
@@ -183,6 +159,53 @@
     }
    ],
    "note": "Held on the real bar: the prompt types itself, send clicks on the beat, whiteout swallows the cut."
+  },
+  {
+   "id": "q2",
+   "bg": "#16181d",
+   "dur": 0.976,
+   "nodes": [
+    {
+     "id": "bseg0",
+     "type": "text",
+     "text": "how do you even",
+     "x": 783.0,
+     "y": 540,
+     "color": "#f5f5f7",
+     "font": {
+      "size": 88,
+      "weight": 650,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "bseg1",
+     "type": "text",
+     "text": "build",
+     "x": 1267.4,
+     "y": 540,
+     "color": "#7c93ff",
+     "font": {
+      "size": 88,
+      "weight": 650,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "bseg2",
+     "type": "text",
+     "text": "it?",
+     "x": 1444.4,
+     "y": 540,
+     "color": "#f5f5f7",
+     "font": {
+      "size": 88,
+      "weight": 650,
+      "family": "inter"
+     }
+    }
+   ],
+   "note": "Question card 2 inverted on ink: the line slides in from the left with overshoot. Two beats."
   },
   {
    "id": "s5",
@@ -314,40 +337,16 @@
   },
   {
    "id": "sq",
-   "bg": "#f7f8fd",
+   "bg": "#2d52f0",
    "dur": 0.976,
    "nodes": [
-    {
-     "id": "kw1",
-     "type": "rect",
-     "x": 640,
-     "y": 320,
-     "w": 1400,
-     "h": 1000,
-     "radius": 500,
-     "fill": "#dbe4ff",
-     "blur": 170,
-     "opacity": 0.85
-    },
-    {
-     "id": "kw2",
-     "type": "rect",
-     "x": 1560,
-     "y": 860,
-     "w": 1000,
-     "h": 800,
-     "radius": 400,
-     "fill": "#ffe9d6",
-     "blur": 160,
-     "opacity": 0.7
-    },
     {
      "id": "kseg0",
      "type": "text",
      "text": "and how will it",
      "x": 840.0,
      "y": 540,
-     "color": "#16181d",
+     "color": "#ffffff",
      "font": {
       "size": 84,
       "weight": 650,
@@ -360,7 +359,7 @@
      "text": "look?",
      "x": 1255.0,
      "y": 540,
-     "color": "#2d52f0",
+     "color": "#bcd0ff",
      "font": {
       "size": 84,
       "weight": 650,
@@ -368,12 +367,12 @@
      }
     }
    ],
-   "note": "Second question, same lovable treatment, two beats, dry cuts."
+   "note": "Question card 3 on flat solder blue: scale-settle pop. Two beats."
   },
   {
    "id": "s6",
    "bg": "#f7f8fd",
-   "dur": 3.902,
+   "dur": 1.951,
    "nodes": [
     {
      "id": "quad",
@@ -385,12 +384,76 @@
      "h": 1080
     }
    ],
-   "note": "The real blueprint fills the frame. Dry snap reframes on the grid: flight controller, motor corner, wide."
+   "note": "The answer: the real blueprint fills the frame with a slow drift. Four beats."
+  },
+  {
+   "id": "q4",
+   "bg": "#f7f8fd",
+   "dur": 0.976,
+   "nodes": [
+    {
+     "id": "dseg0",
+     "type": "text",
+     "text": "and what",
+     "x": 586.3,
+     "y": 540,
+     "color": "#16181d",
+     "font": {
+      "size": 84,
+      "weight": 650,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "dseg1",
+     "type": "text",
+     "text": "parts",
+     "x": 897.7,
+     "y": 540,
+     "color": "#2d52f0",
+     "font": {
+      "size": 84,
+      "weight": 650,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "dseg2",
+     "type": "text",
+     "text": "do you buy?",
+     "x": 1271.4,
+     "y": 540,
+     "color": "#16181d",
+     "font": {
+      "size": 84,
+      "weight": 650,
+      "family": "inter"
+     }
+    }
+   ],
+   "note": "Question card 4 back on cream: scramble entrance. Two beats."
+  },
+  {
+   "id": "s6b",
+   "bg": "#f7f8fd",
+   "dur": 1.951,
+   "nodes": [
+    {
+     "id": "quad2",
+     "type": "image",
+     "src": "/assets/solder/quad.png",
+     "x": 960,
+     "y": 540,
+     "w": 1585,
+     "h": 1080
+    }
+   ],
+   "note": "The answer is on the drawing: dry snap reframes onto the part callouts -- flight controller, then the motor corner, then wide. Every label is a real catalog part."
   },
   {
    "id": "s7",
    "bg": "#f7f8fd",
-   "dur": 3.415,
+   "dur": 2.927,
    "nodes": [
     {
      "id": "f1",

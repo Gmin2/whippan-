@@ -78,17 +78,6 @@ def scene(id, dur_beats, nodes, bg=CREAM, note=""):
                    "nodes": nodes, "note": note})
 
 
-def wash(p):
-    """lovable-style soft gradient wash: cream base, a cool blue bloom
-    and a warm one drifting behind the words."""
-    return [
-        rect(f"{p}w1", 640, 320, 1400, 1000, 500, "#dbe4ff", blur=170,
-             opacity=0.85),
-        rect(f"{p}w2", 1560, 860, 1000, 800, 400, "#ffe9d6", blur=160,
-             opacity=0.7),
-    ]
-
-
 from PIL import ImageFont
 
 
@@ -126,20 +115,16 @@ tracks.append({"target": "t1", "at": 0.08, "reveal": {
     "unit": "scramble", "dur": 0.8, "churn": 5, "accent": "#16181d"}})
 tracks.append({"target": "t2", "keys": {"opacity": step([(0, 0), (B * 2, 1)])}})
 
-# ----------------------- s2: the first question, lovable text moment
-sc2_nodes = wash("q") + emphline("q", [
-    ("where do you even ", INK), ("start?", BLUE)], 540, 88)
-scene("s2", 4, sc2_nodes,
-      note="Lovable text moment: soft gradient wash, big friendly sans, "
-           "the key word in solder blue.")
+# --------------------------------- q1: where do you even start? (cream)
+scene("q1", 2, emphline("q", [("where do you even", INK),
+                              ("start?", BLUE)], 540, 88),
+      note="Question card 1 on flat cream: word-rise entrance, hard cut "
+           "out. Two beats.")
 for i in range(2):
     tracks.append(keyed(f"qseg{i}",
-                        opacity=[(0.15 + i * 0.12, 0),
-                                 (0.45 + i * 0.12, 1)],
-                        y=[(0.15 + i * 0.12, 30),
-                           (0.55 + i * 0.12, 0, "outCubic")]))
-tracks.append(keyed("qw1", opacity=[(0, 0), (0.4, 0.85)]))
-tracks.append(keyed("qw2", opacity=[(0, 0), (0.5, 0.7)]))
+                        opacity=[(0.06 + i * 0.1, 0), (0.3 + i * 0.1, 1)],
+                        y=[(0.06 + i * 0.1, 30),
+                           (0.36 + i * 0.1, 0, "outCubic")]))
 
 # --------------------------- s3: focus lands, then dive into the bar
 scene("s3", 4, [
@@ -175,6 +160,21 @@ tracks.append(keyed("send",
                            (send_at + 0.12, 1, "outCubic")]))
 tracks.append({"target": "send", "at": send_at, "state": "sent"})
 tracks.append(keyed("flash", opacity=[(B * 5, 0), (B * 6 - 0.06, 1)]))
+
+# ------------------------------ q2: how do you even build it? (ink)
+q2_nodes = emphline("b", [("how do you even", "#f5f5f7"),
+                          ("build", "#7c93ff"), ("it?", "#f5f5f7")],
+                    540, 88)
+scene("q2", 2, q2_nodes, bg=INK,
+      note="Question card 2 inverted on ink: the line slides in from "
+           "the left with overshoot. Two beats.")
+for i in range(3):
+    tracks.append(keyed(f"bseg{i}",
+                        x=[(0.05 + i * 0.05, -120),
+                           (0.32 + i * 0.05, 14, "outCubic"),
+                           (0.45 + i * 0.05, 0, "outCubic")],
+                        opacity=[(0.05 + i * 0.05, 0),
+                                 (0.28 + i * 0.05, 1)]))
 
 # ----------------------------- s5: the job log answers "how to build"
 LOG = [
@@ -221,36 +221,58 @@ tracks.append({"target": "s5", "at": B * 5, "cam": {
     "preset": "zoom-promote", "z": 2.0, "anchor": [960, 640], "dur": 0.55}})
 
 # ------------------------------ sq: the second question card, two beats
-scq_nodes = wash("k") + emphline("k", [
-    ("and how will it ", INK), ("look?", BLUE)], 540, 84)
-scene("sq", 2, scq_nodes,
-      note="Second question, same lovable treatment, two beats, dry "
-           "cuts.")
+scq_nodes = emphline("k", [("and how will it", "#ffffff"),
+                           ("look?", "#bcd0ff")], 540, 84)
+scene("sq", 2, scq_nodes, bg=BLUE,
+      note="Question card 3 on flat solder blue: scale-settle pop. Two "
+           "beats.")
 for i in range(2):
     tracks.append(keyed(f"kseg{i}",
-                        opacity=[(0.05 + i * 0.1, 0),
-                                 (0.3 + i * 0.1, 1)],
-                        y=[(0.05 + i * 0.1, 26),
-                           (0.4 + i * 0.1, 0, "outCubic")]))
+                        opacity=[(0.05 + i * 0.08, 0),
+                                 (0.26 + i * 0.08, 1)],
+                        scale=[(0.05 + i * 0.08, 0.85),
+                               (0.34 + i * 0.08, 1.04, "outCubic"),
+                               (0.48 + i * 0.08, 1.0, "outCubic")]))
 
-# ------------------- s6: the blueprint, full-bleed, snap reframes on beats
-scene("s6", 8, [
+# --------------------------- s6: the blueprint arrives, wide and calm
+scene("s6", 4, [
     img("quad", "/assets/solder/quad.png", 960, 540, 1585, 1080),
-], note="The real blueprint fills the frame. Dry snap reframes on the "
-        "grid: flight controller, motor corner, wide.")
+], note="The answer: the real blueprint fills the frame with a slow "
+        "drift. Four beats.")
 tracks.append(keyed("quad",
                     opacity=[(0.0, 0), (0.1, 1)],
                     scale=[(0.0, 1.06), (0.4, 1.0, "outCubic")]))
 tracks.append({"target": "s6", "keys": {
-    "cam_zoom": step([(0, 1.0), (B * 3, 1.85), (B * 5, 1.85),
-                      (B * 7, 1.0)]),
-    "cam_ax": step([(0, 960), (B * 3, 1330), (B * 5, 700), (B * 7, 960)]),
-    "cam_ay": step([(0, 540), (B * 3, 420), (B * 5, 660), (B * 7, 540)]),
+    "cam_zoom": [{"t": 0.4, "v": 1.0}, {"t": B * 4, "v": 1.05}]}})
+
+# ------------------------- q4: and what parts do you buy? (cream)
+q4_nodes = emphline("d", [("and what", INK), ("parts", BLUE),
+                          ("do you buy?", INK)], 540, 84)
+scene("q4", 2, q4_nodes,
+      note="Question card 4 back on cream: scramble entrance. Two "
+           "beats.")
+tracks.append({"target": "dseg0", "at": 0.05, "reveal": {
+    "unit": "scramble", "dur": 0.4, "churn": 4, "accent": "#16181d"}})
+tracks.append({"target": "dseg1", "at": 0.15, "reveal": {
+    "unit": "scramble", "dur": 0.4, "churn": 4, "accent": "#2d52f0"}})
+tracks.append({"target": "dseg2", "at": 0.25, "reveal": {
+    "unit": "scramble", "dur": 0.4, "churn": 4, "accent": "#16181d"}})
+
+# ------------------- s6b: the parts answer -- snap onto the callouts
+scene("s6b", 4, [
+    img("quad2", "/assets/solder/quad.png", 960, 540, 1585, 1080),
+], note="The answer is on the drawing: dry snap reframes onto the part "
+        "callouts -- flight controller, then the motor corner, then "
+        "wide. Every label is a real catalog part.")
+tracks.append({"target": "s6b", "keys": {
+    "cam_zoom": step([(0, 1.0), (B, 1.9), (B * 2.5, 1.9), (B * 3.5, 1.0)]),
+    "cam_ax": step([(0, 960), (B, 1330), (B * 2.5, 700), (B * 3.5, 960)]),
+    "cam_ay": step([(0, 540), (B, 420), (B * 2.5, 660), (B * 3.5, 540)]),
 }})
 
 # ---------------- s7: crab ending -- the cursor comes back to the bar
 BAR_W, BAR_H = 1044 * 0.62, 118 * 0.62
-scene("s7", 7, [
+scene("s7", 6, [
     img("f1", "/assets/solder/home-blur.png", 260, 170, 850, 478,
         opacity=0),
     img("f2", "/assets/solder/quad-blur.png", 1700, 830, 780, 532,
