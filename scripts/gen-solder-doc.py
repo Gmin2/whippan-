@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-# launch film for solder -- cursor for hardware. cut from the grammar of
-# crab (soft-blurred real screens, a cursor with a life of its own, crisp
-# cards floating over blur) and design (scramble reveals, dry 1-frame
-# snaps, question -> answer rhythm). the spine is the three questions a
-# prototyper actually has: where do i start / how do i build it / how
-# will it look. every scene is a whole number of beats at 123bpm and
-# every screen is a real capture.
-# overlay contract: scene-local `at`, unique ids per scene, one track per
-# node per property, x/y keys are offsets.
+# launch film for solder, opening copied from lovable's brew film:
+# "Today ->" / "it takes ->" / "a working prototype" / the sentence
+# explodes into a collage of real part tiles / the dark "weeks." pill /
+# "Meet" / glowing "Solder" -- then the product run (real homepage,
+# typed prompt, job log, blueprint snaps), a three-slide benefit run,
+# and the crab ending with the cursor clicking the real bar.
+# beat-locked at 123bpm. overlay contract: scene-local `at`, unique ids
+# per scene, one track per node per property, x/y keys are offsets.
 import json
 import os
+
+from PIL import ImageFont
 
 W, H = 1920, 1080
 B = 60.0 / 123.0
@@ -66,7 +67,16 @@ def step(pairs):
     return ks
 
 
-# macOS pointer, tip at local (0,0)
+def measure(size, weight=650):
+    f = ImageFont.truetype("assets/fonts/Inter-Variable.ttf", size)
+    try:
+        f.set_variation_by_axes([weight])
+    except Exception:
+        pass
+    return f
+
+
+CAL = 1.105
 CURSOR = "M0 0L0 17.9L4.2 14.2L7.0 20.6L10.1 19.2L7.3 12.9L12.8 12.4Z"
 
 tracks = []
@@ -78,63 +88,138 @@ def scene(id, dur_beats, nodes, bg=CREAM, note=""):
                    "nodes": nodes, "note": note})
 
 
-from PIL import ImageFont
+def arrow_chip(p, x, y, r=34):
+    """the brew arrow chip: dark circle, white arrow."""
+    return [
+        rect(f"{p}chip", x, y, r * 2, r * 2, r, INK),
+        {"id": f"{p}arr", "type": "path", "x": x - 11, "y": y - 8,
+         "stroke": 4.4, "fill": "#ffffff",
+         "d": "M0 8L18 8M11 1L19 8L11 15",
+         "keys": {"scale": [{"t": 0, "v": 1.2}]}},
+    ]
 
 
-def emphline(p, segs, y, size, weight=650):
-    """one centered line of colored segments (lovable's word emphasis),
-    measured with the real font so the seams are invisible."""
-    segs = [(t.strip(), c) for t, c in segs]
-    f = ImageFont.truetype("assets/fonts/Inter-Variable.ttf", size)
-    try:
-        f.set_variation_by_axes([weight])
-    except Exception:
-        pass
-    # engine shaping runs ~10.5% wider than PIL at the same px size
-    CAL = 1.105
-    sp = f.getlength(" ") * CAL
-    widths = [f.getlength(t) * CAL for t, _ in segs]
-    total = sum(widths) + sp * (len(segs) - 1)
-    x = 960 - total / 2
-    ns = []
-    for i, ((t, col), w) in enumerate(zip(segs, widths)):
-        ns.append(text(f"{p}seg{i}", t, round(x + w / 2, 1), y, size, col,
-                       weight))
-        x += w + sp
-    return ns
+def word_slide(p, s, size, at=0.08, color=INK, chip=True, weight=650):
+    """brew word slide: big line, arrow chip trailing it."""
+    f = measure(size, weight)
+    w = f.getlength(s) * CAL
+    ns = [text(f"{p}t", s, 960 - (76 if chip else 0), 540, size, color,
+               weight)]
+    trs = [keyed(f"{p}t", opacity=[(at, 0), (at + 0.22, 1)],
+                 y=[(at, 34), (at + 0.34, 0, "outCubic")])]
+    if chip:
+        cx = 960 - 76 + w / 2 + 88
+        ns += arrow_chip(p, round(cx, 1), 540)
+        for nid in (f"{p}chip", f"{p}arr"):
+            trs.append(keyed(nid, opacity=[(at + 0.12, 0), (at + 0.3, 1)],
+                             y=[(at + 0.12, 34),
+                                (at + 0.44, 0, "outCubic")]))
+    return ns, trs
 
 
-# ------------------------------------------------ s1: scramble cold open
-scene("s1", 4, [
-    text("t1", "you want to build hardware.", 960, 500, 92, INK, 600,
-         "playfair"),
-    text("t2", "not fight it.", 960, 620, 92, BLUE, 600, "playfair"),
-], note="Design-style cold open: the line scrambles into place, the "
-        "kicker snaps in on beat 2. Four beats.")
-tracks.append({"target": "t1", "at": 0.08, "reveal": {
-    "unit": "scramble", "dur": 0.8, "churn": 5, "accent": "#16181d"}})
-tracks.append({"target": "t2", "keys": {"opacity": step([(0, 0), (B * 2, 1)])}})
+# --------------------------------------------------- i1..i3: Today / it
+ns, ts = word_slide("i1", "Today", 170, chip=True)
+scene("i1", 3, ns, note="Brew opening copied: huge 'Today' with the "
+                        "arrow chip. Three beats.")
+tracks += ts
+ns, ts = word_slide("i2", "it takes", 96, chip=True)
+scene("i2", 2, ns, note="'it takes ->', two beats.")
+tracks += ts
+ns, ts = word_slide("i3", "a working prototype", 96, chip=False)
+scene("i3", 2, ns, note="'a working prototype', two beats.")
+tracks += ts
 
-# --------------------------------- q1: where do you even start? (cream)
-scene("q1", 2, emphline("q", [("where do you even", INK),
-                              ("start?", BLUE)], 540, 88),
-      note="Question card 1 on flat cream: word-rise entrance, hard cut "
-           "out. Two beats.")
-for i in range(2):
-    tracks.append(keyed(f"qseg{i}",
-                        opacity=[(0.06 + i * 0.1, 0), (0.3 + i * 0.1, 1)],
-                        y=[(0.06 + i * 0.1, 30),
-                           (0.36 + i * 0.1, 0, "outCubic")]))
+# ------------------------- i4: the sentence explodes into real parts
+f96 = measure(96)
+segs = ["a", "working", "prototype"]
+widths = [f96.getlength(s) * CAL for s in segs]
+gap = 168
+total = sum(widths) + gap * 2
+x = 960 - total / 2
+i4_nodes = []
+seg_x = []
+for i, (s, w) in enumerate(zip(segs, widths)):
+    seg_x.append(x + w / 2)
+    i4_nodes.append(text(f"c{i}", s, round(x + w / 2, 1), 540, 96, INK,
+                         650))
+    x += w + gap
+CHIPS = [
+    ("t0", "/assets/solder/tile0.png",
+     round(seg_x[0] + widths[0] / 2 + gap / 2, 1), 540, -8),
+    ("t1", "/assets/solder/tile1.png",
+     round(seg_x[1] + widths[1] / 2 + gap / 2, 1), 540, 7),
+    ("t2", "/assets/solder/tile2.png", 640, 350, -6),
+    ("t3", "/assets/solder/tile3.png", 1300, 730, 9),
+]
+for cid, src, cx, cy, rot in CHIPS:
+    i4_nodes.append(rect(f"{cid}s", cx, cy, 132, 132, 26, "#ffffff",
+                         glow={"sigma": 26, "opacity": 0.22,
+                               "color": "#0a1030"}, rot=rot))
+    i4_nodes.append(img(cid, src, cx, cy, 124, 124, radius=22, rot=rot))
+i4_nodes.append(rect("warn", 1290, 360, 260, 74, 16, "#ffffff",
+                     glow={"sigma": 22, "opacity": 0.18,
+                           "color": "#0a1030"}, rot=-5))
+i4_nodes.append(text("warnt", "3V3 on 5V!", 1290, 360, 27, "#e2620c", 650,
+                     rot=-5))
+scene("i4", 4, i4_nodes,
+      note="The sentence explodes, brew-style: real part tiles pop in "
+           "between the words on consecutive half-beats, a warning card "
+           "crashes the party.")
+for k, (cid, *_r) in enumerate(CHIPS):
+    at = 0.1 + k * B * 0.5
+    for nid in (f"{cid}s", cid):
+        tracks.append(keyed(nid,
+                            opacity=[(at, 0), (at + 0.12, 1)],
+                            scale=[(at, 0.5), (at + 0.22, 1.08, "outCubic"),
+                                   (at + 0.36, 1.0, "outCubic")]))
+for nid in ("warn", "warnt"):
+    at = 0.1 + 4 * B * 0.5
+    tracks.append(keyed(nid,
+                        opacity=[(at, 0), (at + 0.12, 1)],
+                        scale=[(at, 0.5), (at + 0.22, 1.08, "outCubic"),
+                               (at + 0.36, 1.0, "outCubic")]))
 
-# --------------------------- s3: focus lands, then dive into the bar
+# ----------------------------------------- i5: the dark "weeks." pill
+scene("i5", 3, [
+    rect("wpill", 960, 540, 520, 156, 78, "#212129"),
+    text("wt", "weeks.", 960, 540, 64, "#f2f2f4", 650),
+], bg="#0c0c10",
+    note="The '8 days' move: hard cut to black, one dark capsule -- "
+         "'weeks.' Three beats.")
+tracks.append(keyed("wpill",
+                    opacity=[(0.05, 0), (0.18, 1)],
+                    scale=[(0.05, 0.8), (0.3, 1.04, "outCubic"),
+                           (0.45, 1.0, "outCubic")]))
+tracks.append(keyed("wt", opacity=[(0.12, 0), (0.28, 1)]))
+
+# --------------------------------------------- i6/i7: Meet / Solder
+ns, ts = word_slide("m", "Meet", 150, chip=False, color="#ffffff")
+scene("i6", 2, ns, bg=BLUE, note="'Meet' white on solder blue.")
+tracks += ts
+scene("i7", 4, [
+    rect("glow7", 960, 520, 900, 380, 190, "#5e7cf7", blur=130,
+         opacity=0.55),
+    text("wm7i", "Solder", 960, 520, 170, "#ffffff", 600, "playfair"),
+    text("sub7", "the AI that turns a prompt into buildable hardware",
+         960, 680, 30, "#dfe6ff", 500),
+], bg=BLUE,
+    note="The glowing wordmark, brew-style: 'Solder' blooms white on "
+         "blue, the promise line under it.")
+tracks.append(keyed("glow7", opacity=[(0.05, 0), (0.4, 0.55)]))
+tracks.append(keyed("wm7i", opacity=[(0.05, 0), (0.32, 1)],
+                    scale=[(0.05, 0.92), (0.5, 1.0, "outCubic")]))
+tracks.append(keyed("sub7", opacity=[(B, 0), (B + 0.3, 1)],
+                    y=[(B, 20), (B + 0.4, 0, "outCubic")]))
+
+# --------------------------- s3: the real homepage, dive into the bar
 scene("s3", 4, [
     img("hb2", "/assets/solder/home-blur.png", 960, 540, 1920, 1080),
     img("home", "/assets/solder/home.png", 960, 540, 1920, 1080,
         opacity=0),
-], note="The answer: focus snaps to the real homepage -- start with a "
-        "sentence. Camera crash-zooms into the input bar, cut "
-        "mid-motion.")
-tracks.append({"target": "home", "keys": {"opacity": step([(0, 0), (B * 0.5, 1)])}})
+], note="Focus snaps onto the real homepage; the camera crash-zooms "
+        "into the input bar, cut mid-motion.")
+tracks.append({"target": "home", "keys": {"opacity": step(
+    [(0, 0), (B * 0.5, 1)])}})
 tracks.append({"target": "s3", "at": B * 1.5, "cam": {
     "preset": "crash-zoom", "z": 3.1, "anchor": [960, 655], "dur": 0.7}})
 
@@ -161,22 +246,7 @@ tracks.append(keyed("send",
 tracks.append({"target": "send", "at": send_at, "state": "sent"})
 tracks.append(keyed("flash", opacity=[(B * 5, 0), (B * 6 - 0.06, 1)]))
 
-# ------------------------------ q2: how do you even build it? (ink)
-q2_nodes = emphline("b", [("how do you even", "#f5f5f7"),
-                          ("build", "#7c93ff"), ("it?", "#f5f5f7")],
-                    540, 88)
-scene("q2", 2, q2_nodes, bg=INK,
-      note="Question card 2 inverted on ink: the line slides in from "
-           "the left with overshoot. Two beats.")
-for i in range(3):
-    tracks.append(keyed(f"bseg{i}",
-                        x=[(0.05 + i * 0.05, -120),
-                           (0.32 + i * 0.05, 14, "outCubic"),
-                           (0.45 + i * 0.05, 0, "outCubic")],
-                        opacity=[(0.05 + i * 0.05, 0),
-                                 (0.28 + i * 0.05, 1)]))
-
-# ----------------------------- s5: the job log answers "how to build"
+# ----------------------------- s5: the job log and the repair pill
 LOG = [
     ("g1", "composing plan", "#c9ccd6", 0.10),
     ("g2", "picked 9 parts from the catalog", "#8a8f9c", 0.35),
@@ -188,7 +258,6 @@ for i, (gid, sline, col, _) in enumerate(LOG):
     x = 560 + len(sline) * 26 * MONO_W / 2
     log_nodes.append(text(gid, sline, round(x, 1), 300 + i * 54, 26, col,
                           family="mono"))
-# the lovable pill: fault capsule flips to the repaired capsule
 log_nodes += [
     rect("pill1", 960, 640, 980, 150, 75, "#221a16",
          glow={"sigma": 30, "opacity": 0.5, "color": "#7a3a12"}),
@@ -198,9 +267,8 @@ log_nodes += [
     text("pt2", "repaired.", 960, 640, 56, "#3ddc97", 650, opacity=0),
 ]
 scene("s5", 6, log_nodes, bg="#0e1116",
-      note="The log prints fast up top, then the lovable pill: the fault "
-           "capsule slams in orange and flips to 'repaired.' green on "
-           "the beat. Camera dives into the pill.")
+      note="The log prints fast, then the fault capsule slams in orange "
+           "and flips to 'repaired.' green on the beat. Camera dives in.")
 tracks.append(keyed("lflash", opacity=[(0, 1), (0.16, 0)]))
 for gid, sline, col, at in LOG:
     tracks.append(keyed(gid, opacity=[(at, 0), (at + 0.07, 1)]))
@@ -220,55 +288,35 @@ tracks.append({"target": "pill2", "at": B * 4, "state": "clean"})
 tracks.append({"target": "s5", "at": B * 5, "cam": {
     "preset": "zoom-promote", "z": 2.0, "anchor": [960, 640], "dur": 0.55}})
 
-# ------------------------------ sq: the second question card, two beats
-scq_nodes = emphline("k", [("and how will it", "#ffffff"),
-                           ("look?", "#bcd0ff")], 540, 84)
-scene("sq", 2, scq_nodes, bg=BLUE,
-      note="Question card 3 on flat solder blue: scale-settle pop. Two "
-           "beats.")
-for i in range(2):
-    tracks.append(keyed(f"kseg{i}",
-                        opacity=[(0.05 + i * 0.08, 0),
-                                 (0.26 + i * 0.08, 1)],
-                        scale=[(0.05 + i * 0.08, 0.85),
-                               (0.34 + i * 0.08, 1.04, "outCubic"),
-                               (0.48 + i * 0.08, 1.0, "outCubic")]))
-
-# --------------------------- s6: the blueprint arrives, wide and calm
-scene("s6", 4, [
+# ------------------- s6: the blueprint, snap reframes onto the parts
+scene("s6", 6, [
     img("quad", "/assets/solder/quad.png", 960, 540, 1585, 1080),
-], note="The answer: the real blueprint fills the frame with a slow "
-        "drift. Four beats.")
+], note="The real blueprint arrives, then dry snap reframes onto the "
+        "part callouts: flight controller, motor corner, wide.")
 tracks.append(keyed("quad",
                     opacity=[(0.0, 0), (0.1, 1)],
                     scale=[(0.0, 1.06), (0.4, 1.0, "outCubic")]))
 tracks.append({"target": "s6", "keys": {
-    "cam_zoom": [{"t": 0.4, "v": 1.0}, {"t": B * 4, "v": 1.05}]}})
-
-# ------------------------- q4: and what parts do you buy? (cream)
-q4_nodes = emphline("d", [("and what", INK), ("parts", BLUE),
-                          ("do you buy?", INK)], 540, 84)
-scene("q4", 2, q4_nodes,
-      note="Question card 4 back on cream: scramble entrance. Two "
-           "beats.")
-tracks.append({"target": "dseg0", "at": 0.05, "reveal": {
-    "unit": "scramble", "dur": 0.4, "churn": 4, "accent": "#16181d"}})
-tracks.append({"target": "dseg1", "at": 0.15, "reveal": {
-    "unit": "scramble", "dur": 0.4, "churn": 4, "accent": "#2d52f0"}})
-tracks.append({"target": "dseg2", "at": 0.25, "reveal": {
-    "unit": "scramble", "dur": 0.4, "churn": 4, "accent": "#16181d"}})
-
-# ------------------- s6b: the parts answer -- snap onto the callouts
-scene("s6b", 4, [
-    img("quad2", "/assets/solder/quad.png", 960, 540, 1585, 1080),
-], note="The answer is on the drawing: dry snap reframes onto the part "
-        "callouts -- flight controller, then the motor corner, then "
-        "wide. Every label is a real catalog part.")
-tracks.append({"target": "s6b", "keys": {
-    "cam_zoom": step([(0, 1.0), (B, 1.9), (B * 2.5, 1.9), (B * 3.5, 1.0)]),
-    "cam_ax": step([(0, 960), (B, 1330), (B * 2.5, 700), (B * 3.5, 960)]),
-    "cam_ay": step([(0, 540), (B, 420), (B * 2.5, 660), (B * 3.5, 540)]),
+    "cam_zoom": step([(0, 1.0), (B * 2, 1.9), (B * 3.5, 1.9),
+                      (B * 5, 1.0)]),
+    "cam_ax": step([(0, 960), (B * 2, 1330), (B * 3.5, 700),
+                    (B * 5, 960)]),
+    "cam_ay": step([(0, 540), (B * 2, 420), (B * 3.5, 660),
+                    (B * 5, 540)]),
 }})
+
+# ----------------------------------- c1..c3: the benefit run, brew-style
+ns, ts = word_slide("b1", "real parts", 110, chip=False)
+scene("c1", 1, ns, note="Benefit slide: real parts.")
+tracks += ts
+ns, ts = word_slide("b2", "real wiring", 110, chip=False, color="#ffffff")
+scene("c2", 1, ns, bg=INK, note="Benefit slide inverted: real wiring.")
+tracks += ts
+ns, ts = word_slide("b3", "checked against physics", 96, chip=False,
+                    color="#ffffff")
+scene("c3", 2, ns, bg=BLUE, note="Benefit slide on blue: checked "
+                                 "against physics.")
+tracks += ts
 
 # ---------------- s7: crab ending -- the cursor comes back to the bar
 BAR_W, BAR_H = 1044 * 0.62, 118 * 0.62
@@ -285,10 +333,9 @@ scene("s7", 6, [
     {"id": "cur", "type": "path", "x": 1400, "y": 900, "fill": "#16181d",
      "d": CURSOR, "keys": {"scale": [{"t": 0, "v": 2.2}]}},
     text("tag7", "Cursor for hardware.", 960, 700, 40, GREY, 500),
-], note="Crab ending, entirely new: blurred screens drift in the "
-        "corners, the real input bar floats center under the wordmark, "
-        "the cursor glides in and clicks it, the caret starts blinking, "
-        "the tagline scrambles in. Music stops; the caret keeps going.")
+], note="Crab ending: blurred screens in the corners, the real bar "
+        "under the wordmark, the cursor clicks it, the caret blinks on "
+        "after the music stops.")
 tracks.append(keyed("f1", opacity=[(0.1, 0), (0.5, 0.55)],
                     y=[(0.1, 30), (0.6, 0, "outCubic")]))
 tracks.append(keyed("f2", opacity=[(0.2, 0), (0.6, 0.55)],

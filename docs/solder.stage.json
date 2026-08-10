@@ -6,72 +6,404 @@
  ],
  "scenes": [
   {
-   "id": "s1",
+   "id": "i1",
    "bg": "#f7f8fd",
-   "dur": 1.951,
+   "dur": 1.463,
    "nodes": [
     {
-     "id": "t1",
+     "id": "i1t",
      "type": "text",
-     "text": "you want to build hardware.",
-     "x": 960,
-     "y": 500,
+     "text": "Today",
+     "x": 884,
+     "y": 540,
      "color": "#16181d",
      "font": {
-      "size": 92,
-      "weight": 600,
-      "family": "playfair"
+      "size": 170,
+      "weight": 650,
+      "family": "inter"
      }
     },
     {
-     "id": "t2",
-     "type": "text",
-     "text": "not fight it.",
-     "x": 960,
-     "y": 620,
-     "color": "#2d52f0",
-     "font": {
-      "size": 92,
-      "weight": 600,
-      "family": "playfair"
+     "id": "i1chip",
+     "type": "rect",
+     "x": 1217.4,
+     "y": 540,
+     "w": 68,
+     "h": 68,
+     "radius": 34,
+     "fill": "#16181d"
+    },
+    {
+     "id": "i1arr",
+     "type": "path",
+     "x": 1206.4,
+     "y": 532,
+     "stroke": 4.4,
+     "fill": "#ffffff",
+     "d": "M0 8L18 8M11 1L19 8L11 15",
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 1.2
+       }
+      ]
      }
     }
    ],
-   "note": "Design-style cold open: the line scrambles into place, the kicker snaps in on beat 2. Four beats."
+   "note": "Brew opening copied: huge 'Today' with the arrow chip. Three beats."
   },
   {
-   "id": "q1",
+   "id": "i2",
    "bg": "#f7f8fd",
    "dur": 0.976,
    "nodes": [
     {
-     "id": "qseg0",
+     "id": "i2t",
      "type": "text",
-     "text": "where do you even",
-     "x": 826.3,
+     "text": "it takes",
+     "x": 884,
      "y": 540,
      "color": "#16181d",
      "font": {
-      "size": 88,
+      "size": 96,
       "weight": 650,
       "family": "inter"
      }
     },
     {
-     "id": "qseg1",
-     "type": "text",
-     "text": "start?",
-     "x": 1372.2,
+     "id": "i2chip",
+     "type": "rect",
+     "x": 1137.3,
      "y": 540,
-     "color": "#2d52f0",
+     "w": 68,
+     "h": 68,
+     "radius": 34,
+     "fill": "#16181d"
+    },
+    {
+     "id": "i2arr",
+     "type": "path",
+     "x": 1126.3,
+     "y": 532,
+     "stroke": 4.4,
+     "fill": "#ffffff",
+     "d": "M0 8L18 8M11 1L19 8L11 15",
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 1.2
+       }
+      ]
+     }
+    }
+   ],
+   "note": "'it takes ->', two beats."
+  },
+  {
+   "id": "i3",
+   "bg": "#f7f8fd",
+   "dur": 0.976,
+   "nodes": [
+    {
+     "id": "i3t",
+     "type": "text",
+     "text": "a working prototype",
+     "x": 960,
+     "y": 540,
+     "color": "#16181d",
      "font": {
-      "size": 88,
+      "size": 96,
       "weight": 650,
       "family": "inter"
      }
     }
    ],
-   "note": "Question card 1 on flat cream: word-rise entrance, hard cut out. Two beats."
+   "note": "'a working prototype', two beats."
+  },
+  {
+   "id": "i4",
+   "bg": "#f7f8fd",
+   "dur": 1.951,
+   "nodes": [
+    {
+     "id": "c0",
+     "type": "text",
+     "text": "a",
+     "x": 386.2,
+     "y": 540,
+     "color": "#16181d",
+     "font": {
+      "size": 96,
+      "weight": 650,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "c1",
+     "type": "text",
+     "text": "working",
+     "x": 763.1,
+     "y": 540,
+     "color": "#16181d",
+     "font": {
+      "size": 96,
+      "weight": 650,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "c2",
+     "type": "text",
+     "text": "prototype",
+     "x": 1336.9,
+     "y": 540,
+     "color": "#16181d",
+     "font": {
+      "size": 96,
+      "weight": 650,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "t0s",
+     "type": "rect",
+     "x": 497.6,
+     "y": 540,
+     "w": 132,
+     "h": 132,
+     "radius": 26,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 26,
+      "opacity": 0.22,
+      "color": "#0a1030"
+     },
+     "rot": -8
+    },
+    {
+     "id": "t0",
+     "type": "image",
+     "src": "/assets/solder/tile0.png",
+     "x": 497.6,
+     "y": 540,
+     "w": 124,
+     "h": 124,
+     "radius": 22,
+     "rot": -8
+    },
+    {
+     "id": "t1s",
+     "type": "rect",
+     "x": 1028.5,
+     "y": 540,
+     "w": 132,
+     "h": 132,
+     "radius": 26,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 26,
+      "opacity": 0.22,
+      "color": "#0a1030"
+     },
+     "rot": 7
+    },
+    {
+     "id": "t1",
+     "type": "image",
+     "src": "/assets/solder/tile1.png",
+     "x": 1028.5,
+     "y": 540,
+     "w": 124,
+     "h": 124,
+     "radius": 22,
+     "rot": 7
+    },
+    {
+     "id": "t2s",
+     "type": "rect",
+     "x": 640,
+     "y": 350,
+     "w": 132,
+     "h": 132,
+     "radius": 26,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 26,
+      "opacity": 0.22,
+      "color": "#0a1030"
+     },
+     "rot": -6
+    },
+    {
+     "id": "t2",
+     "type": "image",
+     "src": "/assets/solder/tile2.png",
+     "x": 640,
+     "y": 350,
+     "w": 124,
+     "h": 124,
+     "radius": 22,
+     "rot": -6
+    },
+    {
+     "id": "t3s",
+     "type": "rect",
+     "x": 1300,
+     "y": 730,
+     "w": 132,
+     "h": 132,
+     "radius": 26,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 26,
+      "opacity": 0.22,
+      "color": "#0a1030"
+     },
+     "rot": 9
+    },
+    {
+     "id": "t3",
+     "type": "image",
+     "src": "/assets/solder/tile3.png",
+     "x": 1300,
+     "y": 730,
+     "w": 124,
+     "h": 124,
+     "radius": 22,
+     "rot": 9
+    },
+    {
+     "id": "warn",
+     "type": "rect",
+     "x": 1290,
+     "y": 360,
+     "w": 260,
+     "h": 74,
+     "radius": 16,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 22,
+      "opacity": 0.18,
+      "color": "#0a1030"
+     },
+     "rot": -5
+    },
+    {
+     "id": "warnt",
+     "type": "text",
+     "text": "3V3 on 5V!",
+     "x": 1290,
+     "y": 360,
+     "color": "#e2620c",
+     "font": {
+      "size": 27,
+      "weight": 650,
+      "family": "inter"
+     },
+     "rot": -5
+    }
+   ],
+   "note": "The sentence explodes, brew-style: real part tiles pop in between the words on consecutive half-beats, a warning card crashes the party."
+  },
+  {
+   "id": "i5",
+   "bg": "#0c0c10",
+   "dur": 1.463,
+   "nodes": [
+    {
+     "id": "wpill",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 520,
+     "h": 156,
+     "radius": 78,
+     "fill": "#212129"
+    },
+    {
+     "id": "wt",
+     "type": "text",
+     "text": "weeks.",
+     "x": 960,
+     "y": 540,
+     "color": "#f2f2f4",
+     "font": {
+      "size": 64,
+      "weight": 650,
+      "family": "inter"
+     }
+    }
+   ],
+   "note": "The '8 days' move: hard cut to black, one dark capsule -- 'weeks.' Three beats."
+  },
+  {
+   "id": "i6",
+   "bg": "#2d52f0",
+   "dur": 0.976,
+   "nodes": [
+    {
+     "id": "mt",
+     "type": "text",
+     "text": "Meet",
+     "x": 960,
+     "y": 540,
+     "color": "#ffffff",
+     "font": {
+      "size": 150,
+      "weight": 650,
+      "family": "inter"
+     }
+    }
+   ],
+   "note": "'Meet' white on solder blue."
+  },
+  {
+   "id": "i7",
+   "bg": "#2d52f0",
+   "dur": 1.951,
+   "nodes": [
+    {
+     "id": "glow7",
+     "type": "rect",
+     "x": 960,
+     "y": 520,
+     "w": 900,
+     "h": 380,
+     "radius": 190,
+     "fill": "#5e7cf7",
+     "blur": 130,
+     "opacity": 0.55
+    },
+    {
+     "id": "wm7i",
+     "type": "text",
+     "text": "Solder",
+     "x": 960,
+     "y": 520,
+     "color": "#ffffff",
+     "font": {
+      "size": 170,
+      "weight": 600,
+      "family": "playfair"
+     }
+    },
+    {
+     "id": "sub7",
+     "type": "text",
+     "text": "the AI that turns a prompt into buildable hardware",
+     "x": 960,
+     "y": 680,
+     "color": "#dfe6ff",
+     "font": {
+      "size": 30,
+      "weight": 500,
+      "family": "inter"
+     }
+    }
+   ],
+   "note": "The glowing wordmark, brew-style: 'Solder' blooms white on blue, the promise line under it."
   },
   {
    "id": "s3",
@@ -98,7 +430,7 @@
      "opacity": 0
     }
    ],
-   "note": "The answer: focus snaps to the real homepage -- start with a sentence. Camera crash-zooms into the input bar, cut mid-motion."
+   "note": "Focus snaps onto the real homepage; the camera crash-zooms into the input bar, cut mid-motion."
   },
   {
    "id": "s4",
@@ -159,53 +491,6 @@
     }
    ],
    "note": "Held on the real bar: the prompt types itself, send clicks on the beat, whiteout swallows the cut."
-  },
-  {
-   "id": "q2",
-   "bg": "#16181d",
-   "dur": 0.976,
-   "nodes": [
-    {
-     "id": "bseg0",
-     "type": "text",
-     "text": "how do you even",
-     "x": 783.0,
-     "y": 540,
-     "color": "#f5f5f7",
-     "font": {
-      "size": 88,
-      "weight": 650,
-      "family": "inter"
-     }
-    },
-    {
-     "id": "bseg1",
-     "type": "text",
-     "text": "build",
-     "x": 1267.4,
-     "y": 540,
-     "color": "#7c93ff",
-     "font": {
-      "size": 88,
-      "weight": 650,
-      "family": "inter"
-     }
-    },
-    {
-     "id": "bseg2",
-     "type": "text",
-     "text": "it?",
-     "x": 1444.4,
-     "y": 540,
-     "color": "#f5f5f7",
-     "font": {
-      "size": 88,
-      "weight": 650,
-      "family": "inter"
-     }
-    }
-   ],
-   "note": "Question card 2 inverted on ink: the line slides in from the left with overshoot. Two beats."
   },
   {
    "id": "s5",
@@ -333,46 +618,12 @@
      "opacity": 0
     }
    ],
-   "note": "The log prints fast up top, then the lovable pill: the fault capsule slams in orange and flips to 'repaired.' green on the beat. Camera dives into the pill."
-  },
-  {
-   "id": "sq",
-   "bg": "#2d52f0",
-   "dur": 0.976,
-   "nodes": [
-    {
-     "id": "kseg0",
-     "type": "text",
-     "text": "and how will it",
-     "x": 840.0,
-     "y": 540,
-     "color": "#ffffff",
-     "font": {
-      "size": 84,
-      "weight": 650,
-      "family": "inter"
-     }
-    },
-    {
-     "id": "kseg1",
-     "type": "text",
-     "text": "look?",
-     "x": 1255.0,
-     "y": 540,
-     "color": "#bcd0ff",
-     "font": {
-      "size": 84,
-      "weight": 650,
-      "family": "inter"
-     }
-    }
-   ],
-   "note": "Question card 3 on flat solder blue: scale-settle pop. Two beats."
+   "note": "The log prints fast, then the fault capsule slams in orange and flips to 'repaired.' green on the beat. Camera dives in."
   },
   {
    "id": "s6",
    "bg": "#f7f8fd",
-   "dur": 1.951,
+   "dur": 2.927,
    "nodes": [
     {
      "id": "quad",
@@ -384,71 +635,70 @@
      "h": 1080
     }
    ],
-   "note": "The answer: the real blueprint fills the frame with a slow drift. Four beats."
+   "note": "The real blueprint arrives, then dry snap reframes onto the part callouts: flight controller, motor corner, wide."
   },
   {
-   "id": "q4",
+   "id": "c1",
    "bg": "#f7f8fd",
+   "dur": 0.488,
+   "nodes": [
+    {
+     "id": "b1t",
+     "type": "text",
+     "text": "real parts",
+     "x": 960,
+     "y": 540,
+     "color": "#16181d",
+     "font": {
+      "size": 110,
+      "weight": 650,
+      "family": "inter"
+     }
+    }
+   ],
+   "note": "Benefit slide: real parts."
+  },
+  {
+   "id": "c2",
+   "bg": "#16181d",
+   "dur": 0.488,
+   "nodes": [
+    {
+     "id": "b2t",
+     "type": "text",
+     "text": "real wiring",
+     "x": 960,
+     "y": 540,
+     "color": "#ffffff",
+     "font": {
+      "size": 110,
+      "weight": 650,
+      "family": "inter"
+     }
+    }
+   ],
+   "note": "Benefit slide inverted: real wiring."
+  },
+  {
+   "id": "c3",
+   "bg": "#2d52f0",
    "dur": 0.976,
    "nodes": [
     {
-     "id": "dseg0",
+     "id": "b3t",
      "type": "text",
-     "text": "and what",
-     "x": 586.3,
-     "y": 540,
-     "color": "#16181d",
-     "font": {
-      "size": 84,
-      "weight": 650,
-      "family": "inter"
-     }
-    },
-    {
-     "id": "dseg1",
-     "type": "text",
-     "text": "parts",
-     "x": 897.7,
-     "y": 540,
-     "color": "#2d52f0",
-     "font": {
-      "size": 84,
-      "weight": 650,
-      "family": "inter"
-     }
-    },
-    {
-     "id": "dseg2",
-     "type": "text",
-     "text": "do you buy?",
-     "x": 1271.4,
-     "y": 540,
-     "color": "#16181d",
-     "font": {
-      "size": 84,
-      "weight": 650,
-      "family": "inter"
-     }
-    }
-   ],
-   "note": "Question card 4 back on cream: scramble entrance. Two beats."
-  },
-  {
-   "id": "s6b",
-   "bg": "#f7f8fd",
-   "dur": 1.951,
-   "nodes": [
-    {
-     "id": "quad2",
-     "type": "image",
-     "src": "/assets/solder/quad.png",
+     "text": "checked against physics",
      "x": 960,
      "y": 540,
-     "w": 1585,
-     "h": 1080
+     "color": "#ffffff",
+     "font": {
+      "size": 96,
+      "weight": 650,
+      "family": "inter"
+     }
     }
    ],
-   "note": "The answer is on the drawing: dry snap reframes onto the part callouts -- flight controller, then the motor corner, then wide. Every label is a real catalog part."
+   "note": "Benefit slide on blue: checked against physics."
   },
   {
    "id": "s7",
@@ -538,7 +788,7 @@
      }
     }
    ],
-   "note": "Crab ending, entirely new: blurred screens drift in the corners, the real input bar floats center under the wordmark, the cursor glides in and clicks it, the caret starts blinking, the tagline scrambles in. Music stops; the caret keeps going."
+   "note": "Crab ending: blurred screens in the corners, the real bar under the wordmark, the cursor clicks it, the caret blinks on after the music stops."
   }
  ],
  "audio": {
