@@ -124,44 +124,40 @@ sc1_nodes = [
 tracks += [rise("p1", 0.25, 40), rise("p2", 0.65, 40), rise("p3", 1.15, 26)]
 
 # --------------------------------------------------- scene 2: the homepage
-sc2_nodes = homepage("h")
-order = [("hpanel", 0.05), ("hhatch", 0.05), ("hwm", 0.28),
-         ("hc1", 0.5), ("hc1t", 0.5), ("hc2", 0.56), ("hc2t", 0.56),
-         ("hc3", 0.62), ("hc3t", 0.62), ("htag1", 0.74), ("htag2", 0.8),
-         ("hbar", 0.94), ("hsend", 1.0), ("hsendic", 1.0),
-         ("hnav1", 0.3), ("hnav2", 0.3), ("hnav2t", 0.3)]
-for nid, at in order:
-    tracks.append(rise(nid, at, 30))
-for i in range(40):
-    tracks.append(keyed(f"ht{i}", opacity=[(0.1 + (i % 15) * 0.03, 0),
-                                           (0.34 + (i % 15) * 0.03, 1)]))
-tracks.append(rise("hph", 0.97, 30))
+# the actual page, screenshotted from localhost:5260 at 2x. it arrives
+# like real footage: fade up with a slow settle from 103%.
+sc2_nodes = [
+    {"id": "hshot", "type": "image", "src": "/assets/solder/home.png",
+     "x": 960, "y": 540, "w": 1920, "h": 1080},
+]
+tracks.append(keyed("hshot",
+                    opacity=[(0.08, 0), (0.5, 1)],
+                    scale=[(0.08, 1.035), (1.1, 1.0, "outCubic")]))
 
 # ---------------------------------- scene 3: zoom into the bar, type, send
+# same bitmap; the camera dives to the real input bar. a white cover hides
+# the baked-in placeholder, the prompt types over it, and a crop of the
+# real send button does the press.
 PROMPT = "a palm sized quadcopter drone"
-sc3_nodes = homepage("z")
-sc3_nodes += [
-    text("zph2", PROMPT, 960 - 380 + len(PROMPT) * 28 * 0.5 * 0.5, 786, 28,
-         INK),
-    rect("zcaret", 585, 786, 3, 36, 1, INK),
+sc3_nodes = [
+    {"id": "zshot", "type": "image", "src": "/assets/solder/home.png",
+     "x": 960, "y": 540, "w": 1920, "h": 1080},
+    rect("zcover", 936, 655, 452, 40, 8, "#ffffff", opacity=0),
+    text("ztyped", PROMPT, 723 + len(PROMPT) * 16 * 0.5 * 0.5, 655, 16, INK),
+    {"id": "zsend2", "type": "image", "src": "/assets/solder/send.png",
+     "x": 1191, "y": 654, "w": 38, "h": 38},
 ]
-tracks.append({"target": "zph2", "at": 0.75, "reveal": {
-    "unit": "type", "cadence": 0.052, "dur": 0.04, "caret": "none"}})
-CAD3 = 0.052
-ADV3 = 28 * 0.5
-cx3 = [(0.75 + c * CAD3, round(c * ADV3, 1)) for c in range(len(PROMPT) + 1)]
-tracks.append(keyed("zcaret", x=cx3,
-                    opacity=[(0.2, 1), (0.45, 1), (0.47, 0), (0.68, 0),
-                             (0.7, 1), (2.6, 1), (2.62, 0)]))
-tracks.append(keyed("zph", opacity=[(0.55, 1), (0.75, 0)]))
+tracks.append(keyed("zcover", opacity=[(0.62, 0), (0.78, 1)]))
+tracks.append({"target": "ztyped", "at": 0.85, "reveal": {
+    "unit": "type", "cadence": 0.052, "dur": 0.04,
+    "caret": "bar", "caret_typing": "solid"}})
 tracks.append({"target": "j3", "at": 0.12, "cam": {
-    "preset": "crash-zoom", "z": 2.1, "anchor": [940, 786], "dur": 0.7}})
-# the send press: scale pop + a state flip so the engine scores a click
-end_type = 0.75 + len(PROMPT) * CAD3
-tracks.append(keyed("zsend",
-                    scale=[(end_type + 0.25, 1), (end_type + 0.33, 0.86,
+    "preset": "crash-zoom", "z": 2.55, "anchor": [960, 655], "dur": 0.7}})
+end_type = 0.85 + len(PROMPT) * 0.052
+tracks.append(keyed("zsend2",
+                    scale=[(end_type + 0.25, 1), (end_type + 0.33, 0.85,
                             "outCubic"), (end_type + 0.45, 1, "outCubic")]))
-tracks.append({"target": "zsend", "at": end_type + 0.28, "state": "sent"})
+tracks.append({"target": "zsend2", "at": end_type + 0.28, "state": "sent"})
 
 # --------------------------------------- scene 4: compose, check, repair
 LOG = [
@@ -262,8 +258,8 @@ scenes = [
      "note": "Problem, in Solder's own serif: you know what you want to "
              "build; the wiring is where it dies."},
     {"id": "j2", "bg": BG, "dur": 3.2, "nodes": sc2_nodes,
-     "note": "The real homepage assembles: tile wall, wordmark, chips, "
-             "tagline, the one input bar."},
+     "note": "The real homepage, real pixels: fades up and settles "
+             "like footage."},
     {"id": "j3", "bg": BG, "dur": 3.6, "nodes": sc3_nodes,
      "note": "Crash-zoom into the bar. The prompt types itself -- a palm "
              "sized quadcopter drone -- and the send button clicks."},
@@ -277,7 +273,10 @@ scenes = [
      "note": "End card: wordmark, 'Type it. Build it.', silence."},
 ]
 
-stage = {"fps": 30, "size": [W, H], "scenes": scenes}
+stage = {"fps": 30, "size": [W, H], "scenes": scenes,
+         "audio": {"src": "/assets/audio/gen/solder.mp3", "gain": 0.85,
+                   "fade_out": 0.5, "bpm": 123.0, "offset": 0.604,
+                   "start": 3.97}}
 anim = {"tracks": tracks}
 json.dump(stage, open("docs/solder.stage.json", "w"), indent=1)
 json.dump(anim, open("docs/solder.anim.json", "w"), indent=1)
