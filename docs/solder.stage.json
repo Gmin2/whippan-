@@ -291,13 +291,13 @@
   {
    "id": "i4",
    "bg": "#f7f8fd",
-   "dur": 1.951,
+   "dur": 0.976,
    "nodes": [
     {
-     "id": "c0",
+     "id": "c4seg0",
      "type": "text",
      "text": "what",
-     "x": 433.6,
+     "x": 575.1,
      "y": 540,
      "color": "#16181d",
      "font": {
@@ -307,12 +307,12 @@
      }
     },
     {
-     "id": "c1",
+     "id": "c4seg1",
      "type": "text",
      "text": "parts",
      "x": 831.2,
      "y": 540,
-     "color": "#16181d",
+     "color": "#2d52f0",
      "font": {
       "size": 96,
       "weight": 650,
@@ -320,10 +320,10 @@
      }
     },
     {
-     "id": "c2",
+     "id": "c4seg2",
      "type": "text",
      "text": "do I need?",
-     "x": 1357.6,
+     "x": 1216.1,
      "y": 540,
      "color": "#16181d",
      "font": {
@@ -331,147 +331,9 @@
       "weight": 650,
       "family": "inter"
      }
-    },
-    {
-     "id": "t0s",
-     "type": "rect",
-     "x": 630.5,
-     "y": 540,
-     "w": 132,
-     "h": 132,
-     "radius": 26,
-     "fill": "#ffffff",
-     "glow": {
-      "sigma": 26,
-      "opacity": 0.22,
-      "color": "#0a1030"
-     },
-     "rot": -8
-    },
-    {
-     "id": "t0",
-     "type": "image",
-     "src": "/assets/solder/tile0.png",
-     "x": 630.5,
-     "y": 540,
-     "w": 124,
-     "h": 124,
-     "radius": 22,
-     "rot": -8
-    },
-    {
-     "id": "t1s",
-     "type": "rect",
-     "x": 1032.0,
-     "y": 540,
-     "w": 132,
-     "h": 132,
-     "radius": 26,
-     "fill": "#ffffff",
-     "glow": {
-      "sigma": 26,
-      "opacity": 0.22,
-      "color": "#0a1030"
-     },
-     "rot": 7
-    },
-    {
-     "id": "t1",
-     "type": "image",
-     "src": "/assets/solder/tile1.png",
-     "x": 1032.0,
-     "y": 540,
-     "w": 124,
-     "h": 124,
-     "radius": 22,
-     "rot": 7
-    },
-    {
-     "id": "t2s",
-     "type": "rect",
-     "x": 640,
-     "y": 350,
-     "w": 132,
-     "h": 132,
-     "radius": 26,
-     "fill": "#ffffff",
-     "glow": {
-      "sigma": 26,
-      "opacity": 0.22,
-      "color": "#0a1030"
-     },
-     "rot": -6
-    },
-    {
-     "id": "t2",
-     "type": "image",
-     "src": "/assets/solder/tile2.png",
-     "x": 640,
-     "y": 350,
-     "w": 124,
-     "h": 124,
-     "radius": 22,
-     "rot": -6
-    },
-    {
-     "id": "t3s",
-     "type": "rect",
-     "x": 1300,
-     "y": 730,
-     "w": 132,
-     "h": 132,
-     "radius": 26,
-     "fill": "#ffffff",
-     "glow": {
-      "sigma": 26,
-      "opacity": 0.22,
-      "color": "#0a1030"
-     },
-     "rot": 9
-    },
-    {
-     "id": "t3",
-     "type": "image",
-     "src": "/assets/solder/tile3.png",
-     "x": 1300,
-     "y": 730,
-     "w": 124,
-     "h": 124,
-     "radius": 22,
-     "rot": 9
-    },
-    {
-     "id": "warn",
-     "type": "rect",
-     "x": 1290,
-     "y": 360,
-     "w": 260,
-     "h": 74,
-     "radius": 16,
-     "fill": "#ffffff",
-     "glow": {
-      "sigma": 22,
-      "opacity": 0.18,
-      "color": "#0a1030"
-     },
-     "rot": -5
-    },
-    {
-     "id": "warnt",
-     "type": "text",
-     "text": "3V3 on 5V!",
-     "x": 1290,
-     "y": 360,
-     "color": "#e2620c",
-     "font": {
-      "size": 27,
-      "weight": 650,
-      "family": "inter"
-     },
-     "rot": -5
     }
    ],
-   "note": "Question 1: what parts do I need? -- and the real catalog tiles pop in around the words, brew-style, with the warning card crashing the party."
+   "note": "Question 1: what parts do I need? Two beats, word-rise; the BOM screen answers it later."
   },
   {
    "id": "iq",
@@ -628,8 +490,8 @@
     {
      "id": "typed",
      "type": "text",
-     "text": "a palm sized quadcopter drone",
-     "x": 839.0,
+     "text": "a pocket utility tool with a screen",
+     "x": 863.0,
      "y": 655,
      "color": "#1d1d1d",
      "font": {
@@ -663,11 +525,11 @@
   },
   {
    "id": "s5",
-   "bg": "#f7f8fd",
-   "dur": 2.927,
+   "bg": "#f5f7ff",
+   "dur": 2.439,
    "nodes": [
     {
-     "id": "lflash",
+     "id": "wflash",
      "type": "rect",
      "x": 960,
      "y": 540,
@@ -677,373 +539,50 @@
      "fill": "#ffffff"
     },
     {
-     "id": "fco",
-     "type": "rect",
+     "id": "wshot",
+     "type": "image",
+     "src": "/assets/solder/wiring.png",
      "x": 960,
-     "y": 380,
-     "w": 320,
-     "h": 110,
-     "radius": 14,
-     "fill": "#2d52f0"
-    },
-    {
-     "id": "fci",
-     "type": "rect",
-     "x": 960,
-     "y": 380,
-     "w": 315,
-     "h": 105,
-     "radius": 11,
-     "fill": "#f7f8fd"
-    },
-    {
-     "id": "fcl",
-     "type": "text",
-     "text": "FLIGHT CONTROLLER",
-     "x": 960,
-     "y": 380,
-     "color": "#2d52f0",
-     "font": {
-      "size": 20,
-      "weight": 500,
-      "family": "mono"
-     }
-    },
-    {
-     "id": "imuo",
-     "type": "rect",
-     "x": 560,
-     "y": 640,
-     "w": 200,
-     "h": 96,
-     "radius": 14,
-     "fill": "#2d52f0"
-    },
-    {
-     "id": "imui",
-     "type": "rect",
-     "x": 560,
-     "y": 640,
-     "w": 195,
-     "h": 91,
-     "radius": 11,
-     "fill": "#f7f8fd"
-    },
-    {
-     "id": "imul",
-     "type": "text",
-     "text": "IMU",
-     "x": 560,
-     "y": 640,
-     "color": "#2d52f0",
-     "font": {
-      "size": 20,
-      "weight": 500,
-      "family": "mono"
-     }
-    },
-    {
-     "id": "esco",
-     "type": "rect",
-     "x": 1360,
-     "y": 640,
-     "w": 230,
-     "h": 96,
-     "radius": 14,
-     "fill": "#2d52f0"
-    },
-    {
-     "id": "esci",
-     "type": "rect",
-     "x": 1360,
-     "y": 640,
-     "w": 225,
-     "h": 91,
-     "radius": 11,
-     "fill": "#f7f8fd"
-    },
-    {
-     "id": "escl",
-     "type": "text",
-     "text": "MOSFET ESC",
-     "x": 1360,
-     "y": 640,
-     "color": "#2d52f0",
-     "font": {
-      "size": 20,
-      "weight": 500,
-      "family": "mono"
-     }
-    },
-    {
-     "id": "lipoo",
-     "type": "rect",
-     "x": 960,
-     "y": 820,
-     "w": 220,
-     "h": 96,
-     "radius": 14,
-     "fill": "#2d52f0"
-    },
-    {
-     "id": "lipoi",
-     "type": "rect",
-     "x": 960,
-     "y": 820,
-     "w": 215,
-     "h": 91,
-     "radius": 11,
-     "fill": "#f7f8fd"
-    },
-    {
-     "id": "lipol",
-     "type": "text",
-     "text": "LIPO 1S",
-     "x": 960,
-     "y": 820,
-     "color": "#2d52f0",
-     "font": {
-      "size": 20,
-      "weight": 500,
-      "family": "mono"
-     }
-    },
-    {
-     "id": "w1a",
-     "type": "path",
-     "x": 0,
-     "y": 0,
-     "stroke": 3.2,
-     "fill": "#2d52f0",
-     "d": "M800 390L660 390"
-    },
-    {
-     "id": "w1b",
-     "type": "path",
-     "x": 0,
-     "y": 0,
-     "stroke": 3.2,
-     "fill": "#2d52f0",
-     "d": "M660 390L660 592"
-    },
-    {
-     "id": "w2a",
-     "type": "path",
-     "x": 0,
-     "y": 0,
-     "stroke": 3.2,
-     "fill": "#2d52f0",
-     "d": "M1120 390L1260 390"
-    },
-    {
-     "id": "w2b",
-     "type": "path",
-     "x": 0,
-     "y": 0,
-     "stroke": 3.2,
-     "fill": "#2d52f0",
-     "d": "M1260 390L1260 592"
-    },
-    {
-     "id": "w3a",
-     "type": "path",
-     "x": 0,
-     "y": 0,
-     "stroke": 3.2,
-     "fill": "#2d52f0",
-     "d": "M1070 820L1360 820"
-    },
-    {
-     "id": "w3b",
-     "type": "path",
-     "x": 0,
-     "y": 0,
-     "stroke": 3.2,
-     "fill": "#2d52f0",
-     "d": "M1360 820L1360 688"
-    },
-    {
-     "id": "w4a",
-     "type": "path",
-     "x": 0,
-     "y": 0,
-     "stroke": 3.2,
-     "fill": "#e2620c",
-     "d": "M850 820L560 820"
-    },
-    {
-     "id": "w4b",
-     "type": "path",
-     "x": 0,
-     "y": 0,
-     "stroke": 3.2,
-     "fill": "#e2620c",
-     "d": "M560 820L560 688"
-    },
-    {
-     "id": "w5a",
-     "type": "path",
-     "x": 0,
-     "y": 0,
-     "stroke": 4.2,
-     "fill": "#1d9e63",
-     "d": "M800 420L600 420"
-    },
-    {
-     "id": "w5b",
-     "type": "path",
-     "x": 0,
-     "y": 0,
-     "stroke": 4.2,
-     "fill": "#1d9e63",
-     "d": "M600 420L600 592"
-    },
-    {
-     "id": "lb1",
-     "type": "text",
-     "text": "SDA",
-     "x": 625,
-     "y": 500,
-     "color": "#2d52f0",
-     "font": {
-      "size": 17,
-      "weight": 500,
-      "family": "mono"
-     }
-    },
-    {
-     "id": "lb2",
-     "type": "text",
-     "text": "PWM",
-     "x": 1295,
-     "y": 500,
-     "color": "#2d52f0",
-     "font": {
-      "size": 17,
-      "weight": 500,
-      "family": "mono"
-     }
-    },
-    {
-     "id": "lb3",
-     "type": "text",
-     "text": "GND",
-     "x": 1240,
-     "y": 785,
-     "color": "#2d52f0",
-     "font": {
-      "size": 17,
-      "weight": 500,
-      "family": "mono"
-     }
-    },
-    {
-     "id": "lb4",
-     "type": "text",
-     "text": "5V",
-     "x": 610,
-     "y": 785,
-     "color": "#e2620c",
-     "font": {
-      "size": 17,
-      "weight": 600,
-      "family": "mono"
-     }
-    },
-    {
-     "id": "lb5",
-     "type": "text",
-     "text": "3V3",
-     "x": 558,
-     "y": 452,
-     "color": "#1d9e63",
-     "font": {
-      "size": 17,
-      "weight": 600,
-      "family": "mono"
-     }
-    },
-    {
-     "id": "wchip",
-     "type": "rect",
-     "x": 700,
-     "y": 745,
-     "w": 236,
-     "h": 64,
-     "radius": 14,
-     "fill": "#ffffff",
-     "rot": -4,
-     "glow": {
-      "sigma": 20,
-      "opacity": 0.2,
-      "color": "#0a1030"
-     }
-    },
-    {
-     "id": "wchipt",
-     "type": "text",
-     "text": "3V3 on 5V!",
-     "x": 700,
-     "y": 745,
-     "color": "#e2620c",
-     "font": {
-      "size": 24,
-      "weight": 650,
-      "family": "inter"
-     },
-     "rot": -4
-    },
-    {
-     "id": "gchip",
-     "type": "rect",
-     "x": 700,
-     "y": 745,
-     "w": 216,
-     "h": 64,
-     "radius": 14,
-     "fill": "#ffffff",
-     "rot": -4,
-     "opacity": 0,
-     "glow": {
-      "sigma": 20,
-      "opacity": 0.2,
-      "color": "#0a1030"
-     }
-    },
-    {
-     "id": "gchipt",
-     "type": "text",
-     "text": "repaired.",
-     "x": 700,
-     "y": 745,
-     "color": "#1d9e63",
-     "font": {
-      "size": 24,
-      "weight": 650,
-      "family": "inter"
-     },
-     "rot": -4,
-     "opacity": 0
+     "y": 540,
+     "w": 1920,
+     "h": 700
     }
    ],
-   "note": "The whiteout decays into the wiring forming live: boxes pop, wires draw pin to pin, the 5V wire flashes orange -- and the repair reroutes it green through 3V3. Camera dives in."
+   "note": "The real wiring schematic slides in; dry snaps across the cards: esp32 board, the display, wide."
   },
   {
    "id": "s6",
-   "bg": "#f7f8fd",
-   "dur": 2.927,
+   "bg": "#f5f7ff",
+   "dur": 2.439,
    "nodes": [
     {
-     "id": "quad",
+     "id": "ashot",
      "type": "image",
-     "src": "/assets/solder/quad.png",
+     "src": "/assets/solder/asm.png",
      "x": 960,
      "y": 540,
-     "w": 1585,
+     "w": 1920,
+     "h": 929
+    }
+   ],
+   "note": "Skipper transition: the exploded assembly rises in; slow push toward the stack, then wide."
+  },
+  {
+   "id": "s6b",
+   "bg": "#f5f7ff",
+   "dur": 2.439,
+   "nodes": [
+    {
+     "id": "bshot",
+     "type": "image",
+     "src": "/assets/solder/bom.png",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
      "h": 1080
     }
    ],
-   "note": "The real blueprint arrives, then dry snap reframes onto the part callouts: flight controller, motor corner, wide."
+   "note": "The BOM screen: every part, its ref, its source, its price -- $13.72 total. Slide in, then dive onto the total row."
   },
   {
    "id": "c1",
@@ -1053,18 +592,18 @@
     {
      "id": "b1t",
      "type": "text",
-     "text": "real parts",
+     "text": "prototype hardware",
      "x": 960,
      "y": 540,
      "color": "#16181d",
      "font": {
-      "size": 110,
+      "size": 104,
       "weight": 650,
       "family": "inter"
      }
     }
    ],
-   "note": "Benefit slide: real parts."
+   "note": "Closer: prototype hardware."
   },
   {
    "id": "c2",
@@ -1074,7 +613,7 @@
     {
      "id": "b2t",
      "type": "text",
-     "text": "real wiring",
+     "text": "fast and easy.",
      "x": 960,
      "y": 540,
      "color": "#ffffff",
@@ -1085,7 +624,7 @@
      }
     }
    ],
-   "note": "Benefit slide inverted: real wiring."
+   "note": "Closer inverted: fast and easy."
   },
   {
    "id": "c3",
@@ -1106,7 +645,7 @@
      }
     }
    ],
-   "note": "Benefit slide on blue: checked against physics."
+   "note": "Closer on blue: checked against physics."
   },
   {
    "id": "s7",
@@ -1185,7 +724,7 @@
     {
      "id": "tag7",
      "type": "text",
-     "text": "Cursor for hardware.",
+     "text": "Lovable for hardware.",
      "x": 960,
      "y": 700,
      "color": "#6b7280",

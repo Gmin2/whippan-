@@ -155,55 +155,18 @@ scene("i3", 2, ns, note="'to prototype hardware' -- the sentence "
                         "resolves. Two beats.")
 tracks += ts
 
-# ------------------------- i4: the sentence explodes into real parts
-f96 = measure(96)
-segs = ["what", "parts", "do I need?"]
-widths = [f96.getlength(s) * CAL for s in segs]
-gap = 168
-total = sum(widths) + gap * 2
-x = 960 - total / 2
-i4_nodes = []
-seg_x = []
-for i, (s, w) in enumerate(zip(segs, widths)):
-    seg_x.append(x + w / 2)
-    i4_nodes.append(text(f"c{i}", s, round(x + w / 2, 1), 540, 96, INK,
-                         650))
-    x += w + gap
-CHIPS = [
-    ("t0", "/assets/solder/tile0.png",
-     round(seg_x[0] + widths[0] / 2 + gap / 2, 1), 540, -8),
-    ("t1", "/assets/solder/tile1.png",
-     round(seg_x[1] + widths[1] / 2 + gap / 2, 1), 540, 7),
-    ("t2", "/assets/solder/tile2.png", 640, 350, -6),
-    ("t3", "/assets/solder/tile3.png", 1300, 730, 9),
-]
-for cid, src, cx, cy, rot in CHIPS:
-    i4_nodes.append(rect(f"{cid}s", cx, cy, 132, 132, 26, "#ffffff",
-                         glow={"sigma": 26, "opacity": 0.22,
-                               "color": "#0a1030"}, rot=rot))
-    i4_nodes.append(img(cid, src, cx, cy, 124, 124, radius=22, rot=rot))
-i4_nodes.append(rect("warn", 1290, 360, 260, 74, 16, "#ffffff",
-                     glow={"sigma": 22, "opacity": 0.18,
-                           "color": "#0a1030"}, rot=-5))
-i4_nodes.append(text("warnt", "3V3 on 5V!", 1290, 360, 27, "#e2620c", 650,
-                     rot=-5))
-scene("i4", 4, i4_nodes,
-      note="Question 1: what parts do I need? -- and the real catalog "
-           "tiles pop in around the words, brew-style, with the warning "
-           "card crashing the party.")
-for k, (cid, *_r) in enumerate(CHIPS):
-    at = 0.1 + k * B * 0.5
-    for nid in (f"{cid}s", cid):
-        tracks.append(keyed(nid,
-                            opacity=[(at, 0), (at + 0.12, 1)],
-                            scale=[(at, 0.5), (at + 0.22, 1.08, "outCubic"),
-                                   (at + 0.36, 1.0, "outCubic")]))
-for nid in ("warn", "warnt"):
-    at = 0.1 + 4 * B * 0.5
-    tracks.append(keyed(nid,
-                        opacity=[(at, 0), (at + 0.12, 1)],
-                        scale=[(at, 0.5), (at + 0.22, 1.08, "outCubic"),
-                               (at + 0.36, 1.0, "outCubic")]))
+# --------------------------- i4: what parts do I need? (plain card)
+i4_nodes = emphline("c4", [("what", INK), ("parts", BLUE),
+                           ("do I need?", INK)], 540, 96)
+scene("i4", 2, i4_nodes,
+      note="Question 1: what parts do I need? Two beats, word-rise; the "
+           "BOM screen answers it later.")
+for i in range(3):
+    tracks.append(keyed(f"c4seg{i}",
+                        opacity=[(0.06 + i * 0.08, 0),
+                                 (0.3 + i * 0.08, 1)],
+                        y=[(0.06 + i * 0.08, 30),
+                           (0.36 + i * 0.08, 0, "outCubic")]))
 
 # ------------------- i5: the lovable days counter, copied exactly:
 # black slide, near-invisible ring capsule, warm blob behind the digit,
@@ -316,7 +279,7 @@ tracks.append({"target": "s3", "at": B * 1.5, "cam": {
     "preset": "crash-zoom", "z": 3.1, "anchor": [960, 655], "dur": 0.7}})
 
 # ------------------------- s4: typing at zoom, send click, whiteout cut
-PROMPT = "a palm sized quadcopter drone"
+PROMPT = "a pocket utility tool with a screen"
 send_at = B * 4
 scene("s4", 6, [
     img("home2", "/assets/solder/home.png", 960, 540, 1920, 1080),
@@ -330,7 +293,7 @@ scene("s4", 6, [
 tracks.append(keyed("s4", cam_zoom=[(0, 3.1)], cam_ax=[(0, 960)],
                     cam_ay=[(0, 655)]))
 tracks.append({"target": "typed", "at": 0.24, "reveal": {
-    "unit": "type", "cadence": 0.05, "dur": 0.04,
+    "unit": "type", "cadence": 0.045, "dur": 0.04,
     "caret": "bar", "caret_typing": "solid"}})
 tracks.append(keyed("send",
                     scale=[(send_at - 0.08, 1), (send_at, 0.85, "outCubic"),
@@ -338,143 +301,70 @@ tracks.append(keyed("send",
 tracks.append({"target": "send", "at": send_at, "state": "sent"})
 tracks.append(keyed("flash", opacity=[(B * 5, 0), (B * 6 - 0.06, 1)]))
 
-# ------------------ s5: the wiring diagram forms, faults, and repairs
-# blueprint-blue boxes pop in, wires draw pin to pin on the grid, the 5V
-# fault flashes orange, the repair reroutes green. same visual language
-# as the quadcopter drawing.
-GREEN = "#1d9e63"
-ORANGE = "#e2620c"
+# ---------------- s5: the real wiring schematic, snaps across cards
+# 3184x1160 capture fit to 1920x700, centered on the studio background.
+scene("s5", 5, [
+    rect("wflash", 960, 540, 1920, 1080, 0, "#ffffff"),
+    img("wshot", "/assets/solder/wiring.png", 960, 540, 1920, 700),
+], bg="#f5f7ff",
+    note="The real wiring schematic slides in; dry snaps across the "
+         "cards: esp32 board, the display, wide.")
+tracks.append(keyed("wflash", opacity=[(0, 1), (0.16, 0)]))
+tracks.append(keyed("wshot",
+                    x=[(0, 340), (0.42, 0, "outCubic")],
+                    opacity=[(0, 0), (0.14, 1)]))
+tracks.append({"target": "s5", "keys": {
+    "cam_zoom": step([(0, 1.0), (B * 2, 1.75), (B * 3.5, 1.75),
+                      (B * 4.5, 1.0)]),
+    "cam_ax": step([(0, 960), (B * 2, 965), (B * 3.5, 1440),
+                    (B * 4.5, 960)]),
+    "cam_ay": step([(0, 540), (B * 2, 540), (B * 3.5, 420),
+                    (B * 4.5, 540)]),
+}})
+tracks.append({"target": "wshot", "at": B * 2, "state": "snap1"})
 
-
-def bpbox(pid, x, y, w, h, label, fsize=20):
-    return [
-        rect(f"{pid}o", x, y, w, h, 14, BLUE),
-        rect(f"{pid}i", x, y, w - 5, h - 5, 11, CREAM),
-        text(f"{pid}l", label, x, y, fsize, BLUE, 500, "mono"),
-    ]
-
-
-def wire(wid, pts, color=BLUE):
-    """elbow wire as two stroked segments so it reads as drawing."""
-    (x0, y0), (x1, y1), (x2, y2) = pts
-    return [
-        {"id": f"{wid}a", "type": "path", "x": 0, "y": 0, "stroke": 3.2,
-         "fill": color, "d": f"M{x0} {y0}L{x1} {y1}"},
-        {"id": f"{wid}b", "type": "path", "x": 0, "y": 0, "stroke": 3.2,
-         "fill": color, "d": f"M{x1} {y1}L{x2} {y2}"},
-    ]
-
-
-s5_nodes = [rect("lflash", 960, 540, 1920, 1080, 0, "#ffffff")]
-s5_nodes += bpbox("fc", 960, 380, 320, 110, "FLIGHT CONTROLLER")
-s5_nodes += bpbox("imu", 560, 640, 200, 96, "IMU")
-s5_nodes += bpbox("esc", 1360, 640, 230, 96, "MOSFET ESC")
-s5_nodes += bpbox("lipo", 960, 820, 220, 96, "LIPO 1S")
-s5_nodes += wire("w1", [(800, 390), (660, 390), (660, 592)])
-s5_nodes += wire("w2", [(1120, 390), (1260, 390), (1260, 592)])
-s5_nodes += wire("w3", [(1070, 820), (1360, 820), (1360, 688)])
-s5_nodes += wire("w4", [(850, 820), (560, 820), (560, 688)], ORANGE)
-s5_nodes += [
-    {"id": "w5a", "type": "path", "x": 0, "y": 0, "stroke": 4.2,
-     "fill": GREEN, "d": "M800 420L600 420"},
-    {"id": "w5b", "type": "path", "x": 0, "y": 0, "stroke": 4.2,
-     "fill": GREEN, "d": "M600 420L600 592"},
-]
-s5_nodes += [
-    text("lb1", "SDA", 625, 500, 17, BLUE, 500, "mono"),
-    text("lb2", "PWM", 1295, 500, 17, BLUE, 500, "mono"),
-    text("lb3", "GND", 1240, 785, 17, BLUE, 500, "mono"),
-    text("lb4", "5V", 610, 785, 17, ORANGE, 600, "mono"),
-    text("lb5", "3V3", 558, 452, 17, GREEN, 600, "mono"),
-    rect("wchip", 700, 745, 236, 64, 14, "#ffffff", rot=-4,
-         glow={"sigma": 20, "opacity": 0.2, "color": "#0a1030"}),
-    text("wchipt", "3V3 on 5V!", 700, 745, 24, ORANGE, 650, rot=-4),
-    rect("gchip", 700, 745, 216, 64, 14, "#ffffff", rot=-4, opacity=0,
-         glow={"sigma": 20, "opacity": 0.2, "color": "#0a1030"}),
-    text("gchipt", "repaired.", 700, 745, 24, GREEN, 650, rot=-4,
-         opacity=0),
-]
-scene("s5", 6, s5_nodes,
-      note="The whiteout decays into the wiring forming live: boxes pop, "
-           "wires draw pin to pin, the 5V wire flashes orange -- and the "
-           "repair reroutes it green through 3V3. Camera dives in.")
-tracks.append(keyed("lflash", opacity=[(0, 1), (0.16, 0)]))
-BOXES = [("fc", 0.06), ("imu", 0.14), ("esc", 0.22), ("lipo", 0.30)]
-for pid, at in BOXES:
-    for suf in ("o", "i", "l"):
-        tracks.append(keyed(f"{pid}{suf}",
-                            opacity=[(at, 0), (at + 0.14, 1)],
-                            scale=[(at, 0.82), (at + 0.26, 1.03,
-                                   "outCubic"),
-                                   (at + 0.38, 1.0, "outCubic")]))
-tracks.append({"target": "fco", "at": 0.2, "state": "on"})
-WIRES = [("w1", 0.52, "lb1"), ("w2", 0.66, "lb2"), ("w3", 0.80, "lb3")]
-for wid, at, lb in WIRES:
-    tracks.append(keyed(f"{wid}a", opacity=[(at, 0), (at + 0.1, 1)]))
-    tracks.append(keyed(f"{wid}b",
-                        opacity=[(at + 0.08, 0), (at + 0.18, 1)]))
-    tracks.append(keyed(lb, opacity=[(at + 0.16, 0), (at + 0.28, 1)]))
-# the fault wire draws at beat 3 and pulses orange with the warning chip
-fa = B * 2.4
-tracks.append(keyed("w4a", opacity=[(fa, 0), (fa + 0.1, 1)]))
-tracks.append(keyed("w4b", opacity=[(fa + 0.08, 0), (fa + 0.18, 1),
-                                    (B * 4, 1), (B * 4 + 0.14, 0)]))
-tracks.append(keyed("w4a", opacity=[(fa, 0), (fa + 0.1, 1), (B * 4, 1),
-                                    (B * 4 + 0.14, 0)]))
-tracks.append(keyed("lb4", opacity=[(fa + 0.14, 0), (fa + 0.24, 1),
-                                    (B * 4, 1), (B * 4 + 0.14, 0)]))
-for nid in ("wchip", "wchipt"):
-    tracks.append(keyed(nid,
-                        opacity=[(fa + 0.18, 0), (fa + 0.28, 1),
-                                 (B * 4, 1), (B * 4 + 0.1, 0)],
-                        scale=[(fa + 0.18, 0.6),
-                               (fa + 0.32, 1.08, "outCubic"),
-                               (fa + 0.46, 1.0, "outCubic")]))
-tracks.append({"target": "wchip", "at": fa + 0.2, "state": "fault"})
-# the repair reroutes green at beat 4
-ra = B * 4
-tracks.append(keyed("w5a", opacity=[(ra + 0.06, 0), (ra + 0.16, 1)]))
-tracks.append(keyed("w5b", opacity=[(ra + 0.14, 0), (ra + 0.24, 1)]))
-tracks.append(keyed("lb5", opacity=[(ra + 0.22, 0), (ra + 0.34, 1)]))
-for nid in ("gchip", "gchipt"):
-    tracks.append(keyed(nid,
-                        opacity=[(ra + 0.18, 0), (ra + 0.3, 1)],
-                        scale=[(ra + 0.18, 0.8),
-                               (ra + 0.34, 1.06, "outCubic"),
-                               (ra + 0.48, 1.0, "outCubic")]))
-tracks.append({"target": "gchip", "at": ra + 0.2, "state": "clean"})
-tracks.append({"target": "s5", "at": B * 5, "cam": {
-    "preset": "zoom-promote", "z": 1.9, "anchor": [640, 560],
-    "dur": 0.55}})
-
-# ------------------- s6: the blueprint, snap reframes onto the parts
-scene("s6", 6, [
-    img("quad", "/assets/solder/quad.png", 960, 540, 1585, 1080),
-], note="The real blueprint arrives, then dry snap reframes onto the "
-        "part callouts: flight controller, motor corner, wide.")
-tracks.append(keyed("quad",
-                    opacity=[(0.0, 0), (0.1, 1)],
-                    scale=[(0.0, 1.06), (0.4, 1.0, "outCubic")]))
+# ------------------ s6: the assembly, exploded with callouts (real)
+# 6368x3080 capture fit to 1920x929.
+scene("s6", 5, [
+    img("ashot", "/assets/solder/asm.png", 960, 540, 1920, 929),
+], bg="#f5f7ff",
+    note="Skipper transition: the exploded assembly rises in; slow "
+         "push toward the stack, then wide.")
+tracks.append(keyed("ashot",
+                    y=[(0, 320), (0.45, 0, "outCubic")],
+                    opacity=[(0, 0), (0.16, 1)]))
 tracks.append({"target": "s6", "keys": {
-    "cam_zoom": step([(0, 1.0), (B * 2, 1.9), (B * 3.5, 1.9),
-                      (B * 5, 1.0)]),
-    "cam_ax": step([(0, 960), (B * 2, 1330), (B * 3.5, 700),
-                    (B * 5, 960)]),
-    "cam_ay": step([(0, 540), (B * 2, 420), (B * 3.5, 660),
-                    (B * 5, 540)]),
+    "cam_zoom": [{"t": 0.5, "v": 1.0},
+                 {"t": B * 4.5, "v": 1.35, "ease": "inOutCubic"}],
+    "cam_ax": [{"t": 0, "v": 960}],
+    "cam_ay": [{"t": 0, "v": 520}],
 }})
 
+# ------------------------- s6b: the BOM -- what to buy, where, how much
+scene("s6b", 5, [
+    img("bshot", "/assets/solder/bom.png", 960, 540, 1920, 1080),
+], bg="#f5f7ff",
+    note="The BOM screen: every part, its ref, its source, its price -- "
+         "$13.72 total. Slide in, then dive onto the total row.")
+tracks.append(keyed("bshot",
+                    x=[(0, 340), (0.42, 0, "outCubic")],
+                    opacity=[(0, 0), (0.14, 1)]))
+tracks.append({"target": "s6b", "at": B * 2.5, "cam": {
+    "preset": "zoom-promote", "z": 1.8, "anchor": [1180, 390],
+    "dur": 0.8}})
+tracks.append({"target": "bshot", "at": B * 2.5, "state": "dive"})
+
 # ----------------------------------- c1..c3: the benefit run, brew-style
-ns, ts = word_slide("b1", "real parts", 110, chip=False)
-scene("c1", 1, ns, note="Benefit slide: real parts.")
+ns, ts = word_slide("b1", "prototype hardware", 104, chip=False)
+scene("c1", 1, ns, note="Closer: prototype hardware.")
 tracks += ts
-ns, ts = word_slide("b2", "real wiring", 110, chip=False, color="#ffffff")
-scene("c2", 1, ns, bg=INK, note="Benefit slide inverted: real wiring.")
+ns, ts = word_slide("b2", "fast and easy.", 110, chip=False, color="#ffffff")
+scene("c2", 1, ns, bg=INK, note="Closer inverted: fast and easy.")
 tracks += ts
 ns, ts = word_slide("b3", "checked against physics", 96, chip=False,
                     color="#ffffff")
-scene("c3", 2, ns, bg=BLUE, note="Benefit slide on blue: checked "
-                                 "against physics.")
+scene("c3", 2, ns, bg=BLUE, note="Closer on blue: checked against "
+                                 "physics.")
 tracks += ts
 
 # ---------------- s7: crab ending -- the cursor comes back to the bar
@@ -491,7 +381,7 @@ scene("s7", 6, [
          opacity=0),
     {"id": "cur", "type": "path", "x": 1400, "y": 900, "fill": "#16181d",
      "d": CURSOR, "keys": {"scale": [{"t": 0, "v": 2.2}]}},
-    text("tag7", "Cursor for hardware.", 960, 700, 40, GREY, 500),
+    text("tag7", "Lovable for hardware.", 960, 700, 40, GREY, 500),
 ], note="Crab ending: blurred screens in the corners, the real bar "
         "under the wordmark, the cursor clicks it, the caret blinks on "
         "after the music stops.")
@@ -520,8 +410,8 @@ tracks.append({"target": "tag7", "at": B * 3.5, "reveal": {
 # follows the chip inflation directly
 order = {sc["id"]: sc for sc in scenes}
 scenes = [order[k] for k in ["i1", "i2", "i5", "i3", "i4", "iq", "i6",
-                             "i7", "s3", "s4", "s5", "s6", "c1", "c2",
-                             "c3", "s7"]]
+                             "i7", "s3", "s4", "s5", "s6", "s6b", "c1",
+                             "c2", "c3", "s7"]]
 total = sum(s["dur"] for s in scenes)
 stage = {"fps": 30, "size": [W, H], "scenes": scenes,
          "audio": {"src": "/assets/audio/gen/solder.mp3", "gain": 0.85,
