@@ -107,6 +107,25 @@ def scene(id, dur_beats, nodes, bg=CREAM, note=""):
                    "nodes": nodes, "note": note})
 
 
+TRI_D = "M4 3C2 3 0.8 5.2 1.8 7L10 21C11 22.8 13.5 22.8 14.5 21L22.7 7C23.7 5.2 22.5 3 20.5 3Z"
+
+
+def annotate(p, ax, ay, lx, ly, label, color, at, rot=0, lsize=30):
+    """image-8 style callout: rounded triangle arrow + short label."""
+    ns = [
+        {"id": f"{p}tri", "type": "path", "x": ax, "y": ay, "fill": color,
+         "d": TRI_D, "rot": rot,
+         "keys": {"scale": [{"t": 0, "v": 1.9}]}},
+        text(f"{p}lab", label, lx, ly, lsize, color, 650),
+    ]
+    trs = []
+    for nid in (f"{p}tri", f"{p}lab"):
+        trs.append(keyed(nid,
+                         opacity=[(at, 0), (at + 0.14, 1)],
+                         y=[(at, -18), (at + 0.3, 0, "outCubic")]))
+    return ns, trs
+
+
 def arrow_chip(p, x, y, r=34):
     """the brew arrow chip: dark circle, white arrow."""
     return [
@@ -280,8 +299,8 @@ tracks.append({"target": "s3", "at": B * 1.5, "cam": {
 
 # ------------------------- s4: typing at zoom, send click, whiteout cut
 PROMPT = "a pocket utility tool with a screen"
-send_at = B * 4
-scene("s4", 6, [
+send_at = B * 3.5
+scene("s4", 5, [
     img("home2", "/assets/solder/home.png", 960, 540, 1920, 1080),
     rect("cover", 936, 655, 452, 40, 8, "#ffffff"),
     text("typed", PROMPT, round(723 + len(PROMPT) * 16 * 0.5 * 0.5, 1), 655,
@@ -299,11 +318,11 @@ tracks.append(keyed("send",
                     scale=[(send_at - 0.08, 1), (send_at, 0.85, "outCubic"),
                            (send_at + 0.12, 1, "outCubic")]))
 tracks.append({"target": "send", "at": send_at, "state": "sent"})
-tracks.append(keyed("flash", opacity=[(B * 5, 0), (B * 6 - 0.06, 1)]))
+tracks.append(keyed("flash", opacity=[(B * 4, 0), (B * 5 - 0.06, 1)]))
 
 # ---------------- s5: the real wiring schematic, snaps across cards
 # 3184x1160 capture fit to 1920x700, centered on the studio background.
-scene("s5", 5, [
+scene("s5", 4, [
     rect("wflash", 960, 540, 1920, 1080, 0, "#ffffff"),
     img("wshot", "/assets/solder/wiring.png", 960, 540, 1920, 700),
 ], bg="#f5f7ff",
@@ -312,14 +331,19 @@ scene("s5", 5, [
 tracks.append(keyed("wflash", opacity=[(0, 1), (0.16, 0)]))
 tracks.append(keyed("wshot",
                     x=[(0, 340), (0.42, 0, "outCubic")],
-                    opacity=[(0, 0), (0.14, 1)]))
+                    opacity=[(0, 0), (0.14, 1), (B * 3.2, 1),
+                             (B * 3.95, 0.08)]))
+ns, trs = annotate("an5", 700, 250, 745, 200, "how to wire it",
+                   "#2a9d8f", B * 0.8, rot=18)
+scenes[-1]["nodes"] += ns
+tracks += trs
 tracks.append({"target": "s5", "keys": {
-    "cam_zoom": step([(0, 1.0), (B * 2, 1.75), (B * 3.5, 1.75),
-                      (B * 4.5, 1.0)]),
-    "cam_ax": step([(0, 960), (B * 2, 965), (B * 3.5, 1440),
-                    (B * 4.5, 960)]),
-    "cam_ay": step([(0, 540), (B * 2, 540), (B * 3.5, 420),
-                    (B * 4.5, 540)]),
+    "cam_zoom": step([(0, 1.0), (B * 1.2, 1.75), (B * 2.4, 1.75),
+                      (B * 3.4, 1.0)]),
+    "cam_ax": step([(0, 960), (B * 1.2, 965), (B * 2.4, 1440),
+                    (B * 3.4, 960)]),
+    "cam_ay": step([(0, 540), (B * 1.2, 540), (B * 2.4, 420),
+                    (B * 3.4, 540)]),
 }})
 tracks.append({"target": "wshot", "at": B * 2, "state": "snap1"})
 
@@ -333,6 +357,10 @@ scene("s6", 6, [
          "explodes apart, labels land, and it snaps back together. "
          "Gentle push while it performs.")
 tracks.append(keyed("ashot", opacity=[(0, 0), (0.14, 1)]))
+ns, trs = annotate("an6", 430, 300, 452, 250, "how it looks", "#e2620c",
+                   B * 1, rot=24)
+scenes[-1]["nodes"] += ns
+tracks += trs
 tracks.append({"target": "s6", "keys": {
     "cam_zoom": [{"t": 0.3, "v": 1.08},
                  {"t": B * 5.5, "v": 1.3, "ease": "inOutCubic"}],
@@ -343,91 +371,104 @@ tracks.append({"target": "s6", "keys": {
 # ------------------------- s6b: the BOM -- what to buy, where, how much
 # just the table, then the ai-1 move: the screen dissolves away and the
 # wordmark rises out of it, handing off to the end card as a match cut.
-scene("s6b", 6, [
+scene("s6b", 5, [
     img("bshot", "/assets/solder/bom-table.png", 960, 500, 1840, 408),
-    text("wmpre", "Solder", 960, 380, 120, BLUE, 600, "playfair",
-         opacity=0),
 ], bg="#f5f7ff",
-    note="The BOM table only: every part, ref, source, price, $13.72 "
-         "total. Dive onto the total row -- then the ai-1 move: the "
-         "screen dissolves and the wordmark rises out of it.")
+    note="The BOM table: every part, ref, source, price. Dive onto the "
+         "total row, the callout arrow lands on $13.72.")
 tracks.append(keyed("bshot",
                     x=[(0, 340), (0.42, 0, "outCubic")],
-                    opacity=[(0, 0), (0.14, 1), (B * 4, 1),
-                             (B * 5.2, 0.05)]))
-tracks.append({"target": "s6b", "at": B * 2, "cam": {
+                    opacity=[(0, 0), (0.14, 1)]))
+tracks.append({"target": "s6b", "at": B * 1.5, "cam": {
     "preset": "zoom-promote", "z": 1.7, "anchor": [1420, 555],
     "dur": 0.7}})
-tracks.append({"target": "bshot", "at": B * 2, "state": "dive"})
-tracks.append(keyed("wmpre",
-                    opacity=[(B * 4, 0), (B * 4.8, 1)],
-                    scale=[(B * 4, 0.55), (B * 5.6, 1.0, "outCubic")],
-                    y=[(B * 4, 150), (B * 5.6, 0, "outCubic")]))
+tracks.append({"target": "bshot", "at": B * 1.5, "state": "dive"})
+ns, trs = annotate("an7", 1555, 505, 1500, 462, "what to buy · $13.72",
+                   BLUE, B * 2.6, rot=150, lsize=26)
+scenes[-1]["nodes"] += ns
+tracks += trs
 
-# --------------- cnet: the ai-1 capsule network -- every part, every
-# wire, feeding the little white card that checks them. pills slide in
-# with overshoot, wires draw, the cursor rides in the chip.
+# --------------- cnet: the ai-1 network, copied move for move: wires
+# draw, capsules GROW along them from seed blobs, the node icon morphs,
+# the whole graph drifts as it builds, a soft bloom rises in the corner.
 CHECK = "M2 9L7 14L16 3"
+SQ = "M0 0L20 0L20 20L0 20Z"
+BLOB = "M10 0C16 0 20 4 20 10C20 16 16 20 10 20C4 20 0 16 0 10C0 4 4 0 10 0Z"
+ARROW = "M2 12L22 3L15 22L11 14Z"
+P1Y, P2Y = 420, 640
 cnet_nodes = [
-    {"id": "nw1", "type": "path", "x": 0, "y": 0, "stroke": 2.4,
-     "fill": "#b9c6f4", "d": "M700 355L700 470"},
-    {"id": "nw2", "type": "path", "x": 0, "y": 0, "stroke": 2.4,
-     "fill": "#b9c6f4", "d": "M320 540L840 540"},
-    {"id": "nw3", "type": "path", "x": 0, "y": 0, "stroke": 2.4,
-     "fill": "#b9c6f4", "d": "M1105 660L1290 660"},
-    rect("ncard", 960, 540, 190, 190, 38, "#ffffff",
-         glow={"sigma": 30, "opacity": 0.2, "color": "#0a1030"}),
-    {"id": "ncheck", "type": "path", "x": 940, "y": 505, "stroke": 5.5,
-     "fill": BLUE, "d": CHECK,
+    rect("bloom", 1780, 120, 1500, 1200, 600, "#c4d2ff", blur=180,
+         opacity=0),
+    text("nwm", "Solder", 330, 330, 58, BLUE, 650, "playfair"),
+    {"id": "nw1", "type": "path", "x": 0, "y": 0, "stroke": 2.6,
+     "fill": "#8fa5f2", "d": "M445 330L610 330"},
+    rect("ncard", 680, 330, 120, 120, 26, "#ffffff",
+         glow={"sigma": 26, "opacity": 0.22, "color": "#12206b"}),
+    {"id": "nicon", "type": "path", "x": 656, "y": 306, "fill": BLUE,
+     "dseq": [{"at": 0.0, "d": SQ}, {"at": 1.15, "d": BLOB},
+              {"at": 1.6, "d": ARROW}, {"at": 2.05, "d": SQ}],
      "keys": {"scale": [{"t": 0, "v": 2.4}]}},
-    text("nlab", "checked", 960, 592, 26, GREY, 550),
-    rect("nhex", 300, 540, 44, 44, 12, BLUE, rot=14),
-    rect("p1", 700, 280, 520, 150, 75, BLUE),
-    rect("p1c", 505, 280, 100, 100, 50, "#5271f3"),
-    {"id": "p1cur", "type": "path", "x": 494, "y": 266, "fill": "#ffffff",
-     "d": CURSOR, "keys": {"scale": [{"t": 0, "v": 1.5}]}},
-    text("p1t", "Every part", 745, 280, 52, "#ffffff", 650),
-    rect("p2", 1080, 660, 560, 150, 75, BLUE),
-    rect("p2c", 875, 660, 100, 100, 50, "#5271f3"),
-    {"id": "p2ck", "type": "path", "x": 855, "y": 645, "stroke": 4.4,
+    text("nlab", "checks", 680, 415, 24, GREY, 550),
+    {"id": "nw2", "type": "path", "x": 0, "y": 0, "stroke": 2.6,
+     "fill": "#8fa5f2", "d": "M740 330L870 " + str(P1Y)},
+    rect("p1", 940, P1Y, 76, 76, 38, BLUE),
+    {"id": "p1cur", "type": "path", "x": 925, "y": 404, "fill": "#ffffff",
+     "d": CURSOR, "keys": {"scale": [{"t": 0, "v": 1.4}]}},
+    text("p1t", "Every part", 1080, P1Y, 46, "#ffffff", 650, opacity=0),
+    {"id": "nw3", "type": "path", "x": 0, "y": 0, "stroke": 2.6,
+     "fill": "#8fa5f2", "d": "M1060 " + str(P1Y + 40) + "L1060 " +
+     str(P2Y)},
+    rect("p2", 1130, P2Y, 76, 76, 38, BLUE),
+    {"id": "p2ck", "type": "path", "x": 1112, "y": 624, "stroke": 4.2,
      "fill": "#ffffff", "d": CHECK,
-     "keys": {"scale": [{"t": 0, "v": 1.9}]}},
-    text("p2t", "Every wire", 1125, 660, 52, "#ffffff", 650),
+     "keys": {"scale": [{"t": 0, "v": 1.8}]}},
+    text("p2t", "Every wire", 1275, P2Y, 46, "#ffffff", 650, opacity=0),
+    {"id": "nw4", "type": "path", "x": 0, "y": 0, "stroke": 2.6,
+     "fill": "#8fa5f2", "d": "M1420 " + str(P2Y) + "L1700 " + str(P2Y)},
 ]
-scene("cnet", 4, cnet_nodes,
-      note="The ai-1 capsule network: 'Every part' and 'Every wire' "
-           "pills wired into the white card that checks them. Pills "
-           "slide in with overshoot, wires draw, chips carry icons.")
+scene("cnet", 6, cnet_nodes,
+      note="The ai-1 network, move for move: wire draws from the "
+           "wordmark to the morphing check node, capsules grow along "
+           "their wires from seed chips, the graph drifts as it builds, "
+           "a blue bloom rises. The last wire leads out of frame.")
+tracks.append(keyed("bloom", opacity=[(0.3, 0), (B * 5, 0.5)]))
+tracks.append(keyed("nwm", opacity=[(0.05, 0), (0.25, 1)]))
+tracks.append(keyed("nw1", opacity=[(0.3, 0), (0.42, 1)]))
 tracks.append(keyed("ncard",
-                    opacity=[(0.05, 0), (0.2, 1)],
-                    scale=[(0.05, 0.7), (0.28, 1.05, "outCubic"),
-                           (0.42, 1.0, "outCubic")]))
-tracks.append(keyed("ncheck", opacity=[(0.18, 0), (0.32, 1)]))
-tracks.append(keyed("nlab", opacity=[(0.24, 0), (0.38, 1)]))
-tracks.append({"target": "ncard", "at": 0.1, "state": "pop"})
-for wid, at in (("nw1", 0.5), ("nw2", 0.62), ("nw3", 0.74)):
-    tracks.append(keyed(wid, opacity=[(at, 0), (at + 0.14, 1)]))
-tracks.append(keyed("nhex",
-                    opacity=[(0.62, 0), (0.78, 1)],
-                    rot=[(0.62, -30), (0.95, 14, "outCubic")]))
-for pid, at, dx in (("p1", B * 1, -260), ("p2", B * 2, 260)):
-    for suf in ("", "c", "t"):
-        nid = f"{pid}{suf}"
-        tracks.append(keyed(nid,
-                            opacity=[(at, 0), (at + 0.16, 1)],
-                            x=[(at, dx), (at + 0.3, -dx * 0.06,
-                                "outCubic"),
-                               (at + 0.46, 0, "outCubic")]))
-tracks.append(keyed("p1cur",
-                    opacity=[(B * 1, 0), (B * 1 + 0.16, 1)],
-                    x=[(B * 1, -260), (B * 1 + 0.3, 15.6, "outCubic"),
-                       (B * 1 + 0.46, 0, "outCubic")]))
-tracks.append(keyed("p2ck",
-                    opacity=[(B * 2, 0), (B * 2 + 0.16, 1)],
-                    x=[(B * 2, 260), (B * 2 + 0.3, -15.6, "outCubic"),
-                       (B * 2 + 0.46, 0, "outCubic")]))
-tracks.append({"target": "p1", "at": B * 1 + 0.2, "state": "in"})
-tracks.append({"target": "p2", "at": B * 2 + 0.2, "state": "in"})
+                    opacity=[(0.42, 0), (0.56, 1)],
+                    scale=[(0.42, 0.6), (0.62, 1.06, "outCubic"),
+                           (0.78, 1.0, "outCubic")]))
+tracks.append(keyed("nicon", opacity=[(0.5, 0), (0.64, 1)]))
+tracks.append(keyed("nlab", opacity=[(0.56, 0), (0.7, 1)]))
+tracks.append({"target": "ncard", "at": 0.45, "state": "pop"})
+# capsule 1: wire, then the pill grows rightward from its seed
+g1 = B * 2
+tracks.append(keyed("nw2", opacity=[(g1 - 0.16, 0), (g1 - 0.04, 1)]))
+tracks.append(keyed("p1",
+                    opacity=[(g1, 0), (g1 + 0.1, 1)],
+                    w=[(g1, 76), (g1 + 0.42, 360, "outCubic")],
+                    x=[(g1, 0), (g1 + 0.42, 142, "outCubic")]))
+tracks.append(keyed("p1cur", opacity=[(g1, 0), (g1 + 0.1, 1)]))
+tracks.append(keyed("p1t", opacity=[(g1 + 0.3, 0), (g1 + 0.48, 1)]))
+tracks.append({"target": "p1", "at": g1 + 0.1, "state": "grow"})
+# capsule 2, same grammar, hanging off capsule 1
+g2 = B * 3.5
+tracks.append(keyed("nw3", opacity=[(g2 - 0.16, 0), (g2 - 0.04, 1)]))
+tracks.append(keyed("p2",
+                    opacity=[(g2, 0), (g2 + 0.1, 1)],
+                    w=[(g2, 76), (g2 + 0.42, 380, "outCubic")],
+                    x=[(g2, 0), (g2 + 0.42, 152, "outCubic")]))
+tracks.append(keyed("p2ck", opacity=[(g2, 0), (g2 + 0.1, 1)]))
+tracks.append(keyed("p2t", opacity=[(g2 + 0.3, 0), (g2 + 0.48, 1)]))
+tracks.append({"target": "p2", "at": g2 + 0.1, "state": "grow"})
+# the trailing wire leads out; the whole graph drifts as it builds
+tracks.append(keyed("nw4", opacity=[(B * 5, 0), (B * 5 + 0.2, 1)]))
+tracks.append({"target": "cnet", "keys": {
+    "cam_x": [{"t": B * 2, "v": 0}, {"t": B * 6, "v": 210,
+               "ease": "inOutCubic"}],
+    "cam_y": [{"t": B * 2, "v": 0}, {"t": B * 6, "v": 60,
+               "ease": "inOutCubic"}],
+}})
 
 # ---------------- s7: crab ending -- the cursor comes back to the bar
 BAR_W, BAR_H = 1044 * 0.62, 118 * 0.62
@@ -470,8 +511,8 @@ tracks.append({"target": "tag7", "at": B * 3.5, "reveal": {
 # ref order: it takes -> the counter pill -> to create... the pill
 # follows the chip inflation directly
 order = {sc["id"]: sc for sc in scenes}
-scenes = [order[k] for k in ["i1", "i2", "i5", "i3", "i4", "iq", "i6",
-                             "i7", "s3", "s4", "s5", "s6", "s6b",
+scenes = [order[k] for k in ["i1", "i2", "i5", "i3", "iq", "i4", "i6",
+                             "i7", "s3", "s4", "s6", "s6b", "s5",
                              "cnet", "s7"]]
 total = sum(s["dur"] for s in scenes)
 stage = {"fps": 30, "size": [W, H], "scenes": scenes,

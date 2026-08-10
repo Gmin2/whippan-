@@ -289,6 +289,40 @@
    "note": "'to prototype hardware' -- the sentence resolves. Two beats."
   },
   {
+   "id": "iq",
+   "bg": "#f7f8fd",
+   "dur": 0.976,
+   "nodes": [
+    {
+     "id": "iqseg0",
+     "type": "text",
+     "text": "and how will it even",
+     "x": 834.3,
+     "y": 540,
+     "color": "#16181d",
+     "font": {
+      "size": 88,
+      "weight": 650,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "iqseg1",
+     "type": "text",
+     "text": "look?",
+     "x": 1382.9,
+     "y": 540,
+     "color": "#2d52f0",
+     "font": {
+      "size": 88,
+      "weight": 650,
+      "family": "inter"
+     }
+    }
+   ],
+   "note": "Question 2: how will it even look? Two beats, word-rise."
+  },
+  {
    "id": "i4",
    "bg": "#f7f8fd",
    "dur": 0.976,
@@ -334,40 +368,6 @@
     }
    ],
    "note": "Question 1: what parts do I need? Two beats, word-rise; the BOM screen answers it later."
-  },
-  {
-   "id": "iq",
-   "bg": "#f7f8fd",
-   "dur": 0.976,
-   "nodes": [
-    {
-     "id": "iqseg0",
-     "type": "text",
-     "text": "and how will it even",
-     "x": 834.3,
-     "y": 540,
-     "color": "#16181d",
-     "font": {
-      "size": 88,
-      "weight": 650,
-      "family": "inter"
-     }
-    },
-    {
-     "id": "iqseg1",
-     "type": "text",
-     "text": "look?",
-     "x": 1382.9,
-     "y": 540,
-     "color": "#2d52f0",
-     "font": {
-      "size": 88,
-      "weight": 650,
-      "family": "inter"
-     }
-    }
-   ],
-   "note": "Question 2: how will it even look? Two beats, word-rise."
   },
   {
    "id": "i6",
@@ -466,7 +466,7 @@
   {
    "id": "s4",
    "bg": "#f7f8fd",
-   "dur": 2.927,
+   "dur": 2.439,
    "nodes": [
     {
      "id": "home2",
@@ -524,9 +524,105 @@
    "note": "Held on the real bar: the prompt types itself, send clicks on the beat, whiteout swallows the cut."
   },
   {
-   "id": "s5",
+   "id": "s6",
+   "bg": "#f5f7ff",
+   "dur": 2.927,
+   "nodes": [
+    {
+     "id": "ashot",
+     "type": "seq",
+     "src": "/assets/solder/asmseq/",
+     "fps": 26,
+     "count": 74,
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 756
+    },
+    {
+     "id": "an6tri",
+     "type": "path",
+     "x": 430,
+     "y": 300,
+     "fill": "#e2620c",
+     "d": "M4 3C2 3 0.8 5.2 1.8 7L10 21C11 22.8 13.5 22.8 14.5 21L22.7 7C23.7 5.2 22.5 3 20.5 3Z",
+     "rot": 24,
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 1.9
+       }
+      ]
+     }
+    },
+    {
+     "id": "an6lab",
+     "type": "text",
+     "text": "how it looks",
+     "x": 452,
+     "y": 250,
+     "color": "#e2620c",
+     "font": {
+      "size": 30,
+      "weight": 650,
+      "family": "inter"
+     }
+    }
+   ],
+   "note": "The real assembly ANIMATION plays inside the film: the build explodes apart, labels land, and it snaps back together. Gentle push while it performs."
+  },
+  {
+   "id": "s6b",
    "bg": "#f5f7ff",
    "dur": 2.439,
+   "nodes": [
+    {
+     "id": "bshot",
+     "type": "image",
+     "src": "/assets/solder/bom-table.png",
+     "x": 960,
+     "y": 500,
+     "w": 1840,
+     "h": 408
+    },
+    {
+     "id": "an7tri",
+     "type": "path",
+     "x": 1555,
+     "y": 505,
+     "fill": "#2d52f0",
+     "d": "M4 3C2 3 0.8 5.2 1.8 7L10 21C11 22.8 13.5 22.8 14.5 21L22.7 7C23.7 5.2 22.5 3 20.5 3Z",
+     "rot": 150,
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 1.9
+       }
+      ]
+     }
+    },
+    {
+     "id": "an7lab",
+     "type": "text",
+     "text": "what to buy \u00b7 $13.72",
+     "x": 1500,
+     "y": 462,
+     "color": "#2d52f0",
+     "font": {
+      "size": 26,
+      "weight": 650,
+      "family": "inter"
+     }
+    }
+   ],
+   "note": "The BOM table: every part, ref, source, price. Dive onto the total row, the callout arrow lands on $13.72."
+  },
+  {
+   "id": "s5",
+   "bg": "#f5f7ff",
+   "dur": 1.951,
    "nodes": [
     {
      "id": "wflash",
@@ -546,115 +642,118 @@
      "y": 540,
      "w": 1920,
      "h": 700
+    },
+    {
+     "id": "an5tri",
+     "type": "path",
+     "x": 700,
+     "y": 250,
+     "fill": "#2a9d8f",
+     "d": "M4 3C2 3 0.8 5.2 1.8 7L10 21C11 22.8 13.5 22.8 14.5 21L22.7 7C23.7 5.2 22.5 3 20.5 3Z",
+     "rot": 18,
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 1.9
+       }
+      ]
+     }
+    },
+    {
+     "id": "an5lab",
+     "type": "text",
+     "text": "how to wire it",
+     "x": 745,
+     "y": 200,
+     "color": "#2a9d8f",
+     "font": {
+      "size": 30,
+      "weight": 650,
+      "family": "inter"
+     }
     }
    ],
    "note": "The real wiring schematic slides in; dry snaps across the cards: esp32 board, the display, wide."
   },
   {
-   "id": "s6",
-   "bg": "#f5f7ff",
-   "dur": 2.927,
-   "nodes": [
-    {
-     "id": "ashot",
-     "type": "seq",
-     "src": "/assets/solder/asmseq/",
-     "fps": 26,
-     "count": 74,
-     "x": 960,
-     "y": 540,
-     "w": 1920,
-     "h": 756
-    }
-   ],
-   "note": "The real assembly ANIMATION plays inside the film: the build explodes apart, labels land, and it snaps back together. Gentle push while it performs."
-  },
-  {
-   "id": "s6b",
-   "bg": "#f5f7ff",
-   "dur": 2.927,
-   "nodes": [
-    {
-     "id": "bshot",
-     "type": "image",
-     "src": "/assets/solder/bom-table.png",
-     "x": 960,
-     "y": 500,
-     "w": 1840,
-     "h": 408
-    },
-    {
-     "id": "wmpre",
-     "type": "text",
-     "text": "Solder",
-     "x": 960,
-     "y": 380,
-     "color": "#2d52f0",
-     "font": {
-      "size": 120,
-      "weight": 600,
-      "family": "playfair"
-     },
-     "opacity": 0
-    }
-   ],
-   "note": "The BOM table only: every part, ref, source, price, $13.72 total. Dive onto the total row -- then the ai-1 move: the screen dissolves and the wordmark rises out of it."
-  },
-  {
    "id": "cnet",
    "bg": "#f7f8fd",
-   "dur": 1.951,
+   "dur": 2.927,
    "nodes": [
+    {
+     "id": "bloom",
+     "type": "rect",
+     "x": 1780,
+     "y": 120,
+     "w": 1500,
+     "h": 1200,
+     "radius": 600,
+     "fill": "#c4d2ff",
+     "blur": 180,
+     "opacity": 0
+    },
+    {
+     "id": "nwm",
+     "type": "text",
+     "text": "Solder",
+     "x": 330,
+     "y": 330,
+     "color": "#2d52f0",
+     "font": {
+      "size": 58,
+      "weight": 650,
+      "family": "playfair"
+     }
+    },
     {
      "id": "nw1",
      "type": "path",
      "x": 0,
      "y": 0,
-     "stroke": 2.4,
-     "fill": "#b9c6f4",
-     "d": "M700 355L700 470"
-    },
-    {
-     "id": "nw2",
-     "type": "path",
-     "x": 0,
-     "y": 0,
-     "stroke": 2.4,
-     "fill": "#b9c6f4",
-     "d": "M320 540L840 540"
-    },
-    {
-     "id": "nw3",
-     "type": "path",
-     "x": 0,
-     "y": 0,
-     "stroke": 2.4,
-     "fill": "#b9c6f4",
-     "d": "M1105 660L1290 660"
+     "stroke": 2.6,
+     "fill": "#8fa5f2",
+     "d": "M445 330L610 330"
     },
     {
      "id": "ncard",
      "type": "rect",
-     "x": 960,
-     "y": 540,
-     "w": 190,
-     "h": 190,
-     "radius": 38,
+     "x": 680,
+     "y": 330,
+     "w": 120,
+     "h": 120,
+     "radius": 26,
      "fill": "#ffffff",
      "glow": {
-      "sigma": 30,
-      "opacity": 0.2,
-      "color": "#0a1030"
+      "sigma": 26,
+      "opacity": 0.22,
+      "color": "#12206b"
      }
     },
     {
-     "id": "ncheck",
+     "id": "nicon",
      "type": "path",
-     "x": 940,
-     "y": 505,
-     "stroke": 5.5,
+     "x": 656,
+     "y": 306,
      "fill": "#2d52f0",
-     "d": "M2 9L7 14L16 3",
+     "dseq": [
+      {
+       "at": 0.0,
+       "d": "M0 0L20 0L20 20L0 20Z"
+      },
+      {
+       "at": 1.15,
+       "d": "M10 0C16 0 20 4 20 10C20 16 16 20 10 20C4 20 0 16 0 10C0 4 4 0 10 0Z"
+      },
+      {
+       "at": 1.6,
+       "d": "M2 12L22 3L15 22L11 14Z"
+      },
+      {
+       "at": 2.05,
+       "d": "M0 0L20 0L20 20L0 20Z"
+      }
+     ],
      "keys": {
       "scale": [
        {
@@ -667,59 +766,47 @@
     {
      "id": "nlab",
      "type": "text",
-     "text": "checked",
-     "x": 960,
-     "y": 592,
+     "text": "checks",
+     "x": 680,
+     "y": 415,
      "color": "#6b7280",
      "font": {
-      "size": 26,
+      "size": 24,
       "weight": 550,
       "family": "inter"
      }
     },
     {
-     "id": "nhex",
-     "type": "rect",
-     "x": 300,
-     "y": 540,
-     "w": 44,
-     "h": 44,
-     "radius": 12,
-     "fill": "#2d52f0",
-     "rot": 14
+     "id": "nw2",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 2.6,
+     "fill": "#8fa5f2",
+     "d": "M740 330L870 420"
     },
     {
      "id": "p1",
      "type": "rect",
-     "x": 700,
-     "y": 280,
-     "w": 520,
-     "h": 150,
-     "radius": 75,
+     "x": 940,
+     "y": 420,
+     "w": 76,
+     "h": 76,
+     "radius": 38,
      "fill": "#2d52f0"
-    },
-    {
-     "id": "p1c",
-     "type": "rect",
-     "x": 505,
-     "y": 280,
-     "w": 100,
-     "h": 100,
-     "radius": 50,
-     "fill": "#5271f3"
     },
     {
      "id": "p1cur",
      "type": "path",
-     "x": 494,
-     "y": 266,
+     "x": 925,
+     "y": 404,
      "fill": "#ffffff",
      "d": "M0 0L0 17.9L4.2 14.2L7.0 20.6L10.1 19.2L7.3 12.9L12.8 12.4Z",
      "keys": {
       "scale": [
        {
         "t": 0,
-        "v": 1.5
+        "v": 1.4
        }
       ]
      }
@@ -728,48 +815,48 @@
      "id": "p1t",
      "type": "text",
      "text": "Every part",
-     "x": 745,
-     "y": 280,
+     "x": 1080,
+     "y": 420,
      "color": "#ffffff",
      "font": {
-      "size": 52,
+      "size": 46,
       "weight": 650,
       "family": "inter"
-     }
+     },
+     "opacity": 0
+    },
+    {
+     "id": "nw3",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 2.6,
+     "fill": "#8fa5f2",
+     "d": "M1060 460L1060 640"
     },
     {
      "id": "p2",
      "type": "rect",
-     "x": 1080,
-     "y": 660,
-     "w": 560,
-     "h": 150,
-     "radius": 75,
+     "x": 1130,
+     "y": 640,
+     "w": 76,
+     "h": 76,
+     "radius": 38,
      "fill": "#2d52f0"
-    },
-    {
-     "id": "p2c",
-     "type": "rect",
-     "x": 875,
-     "y": 660,
-     "w": 100,
-     "h": 100,
-     "radius": 50,
-     "fill": "#5271f3"
     },
     {
      "id": "p2ck",
      "type": "path",
-     "x": 855,
-     "y": 645,
-     "stroke": 4.4,
+     "x": 1112,
+     "y": 624,
+     "stroke": 4.2,
      "fill": "#ffffff",
      "d": "M2 9L7 14L16 3",
      "keys": {
       "scale": [
        {
         "t": 0,
-        "v": 1.9
+        "v": 1.8
        }
       ]
      }
@@ -778,17 +865,27 @@
      "id": "p2t",
      "type": "text",
      "text": "Every wire",
-     "x": 1125,
-     "y": 660,
+     "x": 1275,
+     "y": 640,
      "color": "#ffffff",
      "font": {
-      "size": 52,
+      "size": 46,
       "weight": 650,
       "family": "inter"
-     }
+     },
+     "opacity": 0
+    },
+    {
+     "id": "nw4",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 2.6,
+     "fill": "#8fa5f2",
+     "d": "M1420 640L1700 640"
     }
    ],
-   "note": "The ai-1 capsule network: 'Every part' and 'Every wire' pills wired into the white card that checks them. Pills slide in with overshoot, wires draw, chips carry icons."
+   "note": "The ai-1 network, move for move: wire draws from the wordmark to the morphing check node, capsules grow along their wires from seed chips, the graph drifts as it builds, a blue bloom rises. The last wire leads out of frame."
   },
   {
    "id": "s7",
