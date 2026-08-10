@@ -211,6 +211,23 @@ pub fn run() {
     if let Some(scenes) = parsed["scenes"].as_array() {
         for sc in scenes {
             for node in sc["nodes"].as_array().into_iter().flatten() {
+                if node["type"] == "seq" {
+                    if let (Some(dir), Some(count)) =
+                        (node["src"].as_str(), node["count"].as_u64())
+                    {
+                        for i in 0..count {
+                            let rel = format!("{dir}f{i:03}.png");
+                            let path = root.join(rel.trim_start_matches('/'));
+                            if let Ok(bytes) = std::fs::read(&path) {
+                                if let Some(img) = skia_safe::Image::from_encoded(
+                                    Data::new_copy(&bytes),
+                                ) {
+                                    images.insert(rel, img);
+                                }
+                            }
+                        }
+                    }
+                }
                 if node["type"] == "image" {
                     if let Some(src) = node["src"].as_str() {
                         let path = root.join(src.trim_start_matches('/'));

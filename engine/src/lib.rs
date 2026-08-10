@@ -109,6 +109,12 @@ pub struct Node {
     /// image nodes: name the painter resolves to a loaded bitmap
     #[serde(default)]
     pub src: Option<String>,
+    /// seq nodes: `src` is a directory of frames named f000.png..; the
+    /// clip plays from scene start at `fps` and holds its last frame
+    #[serde(default)]
+    pub fps: Option<f32>,
+    #[serde(default)]
+    pub count: Option<usize>,
     /// path nodes: svg outline data filled with `fill`, drawn at (x,y).
     /// with `stroke` the path is stroked at that width instead (round caps)
     #[serde(default)]
@@ -2131,6 +2137,34 @@ fn render_scene(
                         rot: (rotv != 0.0).then_some(rotv),
                         stroke: node.stroke,
                         color: node.fill.clone().unwrap_or_else(|| "#000000".into()),
+                        opacity,
+                        scale,
+                    });
+                }
+                "seq" => {
+                    let rotv = node_prop(node, "rot", node.rot.unwrap_or(0.0), t);
+                    let fps = node.fps.unwrap_or(30.0);
+                    let count = node.count.unwrap_or(1).max(1);
+                    let idx = ((t * fps) as usize).min(count - 1);
+                    let src = node
+                        .src
+                        .as_ref()
+                        .map(|dir| format!("{dir}f{idx:03}.png"));
+                    cmds.push(DrawCmd {
+                        op: "image".into(),
+                        x: node.x + dx,
+                        y: node.y + dy,
+                        w: node.w,
+                        h: node.h,
+                        radius: node.radius,
+                        d: None,
+                        blur: None,
+                        grad: None,
+                        src,
+                        goo: node.goo.clone(),
+                        rot: (rotv != 0.0).then_some(rotv),
+                        stroke: None,
+                        color: "#000000".into(),
                         opacity,
                         scale,
                     });

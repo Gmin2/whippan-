@@ -39,7 +39,14 @@ export async function loadDoc(entry) {
   const { CK } = await boot()
   const images = new Map()
   const srcs = [...new Set(stage.scenes.flatMap(s => s.nodes)
-    .filter(n => n.type === 'image' && n.src).map(n => n.src))]
+    .flatMap(n => {
+      if (n.type === 'image' && n.src) return [n.src]
+      if (n.type === 'seq' && n.src) {
+        return Array.from({ length: n.count ?? 0 },
+          (_, i) => n.src + 'f' + String(i).padStart(3, '0') + '.png')
+      }
+      return []
+    }))]
   await Promise.all(srcs.map(async src => {
     const buf = await fetch(src).then(r => r.arrayBuffer())
     images.set(src, CK.MakeImageFromEncoded(new Uint8Array(buf)))

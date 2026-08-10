@@ -553,19 +553,21 @@
   {
    "id": "s6",
    "bg": "#f5f7ff",
-   "dur": 2.439,
+   "dur": 2.927,
    "nodes": [
     {
      "id": "ashot",
-     "type": "image",
-     "src": "/assets/solder/asm.png",
+     "type": "seq",
+     "src": "/assets/solder/asmseq/",
+     "fps": 26,
+     "count": 74,
      "x": 960,
      "y": 540,
      "w": 1920,
-     "h": 929
+     "h": 756
     }
    ],
-   "note": "Skipper transition: the exploded assembly rises in; slow push toward the stack, then wide."
+   "note": "The real assembly ANIMATION plays inside the film: the build explodes apart, labels land, and it snaps back together. Gentle push while it performs."
   },
   {
    "id": "s6b",

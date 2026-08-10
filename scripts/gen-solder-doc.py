@@ -325,17 +325,17 @@ tracks.append({"target": "wshot", "at": B * 2, "state": "snap1"})
 
 # ------------------ s6: the assembly, exploded with callouts (real)
 # 6368x3080 capture fit to 1920x929.
-scene("s6", 5, [
-    img("ashot", "/assets/solder/asm.png", 960, 540, 1920, 929),
+scene("s6", 6, [
+    {"id": "ashot", "type": "seq", "src": "/assets/solder/asmseq/",
+     "fps": 26, "count": 74, "x": 960, "y": 540, "w": 1920, "h": 756},
 ], bg="#f5f7ff",
-    note="Skipper transition: the exploded assembly rises in; slow "
-         "push toward the stack, then wide.")
-tracks.append(keyed("ashot",
-                    y=[(0, 320), (0.45, 0, "outCubic")],
-                    opacity=[(0, 0), (0.16, 1)]))
+    note="The real assembly ANIMATION plays inside the film: the build "
+         "explodes apart, labels land, and it snaps back together. "
+         "Gentle push while it performs.")
+tracks.append(keyed("ashot", opacity=[(0, 0), (0.14, 1)]))
 tracks.append({"target": "s6", "keys": {
-    "cam_zoom": [{"t": 0.5, "v": 1.0},
-                 {"t": B * 4.5, "v": 1.35, "ease": "inOutCubic"}],
+    "cam_zoom": [{"t": 0.3, "v": 1.08},
+                 {"t": B * 5.5, "v": 1.3, "ease": "inOutCubic"}],
     "cam_ax": [{"t": 0, "v": 960}],
     "cam_ay": [{"t": 0, "v": 520}],
 }})
