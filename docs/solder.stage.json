@@ -99,7 +99,173 @@
      }
     }
    ],
-   "note": "'it takes ->', two beats."
+   "note": "'it takes ->': the arrow chip inflates at the end and swallows the slide, birthing the pill."
+  },
+  {
+   "id": "i5",
+   "bg": "#000000",
+   "dur": 1.951,
+   "nodes": [
+    {
+     "id": "ringo",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 1000,
+     "h": 590,
+     "radius": 295,
+     "fill": "#242021"
+    },
+    {
+     "id": "ringi",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 992,
+     "h": 582,
+     "radius": 291,
+     "fill": "#000000"
+    },
+    {
+     "id": "blob",
+     "type": "rect",
+     "x": 860,
+     "y": 540,
+     "w": 660,
+     "h": 500,
+     "radius": 250,
+     "fill": "#3a2a26",
+     "blur": 34,
+     "opacity": 0.95
+    },
+    {
+     "id": "dg0",
+     "type": "text",
+     "text": "1",
+     "x": 860,
+     "y": 540,
+     "color": "#f1eade",
+     "font": {
+      "size": 330,
+      "weight": 600,
+      "family": "inter"
+     },
+     "opacity": 0
+    },
+    {
+     "id": "dg1",
+     "type": "text",
+     "text": "2",
+     "x": 860,
+     "y": 540,
+     "color": "#f1eade",
+     "font": {
+      "size": 330,
+      "weight": 600,
+      "family": "inter"
+     },
+     "opacity": 0
+    },
+    {
+     "id": "dg2",
+     "type": "text",
+     "text": "3",
+     "x": 860,
+     "y": 540,
+     "color": "#f1eade",
+     "font": {
+      "size": 330,
+      "weight": 600,
+      "family": "inter"
+     },
+     "opacity": 0
+    },
+    {
+     "id": "dg3",
+     "type": "text",
+     "text": "4",
+     "x": 860,
+     "y": 540,
+     "color": "#f1eade",
+     "font": {
+      "size": 330,
+      "weight": 600,
+      "family": "inter"
+     },
+     "opacity": 0
+    },
+    {
+     "id": "dg4",
+     "type": "text",
+     "text": "5",
+     "x": 860,
+     "y": 540,
+     "color": "#f1eade",
+     "font": {
+      "size": 330,
+      "weight": 600,
+      "family": "inter"
+     },
+     "opacity": 0
+    },
+    {
+     "id": "dg5",
+     "type": "text",
+     "text": "6",
+     "x": 860,
+     "y": 540,
+     "color": "#f1eade",
+     "font": {
+      "size": 330,
+      "weight": 600,
+      "family": "inter"
+     },
+     "opacity": 0
+    },
+    {
+     "id": "dg6",
+     "type": "text",
+     "text": "7",
+     "x": 860,
+     "y": 540,
+     "color": "#f1eade",
+     "font": {
+      "size": 330,
+      "weight": 600,
+      "family": "inter"
+     },
+     "opacity": 0
+    },
+    {
+     "id": "dg7",
+     "type": "text",
+     "text": "8",
+     "x": 860,
+     "y": 540,
+     "color": "#f1eade",
+     "font": {
+      "size": 330,
+      "weight": 600,
+      "family": "inter"
+     },
+     "opacity": 0
+    },
+    {
+     "id": "wkt",
+     "type": "text",
+     "text": "weeks",
+     "x": 1105.1,
+     "y": 540,
+     "color": "#dad7cf",
+     "font": {
+      "size": 330,
+      "weight": 600,
+      "family": "inter"
+     },
+     "opacity": 0
+    }
+   ],
+   "note": "The lovable counter, pixel-copied: compact pill counts 1-2, expands on 3 as 'weeks' arrives, counts to 8, pops, holds, shrinks out."
   },
   {
    "id": "i3",
@@ -306,114 +472,6 @@
     }
    ],
    "note": "The sentence explodes, brew-style: real part tiles pop in between the words on consecutive half-beats, a warning card crashes the party."
-  },
-  {
-   "id": "i5",
-   "bg": "#050505",
-   "dur": 1.951,
-   "nodes": [
-    {
-     "id": "ring",
-     "type": "rect",
-     "x": 960,
-     "y": 540,
-     "w": 760,
-     "h": 210,
-     "radius": 105,
-     "fill": "#2e2b29"
-    },
-    {
-     "id": "ringin",
-     "type": "rect",
-     "x": 960,
-     "y": 540,
-     "w": 748,
-     "h": 198,
-     "radius": 99,
-     "fill": "#050505"
-    },
-    {
-     "id": "blob",
-     "type": "rect",
-     "x": 800,
-     "y": 540,
-     "w": 330,
-     "h": 176,
-     "radius": 88,
-     "fill": "#2b211c",
-     "blur": 16
-    },
-    {
-     "id": "dg0",
-     "type": "text",
-     "text": "2",
-     "x": 800,
-     "y": 540,
-     "color": "#efe9df",
-     "font": {
-      "size": 92,
-      "weight": 600,
-      "family": "inter"
-     },
-     "opacity": 0
-    },
-    {
-     "id": "dg1",
-     "type": "text",
-     "text": "4",
-     "x": 800,
-     "y": 540,
-     "color": "#efe9df",
-     "font": {
-      "size": 92,
-      "weight": 600,
-      "family": "inter"
-     },
-     "opacity": 0
-    },
-    {
-     "id": "dg2",
-     "type": "text",
-     "text": "6",
-     "x": 800,
-     "y": 540,
-     "color": "#efe9df",
-     "font": {
-      "size": 92,
-      "weight": 600,
-      "family": "inter"
-     },
-     "opacity": 0
-    },
-    {
-     "id": "dg3",
-     "type": "text",
-     "text": "8",
-     "x": 800,
-     "y": 540,
-     "color": "#efe9df",
-     "font": {
-      "size": 92,
-      "weight": 600,
-      "family": "inter"
-     },
-     "opacity": 0
-    },
-    {
-     "id": "wkt",
-     "type": "text",
-     "text": "weeks",
-     "x": 1075,
-     "y": 540,
-     "color": "#efe9df",
-     "font": {
-      "size": 92,
-      "weight": 600,
-      "family": "inter"
-     }
-    }
-   ],
-   "note": "The lovable counter pill: outlined capsule, soft blob behind the digit, the number rolls 2-4-6-8 weeks."
   },
   {
    "id": "i6",

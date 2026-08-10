@@ -123,8 +123,14 @@ scene("i1", 3, ns, note="Brew opening copied: huge 'Today' with the "
                         "arrow chip. Three beats.")
 tracks += ts
 ns, ts = word_slide("i2", "it takes", 96, chip=True)
-scene("i2", 2, ns, note="'it takes ->', two beats.")
+scene("i2", 2, ns, note="'it takes ->': the arrow chip inflates at the "
+                        "end and swallows the slide, birthing the pill.")
 tracks += ts
+tracks.append(keyed("i2chip",
+                    scale=[(B * 2 - 0.24, 1), (B * 2 - 0.02, 16,
+                            "inCubic")]))
+tracks.append(keyed("i2arr", opacity=[(B * 2 - 0.24, 1),
+                                      (B * 2 - 0.14, 0)]))
 ns, ts = word_slide("i3", "a working prototype", 96, chip=False)
 scene("i3", 2, ns, note="'a working prototype', two beats.")
 tracks += ts
@@ -179,47 +185,73 @@ for nid in ("warn", "warnt"):
                         scale=[(at, 0.5), (at + 0.22, 1.08, "outCubic"),
                                (at + 0.36, 1.0, "outCubic")]))
 
-# ------------------- i5: the lovable days-counter pill, copied exactly:
-# outlined capsule on black, a soft dark blob behind the digit, and the
-# number rolling up like time piling on -- 2, 4, 6, 8 weeks.
-DIGITS = ["2", "4", "6", "8"]
+# ------------------- i5: the lovable days counter, copied exactly:
+# black slide, near-invisible ring capsule, warm blob behind the digit,
+# cream digits swapping straight at ~100ms, the word arriving with the
+# pill expansion at "3", landing pop on 8, shrink-exit.
+CNT = [("1", 0.000), ("2", 0.067), ("3", 0.167), ("4", 0.267),
+       ("5", 0.333), ("6", 0.433), ("7", 0.533), ("8", 0.633)]
+DSZ = 330
+fw = measure(DSZ, 600)
+weeks_w = fw.getlength("weeks") * CAL
+digit_w = fw.getlength("8") * CAL
+GAPW = 78
+PADW = 230
+block = digit_w + GAPW + weeks_w
+FULL_W = block + 2 * PADW
+left = 960 - block / 2
+DIGIT_X_C, DIGIT_X_E = 860, round(left + digit_w / 2, 1)
+WORD_X = left + digit_w + GAPW + weeks_w / 2
+EXP_AT, EXP_D = 0.167, 0.18
 i5_nodes = [
-    rect("ring", 960, 540, 760, 210, 105, "#2e2b29"),
-    rect("ringin", 960, 540, 748, 198, 99, "#050505"),
-    rect("blob", 800, 540, 330, 176, 88, "#2b211c", blur=16),
+    rect("ringo", 960, 540, 1000, 590, 295, "#242021"),
+    rect("ringi", 960, 540, 992, 582, 291, "#000000"),
+    rect("blob", DIGIT_X_C, 540, 660, 500, 250, "#3a2a26", blur=34,
+         opacity=0.95),
 ]
-for i, d in enumerate(DIGITS):
-    i5_nodes.append(text(f"dg{i}", d, 800, 540, 92, "#efe9df", 600,
-                         opacity=0))
-i5_nodes.append(text("wkt", "weeks", 1075, 540, 92, "#efe9df", 600))
-scene("i5", 4, i5_nodes, bg="#050505",
-      note="The lovable counter pill: outlined capsule, soft blob "
-           "behind the digit, the number rolls 2-4-6-8 weeks.")
-for nid in ("ring", "ringin", "blob"):
-    tracks.append(keyed(nid,
-                        opacity=[(0.05, 0), (0.2, 1)],
-                        scale=[(0.05, 0.82), (0.32, 1.03, "outCubic"),
-                               (0.48, 1.0, "outCubic")]))
-tracks.append(keyed("wkt", opacity=[(0.15, 0), (0.3, 1)]))
-for i, d in enumerate(DIGITS):
-    at = 0.42 + i * B * 0.75
-    last = i == len(DIGITS) - 1
-    if last:
-        tracks.append(keyed(f"dg{i}",
-                            opacity=[(at, 0), (at + 0.1, 1)],
-                            y=[(at, 30), (at + 0.2, 0, "outCubic")],
-                            scale=[(at + 0.2, 1.0),
-                                   (at + 0.32, 1.12, "outCubic"),
-                                   (at + 0.48, 1.0, "outCubic")]))
-        tracks.append({"target": f"dg{i}", "at": at + 0.2,
-                       "state": "landed"})
+for i, (d, at) in enumerate(CNT):
+    i5_nodes.append(text(f"dg{i}", d, DIGIT_X_C, 540, DSZ, "#f1eade",
+                         600, opacity=0))
+i5_nodes.append(text("wkt", "weeks", round(WORD_X, 1), 540, DSZ,
+                     "#dad7cf", 600, opacity=0))
+scene("i5", 4, i5_nodes, bg="#000000",
+      note="The lovable counter, pixel-copied: compact pill counts 1-2, "
+           "expands on 3 as 'weeks' arrives, counts to 8, pops, holds, "
+           "shrinks out.")
+for nid, w0, w1 in (("ringo", 1000, round(FULL_W)),
+                    ("ringi", 992, round(FULL_W) - 8)):
+    tracks.append(keyed(nid, w=[(EXP_AT, w0), (EXP_AT + EXP_D, w1,
+                                "outCubic")]))
+dx = DIGIT_X_E - DIGIT_X_C
+blob_e = round((960 - FULL_W / 2) + 44 + 330 - DIGIT_X_C, 1)
+tracks.append(keyed("blob",
+                    x=[(EXP_AT, 0), (EXP_AT + EXP_D, blob_e,
+                        "outCubic")]))
+tracks.append(keyed("wkt", opacity=[(EXP_AT + 0.04, 0),
+                                    (EXP_AT + EXP_D, 1),
+                                    (1.62, 1), (1.9, 0)]))
+for i, (d, at) in enumerate(CNT):
+    nxt = CNT[i + 1][1] if i + 1 < len(CNT) else None
+    o = [{"t": at - 0.001, "v": 0}, {"t": at, "v": 1}] if at > 0 else         [{"t": 0, "v": 1}]
+    if nxt is not None:
+        o += [{"t": nxt - 0.001, "v": 1}, {"t": nxt, "v": 0}]
     else:
-        nxt = 0.42 + (i + 1) * B * 0.75
-        tracks.append(keyed(f"dg{i}",
-                            opacity=[(at, 0), (at + 0.1, 1),
-                                     (nxt - 0.06, 1), (nxt, 0)],
-                            y=[(at, 30), (at + 0.2, 0, "outCubic"),
-                               (nxt - 0.06, 0), (nxt, -30)]))
+        o += [{"t": 1.62, "v": 1}, {"t": 1.9, "v": 0}]
+    tr = {"target": f"dg{i}", "keys": {"opacity": o}}
+    if at > EXP_AT:
+        tr["keys"]["x"] = [{"t": 0, "v": dx}]
+    elif nxt is not None and nxt > EXP_AT:
+        tr["keys"]["x"] = [{"t": EXP_AT, "v": 0},
+                           {"t": EXP_AT + EXP_D, "v": dx,
+                            "ease": "outCubic"}]
+    tracks.append(tr)
+    if 0 < at <= 0.633:
+        tracks.append({"target": f"dg{i}", "at": at, "state": "tick"})
+tracks.append(keyed("dg7", scale=[(0.633, 1.0), (0.72, 1.07, "outCubic"),
+                                  (0.86, 1.0, "outCubic")]))
+for nid in ("ringo", "ringi"):
+    tracks.append(keyed(nid, opacity=[(1.62, 1), (1.9, 0)]))
+tracks.append(keyed("blob", opacity=[(0, 0.95), (1.62, 0.95), (1.9, 0)]))
 
 # --------------------------------------------- i6/i7: Meet / Solder
 ns, ts = word_slide("m", "Meet", 150, chip=False, color="#ffffff")
@@ -453,6 +485,12 @@ tracks.append({"target": "caret7", "keys": {"opacity": step(
 tracks.append({"target": "tag7", "at": B * 3.5, "reveal": {
     "unit": "scramble", "dur": 0.6, "churn": 4, "accent": "#6b7280"}})
 
+# ref order: it takes -> the counter pill -> to create... the pill
+# follows the chip inflation directly
+order = {sc["id"]: sc for sc in scenes}
+scenes = [order[k] for k in ["i1", "i2", "i5", "i3", "i4", "i6", "i7",
+                             "s3", "s4", "s5", "s6", "c1", "c2", "c3",
+                             "s7"]]
 total = sum(s["dur"] for s in scenes)
 stage = {"fps": 30, "size": [W, H], "scenes": scenes,
          "audio": {"src": "/assets/audio/gen/solder.mp3", "gain": 0.85,
