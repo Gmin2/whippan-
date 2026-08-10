@@ -45,44 +45,57 @@
    "dur": 1.951,
    "nodes": [
     {
-     "id": "hb",
-     "type": "image",
-     "src": "/assets/solder/home-blur.png",
-     "x": 960,
-     "y": 540,
-     "w": 1920,
-     "h": 1080
-    },
-    {
-     "id": "qc1",
+     "id": "qw1",
      "type": "rect",
-     "x": 960,
-     "y": 540,
-     "w": 760,
-     "h": 150,
-     "radius": 22,
-     "fill": "#ffffff",
-     "glow": {
-      "sigma": 34,
-      "opacity": 0.16,
-      "color": "#0a1030"
-     }
+     "x": 640,
+     "y": 320,
+     "w": 1400,
+     "h": 1000,
+     "radius": 500,
+     "fill": "#dbe4ff",
+     "blur": 170,
+     "opacity": 0.85
     },
     {
-     "id": "q1",
+     "id": "qw2",
+     "type": "rect",
+     "x": 1560,
+     "y": 860,
+     "w": 1000,
+     "h": 800,
+     "radius": 400,
+     "fill": "#ffe9d6",
+     "blur": 160,
+     "opacity": 0.7
+    },
+    {
+     "id": "qseg0",
      "type": "text",
-     "text": "where do you even start?",
-     "x": 960,
+     "text": "where do you even",
+     "x": 826.3,
      "y": 540,
      "color": "#16181d",
      "font": {
-      "size": 44,
-      "weight": 600,
-      "family": "playfair"
+      "size": 88,
+      "weight": 650,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "qseg1",
+     "type": "text",
+     "text": "start?",
+     "x": 1372.2,
+     "y": 540,
+     "color": "#2d52f0",
+     "font": {
+      "size": 88,
+      "weight": 650,
+      "family": "inter"
      }
     }
    ],
-   "note": "Crab grammar: the real homepage out of focus, one crisp question card floating over it."
+   "note": "Lovable text moment: soft gradient wash, big friendly sans, the key word in solder blue."
   },
   {
    "id": "s3",
@@ -190,11 +203,11 @@
      "id": "g1",
      "type": "text",
      "text": "composing plan",
-     "x": 686.0,
-     "y": 380,
+     "x": 669.2,
+     "y": 300,
      "color": "#c9ccd6",
      "font": {
-      "size": 30,
+      "size": 26,
       "weight": 400,
       "family": "mono"
      }
@@ -203,11 +216,11 @@
      "id": "g2",
      "type": "text",
      "text": "picked 9 parts from the catalog",
-     "x": 839.0,
-     "y": 446,
+     "x": 801.8,
+     "y": 354,
      "color": "#8a8f9c",
      "font": {
-      "size": 30,
+      "size": 26,
       "weight": 400,
       "family": "mono"
      }
@@ -216,11 +229,11 @@
      "id": "g3",
      "type": "text",
      "text": "wired 14 nets",
-     "x": 677.0,
-     "y": 512,
+     "x": 661.4,
+     "y": 408,
      "color": "#8a8f9c",
      "font": {
-      "size": 30,
+      "size": 26,
       "weight": 400,
       "family": "mono"
      }
@@ -229,43 +242,75 @@
      "id": "g4",
      "type": "text",
      "text": "checking against physics",
-     "x": 776.0,
-     "y": 578,
+     "x": 747.2,
+     "y": 462,
      "color": "#8a8f9c",
      "font": {
-      "size": 30,
+      "size": 26,
       "weight": 400,
       "family": "mono"
      }
     },
     {
-     "id": "g5",
+     "id": "pill1",
+     "type": "rect",
+     "x": 960,
+     "y": 640,
+     "w": 980,
+     "h": 150,
+     "radius": 75,
+     "fill": "#221a16",
+     "glow": {
+      "sigma": 30,
+      "opacity": 0.5,
+      "color": "#7a3a12"
+     }
+    },
+    {
+     "id": "pt1",
      "type": "text",
-     "text": "!  IMU 3V3 pin found on a 5V net",
-     "x": 848.0,
-     "y": 644,
-     "color": "#ff8a3d",
+     "text": "3V3 pin on a 5V net",
+     "x": 960,
+     "y": 640,
+     "color": "#ff9d55",
      "font": {
-      "size": 30,
-      "weight": 400,
-      "family": "mono"
+      "size": 52,
+      "weight": 600,
+      "family": "inter"
      }
     },
     {
-     "id": "g6",
+     "id": "pill2",
+     "type": "rect",
+     "x": 960,
+     "y": 640,
+     "w": 980,
+     "h": 150,
+     "radius": 75,
+     "fill": "#12291f",
+     "opacity": 0,
+     "glow": {
+      "sigma": 30,
+      "opacity": 0.6,
+      "color": "#1d6b47"
+     }
+    },
+    {
+     "id": "pt2",
      "type": "text",
-     "text": "repaired -- second pass clean",
-     "x": 821.0,
-     "y": 710,
+     "text": "repaired.",
+     "x": 960,
+     "y": 640,
      "color": "#3ddc97",
      "font": {
-      "size": 30,
-      "weight": 400,
-      "family": "mono"
-     }
+      "size": 56,
+      "weight": 650,
+      "family": "inter"
+     },
+     "opacity": 0
     }
    ],
-   "note": "How do you build it: the job log prints on the grid, the fault hits orange, the repair lands green. Camera dives into the green line."
+   "note": "The log prints fast up top, then the lovable pill: the fault capsule slams in orange and flips to 'repaired.' green on the beat. Camera dives into the pill."
   },
   {
    "id": "sq",
@@ -273,20 +318,57 @@
    "dur": 0.976,
    "nodes": [
     {
-     "id": "q2",
+     "id": "kw1",
+     "type": "rect",
+     "x": 640,
+     "y": 320,
+     "w": 1400,
+     "h": 1000,
+     "radius": 500,
+     "fill": "#dbe4ff",
+     "blur": 170,
+     "opacity": 0.85
+    },
+    {
+     "id": "kw2",
+     "type": "rect",
+     "x": 1560,
+     "y": 860,
+     "w": 1000,
+     "h": 800,
+     "radius": 400,
+     "fill": "#ffe9d6",
+     "blur": 160,
+     "opacity": 0.7
+    },
+    {
+     "id": "kseg0",
      "type": "text",
-     "text": "and how will it look?",
-     "x": 960,
+     "text": "and how will it",
+     "x": 840.0,
      "y": 540,
      "color": "#16181d",
      "font": {
-      "size": 72,
-      "weight": 600,
-      "family": "playfair"
+      "size": 84,
+      "weight": 650,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "kseg1",
+     "type": "text",
+     "text": "look?",
+     "x": 1255.0,
+     "y": 540,
+     "color": "#2d52f0",
+     "font": {
+      "size": 84,
+      "weight": 650,
+      "family": "inter"
      }
     }
    ],
-   "note": "Design-style question beat, two beats, dry cut in and out."
+   "note": "Second question, same lovable treatment, two beats, dry cuts."
   },
   {
    "id": "s6",

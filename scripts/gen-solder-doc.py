@@ -78,10 +78,41 @@ def scene(id, dur_beats, nodes, bg=CREAM, note=""):
                    "nodes": nodes, "note": note})
 
 
-def shadow_card(pid, x, y, w, h, r=22):
-    """crab-style crisp white card floating on a soft drop shadow."""
-    return rect(pid, x, y, w, h, r, "#ffffff",
-                glow={"sigma": 34, "opacity": 0.16, "color": "#0a1030"})
+def wash(p):
+    """lovable-style soft gradient wash: cream base, a cool blue bloom
+    and a warm one drifting behind the words."""
+    return [
+        rect(f"{p}w1", 640, 320, 1400, 1000, 500, "#dbe4ff", blur=170,
+             opacity=0.85),
+        rect(f"{p}w2", 1560, 860, 1000, 800, 400, "#ffe9d6", blur=160,
+             opacity=0.7),
+    ]
+
+
+from PIL import ImageFont
+
+
+def emphline(p, segs, y, size, weight=650):
+    """one centered line of colored segments (lovable's word emphasis),
+    measured with the real font so the seams are invisible."""
+    segs = [(t.strip(), c) for t, c in segs]
+    f = ImageFont.truetype("assets/fonts/Inter-Variable.ttf", size)
+    try:
+        f.set_variation_by_axes([weight])
+    except Exception:
+        pass
+    # engine shaping runs ~10.5% wider than PIL at the same px size
+    CAL = 1.105
+    sp = f.getlength(" ") * CAL
+    widths = [f.getlength(t) * CAL for t, _ in segs]
+    total = sum(widths) + sp * (len(segs) - 1)
+    x = 960 - total / 2
+    ns = []
+    for i, ((t, col), w) in enumerate(zip(segs, widths)):
+        ns.append(text(f"{p}seg{i}", t, round(x + w / 2, 1), y, size, col,
+                       weight))
+        x += w + sp
+    return ns
 
 
 # ------------------------------------------------ s1: scramble cold open
@@ -95,20 +126,20 @@ tracks.append({"target": "t1", "at": 0.08, "reveal": {
     "unit": "scramble", "dur": 0.8, "churn": 5, "accent": "#16181d"}})
 tracks.append({"target": "t2", "keys": {"opacity": step([(0, 0), (B * 2, 1)])}})
 
-# --------------------- s2: blurred homepage + the first question (crab)
-scene("s2", 4, [
-    img("hb", "/assets/solder/home-blur.png", 960, 540, 1920, 1080),
-    shadow_card("qc1", 960, 540, 760, 150),
-    text("q1", "where do you even start?", 960, 540, 44, INK, 600,
-         "playfair"),
-], note="Crab grammar: the real homepage out of focus, one crisp "
-        "question card floating over it.")
-tracks.append(keyed("hb", opacity=[(0, 0), (0.2, 1)],
-                    scale=[(0, 1.05), (0.5, 1.0, "outCubic")]))
-tracks.append(keyed("qc1", opacity=[(B, 0), (B + 0.2, 1)],
-                    y=[(B, 26), (B + 0.35, 0, "outCubic")]))
-tracks.append(keyed("q1", opacity=[(B, 0), (B + 0.2, 1)],
-                    y=[(B, 26), (B + 0.35, 0, "outCubic")]))
+# ----------------------- s2: the first question, lovable text moment
+sc2_nodes = wash("q") + emphline("q", [
+    ("where do you even ", INK), ("start?", BLUE)], 540, 88)
+scene("s2", 4, sc2_nodes,
+      note="Lovable text moment: soft gradient wash, big friendly sans, "
+           "the key word in solder blue.")
+for i in range(2):
+    tracks.append(keyed(f"qseg{i}",
+                        opacity=[(0.15 + i * 0.12, 0),
+                                 (0.45 + i * 0.12, 1)],
+                        y=[(0.15 + i * 0.12, 30),
+                           (0.55 + i * 0.12, 0, "outCubic")]))
+tracks.append(keyed("qw1", opacity=[(0, 0), (0.4, 0.85)]))
+tracks.append(keyed("qw2", opacity=[(0, 0), (0.5, 0.7)]))
 
 # --------------------------- s3: focus lands, then dive into the bar
 scene("s3", 4, [
@@ -151,32 +182,56 @@ LOG = [
     ("g2", "picked 9 parts from the catalog", "#8a8f9c", 0.35),
     ("g3", "wired 14 nets", "#8a8f9c", 0.60),
     ("g4", "checking against physics", "#8a8f9c", 0.85),
-    ("g5", "!  IMU 3V3 pin found on a 5V net", "#ff8a3d", B * 3),
-    ("g6", "repaired -- second pass clean", "#3ddc97", B * 4),
 ]
 log_nodes = [rect("lflash", 960, 540, 1920, 1080, 0, "#ffffff")]
-for i, (gid, s, col, _) in enumerate(LOG):
-    x = 560 + len(s) * 30 * MONO_W / 2
-    log_nodes.append(text(gid, s, round(x, 1), 380 + i * 66, 30, col,
+for i, (gid, sline, col, _) in enumerate(LOG):
+    x = 560 + len(sline) * 26 * MONO_W / 2
+    log_nodes.append(text(gid, sline, round(x, 1), 300 + i * 54, 26, col,
                           family="mono"))
+# the lovable pill: fault capsule flips to the repaired capsule
+log_nodes += [
+    rect("pill1", 960, 640, 980, 150, 75, "#221a16",
+         glow={"sigma": 30, "opacity": 0.5, "color": "#7a3a12"}),
+    text("pt1", "3V3 pin on a 5V net", 960, 640, 52, "#ff9d55", 600),
+    rect("pill2", 960, 640, 980, 150, 75, "#12291f", opacity=0,
+         glow={"sigma": 30, "opacity": 0.6, "color": "#1d6b47"}),
+    text("pt2", "repaired.", 960, 640, 56, "#3ddc97", 650, opacity=0),
+]
 scene("s5", 6, log_nodes, bg="#0e1116",
-      note="How do you build it: the job log prints on the grid, the "
-           "fault hits orange, the repair lands green. Camera dives into "
-           "the green line.")
+      note="The log prints fast up top, then the lovable pill: the fault "
+           "capsule slams in orange and flips to 'repaired.' green on "
+           "the beat. Camera dives into the pill.")
 tracks.append(keyed("lflash", opacity=[(0, 1), (0.16, 0)]))
-for gid, s, col, at in LOG:
+for gid, sline, col, at in LOG:
     tracks.append(keyed(gid, opacity=[(at, 0), (at + 0.07, 1)]))
-tracks.append({"target": "g6", "at": B * 4, "state": "clean"})
+tracks.append(keyed("pill1",
+                    opacity=[(B * 2, 0), (B * 2 + 0.1, 1), (B * 4, 1),
+                             (B * 4 + 0.06, 0)],
+                    scale=[(B * 2, 0.7), (B * 2 + 0.3, 1.04, "outCubic"),
+                           (B * 2 + 0.5, 1.0, "outCubic")]))
+tracks.append(keyed("pt1", opacity=[(B * 2, 0), (B * 2 + 0.12, 1),
+                                    (B * 4, 1), (B * 4 + 0.06, 0)]))
+tracks.append(keyed("pill2",
+                    opacity=[(B * 4, 0), (B * 4 + 0.08, 1)],
+                    scale=[(B * 4, 0.92), (B * 4 + 0.22, 1.05, "outCubic"),
+                           (B * 4 + 0.4, 1.0, "outCubic")]))
+tracks.append(keyed("pt2", opacity=[(B * 4, 0), (B * 4 + 0.1, 1)]))
+tracks.append({"target": "pill2", "at": B * 4, "state": "clean"})
 tracks.append({"target": "s5", "at": B * 5, "cam": {
-    "preset": "zoom-promote", "z": 2.3, "anchor": [820, 776], "dur": 0.55}})
+    "preset": "zoom-promote", "z": 2.0, "anchor": [960, 640], "dur": 0.55}})
 
 # ------------------------------ sq: the second question card, two beats
-scene("sq", 2, [
-    text("q2", "and how will it look?", 960, 540, 72, INK, 600,
-         "playfair"),
-], note="Design-style question beat, two beats, dry cut in and out.")
-tracks.append({"target": "q2", "at": 0.05, "reveal": {
-    "unit": "scramble", "dur": 0.5, "churn": 4, "accent": "#16181d"}})
+scq_nodes = wash("k") + emphline("k", [
+    ("and how will it ", INK), ("look?", BLUE)], 540, 84)
+scene("sq", 2, scq_nodes,
+      note="Second question, same lovable treatment, two beats, dry "
+           "cuts.")
+for i in range(2):
+    tracks.append(keyed(f"kseg{i}",
+                        opacity=[(0.05 + i * 0.1, 0),
+                                 (0.3 + i * 0.1, 1)],
+                        y=[(0.05 + i * 0.1, 26),
+                           (0.4 + i * 0.1, 0, "outCubic")]))
 
 # ------------------- s6: the blueprint, full-bleed, snap reframes on beats
 scene("s6", 8, [
