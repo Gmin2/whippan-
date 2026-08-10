@@ -178,6 +178,9 @@ pub fn run() {
     let anim = std::fs::read_to_string(&args[2]).expect("anim json");
     let out = args[3].clone();
     let fps: f32 = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(30.0);
+    // render supersample: 2 = 4k output from a 1080p doc, using 2x
+    // assets at native resolution
+    let ss: i32 = args.get(5).and_then(|s| s.parse().ok()).unwrap_or(1);
 
     let root = std::env::current_dir().unwrap();
     for (name, file) in [
@@ -300,7 +303,7 @@ pub fn run() {
             "-y",
             "-f", "rawvideo",
             "-pix_fmt", "rgba",
-            "-s", &format!("{wi}x{hi}"),
+            "-s", &format!("{}x{}", wi * ss, hi * ss),
             "-r", &fps.to_string(),
             "-i", "-",
             "-c:v", "libx264",
@@ -316,16 +319,25 @@ pub fn run() {
         .expect("ffmpeg");
     let mut pipe = ffmpeg.stdin.take().unwrap();
 
-    let mut surface = surfaces::raster_n32_premul((wi, hi)).expect("surface");
-    let info = ImageInfo::new((wi, hi), ColorType::RGBA8888, AlphaType::Unpremul, None);
-    let row = (wi as usize) * 4;
-    let mut buf = vec![0u8; row * hi as usize];
+    let mut surface =
+        surfaces::raster_n32_premul((wi * ss, hi * ss)).expect("surface");
+    let info = ImageInfo::new(
+        (wi * ss, hi * ss),
+        ColorType::RGBA8888,
+        AlphaType::Unpremul,
+        None,
+    );
+    let row = (wi as usize) * (ss as usize) * 4;
+    let mut buf = vec![0u8; row * (hi as usize) * (ss as usize)];
 
     let start = std::time::Instant::now();
     for i in 0..frames {
         let t = i as f32 / fps;
         let cmds = render_cmds(&stage, &anim, t).expect("render");
+        surface.canvas().save();
+        surface.canvas().scale((ss as f32, ss as f32));
         paint_frame(surface.canvas(), &cmds, &images);
+        surface.canvas().restore();
         if !surface.read_pixels(&info, &mut buf, row, (0, 0)) {
             panic!("readback failed at frame {i}");
         }

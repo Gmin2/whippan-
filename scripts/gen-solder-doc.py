@@ -364,22 +364,74 @@ tracks.append(keyed("wmpre",
                     scale=[(B * 4, 0.55), (B * 5.6, 1.0, "outCubic")],
                     y=[(B * 4, 150), (B * 5.6, 0, "outCubic")]))
 
-# ----------------------------------- c1..c3: the benefit run, brew-style
-ns, ts = word_slide("b1", "prototype hardware", 104, chip=False)
-scene("c1", 1, ns, note="Closer: prototype hardware.")
-tracks += ts
-ns, ts = word_slide("b2", "fast and easy.", 110, chip=False, color="#ffffff")
-scene("c2", 1, ns, bg=INK, note="Closer inverted: fast and easy.")
-tracks += ts
-ns, ts = word_slide("b3", "checked against physics", 96, chip=False,
-                    color="#ffffff")
-scene("c3", 1, ns, bg=BLUE, note="Closer on blue: checked against "
-                                 "physics.")
-tracks += ts
+# --------------- cnet: the ai-1 capsule network -- every part, every
+# wire, feeding the little white card that checks them. pills slide in
+# with overshoot, wires draw, the cursor rides in the chip.
+CHECK = "M2 9L7 14L16 3"
+cnet_nodes = [
+    {"id": "nw1", "type": "path", "x": 0, "y": 0, "stroke": 2.4,
+     "fill": "#b9c6f4", "d": "M700 355L700 470"},
+    {"id": "nw2", "type": "path", "x": 0, "y": 0, "stroke": 2.4,
+     "fill": "#b9c6f4", "d": "M320 540L840 540"},
+    {"id": "nw3", "type": "path", "x": 0, "y": 0, "stroke": 2.4,
+     "fill": "#b9c6f4", "d": "M1105 660L1290 660"},
+    rect("ncard", 960, 540, 190, 190, 38, "#ffffff",
+         glow={"sigma": 30, "opacity": 0.2, "color": "#0a1030"}),
+    {"id": "ncheck", "type": "path", "x": 940, "y": 505, "stroke": 5.5,
+     "fill": BLUE, "d": CHECK,
+     "keys": {"scale": [{"t": 0, "v": 2.4}]}},
+    text("nlab", "checked", 960, 592, 26, GREY, 550),
+    rect("nhex", 300, 540, 44, 44, 12, BLUE, rot=14),
+    rect("p1", 700, 280, 520, 150, 75, BLUE),
+    rect("p1c", 505, 280, 100, 100, 50, "#5271f3"),
+    {"id": "p1cur", "type": "path", "x": 494, "y": 266, "fill": "#ffffff",
+     "d": CURSOR, "keys": {"scale": [{"t": 0, "v": 1.5}]}},
+    text("p1t", "Every part", 745, 280, 52, "#ffffff", 650),
+    rect("p2", 1080, 660, 560, 150, 75, BLUE),
+    rect("p2c", 875, 660, 100, 100, 50, "#5271f3"),
+    {"id": "p2ck", "type": "path", "x": 855, "y": 645, "stroke": 4.4,
+     "fill": "#ffffff", "d": CHECK,
+     "keys": {"scale": [{"t": 0, "v": 1.9}]}},
+    text("p2t", "Every wire", 1125, 660, 52, "#ffffff", 650),
+]
+scene("cnet", 4, cnet_nodes,
+      note="The ai-1 capsule network: 'Every part' and 'Every wire' "
+           "pills wired into the white card that checks them. Pills "
+           "slide in with overshoot, wires draw, chips carry icons.")
+tracks.append(keyed("ncard",
+                    opacity=[(0.05, 0), (0.2, 1)],
+                    scale=[(0.05, 0.7), (0.28, 1.05, "outCubic"),
+                           (0.42, 1.0, "outCubic")]))
+tracks.append(keyed("ncheck", opacity=[(0.18, 0), (0.32, 1)]))
+tracks.append(keyed("nlab", opacity=[(0.24, 0), (0.38, 1)]))
+tracks.append({"target": "ncard", "at": 0.1, "state": "pop"})
+for wid, at in (("nw1", 0.5), ("nw2", 0.62), ("nw3", 0.74)):
+    tracks.append(keyed(wid, opacity=[(at, 0), (at + 0.14, 1)]))
+tracks.append(keyed("nhex",
+                    opacity=[(0.62, 0), (0.78, 1)],
+                    rot=[(0.62, -30), (0.95, 14, "outCubic")]))
+for pid, at, dx in (("p1", B * 1, -260), ("p2", B * 2, 260)):
+    for suf in ("", "c", "t"):
+        nid = f"{pid}{suf}"
+        tracks.append(keyed(nid,
+                            opacity=[(at, 0), (at + 0.16, 1)],
+                            x=[(at, dx), (at + 0.3, -dx * 0.06,
+                                "outCubic"),
+                               (at + 0.46, 0, "outCubic")]))
+tracks.append(keyed("p1cur",
+                    opacity=[(B * 1, 0), (B * 1 + 0.16, 1)],
+                    x=[(B * 1, -260), (B * 1 + 0.3, 15.6, "outCubic"),
+                       (B * 1 + 0.46, 0, "outCubic")]))
+tracks.append(keyed("p2ck",
+                    opacity=[(B * 2, 0), (B * 2 + 0.16, 1)],
+                    x=[(B * 2, 260), (B * 2 + 0.3, -15.6, "outCubic"),
+                       (B * 2 + 0.46, 0, "outCubic")]))
+tracks.append({"target": "p1", "at": B * 1 + 0.2, "state": "in"})
+tracks.append({"target": "p2", "at": B * 2 + 0.2, "state": "in"})
 
 # ---------------- s7: crab ending -- the cursor comes back to the bar
 BAR_W, BAR_H = 1044 * 0.62, 118 * 0.62
-scene("s7", 6, [
+scene("s7", 5, [
     img("f1", "/assets/solder/home-blur.png", 260, 170, 850, 478,
         opacity=0),
     img("f2", "/assets/solder/quad-blur.png", 1700, 830, 780, 532,
@@ -419,8 +471,8 @@ tracks.append({"target": "tag7", "at": B * 3.5, "reveal": {
 # follows the chip inflation directly
 order = {sc["id"]: sc for sc in scenes}
 scenes = [order[k] for k in ["i1", "i2", "i5", "i3", "i4", "iq", "i6",
-                             "i7", "s3", "s4", "s5", "s6", "s6b", "c1",
-                             "c2", "c3", "s7"]]
+                             "i7", "s3", "s4", "s5", "s6", "s6b",
+                             "cnet", "s7"]]
 total = sum(s["dur"] for s in scenes)
 stage = {"fps": 30, "size": [W, H], "scenes": scenes,
          "audio": {"src": "/assets/audio/gen/solder.mp3", "gain": 0.85,

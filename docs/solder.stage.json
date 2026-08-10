@@ -601,72 +601,199 @@
    "note": "The BOM table only: every part, ref, source, price, $13.72 total. Dive onto the total row -- then the ai-1 move: the screen dissolves and the wordmark rises out of it."
   },
   {
-   "id": "c1",
+   "id": "cnet",
    "bg": "#f7f8fd",
-   "dur": 0.488,
+   "dur": 1.951,
    "nodes": [
     {
-     "id": "b1t",
-     "type": "text",
-     "text": "prototype hardware",
+     "id": "nw1",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 2.4,
+     "fill": "#b9c6f4",
+     "d": "M700 355L700 470"
+    },
+    {
+     "id": "nw2",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 2.4,
+     "fill": "#b9c6f4",
+     "d": "M320 540L840 540"
+    },
+    {
+     "id": "nw3",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 2.4,
+     "fill": "#b9c6f4",
+     "d": "M1105 660L1290 660"
+    },
+    {
+     "id": "ncard",
+     "type": "rect",
      "x": 960,
      "y": 540,
-     "color": "#16181d",
+     "w": 190,
+     "h": 190,
+     "radius": 38,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 30,
+      "opacity": 0.2,
+      "color": "#0a1030"
+     }
+    },
+    {
+     "id": "ncheck",
+     "type": "path",
+     "x": 940,
+     "y": 505,
+     "stroke": 5.5,
+     "fill": "#2d52f0",
+     "d": "M2 9L7 14L16 3",
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 2.4
+       }
+      ]
+     }
+    },
+    {
+     "id": "nlab",
+     "type": "text",
+     "text": "checked",
+     "x": 960,
+     "y": 592,
+     "color": "#6b7280",
      "font": {
-      "size": 104,
-      "weight": 650,
+      "size": 26,
+      "weight": 550,
       "family": "inter"
      }
-    }
-   ],
-   "note": "Closer: prototype hardware."
-  },
-  {
-   "id": "c2",
-   "bg": "#16181d",
-   "dur": 0.488,
-   "nodes": [
+    },
     {
-     "id": "b2t",
-     "type": "text",
-     "text": "fast and easy.",
-     "x": 960,
+     "id": "nhex",
+     "type": "rect",
+     "x": 300,
      "y": 540,
+     "w": 44,
+     "h": 44,
+     "radius": 12,
+     "fill": "#2d52f0",
+     "rot": 14
+    },
+    {
+     "id": "p1",
+     "type": "rect",
+     "x": 700,
+     "y": 280,
+     "w": 520,
+     "h": 150,
+     "radius": 75,
+     "fill": "#2d52f0"
+    },
+    {
+     "id": "p1c",
+     "type": "rect",
+     "x": 505,
+     "y": 280,
+     "w": 100,
+     "h": 100,
+     "radius": 50,
+     "fill": "#5271f3"
+    },
+    {
+     "id": "p1cur",
+     "type": "path",
+     "x": 494,
+     "y": 266,
+     "fill": "#ffffff",
+     "d": "M0 0L0 17.9L4.2 14.2L7.0 20.6L10.1 19.2L7.3 12.9L12.8 12.4Z",
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 1.5
+       }
+      ]
+     }
+    },
+    {
+     "id": "p1t",
+     "type": "text",
+     "text": "Every part",
+     "x": 745,
+     "y": 280,
      "color": "#ffffff",
      "font": {
-      "size": 110,
+      "size": 52,
       "weight": 650,
       "family": "inter"
      }
-    }
-   ],
-   "note": "Closer inverted: fast and easy."
-  },
-  {
-   "id": "c3",
-   "bg": "#2d52f0",
-   "dur": 0.488,
-   "nodes": [
+    },
     {
-     "id": "b3t",
+     "id": "p2",
+     "type": "rect",
+     "x": 1080,
+     "y": 660,
+     "w": 560,
+     "h": 150,
+     "radius": 75,
+     "fill": "#2d52f0"
+    },
+    {
+     "id": "p2c",
+     "type": "rect",
+     "x": 875,
+     "y": 660,
+     "w": 100,
+     "h": 100,
+     "radius": 50,
+     "fill": "#5271f3"
+    },
+    {
+     "id": "p2ck",
+     "type": "path",
+     "x": 855,
+     "y": 645,
+     "stroke": 4.4,
+     "fill": "#ffffff",
+     "d": "M2 9L7 14L16 3",
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 1.9
+       }
+      ]
+     }
+    },
+    {
+     "id": "p2t",
      "type": "text",
-     "text": "checked against physics",
-     "x": 960,
-     "y": 540,
+     "text": "Every wire",
+     "x": 1125,
+     "y": 660,
      "color": "#ffffff",
      "font": {
-      "size": 96,
+      "size": 52,
       "weight": 650,
       "family": "inter"
      }
     }
    ],
-   "note": "Closer on blue: checked against physics."
+   "note": "The ai-1 capsule network: 'Every part' and 'Every wire' pills wired into the white card that checks them. Pills slide in with overshoot, wires draw, chips carry icons."
   },
   {
    "id": "s7",
    "bg": "#f7f8fd",
-   "dur": 2.927,
+   "dur": 2.439,
    "nodes": [
     {
      "id": "f1",
