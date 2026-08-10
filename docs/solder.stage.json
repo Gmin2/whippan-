@@ -11,102 +11,93 @@
    "dur": 1.951,
    "nodes": [
     {
-     "id": "t1a",
+     "id": "t1",
      "type": "text",
-     "text": "You know what you want to build.",
+     "text": "you want to build hardware.",
      "x": 960,
-     "y": 470,
+     "y": 500,
      "color": "#16181d",
      "font": {
-      "size": 82,
+      "size": 92,
       "weight": 600,
       "family": "playfair"
      }
     },
     {
-     "id": "t1b",
+     "id": "t2",
      "type": "text",
-     "text": "The wiring is where it dies.",
+     "text": "not fight it.",
      "x": 960,
-     "y": 590,
+     "y": 620,
      "color": "#2d52f0",
      "font": {
-      "size": 82,
+      "size": 92,
       "weight": 600,
       "family": "playfair"
      }
     }
    ],
-   "note": "Cold open, serif on cream: word-by-word slam, second line in solder blue. Four beats."
+   "note": "Design-style cold open: the line scrambles into place, the kicker snaps in on beat 2. Four beats."
   },
   {
-   "id": "p1",
+   "id": "s2",
    "bg": "#f7f8fd",
-   "dur": 0.488,
+   "dur": 1.951,
    "nodes": [
     {
-     "id": "w1",
+     "id": "hb",
+     "type": "image",
+     "src": "/assets/solder/home-blur.png",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080
+    },
+    {
+     "id": "qc1",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 760,
+     "h": 150,
+     "radius": 22,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 34,
+      "opacity": 0.16,
+      "color": "#0a1030"
+     }
+    },
+    {
+     "id": "q1",
      "type": "text",
-     "text": "datasheets.",
+     "text": "where do you even start?",
      "x": 960,
      "y": 540,
      "color": "#16181d",
      "font": {
-      "size": 110,
-      "weight": 700,
+      "size": 44,
+      "weight": 600,
       "family": "playfair"
      }
     }
    ],
-   "note": "Punch card 1, one beat: datasheets."
-  },
-  {
-   "id": "p2",
-   "bg": "#16181d",
-   "dur": 0.488,
-   "nodes": [
-    {
-     "id": "w2",
-     "type": "text",
-     "text": "pinouts.",
-     "x": 960,
-     "y": 540,
-     "color": "#f7f8fd",
-     "font": {
-      "size": 110,
-      "weight": 700,
-      "family": "playfair"
-     }
-    }
-   ],
-   "note": "Punch card 2, inverted, one beat: pinouts."
-  },
-  {
-   "id": "p3",
-   "bg": "#2d52f0",
-   "dur": 0.488,
-   "nodes": [
-    {
-     "id": "w3",
-     "type": "text",
-     "text": "a 5V pin on a 3.3V net.",
-     "x": 960,
-     "y": 540,
-     "color": "#ffffff",
-     "font": {
-      "size": 84,
-      "weight": 700,
-      "family": "playfair"
-     }
-    }
-   ],
-   "note": "Punch card 3, solder blue, one beat: the killer mistake."
+   "note": "Crab grammar: the real homepage out of focus, one crisp question card floating over it."
   },
   {
    "id": "s3",
    "bg": "#f7f8fd",
-   "dur": 2.439,
+   "dur": 1.951,
    "nodes": [
+    {
+     "id": "hb2",
+     "type": "image",
+     "src": "/assets/solder/home-blur.png",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080
+    },
     {
      "id": "home",
      "type": "image",
@@ -114,10 +105,11 @@
      "x": 960,
      "y": 540,
      "w": 1920,
-     "h": 1080
+     "h": 1080,
+     "opacity": 0
     }
    ],
-   "note": "The real homepage slams in and settles fast; on beat 3 the camera crash-zooms into the input bar. Cut mid-motion."
+   "note": "The answer: focus snaps to the real homepage -- start with a sentence. Camera crash-zooms into the input bar, cut mid-motion."
   },
   {
    "id": "s4",
@@ -177,7 +169,7 @@
      "opacity": 0
     }
    ],
-   "note": "Held zoomed on the bar: the prompt types itself, the send button clicks on the beat, whiteout swallows the screen."
+   "note": "Held on the real bar: the prompt types itself, send clicks on the beat, whiteout swallows the cut."
   },
   {
    "id": "s5",
@@ -271,19 +263,30 @@
       "weight": 400,
       "family": "mono"
      }
-    },
-    {
-     "id": "lcaret",
-     "type": "rect",
-     "x": 566,
-     "y": 776,
-     "w": 16,
-     "h": 34,
-     "radius": 1,
-     "fill": "#3ddc97"
     }
    ],
-   "note": "Whiteout decays into the job log, full-bleed: lines print on the grid, the fault hits orange on beat 3, the repair lands green on beat 4. Camera dives into the green line."
+   "note": "How do you build it: the job log prints on the grid, the fault hits orange, the repair lands green. Camera dives into the green line."
+  },
+  {
+   "id": "sq",
+   "bg": "#f7f8fd",
+   "dur": 0.976,
+   "nodes": [
+    {
+     "id": "q2",
+     "type": "text",
+     "text": "and how will it look?",
+     "x": 960,
+     "y": 540,
+     "color": "#16181d",
+     "font": {
+      "size": 72,
+      "weight": 600,
+      "family": "playfair"
+     }
+    }
+   ],
+   "note": "Design-style question beat, two beats, dry cut in and out."
   },
   {
    "id": "s6",
@@ -300,65 +303,97 @@
      "h": 1080
     }
    ],
-   "note": "The real blueprint fills the frame. Snap reframes on the grid: flight controller, then the motor corner, then wide. Dry cuts, design-style."
+   "note": "The real blueprint fills the frame. Dry snap reframes on the grid: flight controller, motor corner, wide."
   },
   {
    "id": "s7",
    "bg": "#f7f8fd",
-   "dur": 2.439,
+   "dur": 3.415,
    "nodes": [
     {
-     "id": "wm",
+     "id": "f1",
+     "type": "image",
+     "src": "/assets/solder/home-blur.png",
+     "x": 260,
+     "y": 170,
+     "w": 850,
+     "h": 478,
+     "opacity": 0
+    },
+    {
+     "id": "f2",
+     "type": "image",
+     "src": "/assets/solder/quad-blur.png",
+     "x": 1700,
+     "y": 830,
+     "w": 780,
+     "h": 532,
+     "opacity": 0
+    },
+    {
+     "id": "wm7",
      "type": "text",
      "text": "Solder",
      "x": 960,
-     "y": 470,
+     "y": 380,
      "color": "#2d52f0",
      "font": {
-      "size": 200,
+      "size": 120,
       "weight": 600,
       "family": "playfair"
      }
     },
     {
-     "id": "tag",
-     "type": "text",
-     "text": "Type it. Build it.",
+     "id": "bar7",
+     "type": "image",
+     "src": "/assets/solder/bar.png",
      "x": 960,
-     "y": 650,
-     "color": "#16181d",
-     "font": {
-      "size": 42,
-      "weight": 600,
-      "family": "inter"
-     }
+     "y": 570,
+     "w": 647,
+     "h": 73
     },
     {
-     "id": "sub",
-     "type": "text",
-     "text": "The AI that turns a prompt into buildable hardware.",
-     "x": 960,
-     "y": 716,
-     "color": "#6b7280",
-     "font": {
-      "size": 26,
-      "weight": 400,
-      "family": "inter"
-     }
-    },
-    {
-     "id": "ecaret",
+     "id": "caret7",
      "type": "rect",
-     "x": 1206,
-     "y": 655,
-     "w": 4,
-     "h": 40,
+     "x": 670,
+     "y": 570,
+     "w": 3,
+     "h": 30,
      "radius": 1,
      "fill": "#16181d",
      "opacity": 0
+    },
+    {
+     "id": "cur",
+     "type": "path",
+     "x": 1400,
+     "y": 900,
+     "fill": "#16181d",
+     "d": "M0 0L0 17.9L4.2 14.2L7.0 20.6L10.1 19.2L7.3 12.9L12.8 12.4Z",
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 2.2
+       }
+      ]
+     }
+    },
+    {
+     "id": "tag7",
+     "type": "text",
+     "text": "Cursor for hardware.",
+     "x": 960,
+     "y": 700,
+     "color": "#6b7280",
+     "font": {
+      "size": 40,
+      "weight": 500,
+      "family": "inter"
+     }
     }
    ],
-   "note": "Brand close on cream: blue serif wordmark, the tagline types, the caret keeps blinking after the music stops."
+   "note": "Crab ending, entirely new: blurred screens drift in the corners, the real input bar floats center under the wordmark, the cursor glides in and clicks it, the caret starts blinking, the tagline scrambles in. Music stops; the caret keeps going."
   }
  ],
  "audio": {
