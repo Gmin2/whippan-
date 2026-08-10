@@ -571,7 +571,7 @@
   },
   {
    "id": "s5",
-   "bg": "#0e1116",
+   "bg": "#f7f8fd",
    "dur": 2.927,
    "nodes": [
     {
@@ -585,117 +585,356 @@
      "fill": "#ffffff"
     },
     {
-     "id": "g1",
-     "type": "text",
-     "text": "composing plan",
-     "x": 669.2,
-     "y": 300,
-     "color": "#c9ccd6",
-     "font": {
-      "size": 26,
-      "weight": 400,
-      "family": "mono"
-     }
-    },
-    {
-     "id": "g2",
-     "type": "text",
-     "text": "picked 9 parts from the catalog",
-     "x": 801.8,
-     "y": 354,
-     "color": "#8a8f9c",
-     "font": {
-      "size": 26,
-      "weight": 400,
-      "family": "mono"
-     }
-    },
-    {
-     "id": "g3",
-     "type": "text",
-     "text": "wired 14 nets",
-     "x": 661.4,
-     "y": 408,
-     "color": "#8a8f9c",
-     "font": {
-      "size": 26,
-      "weight": 400,
-      "family": "mono"
-     }
-    },
-    {
-     "id": "g4",
-     "type": "text",
-     "text": "checking against physics",
-     "x": 747.2,
-     "y": 462,
-     "color": "#8a8f9c",
-     "font": {
-      "size": 26,
-      "weight": 400,
-      "family": "mono"
-     }
-    },
-    {
-     "id": "pill1",
+     "id": "fco",
      "type": "rect",
      "x": 960,
-     "y": 640,
-     "w": 980,
-     "h": 150,
-     "radius": 75,
-     "fill": "#221a16",
-     "glow": {
-      "sigma": 30,
-      "opacity": 0.5,
-      "color": "#7a3a12"
+     "y": 380,
+     "w": 320,
+     "h": 110,
+     "radius": 14,
+     "fill": "#2d52f0"
+    },
+    {
+     "id": "fci",
+     "type": "rect",
+     "x": 960,
+     "y": 380,
+     "w": 315,
+     "h": 105,
+     "radius": 11,
+     "fill": "#f7f8fd"
+    },
+    {
+     "id": "fcl",
+     "type": "text",
+     "text": "FLIGHT CONTROLLER",
+     "x": 960,
+     "y": 380,
+     "color": "#2d52f0",
+     "font": {
+      "size": 20,
+      "weight": 500,
+      "family": "mono"
      }
     },
     {
-     "id": "pt1",
-     "type": "text",
-     "text": "3V3 pin on a 5V net",
-     "x": 960,
+     "id": "imuo",
+     "type": "rect",
+     "x": 560,
      "y": 640,
-     "color": "#ff9d55",
+     "w": 200,
+     "h": 96,
+     "radius": 14,
+     "fill": "#2d52f0"
+    },
+    {
+     "id": "imui",
+     "type": "rect",
+     "x": 560,
+     "y": 640,
+     "w": 195,
+     "h": 91,
+     "radius": 11,
+     "fill": "#f7f8fd"
+    },
+    {
+     "id": "imul",
+     "type": "text",
+     "text": "IMU",
+     "x": 560,
+     "y": 640,
+     "color": "#2d52f0",
      "font": {
-      "size": 52,
+      "size": 20,
+      "weight": 500,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "esco",
+     "type": "rect",
+     "x": 1360,
+     "y": 640,
+     "w": 230,
+     "h": 96,
+     "radius": 14,
+     "fill": "#2d52f0"
+    },
+    {
+     "id": "esci",
+     "type": "rect",
+     "x": 1360,
+     "y": 640,
+     "w": 225,
+     "h": 91,
+     "radius": 11,
+     "fill": "#f7f8fd"
+    },
+    {
+     "id": "escl",
+     "type": "text",
+     "text": "MOSFET ESC",
+     "x": 1360,
+     "y": 640,
+     "color": "#2d52f0",
+     "font": {
+      "size": 20,
+      "weight": 500,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "lipoo",
+     "type": "rect",
+     "x": 960,
+     "y": 820,
+     "w": 220,
+     "h": 96,
+     "radius": 14,
+     "fill": "#2d52f0"
+    },
+    {
+     "id": "lipoi",
+     "type": "rect",
+     "x": 960,
+     "y": 820,
+     "w": 215,
+     "h": 91,
+     "radius": 11,
+     "fill": "#f7f8fd"
+    },
+    {
+     "id": "lipol",
+     "type": "text",
+     "text": "LIPO 1S",
+     "x": 960,
+     "y": 820,
+     "color": "#2d52f0",
+     "font": {
+      "size": 20,
+      "weight": 500,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "w1a",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 3.2,
+     "fill": "#2d52f0",
+     "d": "M800 390L660 390"
+    },
+    {
+     "id": "w1b",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 3.2,
+     "fill": "#2d52f0",
+     "d": "M660 390L660 592"
+    },
+    {
+     "id": "w2a",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 3.2,
+     "fill": "#2d52f0",
+     "d": "M1120 390L1260 390"
+    },
+    {
+     "id": "w2b",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 3.2,
+     "fill": "#2d52f0",
+     "d": "M1260 390L1260 592"
+    },
+    {
+     "id": "w3a",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 3.2,
+     "fill": "#2d52f0",
+     "d": "M1070 820L1360 820"
+    },
+    {
+     "id": "w3b",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 3.2,
+     "fill": "#2d52f0",
+     "d": "M1360 820L1360 688"
+    },
+    {
+     "id": "w4a",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 3.2,
+     "fill": "#e2620c",
+     "d": "M850 820L560 820"
+    },
+    {
+     "id": "w4b",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 3.2,
+     "fill": "#e2620c",
+     "d": "M560 820L560 688"
+    },
+    {
+     "id": "w5a",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 4.2,
+     "fill": "#1d9e63",
+     "d": "M800 420L600 420"
+    },
+    {
+     "id": "w5b",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 4.2,
+     "fill": "#1d9e63",
+     "d": "M600 420L600 592"
+    },
+    {
+     "id": "lb1",
+     "type": "text",
+     "text": "SDA",
+     "x": 625,
+     "y": 500,
+     "color": "#2d52f0",
+     "font": {
+      "size": 17,
+      "weight": 500,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "lb2",
+     "type": "text",
+     "text": "PWM",
+     "x": 1295,
+     "y": 500,
+     "color": "#2d52f0",
+     "font": {
+      "size": 17,
+      "weight": 500,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "lb3",
+     "type": "text",
+     "text": "GND",
+     "x": 1240,
+     "y": 785,
+     "color": "#2d52f0",
+     "font": {
+      "size": 17,
+      "weight": 500,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "lb4",
+     "type": "text",
+     "text": "5V",
+     "x": 610,
+     "y": 785,
+     "color": "#e2620c",
+     "font": {
+      "size": 17,
       "weight": 600,
-      "family": "inter"
+      "family": "mono"
      }
     },
     {
-     "id": "pill2",
-     "type": "rect",
-     "x": 960,
-     "y": 640,
-     "w": 980,
-     "h": 150,
-     "radius": 75,
-     "fill": "#12291f",
-     "opacity": 0,
-     "glow": {
-      "sigma": 30,
-      "opacity": 0.6,
-      "color": "#1d6b47"
-     }
-    },
-    {
-     "id": "pt2",
+     "id": "lb5",
      "type": "text",
-     "text": "repaired.",
-     "x": 960,
-     "y": 640,
-     "color": "#3ddc97",
+     "text": "3V3",
+     "x": 558,
+     "y": 452,
+     "color": "#1d9e63",
      "font": {
-      "size": 56,
+      "size": 17,
+      "weight": 600,
+      "family": "mono"
+     }
+    },
+    {
+     "id": "wchip",
+     "type": "rect",
+     "x": 700,
+     "y": 745,
+     "w": 236,
+     "h": 64,
+     "radius": 14,
+     "fill": "#ffffff",
+     "rot": -4,
+     "glow": {
+      "sigma": 20,
+      "opacity": 0.2,
+      "color": "#0a1030"
+     }
+    },
+    {
+     "id": "wchipt",
+     "type": "text",
+     "text": "3V3 on 5V!",
+     "x": 700,
+     "y": 745,
+     "color": "#e2620c",
+     "font": {
+      "size": 24,
       "weight": 650,
       "family": "inter"
      },
+     "rot": -4
+    },
+    {
+     "id": "gchip",
+     "type": "rect",
+     "x": 700,
+     "y": 745,
+     "w": 216,
+     "h": 64,
+     "radius": 14,
+     "fill": "#ffffff",
+     "rot": -4,
+     "opacity": 0,
+     "glow": {
+      "sigma": 20,
+      "opacity": 0.2,
+      "color": "#0a1030"
+     }
+    },
+    {
+     "id": "gchipt",
+     "type": "text",
+     "text": "repaired.",
+     "x": 700,
+     "y": 745,
+     "color": "#1d9e63",
+     "font": {
+      "size": 24,
+      "weight": 650,
+      "family": "inter"
+     },
+     "rot": -4,
      "opacity": 0
     }
    ],
-   "note": "The log prints fast, then the fault capsule slams in orange and flips to 'repaired.' green on the beat. Camera dives in."
+   "note": "The whiteout decays into the wiring forming live: boxes pop, wires draw pin to pin, the 5V wire flashes orange -- and the repair reroutes it green through 3V3. Camera dives in."
   },
   {
    "id": "s6",

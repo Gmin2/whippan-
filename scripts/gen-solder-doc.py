@@ -275,47 +275,114 @@ tracks.append(keyed("send",
 tracks.append({"target": "send", "at": send_at, "state": "sent"})
 tracks.append(keyed("flash", opacity=[(B * 5, 0), (B * 6 - 0.06, 1)]))
 
-# ----------------------------- s5: the job log and the repair pill
-LOG = [
-    ("g1", "composing plan", "#c9ccd6", 0.10),
-    ("g2", "picked 9 parts from the catalog", "#8a8f9c", 0.35),
-    ("g3", "wired 14 nets", "#8a8f9c", 0.60),
-    ("g4", "checking against physics", "#8a8f9c", 0.85),
+# ------------------ s5: the wiring diagram forms, faults, and repairs
+# blueprint-blue boxes pop in, wires draw pin to pin on the grid, the 5V
+# fault flashes orange, the repair reroutes green. same visual language
+# as the quadcopter drawing.
+GREEN = "#1d9e63"
+ORANGE = "#e2620c"
+
+
+def bpbox(pid, x, y, w, h, label, fsize=20):
+    return [
+        rect(f"{pid}o", x, y, w, h, 14, BLUE),
+        rect(f"{pid}i", x, y, w - 5, h - 5, 11, CREAM),
+        text(f"{pid}l", label, x, y, fsize, BLUE, 500, "mono"),
+    ]
+
+
+def wire(wid, pts, color=BLUE):
+    """elbow wire as two stroked segments so it reads as drawing."""
+    (x0, y0), (x1, y1), (x2, y2) = pts
+    return [
+        {"id": f"{wid}a", "type": "path", "x": 0, "y": 0, "stroke": 3.2,
+         "fill": color, "d": f"M{x0} {y0}L{x1} {y1}"},
+        {"id": f"{wid}b", "type": "path", "x": 0, "y": 0, "stroke": 3.2,
+         "fill": color, "d": f"M{x1} {y1}L{x2} {y2}"},
+    ]
+
+
+s5_nodes = [rect("lflash", 960, 540, 1920, 1080, 0, "#ffffff")]
+s5_nodes += bpbox("fc", 960, 380, 320, 110, "FLIGHT CONTROLLER")
+s5_nodes += bpbox("imu", 560, 640, 200, 96, "IMU")
+s5_nodes += bpbox("esc", 1360, 640, 230, 96, "MOSFET ESC")
+s5_nodes += bpbox("lipo", 960, 820, 220, 96, "LIPO 1S")
+s5_nodes += wire("w1", [(800, 390), (660, 390), (660, 592)])
+s5_nodes += wire("w2", [(1120, 390), (1260, 390), (1260, 592)])
+s5_nodes += wire("w3", [(1070, 820), (1360, 820), (1360, 688)])
+s5_nodes += wire("w4", [(850, 820), (560, 820), (560, 688)], ORANGE)
+s5_nodes += [
+    {"id": "w5a", "type": "path", "x": 0, "y": 0, "stroke": 4.2,
+     "fill": GREEN, "d": "M800 420L600 420"},
+    {"id": "w5b", "type": "path", "x": 0, "y": 0, "stroke": 4.2,
+     "fill": GREEN, "d": "M600 420L600 592"},
 ]
-log_nodes = [rect("lflash", 960, 540, 1920, 1080, 0, "#ffffff")]
-for i, (gid, sline, col, _) in enumerate(LOG):
-    x = 560 + len(sline) * 26 * MONO_W / 2
-    log_nodes.append(text(gid, sline, round(x, 1), 300 + i * 54, 26, col,
-                          family="mono"))
-log_nodes += [
-    rect("pill1", 960, 640, 980, 150, 75, "#221a16",
-         glow={"sigma": 30, "opacity": 0.5, "color": "#7a3a12"}),
-    text("pt1", "3V3 pin on a 5V net", 960, 640, 52, "#ff9d55", 600),
-    rect("pill2", 960, 640, 980, 150, 75, "#12291f", opacity=0,
-         glow={"sigma": 30, "opacity": 0.6, "color": "#1d6b47"}),
-    text("pt2", "repaired.", 960, 640, 56, "#3ddc97", 650, opacity=0),
+s5_nodes += [
+    text("lb1", "SDA", 625, 500, 17, BLUE, 500, "mono"),
+    text("lb2", "PWM", 1295, 500, 17, BLUE, 500, "mono"),
+    text("lb3", "GND", 1240, 785, 17, BLUE, 500, "mono"),
+    text("lb4", "5V", 610, 785, 17, ORANGE, 600, "mono"),
+    text("lb5", "3V3", 558, 452, 17, GREEN, 600, "mono"),
+    rect("wchip", 700, 745, 236, 64, 14, "#ffffff", rot=-4,
+         glow={"sigma": 20, "opacity": 0.2, "color": "#0a1030"}),
+    text("wchipt", "3V3 on 5V!", 700, 745, 24, ORANGE, 650, rot=-4),
+    rect("gchip", 700, 745, 216, 64, 14, "#ffffff", rot=-4, opacity=0,
+         glow={"sigma": 20, "opacity": 0.2, "color": "#0a1030"}),
+    text("gchipt", "repaired.", 700, 745, 24, GREEN, 650, rot=-4,
+         opacity=0),
 ]
-scene("s5", 6, log_nodes, bg="#0e1116",
-      note="The log prints fast, then the fault capsule slams in orange "
-           "and flips to 'repaired.' green on the beat. Camera dives in.")
+scene("s5", 6, s5_nodes,
+      note="The whiteout decays into the wiring forming live: boxes pop, "
+           "wires draw pin to pin, the 5V wire flashes orange -- and the "
+           "repair reroutes it green through 3V3. Camera dives in.")
 tracks.append(keyed("lflash", opacity=[(0, 1), (0.16, 0)]))
-for gid, sline, col, at in LOG:
-    tracks.append(keyed(gid, opacity=[(at, 0), (at + 0.07, 1)]))
-tracks.append(keyed("pill1",
-                    opacity=[(B * 2, 0), (B * 2 + 0.1, 1), (B * 4, 1),
-                             (B * 4 + 0.06, 0)],
-                    scale=[(B * 2, 0.7), (B * 2 + 0.3, 1.04, "outCubic"),
-                           (B * 2 + 0.5, 1.0, "outCubic")]))
-tracks.append(keyed("pt1", opacity=[(B * 2, 0), (B * 2 + 0.12, 1),
-                                    (B * 4, 1), (B * 4 + 0.06, 0)]))
-tracks.append(keyed("pill2",
-                    opacity=[(B * 4, 0), (B * 4 + 0.08, 1)],
-                    scale=[(B * 4, 0.92), (B * 4 + 0.22, 1.05, "outCubic"),
-                           (B * 4 + 0.4, 1.0, "outCubic")]))
-tracks.append(keyed("pt2", opacity=[(B * 4, 0), (B * 4 + 0.1, 1)]))
-tracks.append({"target": "pill2", "at": B * 4, "state": "clean"})
+BOXES = [("fc", 0.06), ("imu", 0.14), ("esc", 0.22), ("lipo", 0.30)]
+for pid, at in BOXES:
+    for suf in ("o", "i", "l"):
+        tracks.append(keyed(f"{pid}{suf}",
+                            opacity=[(at, 0), (at + 0.14, 1)],
+                            scale=[(at, 0.82), (at + 0.26, 1.03,
+                                   "outCubic"),
+                                   (at + 0.38, 1.0, "outCubic")]))
+tracks.append({"target": "fco", "at": 0.2, "state": "on"})
+WIRES = [("w1", 0.52, "lb1"), ("w2", 0.66, "lb2"), ("w3", 0.80, "lb3")]
+for wid, at, lb in WIRES:
+    tracks.append(keyed(f"{wid}a", opacity=[(at, 0), (at + 0.1, 1)]))
+    tracks.append(keyed(f"{wid}b",
+                        opacity=[(at + 0.08, 0), (at + 0.18, 1)]))
+    tracks.append(keyed(lb, opacity=[(at + 0.16, 0), (at + 0.28, 1)]))
+# the fault wire draws at beat 3 and pulses orange with the warning chip
+fa = B * 2.4
+tracks.append(keyed("w4a", opacity=[(fa, 0), (fa + 0.1, 1)]))
+tracks.append(keyed("w4b", opacity=[(fa + 0.08, 0), (fa + 0.18, 1),
+                                    (B * 4, 1), (B * 4 + 0.14, 0)]))
+tracks.append(keyed("w4a", opacity=[(fa, 0), (fa + 0.1, 1), (B * 4, 1),
+                                    (B * 4 + 0.14, 0)]))
+tracks.append(keyed("lb4", opacity=[(fa + 0.14, 0), (fa + 0.24, 1),
+                                    (B * 4, 1), (B * 4 + 0.14, 0)]))
+for nid in ("wchip", "wchipt"):
+    tracks.append(keyed(nid,
+                        opacity=[(fa + 0.18, 0), (fa + 0.28, 1),
+                                 (B * 4, 1), (B * 4 + 0.1, 0)],
+                        scale=[(fa + 0.18, 0.6),
+                               (fa + 0.32, 1.08, "outCubic"),
+                               (fa + 0.46, 1.0, "outCubic")]))
+tracks.append({"target": "wchip", "at": fa + 0.2, "state": "fault"})
+# the repair reroutes green at beat 4
+ra = B * 4
+tracks.append(keyed("w5a", opacity=[(ra + 0.06, 0), (ra + 0.16, 1)]))
+tracks.append(keyed("w5b", opacity=[(ra + 0.14, 0), (ra + 0.24, 1)]))
+tracks.append(keyed("lb5", opacity=[(ra + 0.22, 0), (ra + 0.34, 1)]))
+for nid in ("gchip", "gchipt"):
+    tracks.append(keyed(nid,
+                        opacity=[(ra + 0.18, 0), (ra + 0.3, 1)],
+                        scale=[(ra + 0.18, 0.8),
+                               (ra + 0.34, 1.06, "outCubic"),
+                               (ra + 0.48, 1.0, "outCubic")]))
+tracks.append({"target": "gchip", "at": ra + 0.2, "state": "clean"})
 tracks.append({"target": "s5", "at": B * 5, "cam": {
-    "preset": "zoom-promote", "z": 2.0, "anchor": [960, 640], "dur": 0.55}})
+    "preset": "zoom-promote", "z": 1.9, "anchor": [640, 560],
+    "dur": 0.55}})
 
 # ------------------- s6: the blueprint, snap reframes onto the parts
 scene("s6", 6, [
