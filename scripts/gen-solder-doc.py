@@ -179,18 +179,47 @@ for nid in ("warn", "warnt"):
                         scale=[(at, 0.5), (at + 0.22, 1.08, "outCubic"),
                                (at + 0.36, 1.0, "outCubic")]))
 
-# ----------------------------------------- i5: the dark "weeks." pill
-scene("i5", 3, [
-    rect("wpill", 960, 540, 520, 156, 78, "#212129"),
-    text("wt", "weeks.", 960, 540, 64, "#f2f2f4", 650),
-], bg="#0c0c10",
-    note="The '8 days' move: hard cut to black, one dark capsule -- "
-         "'weeks.' Three beats.")
-tracks.append(keyed("wpill",
-                    opacity=[(0.05, 0), (0.18, 1)],
-                    scale=[(0.05, 0.8), (0.3, 1.04, "outCubic"),
-                           (0.45, 1.0, "outCubic")]))
-tracks.append(keyed("wt", opacity=[(0.12, 0), (0.28, 1)]))
+# ------------------- i5: the lovable days-counter pill, copied exactly:
+# outlined capsule on black, a soft dark blob behind the digit, and the
+# number rolling up like time piling on -- 2, 4, 6, 8 weeks.
+DIGITS = ["2", "4", "6", "8"]
+i5_nodes = [
+    rect("ring", 960, 540, 760, 210, 105, "#2e2b29"),
+    rect("ringin", 960, 540, 748, 198, 99, "#050505"),
+    rect("blob", 800, 540, 330, 176, 88, "#2b211c", blur=16),
+]
+for i, d in enumerate(DIGITS):
+    i5_nodes.append(text(f"dg{i}", d, 800, 540, 92, "#efe9df", 600,
+                         opacity=0))
+i5_nodes.append(text("wkt", "weeks", 1075, 540, 92, "#efe9df", 600))
+scene("i5", 4, i5_nodes, bg="#050505",
+      note="The lovable counter pill: outlined capsule, soft blob "
+           "behind the digit, the number rolls 2-4-6-8 weeks.")
+for nid in ("ring", "ringin", "blob"):
+    tracks.append(keyed(nid,
+                        opacity=[(0.05, 0), (0.2, 1)],
+                        scale=[(0.05, 0.82), (0.32, 1.03, "outCubic"),
+                               (0.48, 1.0, "outCubic")]))
+tracks.append(keyed("wkt", opacity=[(0.15, 0), (0.3, 1)]))
+for i, d in enumerate(DIGITS):
+    at = 0.42 + i * B * 0.75
+    last = i == len(DIGITS) - 1
+    if last:
+        tracks.append(keyed(f"dg{i}",
+                            opacity=[(at, 0), (at + 0.1, 1)],
+                            y=[(at, 30), (at + 0.2, 0, "outCubic")],
+                            scale=[(at + 0.2, 1.0),
+                                   (at + 0.32, 1.12, "outCubic"),
+                                   (at + 0.48, 1.0, "outCubic")]))
+        tracks.append({"target": f"dg{i}", "at": at + 0.2,
+                       "state": "landed"})
+    else:
+        nxt = 0.42 + (i + 1) * B * 0.75
+        tracks.append(keyed(f"dg{i}",
+                            opacity=[(at, 0), (at + 0.1, 1),
+                                     (nxt - 0.06, 1), (nxt, 0)],
+                            y=[(at, 30), (at + 0.2, 0, "outCubic"),
+                               (nxt - 0.06, 0), (nxt, -30)]))
 
 # --------------------------------------------- i6/i7: Meet / Solder
 ns, ts = word_slide("m", "Meet", 150, chip=False, color="#ffffff")

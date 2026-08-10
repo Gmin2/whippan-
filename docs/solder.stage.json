@@ -309,34 +309,111 @@
   },
   {
    "id": "i5",
-   "bg": "#0c0c10",
-   "dur": 1.463,
+   "bg": "#050505",
+   "dur": 1.951,
    "nodes": [
     {
-     "id": "wpill",
+     "id": "ring",
      "type": "rect",
      "x": 960,
      "y": 540,
-     "w": 520,
-     "h": 156,
-     "radius": 78,
-     "fill": "#212129"
+     "w": 760,
+     "h": 210,
+     "radius": 105,
+     "fill": "#2e2b29"
     },
     {
-     "id": "wt",
-     "type": "text",
-     "text": "weeks.",
+     "id": "ringin",
+     "type": "rect",
      "x": 960,
      "y": 540,
-     "color": "#f2f2f4",
+     "w": 748,
+     "h": 198,
+     "radius": 99,
+     "fill": "#050505"
+    },
+    {
+     "id": "blob",
+     "type": "rect",
+     "x": 800,
+     "y": 540,
+     "w": 330,
+     "h": 176,
+     "radius": 88,
+     "fill": "#2b211c",
+     "blur": 16
+    },
+    {
+     "id": "dg0",
+     "type": "text",
+     "text": "2",
+     "x": 800,
+     "y": 540,
+     "color": "#efe9df",
      "font": {
-      "size": 64,
-      "weight": 650,
+      "size": 92,
+      "weight": 600,
+      "family": "inter"
+     },
+     "opacity": 0
+    },
+    {
+     "id": "dg1",
+     "type": "text",
+     "text": "4",
+     "x": 800,
+     "y": 540,
+     "color": "#efe9df",
+     "font": {
+      "size": 92,
+      "weight": 600,
+      "family": "inter"
+     },
+     "opacity": 0
+    },
+    {
+     "id": "dg2",
+     "type": "text",
+     "text": "6",
+     "x": 800,
+     "y": 540,
+     "color": "#efe9df",
+     "font": {
+      "size": 92,
+      "weight": 600,
+      "family": "inter"
+     },
+     "opacity": 0
+    },
+    {
+     "id": "dg3",
+     "type": "text",
+     "text": "8",
+     "x": 800,
+     "y": 540,
+     "color": "#efe9df",
+     "font": {
+      "size": 92,
+      "weight": 600,
+      "family": "inter"
+     },
+     "opacity": 0
+    },
+    {
+     "id": "wkt",
+     "type": "text",
+     "text": "weeks",
+     "x": 1075,
+     "y": 540,
+     "color": "#efe9df",
+     "font": {
+      "size": 92,
+      "weight": 600,
       "family": "inter"
      }
     }
    ],
-   "note": "The '8 days' move: hard cut to black, one dark capsule -- 'weeks.' Three beats."
+   "note": "The lovable counter pill: outlined capsule, soft blob behind the digit, the number rolls 2-4-6-8 weeks."
   },
   {
    "id": "i6",
