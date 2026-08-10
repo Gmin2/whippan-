@@ -360,6 +360,18 @@
   "anim": "/docs/whippan.anim.json"
  },
  {
+  "slug": "solder",
+  "title": "solder \u2014 launch film",
+  "dur": 20.0,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "reproductions",
+  "stage": "/docs/solder.stage.json",
+  "anim": "/docs/solder.anim.json"
+ },
+ {
   "slug": "reveal",
   "title": "reveal",
   "dur": 2.4,

@@ -187,6 +187,23 @@ pub fn run() {
         let path = root.join(file);
         register_font(name, std::fs::read(&path).unwrap_or_else(|_| panic!("font {file}")));
     }
+    // any other ttf in assets/fonts registers under its lowercased stem
+    // up to the first '-' (Playfair-Variable.ttf -> "playfair")
+    if let Ok(entries) = std::fs::read_dir(root.join("assets/fonts")) {
+        for e in entries.flatten() {
+            let fname = e.file_name().to_string_lossy().to_string();
+            if !fname.ends_with(".ttf")
+                || fname == "Inter-Variable.ttf"
+                || fname == "JetBrainsMono-Regular.ttf"
+            {
+                continue;
+            }
+            let name = fname.split('-').next().unwrap_or(&fname).to_lowercase();
+            if let Ok(bytes) = std::fs::read(e.path()) {
+                register_font(&name, bytes);
+            }
+        }
+    }
 
     // preload every bitmap the stage references; doc paths are server-absolute
     let mut images: HashMap<String, skia_safe::Image> = HashMap::new();
