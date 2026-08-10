@@ -153,26 +153,36 @@ def lockup_ids(p, with_text=True):
 TRI_D = "M4 3C2 3 0.8 5.2 1.8 7L10 21C11 22.8 13.5 22.8 14.5 21L22.7 7C23.7 5.2 22.5 3 20.5 3Z"
 
 
-def annotate(p, label, at, color=BLUE):
-    """image-8 style callout, uniform across screens: rounded triangle
-    pointing up at the content + label, centered at the bottom."""
-    lsize = 30
+POINTER = "M0 0L30 11L16 16L11 30Z"
+
+
+def pointer(p, sx, sy, tx, ty, at, color, label, side=1):
+    """agent-code labeled cursor: sleek pointer that flies in from
+    (sx,sy), lands its tip on (tx,ty), label pill riding the tail."""
+    lsize = 26
     f = measure(lsize, 650)
     lw = f.getlength(label) * CAL
-    total = 46 + 26 + lw
-    left = 960 - total / 2
+    pw = lw + 44
     ns = [
-        {"id": f"{p}tri", "type": "path", "x": round(left + 2, 1),
-         "y": 966, "fill": color, "d": TRI_D, "rot": 180,
-         "keys": {"scale": [{"t": 0, "v": 1.9}]}},
-        text(f"{p}lab", label, round(left + 46 + 26 + lw / 2, 1), 986,
-             lsize, color, 650),
+        {"id": f"{p}ptr", "type": "path", "x": tx, "y": ty, "fill": color,
+         "d": POINTER, "keys": {"scale": [{"t": 0, "v": 1.6}]}},
+        rect(f"{p}tag", round(tx + side * (30 + pw / 2), 1),
+             round(ty + 74, 1), round(pw, 1), 54, 27, color),
+        text(f"{p}lb", label, round(tx + side * (30 + pw / 2), 1),
+             round(ty + 74, 1), lsize, "#ffffff", 650),
     ]
+    dx, dy = sx - tx, sy - ty
     trs = []
-    for nid in (f"{p}tri", f"{p}lab"):
+    for nid in (f"{p}ptr", f"{p}tag", f"{p}lb"):
         trs.append(keyed(nid,
-                         opacity=[(at, 0), (at + 0.16, 1)],
-                         y=[(at, 22), (at + 0.34, 0, "outCubic")]))
+                         opacity=[(at, 0), (at + 0.12, 1)],
+                         x=[(at, dx), (at + 0.5, round(-dx * 0.045, 1),
+                             "inOutCubic"),
+                            (at + 0.68, 0, "outCubic")],
+                         y=[(at, dy), (at + 0.5, round(-dy * 0.045, 1),
+                             "inOutCubic"),
+                            (at + 0.68, 0, "outCubic")]))
+    trs.append({"target": f"{p}ptr", "at": at + 0.55, "state": "land"})
     return ns, trs
 
 
@@ -384,7 +394,8 @@ tracks.append(keyed("wshot",
                     x=[(0, 340), (0.42, 0, "outCubic")],
                     opacity=[(0, 0), (0.14, 1), (B * 3.2, 1),
                              (B * 3.95, 0.08)]))
-ns, trs = annotate("an5", "how to wire it", B * 1)
+ns, trs = pointer("an5", 2120, 950, 1010, 565, B * 0.35, "#e2620c",
+                  "how to wire it")
 scenes[-1]["nodes"] += ns
 tracks += trs
 tracks.append({"target": "s5", "keys": {
@@ -407,7 +418,8 @@ scene("s6", 6, [
          "explodes apart, labels land, and it snaps back together. "
          "Gentle push while it performs.")
 tracks.append(keyed("ashot", opacity=[(0, 0), (0.14, 1)]))
-ns, trs = annotate("an6", "how it looks", B * 1)
+ns, trs = pointer("an6", 2150, 780, 1105, 500, B * 1.2, "#2a9d8f",
+                  "how it looks")
 scenes[-1]["nodes"] += ns
 tracks += trs
 tracks.append({"target": "s6", "keys": {
@@ -429,10 +441,11 @@ tracks.append(keyed("bshot",
                     x=[(0, 340), (0.42, 0, "outCubic")],
                     opacity=[(0, 0), (0.14, 1)]))
 tracks.append({"target": "s6b", "at": B * 1.5, "cam": {
-    "preset": "zoom-promote", "z": 1.7, "anchor": [1420, 555],
+    "preset": "zoom-promote", "z": 1.55, "anchor": [1600, 570],
     "dur": 0.7}})
 tracks.append({"target": "bshot", "at": B * 1.5, "state": "dive"})
-ns, trs = annotate("an7", "what to buy · $13.72", B * 1)
+ns, trs = pointer("an7", 700, 1160, 1745, 545, B * 1.1, BLUE,
+                  "what to buy", side=-1)
 scenes[-1]["nodes"] += ns
 tracks += trs
 

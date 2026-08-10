@@ -700,31 +700,40 @@
      "h": 756
     },
     {
-     "id": "an6tri",
+     "id": "an6ptr",
      "type": "path",
-     "x": 840.8,
-     "y": 966,
-     "fill": "#2d52f0",
-     "d": "M4 3C2 3 0.8 5.2 1.8 7L10 21C11 22.8 13.5 22.8 14.5 21L22.7 7C23.7 5.2 22.5 3 20.5 3Z",
-     "rot": 180,
+     "x": 1105,
+     "y": 500,
+     "fill": "#2a9d8f",
+     "d": "M0 0L30 11L16 16L11 30Z",
      "keys": {
       "scale": [
        {
         "t": 0,
-        "v": 1.9
+        "v": 1.6
        }
       ]
      }
     },
     {
-     "id": "an6lab",
+     "id": "an6tag",
+     "type": "rect",
+     "x": 1230.9,
+     "y": 574,
+     "w": 191.7,
+     "h": 54,
+     "radius": 27,
+     "fill": "#2a9d8f"
+    },
+    {
+     "id": "an6lb",
      "type": "text",
      "text": "how it looks",
-     "x": 996.0,
-     "y": 986,
-     "color": "#2d52f0",
+     "x": 1230.9,
+     "y": 574,
+     "color": "#ffffff",
      "font": {
-      "size": 30,
+      "size": 26,
       "weight": 650,
       "family": "inter"
      }
@@ -747,31 +756,40 @@
      "h": 408
     },
     {
-     "id": "an7tri",
+     "id": "an7ptr",
      "type": "path",
-     "x": 782.5,
-     "y": 966,
+     "x": 1745,
+     "y": 545,
      "fill": "#2d52f0",
-     "d": "M4 3C2 3 0.8 5.2 1.8 7L10 21C11 22.8 13.5 22.8 14.5 21L22.7 7C23.7 5.2 22.5 3 20.5 3Z",
-     "rot": 180,
+     "d": "M0 0L30 11L16 16L11 30Z",
      "keys": {
       "scale": [
        {
         "t": 0,
-        "v": 1.9
+        "v": 1.6
        }
       ]
      }
     },
     {
-     "id": "an7lab",
+     "id": "an7tag",
+     "type": "rect",
+     "x": 1619.7,
+     "y": 619,
+     "w": 190.6,
+     "h": 54,
+     "radius": 27,
+     "fill": "#2d52f0"
+    },
+    {
+     "id": "an7lb",
      "type": "text",
-     "text": "what to buy \u00b7 $13.72",
-     "x": 996.0,
-     "y": 986,
-     "color": "#2d52f0",
+     "text": "what to buy",
+     "x": 1619.7,
+     "y": 619,
+     "color": "#ffffff",
      "font": {
-      "size": 30,
+      "size": 26,
       "weight": 650,
       "family": "inter"
      }
@@ -804,31 +822,40 @@
      "h": 700
     },
     {
-     "id": "an5tri",
+     "id": "an5ptr",
      "type": "path",
-     "x": 830.5,
-     "y": 966,
-     "fill": "#2d52f0",
-     "d": "M4 3C2 3 0.8 5.2 1.8 7L10 21C11 22.8 13.5 22.8 14.5 21L22.7 7C23.7 5.2 22.5 3 20.5 3Z",
-     "rot": 180,
+     "x": 1010,
+     "y": 565,
+     "fill": "#e2620c",
+     "d": "M0 0L30 11L16 16L11 30Z",
      "keys": {
       "scale": [
        {
         "t": 0,
-        "v": 1.9
+        "v": 1.6
        }
       ]
      }
     },
     {
-     "id": "an5lab",
+     "id": "an5tag",
+     "type": "rect",
+     "x": 1144.8,
+     "y": 639,
+     "w": 209.6,
+     "h": 54,
+     "radius": 27,
+     "fill": "#e2620c"
+    },
+    {
+     "id": "an5lb",
      "type": "text",
      "text": "how to wire it",
-     "x": 996.0,
-     "y": 986,
-     "color": "#2d52f0",
+     "x": 1144.8,
+     "y": 639,
+     "color": "#ffffff",
      "font": {
-      "size": 30,
+      "size": 26,
       "weight": 650,
       "family": "inter"
      }
