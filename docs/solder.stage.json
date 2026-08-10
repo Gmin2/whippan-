@@ -572,19 +572,33 @@
   {
    "id": "s6b",
    "bg": "#f5f7ff",
-   "dur": 2.439,
+   "dur": 2.927,
    "nodes": [
     {
      "id": "bshot",
      "type": "image",
-     "src": "/assets/solder/bom.png",
+     "src": "/assets/solder/bom-table.png",
      "x": 960,
-     "y": 540,
-     "w": 1920,
-     "h": 1080
+     "y": 500,
+     "w": 1840,
+     "h": 408
+    },
+    {
+     "id": "wmpre",
+     "type": "text",
+     "text": "Solder",
+     "x": 960,
+     "y": 380,
+     "color": "#2d52f0",
+     "font": {
+      "size": 120,
+      "weight": 600,
+      "family": "playfair"
+     },
+     "opacity": 0
     }
    ],
-   "note": "The BOM screen: every part, its ref, its source, its price -- $13.72 total. Slide in, then dive onto the total row."
+   "note": "The BOM table only: every part, ref, source, price, $13.72 total. Dive onto the total row -- then the ai-1 move: the screen dissolves and the wordmark rises out of it."
   },
   {
    "id": "c1",
@@ -631,7 +645,7 @@
   {
    "id": "c3",
    "bg": "#2d52f0",
-   "dur": 0.976,
+   "dur": 0.488,
    "nodes": [
     {
      "id": "b3t",

@@ -341,18 +341,28 @@ tracks.append({"target": "s6", "keys": {
 }})
 
 # ------------------------- s6b: the BOM -- what to buy, where, how much
-scene("s6b", 5, [
-    img("bshot", "/assets/solder/bom.png", 960, 540, 1920, 1080),
+# just the table, then the ai-1 move: the screen dissolves away and the
+# wordmark rises out of it, handing off to the end card as a match cut.
+scene("s6b", 6, [
+    img("bshot", "/assets/solder/bom-table.png", 960, 500, 1840, 408),
+    text("wmpre", "Solder", 960, 380, 120, BLUE, 600, "playfair",
+         opacity=0),
 ], bg="#f5f7ff",
-    note="The BOM screen: every part, its ref, its source, its price -- "
-         "$13.72 total. Slide in, then dive onto the total row.")
+    note="The BOM table only: every part, ref, source, price, $13.72 "
+         "total. Dive onto the total row -- then the ai-1 move: the "
+         "screen dissolves and the wordmark rises out of it.")
 tracks.append(keyed("bshot",
                     x=[(0, 340), (0.42, 0, "outCubic")],
-                    opacity=[(0, 0), (0.14, 1)]))
-tracks.append({"target": "s6b", "at": B * 2.5, "cam": {
-    "preset": "zoom-promote", "z": 1.8, "anchor": [1180, 390],
-    "dur": 0.8}})
-tracks.append({"target": "bshot", "at": B * 2.5, "state": "dive"})
+                    opacity=[(0, 0), (0.14, 1), (B * 4, 1),
+                             (B * 5.2, 0.05)]))
+tracks.append({"target": "s6b", "at": B * 2, "cam": {
+    "preset": "zoom-promote", "z": 1.7, "anchor": [1420, 555],
+    "dur": 0.7}})
+tracks.append({"target": "bshot", "at": B * 2, "state": "dive"})
+tracks.append(keyed("wmpre",
+                    opacity=[(B * 4, 0), (B * 4.8, 1)],
+                    scale=[(B * 4, 0.55), (B * 5.6, 1.0, "outCubic")],
+                    y=[(B * 4, 150), (B * 5.6, 0, "outCubic")]))
 
 # ----------------------------------- c1..c3: the benefit run, brew-style
 ns, ts = word_slide("b1", "prototype hardware", 104, chip=False)
@@ -363,7 +373,7 @@ scene("c2", 1, ns, bg=INK, note="Closer inverted: fast and easy.")
 tracks += ts
 ns, ts = word_slide("b3", "checked against physics", 96, chip=False,
                     color="#ffffff")
-scene("c3", 2, ns, bg=BLUE, note="Closer on blue: checked against "
+scene("c3", 1, ns, bg=BLUE, note="Closer on blue: checked against "
                                  "physics.")
 tracks += ts
 
@@ -389,8 +399,7 @@ tracks.append(keyed("f1", opacity=[(0.1, 0), (0.5, 0.55)],
                     y=[(0.1, 30), (0.6, 0, "outCubic")]))
 tracks.append(keyed("f2", opacity=[(0.2, 0), (0.6, 0.55)],
                     y=[(0.2, 30), (0.7, 0, "outCubic")]))
-tracks.append(keyed("wm7", opacity=[(0.05, 0), (0.35, 1)],
-                    y=[(0.05, 26), (0.45, 0, "outCubic")]))
+tracks.append(keyed("wm7", opacity=[(0, 1)]))
 tracks.append(keyed("bar7", opacity=[(B, 0), (B + 0.25, 1)],
                     y=[(B, 34), (B + 0.4, 0, "outCubic")]))
 cx_end, cy_end = round(960 - BAR_W / 2 + 60), 596
