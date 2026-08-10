@@ -702,11 +702,11 @@
     {
      "id": "an6tri",
      "type": "path",
-     "x": 430,
-     "y": 300,
-     "fill": "#e2620c",
+     "x": 840.8,
+     "y": 966,
+     "fill": "#2d52f0",
      "d": "M4 3C2 3 0.8 5.2 1.8 7L10 21C11 22.8 13.5 22.8 14.5 21L22.7 7C23.7 5.2 22.5 3 20.5 3Z",
-     "rot": 24,
+     "rot": 180,
      "keys": {
       "scale": [
        {
@@ -720,9 +720,9 @@
      "id": "an6lab",
      "type": "text",
      "text": "how it looks",
-     "x": 452,
-     "y": 250,
-     "color": "#e2620c",
+     "x": 996.0,
+     "y": 986,
+     "color": "#2d52f0",
      "font": {
       "size": 30,
       "weight": 650,
@@ -735,7 +735,7 @@
   {
    "id": "s6b",
    "bg": "#f5f7ff",
-   "dur": 2.439,
+   "dur": 1.951,
    "nodes": [
     {
      "id": "bshot",
@@ -749,11 +749,11 @@
     {
      "id": "an7tri",
      "type": "path",
-     "x": 1555,
-     "y": 505,
+     "x": 782.5,
+     "y": 966,
      "fill": "#2d52f0",
      "d": "M4 3C2 3 0.8 5.2 1.8 7L10 21C11 22.8 13.5 22.8 14.5 21L22.7 7C23.7 5.2 22.5 3 20.5 3Z",
-     "rot": 150,
+     "rot": 180,
      "keys": {
       "scale": [
        {
@@ -767,11 +767,11 @@
      "id": "an7lab",
      "type": "text",
      "text": "what to buy \u00b7 $13.72",
-     "x": 1500,
-     "y": 462,
+     "x": 996.0,
+     "y": 986,
      "color": "#2d52f0",
      "font": {
-      "size": 26,
+      "size": 30,
       "weight": 650,
       "family": "inter"
      }
@@ -806,11 +806,11 @@
     {
      "id": "an5tri",
      "type": "path",
-     "x": 700,
-     "y": 250,
-     "fill": "#2a9d8f",
+     "x": 830.5,
+     "y": 966,
+     "fill": "#2d52f0",
      "d": "M4 3C2 3 0.8 5.2 1.8 7L10 21C11 22.8 13.5 22.8 14.5 21L22.7 7C23.7 5.2 22.5 3 20.5 3Z",
-     "rot": 18,
+     "rot": 180,
      "keys": {
       "scale": [
        {
@@ -824,9 +824,9 @@
      "id": "an5lab",
      "type": "text",
      "text": "how to wire it",
-     "x": 745,
-     "y": 200,
-     "color": "#2a9d8f",
+     "x": 996.0,
+     "y": 986,
+     "color": "#2d52f0",
      "font": {
       "size": 30,
       "weight": 650,
@@ -839,7 +839,7 @@
   {
    "id": "cnet",
    "bg": "#f7f8fd",
-   "dur": 2.927,
+   "dur": 3.415,
    "nodes": [
     {
      "id": "bloom",
@@ -1103,23 +1103,109 @@
      "y": 0,
      "stroke": 2.6,
      "fill": "#8fa5f2",
-     "d": "M740 330L870 420"
+     "d": "M740 330L870 430"
+    },
+    {
+     "id": "nw3",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 2.6,
+     "fill": "#8fa5f2",
+     "d": "M1090 470L1090 560"
+    },
+    {
+     "id": "nw4",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 2.6,
+     "fill": "#8fa5f2",
+     "d": "M1320 600L1320 690"
+    },
+    {
+     "id": "nw5",
+     "type": "path",
+     "x": 0,
+     "y": 0,
+     "stroke": 2.6,
+     "fill": "#8fa5f2",
+     "d": "M1650 690L1800 690"
+    },
+    {
+     "id": "fcard",
+     "type": "rect",
+     "x": 1880,
+     "y": 690,
+     "w": 110,
+     "h": 110,
+     "radius": 24,
+     "fill": "#ffffff",
+     "glow": {
+      "sigma": 24,
+      "opacity": 0.22,
+      "color": "#12206b"
+     }
+    },
+    {
+     "id": "fcheck",
+     "type": "path",
+     "x": 1862,
+     "y": 673,
+     "stroke": 5,
+     "fill": "#1d9e63",
+     "d": "M2 9L7 14L16 3",
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 2.0
+       }
+      ]
+     }
+    },
+    {
+     "id": "flab",
+     "type": "text",
+     "text": "buildable",
+     "x": 1880,
+     "y": 768,
+     "color": "#6b7280",
+     "font": {
+      "size": 24,
+      "weight": 550,
+      "family": "inter"
+     }
     },
     {
      "id": "p1",
      "type": "rect",
      "x": 940,
-     "y": 420,
+     "y": 430,
      "w": 76,
      "h": 76,
      "radius": 38,
      "fill": "#2d52f0"
     },
     {
+     "id": "p1t",
+     "type": "text",
+     "text": "what to buy",
+     "x": 1150.0,
+     "y": 430,
+     "color": "#ffffff",
+     "font": {
+      "size": 44,
+      "weight": 650,
+      "family": "inter"
+     },
+     "opacity": 0
+    },
+    {
      "id": "p1cur",
      "type": "path",
      "x": 925,
-     "y": 404,
+     "y": 414,
      "fill": "#ffffff",
      "d": "M0 0L0 17.9L4.2 14.2L7.0 20.6L10.1 19.2L7.3 12.9L12.8 12.4Z",
      "keys": {
@@ -1132,43 +1218,74 @@
      }
     },
     {
-     "id": "p1t",
-     "type": "text",
-     "text": "Every part",
-     "x": 1080,
-     "y": 420,
-     "color": "#ffffff",
-     "font": {
-      "size": 46,
-      "weight": 650,
-      "family": "inter"
-     },
-     "opacity": 0
-    },
-    {
-     "id": "nw3",
-     "type": "path",
-     "x": 0,
-     "y": 0,
-     "stroke": 2.6,
-     "fill": "#8fa5f2",
-     "d": "M1060 460L1060 640"
-    },
-    {
      "id": "p2",
      "type": "rect",
-     "x": 1130,
-     "y": 640,
+     "x": 1160,
+     "y": 560,
      "w": 76,
      "h": 76,
      "radius": 38,
      "fill": "#2d52f0"
     },
     {
-     "id": "p2ck",
+     "id": "p2t",
+     "type": "text",
+     "text": "how it looks",
+     "x": 1380.0,
+     "y": 560,
+     "color": "#ffffff",
+     "font": {
+      "size": 44,
+      "weight": 650,
+      "family": "inter"
+     },
+     "opacity": 0
+    },
+    {
+     "id": "p2ar",
      "type": "path",
-     "x": 1112,
-     "y": 624,
+     "x": 1142,
+     "y": 545,
+     "fill": "#ffffff",
+     "d": "M2 12L22 3L15 22L11 14Z",
+     "keys": {
+      "scale": [
+       {
+        "t": 0,
+        "v": 1.4
+       }
+      ]
+     }
+    },
+    {
+     "id": "p3",
+     "type": "rect",
+     "x": 1390,
+     "y": 690,
+     "w": 76,
+     "h": 76,
+     "radius": 38,
+     "fill": "#2d52f0"
+    },
+    {
+     "id": "p3t",
+     "type": "text",
+     "text": "how to wire",
+     "x": 1610.0,
+     "y": 690,
+     "color": "#ffffff",
+     "font": {
+      "size": 44,
+      "weight": 650,
+      "family": "inter"
+     },
+     "opacity": 0
+    },
+    {
+     "id": "p3ck",
+     "type": "path",
+     "x": 1372,
+     "y": 674,
      "stroke": 4.2,
      "fill": "#ffffff",
      "d": "M2 9L7 14L16 3",
@@ -1180,32 +1297,9 @@
        }
       ]
      }
-    },
-    {
-     "id": "p2t",
-     "type": "text",
-     "text": "Every wire",
-     "x": 1275,
-     "y": 640,
-     "color": "#ffffff",
-     "font": {
-      "size": 46,
-      "weight": 650,
-      "family": "inter"
-     },
-     "opacity": 0
-    },
-    {
-     "id": "nw4",
-     "type": "path",
-     "x": 0,
-     "y": 0,
-     "stroke": 2.6,
-     "fill": "#8fa5f2",
-     "d": "M1420 640L1700 640"
     }
    ],
-   "note": "The ai-1 network, move for move: wire draws from the wordmark to the morphing check node, capsules grow along their wires from seed chips, the graph drifts as it builds, a blue bloom rises. The last wire leads out of frame."
+   "note": "The solution flow as the ai-1 network: solder checks, then what to buy, how it looks, how to wire grow along their wires -- and the flow completes in a buildable card."
   },
   {
    "id": "s7",

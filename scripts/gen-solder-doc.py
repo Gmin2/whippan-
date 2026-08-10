@@ -153,19 +153,26 @@ def lockup_ids(p, with_text=True):
 TRI_D = "M4 3C2 3 0.8 5.2 1.8 7L10 21C11 22.8 13.5 22.8 14.5 21L22.7 7C23.7 5.2 22.5 3 20.5 3Z"
 
 
-def annotate(p, ax, ay, lx, ly, label, color, at, rot=0, lsize=30):
-    """image-8 style callout: rounded triangle arrow + short label."""
+def annotate(p, label, at, color=BLUE):
+    """image-8 style callout, uniform across screens: rounded triangle
+    pointing up at the content + label, centered at the bottom."""
+    lsize = 30
+    f = measure(lsize, 650)
+    lw = f.getlength(label) * CAL
+    total = 46 + 26 + lw
+    left = 960 - total / 2
     ns = [
-        {"id": f"{p}tri", "type": "path", "x": ax, "y": ay, "fill": color,
-         "d": TRI_D, "rot": rot,
+        {"id": f"{p}tri", "type": "path", "x": round(left + 2, 1),
+         "y": 966, "fill": color, "d": TRI_D, "rot": 180,
          "keys": {"scale": [{"t": 0, "v": 1.9}]}},
-        text(f"{p}lab", label, lx, ly, lsize, color, 650),
+        text(f"{p}lab", label, round(left + 46 + 26 + lw / 2, 1), 986,
+             lsize, color, 650),
     ]
     trs = []
     for nid in (f"{p}tri", f"{p}lab"):
         trs.append(keyed(nid,
-                         opacity=[(at, 0), (at + 0.14, 1)],
-                         y=[(at, -18), (at + 0.3, 0, "outCubic")]))
+                         opacity=[(at, 0), (at + 0.16, 1)],
+                         y=[(at, 22), (at + 0.34, 0, "outCubic")]))
     return ns, trs
 
 
@@ -377,8 +384,7 @@ tracks.append(keyed("wshot",
                     x=[(0, 340), (0.42, 0, "outCubic")],
                     opacity=[(0, 0), (0.14, 1), (B * 3.2, 1),
                              (B * 3.95, 0.08)]))
-ns, trs = annotate("an5", 700, 250, 745, 200, "how to wire it",
-                   "#2a9d8f", B * 0.8, rot=18)
+ns, trs = annotate("an5", "how to wire it", B * 1)
 scenes[-1]["nodes"] += ns
 tracks += trs
 tracks.append({"target": "s5", "keys": {
@@ -401,8 +407,7 @@ scene("s6", 6, [
          "explodes apart, labels land, and it snaps back together. "
          "Gentle push while it performs.")
 tracks.append(keyed("ashot", opacity=[(0, 0), (0.14, 1)]))
-ns, trs = annotate("an6", 430, 300, 452, 250, "how it looks", "#e2620c",
-                   B * 1, rot=24)
+ns, trs = annotate("an6", "how it looks", B * 1)
 scenes[-1]["nodes"] += ns
 tracks += trs
 tracks.append({"target": "s6", "keys": {
@@ -415,7 +420,7 @@ tracks.append({"target": "s6", "keys": {
 # ------------------------- s6b: the BOM -- what to buy, where, how much
 # just the table, then the ai-1 move: the screen dissolves away and the
 # wordmark rises out of it, handing off to the end card as a match cut.
-scene("s6b", 5, [
+scene("s6b", 4, [
     img("bshot", "/assets/solder/bom-table.png", 960, 500, 1840, 408),
 ], bg="#f5f7ff",
     note="The BOM table: every part, ref, source, price. Dive onto the "
@@ -427,19 +432,39 @@ tracks.append({"target": "s6b", "at": B * 1.5, "cam": {
     "preset": "zoom-promote", "z": 1.7, "anchor": [1420, 555],
     "dur": 0.7}})
 tracks.append({"target": "bshot", "at": B * 1.5, "state": "dive"})
-ns, trs = annotate("an7", 1555, 505, 1500, 462, "what to buy · $13.72",
-                   BLUE, B * 2.6, rot=150, lsize=26)
+ns, trs = annotate("an7", "what to buy · $13.72", B * 1)
 scenes[-1]["nodes"] += ns
 tracks += trs
 
-# --------------- cnet: the ai-1 network, copied move for move: wires
-# draw, capsules GROW along them from seed blobs, the node icon morphs,
-# the whole graph drifts as it builds, a soft bloom rises in the corner.
+# --------------- cnet: the ai-1 network carrying the solution flow:
+# solder checks -> what to buy -> how it looks -> how to wire -> and the
+# flow COMPLETES in a buildable card. wires draw, capsules grow along
+# them, the icon morphs, the graph drifts, the bloom rises.
 CHECK = "M2 9L7 14L16 3"
 SQ = "M0 0L20 0L20 20L0 20Z"
-BLOB = "M10 0C16 0 20 4 20 10C20 16 16 20 10 20C4 20 0 16 0 10C0 4 4 0 10 0Z"
+BLOB = ("M10 0C16 0 20 4 20 10C20 16 16 20 10 20C4 20 0 16 0 10"
+        "C0 4 4 0 10 0Z")
 ARROW = "M2 12L22 3L15 22L11 14Z"
-P1Y, P2Y = 420, 640
+
+
+def capsule(pid, seed_x, seed_y, grow_w, label, at):
+    """seed chip that grows into a labeled capsule along its wire."""
+    ns = [
+        rect(pid, seed_x, seed_y, 76, 76, 38, BLUE),
+        text(f"{pid}t", label, round(seed_x + 40 + grow_w / 2 - 20, 1),
+             seed_y, 44, "#ffffff", 650, opacity=0),
+    ]
+    dxc = round((grow_w - 76) / 2, 1)
+    trs = [
+        keyed(pid, opacity=[(at, 0), (at + 0.1, 1)],
+              w=[(at, 76), (at + 0.42, grow_w, "outCubic")],
+              x=[(at, 0), (at + 0.42, dxc, "outCubic")]),
+        keyed(f"{pid}t", opacity=[(at + 0.3, 0), (at + 0.48, 1)]),
+        {"target": pid, "at": at + 0.1, "state": "grow"},
+    ]
+    return ns, trs
+
+
 cnet_nodes = [
     rect("bloom", 1780, 120, 1500, 1200, 600, "#c4d2ff", blur=180,
          opacity=0),
@@ -454,28 +479,40 @@ cnet_nodes = [
      "keys": {"scale": [{"t": 0, "v": 2.4}]}},
     text("nlab", "checks", 680, 415, 24, GREY, 550),
     {"id": "nw2", "type": "path", "x": 0, "y": 0, "stroke": 2.6,
-     "fill": "#8fa5f2", "d": "M740 330L870 " + str(P1Y)},
-    rect("p1", 940, P1Y, 76, 76, 38, BLUE),
-    {"id": "p1cur", "type": "path", "x": 925, "y": 404, "fill": "#ffffff",
-     "d": CURSOR, "keys": {"scale": [{"t": 0, "v": 1.4}]}},
-    text("p1t", "Every part", 1080, P1Y, 46, "#ffffff", 650, opacity=0),
+     "fill": "#8fa5f2", "d": "M740 330L870 430"},
     {"id": "nw3", "type": "path", "x": 0, "y": 0, "stroke": 2.6,
-     "fill": "#8fa5f2", "d": "M1060 " + str(P1Y + 40) + "L1060 " +
-     str(P2Y)},
-    rect("p2", 1130, P2Y, 76, 76, 38, BLUE),
-    {"id": "p2ck", "type": "path", "x": 1112, "y": 624, "stroke": 4.2,
-     "fill": "#ffffff", "d": CHECK,
-     "keys": {"scale": [{"t": 0, "v": 1.8}]}},
-    text("p2t", "Every wire", 1275, P2Y, 46, "#ffffff", 650, opacity=0),
+     "fill": "#8fa5f2", "d": "M1090 470L1090 560"},
     {"id": "nw4", "type": "path", "x": 0, "y": 0, "stroke": 2.6,
-     "fill": "#8fa5f2", "d": "M1420 " + str(P2Y) + "L1700 " + str(P2Y)},
+     "fill": "#8fa5f2", "d": "M1320 600L1320 690"},
+    {"id": "nw5", "type": "path", "x": 0, "y": 0, "stroke": 2.6,
+     "fill": "#8fa5f2", "d": "M1650 690L1800 690"},
+    rect("fcard", 1880, 690, 110, 110, 24, "#ffffff",
+         glow={"sigma": 24, "opacity": 0.22, "color": "#12206b"}),
+    {"id": "fcheck", "type": "path", "x": 1862, "y": 673, "stroke": 5,
+     "fill": "#1d9e63", "d": CHECK,
+     "keys": {"scale": [{"t": 0, "v": 2.0}]}},
+    text("flab", "buildable", 1880, 768, 24, GREY, 550),
 ]
-scene("cnet", 6, cnet_nodes,
-      note="The ai-1 network, move for move: wire draws from the "
-           "wordmark to the morphing check node, capsules grow along "
-           "their wires from seed chips, the graph drifts as it builds, "
-           "a blue bloom rises. The last wire leads out of frame.")
-tracks.append(keyed("bloom", opacity=[(0.3, 0), (B * 5, 0.5)]))
+c1n, c1t = capsule("p1", 940, 430, 380, "what to buy", B * 1.5)
+c2n, c2t = capsule("p2", 1160, 560, 400, "how it looks", B * 2.75)
+c3n, c3t = capsule("p3", 1390, 690, 400, "how to wire", B * 4)
+# chips riding the seeds
+c1n.append({"id": "p1cur", "type": "path", "x": 925, "y": 414,
+            "fill": "#ffffff", "d": CURSOR,
+            "keys": {"scale": [{"t": 0, "v": 1.4}]}})
+c2n.append({"id": "p2ar", "type": "path", "x": 1142, "y": 545,
+            "fill": "#ffffff", "d": ARROW,
+            "keys": {"scale": [{"t": 0, "v": 1.4}]}})
+c3n.append({"id": "p3ck", "type": "path", "x": 1372, "y": 674,
+            "stroke": 4.2, "fill": "#ffffff", "d": CHECK,
+            "keys": {"scale": [{"t": 0, "v": 1.8}]}})
+cnet_nodes += c1n + c2n + c3n
+scene("cnet", 7, cnet_nodes,
+      note="The solution flow as the ai-1 network: solder checks, then "
+           "what to buy, how it looks, how to wire grow along their "
+           "wires -- and the flow completes in a buildable card.")
+tracks += c1t + c2t + c3t
+tracks.append(keyed("bloom", opacity=[(0.3, 0), (B * 6, 0.5)]))
 for nid in lockup_ids("nl"):
     tracks.append(keyed(nid, opacity=[(0.05, 0), (0.25, 1)]))
 tracks.append(keyed("nw1", opacity=[(0.3, 0), (0.42, 1)]))
@@ -486,32 +523,22 @@ tracks.append(keyed("ncard",
 tracks.append(keyed("nicon", opacity=[(0.5, 0), (0.64, 1)]))
 tracks.append(keyed("nlab", opacity=[(0.56, 0), (0.7, 1)]))
 tracks.append({"target": "ncard", "at": 0.45, "state": "pop"})
-# capsule 1: wire, then the pill grows rightward from its seed
-g1 = B * 2
-tracks.append(keyed("nw2", opacity=[(g1 - 0.16, 0), (g1 - 0.04, 1)]))
-tracks.append(keyed("p1",
-                    opacity=[(g1, 0), (g1 + 0.1, 1)],
-                    w=[(g1, 76), (g1 + 0.42, 360, "outCubic")],
-                    x=[(g1, 0), (g1 + 0.42, 142, "outCubic")]))
-tracks.append(keyed("p1cur", opacity=[(g1, 0), (g1 + 0.1, 1)]))
-tracks.append(keyed("p1t", opacity=[(g1 + 0.3, 0), (g1 + 0.48, 1)]))
-tracks.append({"target": "p1", "at": g1 + 0.1, "state": "grow"})
-# capsule 2, same grammar, hanging off capsule 1
-g2 = B * 3.5
-tracks.append(keyed("nw3", opacity=[(g2 - 0.16, 0), (g2 - 0.04, 1)]))
-tracks.append(keyed("p2",
-                    opacity=[(g2, 0), (g2 + 0.1, 1)],
-                    w=[(g2, 76), (g2 + 0.42, 380, "outCubic")],
-                    x=[(g2, 0), (g2 + 0.42, 152, "outCubic")]))
-tracks.append(keyed("p2ck", opacity=[(g2, 0), (g2 + 0.1, 1)]))
-tracks.append(keyed("p2t", opacity=[(g2 + 0.3, 0), (g2 + 0.48, 1)]))
-tracks.append({"target": "p2", "at": g2 + 0.1, "state": "grow"})
-# the trailing wire leads out; the whole graph drifts as it builds
-tracks.append(keyed("nw4", opacity=[(B * 5, 0), (B * 5 + 0.2, 1)]))
+for wid, at in (("nw2", B * 1.5 - 0.16), ("nw3", B * 2.75 - 0.16),
+                ("nw4", B * 4 - 0.16), ("nw5", B * 5 - 0.16)):
+    tracks.append(keyed(wid, opacity=[(at, 0), (at + 0.12, 1)]))
+for nid, at in (("p1cur", B * 1.5), ("p2ar", B * 2.75), ("p3ck", B * 4)):
+    tracks.append(keyed(nid, opacity=[(at, 0), (at + 0.1, 1)]))
+for nid in ("fcard", "fcheck", "flab"):
+    tracks.append(keyed(nid,
+                        opacity=[(B * 5, 0), (B * 5 + 0.16, 1)],
+                        scale=[(B * 5, 0.6), (B * 5 + 0.3, 1.06,
+                               "outCubic"),
+                               (B * 5 + 0.46, 1.0, "outCubic")]))
+tracks.append({"target": "fcard", "at": B * 5 + 0.1, "state": "done"})
 tracks.append({"target": "cnet", "keys": {
-    "cam_x": [{"t": B * 2, "v": 0}, {"t": B * 6, "v": 210,
+    "cam_x": [{"t": B * 1.5, "v": 0}, {"t": B * 7, "v": 380,
                "ease": "inOutCubic"}],
-    "cam_y": [{"t": B * 2, "v": 0}, {"t": B * 6, "v": 60,
+    "cam_y": [{"t": B * 1.5, "v": 0}, {"t": B * 7, "v": 130,
                "ease": "inOutCubic"}],
 }})
 
