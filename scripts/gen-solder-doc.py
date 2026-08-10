@@ -77,6 +77,25 @@ def measure(size, weight=650):
 
 
 CAL = 1.105
+
+
+def emphline(p, segs, y, size, weight=650):
+    """one centered line of colored segments, measured with the real
+    font so the seams are invisible."""
+    segs = [(t.strip(), c) for t, c in segs]
+    f = measure(size, weight)
+    sp = f.getlength(" ") * CAL
+    widths = [f.getlength(t) * CAL for t, _ in segs]
+    total = sum(widths) + sp * (len(segs) - 1)
+    x = 960 - total / 2
+    ns = []
+    for i, ((t, col), w) in enumerate(zip(segs, widths)):
+        ns.append(text(f"{p}seg{i}", t, round(x + w / 2, 1), y, size, col,
+                       weight))
+        x += w + sp
+    return ns
+
+
 CURSOR = "M0 0L0 17.9L4.2 14.2L7.0 20.6L10.1 19.2L7.3 12.9L12.8 12.4Z"
 
 tracks = []
@@ -131,13 +150,14 @@ tracks.append(keyed("i2chip",
                             "inCubic")]))
 tracks.append(keyed("i2arr", opacity=[(B * 2 - 0.24, 1),
                                       (B * 2 - 0.14, 0)]))
-ns, ts = word_slide("i3", "a working prototype", 96, chip=False)
-scene("i3", 2, ns, note="'a working prototype', two beats.")
+ns, ts = word_slide("i3", "to prototype hardware", 96, chip=False)
+scene("i3", 2, ns, note="'to prototype hardware' -- the sentence "
+                        "resolves. Two beats.")
 tracks += ts
 
 # ------------------------- i4: the sentence explodes into real parts
 f96 = measure(96)
-segs = ["a", "working", "prototype"]
+segs = ["what", "parts", "do I need?"]
 widths = [f96.getlength(s) * CAL for s in segs]
 gap = 168
 total = sum(widths) + gap * 2
@@ -168,9 +188,9 @@ i4_nodes.append(rect("warn", 1290, 360, 260, 74, 16, "#ffffff",
 i4_nodes.append(text("warnt", "3V3 on 5V!", 1290, 360, 27, "#e2620c", 650,
                      rot=-5))
 scene("i4", 4, i4_nodes,
-      note="The sentence explodes, brew-style: real part tiles pop in "
-           "between the words on consecutive half-beats, a warning card "
-           "crashes the party.")
+      note="Question 1: what parts do I need? -- and the real catalog "
+           "tiles pop in around the words, brew-style, with the warning "
+           "card crashing the party.")
 for k, (cid, *_r) in enumerate(CHIPS):
     at = 0.1 + k * B * 0.5
     for nid in (f"{cid}s", cid):
@@ -252,6 +272,17 @@ tracks.append(keyed("dg7", scale=[(0.633, 1.0), (0.72, 1.07, "outCubic"),
 for nid in ("ringo", "ringi"):
     tracks.append(keyed(nid, opacity=[(1.62, 1), (1.9, 0)]))
 tracks.append(keyed("blob", opacity=[(0, 0.95), (1.62, 0.95), (1.9, 0)]))
+
+# ------------------------------ iq: and how will it even look?
+iq_nodes = emphline("iq", [("and how will it even", INK),
+                           ("look?", BLUE)], 540, 88)
+scene("iq", 2, iq_nodes,
+      note="Question 2: how will it even look? Two beats, word-rise.")
+for i in range(2):
+    tracks.append(keyed(f"iqseg{i}",
+                        opacity=[(0.06 + i * 0.1, 0), (0.3 + i * 0.1, 1)],
+                        y=[(0.06 + i * 0.1, 30),
+                           (0.36 + i * 0.1, 0, "outCubic")]))
 
 # --------------------------------------------- i6/i7: Meet / Solder
 ns, ts = word_slide("m", "Meet", 150, chip=False, color="#ffffff")
@@ -488,14 +519,14 @@ tracks.append({"target": "tag7", "at": B * 3.5, "reveal": {
 # ref order: it takes -> the counter pill -> to create... the pill
 # follows the chip inflation directly
 order = {sc["id"]: sc for sc in scenes}
-scenes = [order[k] for k in ["i1", "i2", "i5", "i3", "i4", "i6", "i7",
-                             "s3", "s4", "s5", "s6", "c1", "c2", "c3",
-                             "s7"]]
+scenes = [order[k] for k in ["i1", "i2", "i5", "i3", "i4", "iq", "i6",
+                             "i7", "s3", "s4", "s5", "s6", "c1", "c2",
+                             "c3", "s7"]]
 total = sum(s["dur"] for s in scenes)
 stage = {"fps": 30, "size": [W, H], "scenes": scenes,
          "audio": {"src": "/assets/audio/gen/solder.mp3", "gain": 0.85,
                    "fade_out": 0.35, "bpm": 123.0, "offset": 0.604,
-                   "start": round(0.604 + 7 * B, 3)}}
+                   "start": round(0.604 + 3 * B, 3)}}
 anim = {"tracks": tracks}
 json.dump(stage, open("docs/solder.stage.json", "w"), indent=1)
 json.dump(anim, open("docs/solder.anim.json", "w"), indent=1)

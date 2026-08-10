@@ -275,7 +275,7 @@
     {
      "id": "i3t",
      "type": "text",
-     "text": "a working prototype",
+     "text": "to prototype hardware",
      "x": 960,
      "y": 540,
      "color": "#16181d",
@@ -286,7 +286,7 @@
      }
     }
    ],
-   "note": "'a working prototype', two beats."
+   "note": "'to prototype hardware' -- the sentence resolves. Two beats."
   },
   {
    "id": "i4",
@@ -296,8 +296,8 @@
     {
      "id": "c0",
      "type": "text",
-     "text": "a",
-     "x": 386.2,
+     "text": "what",
+     "x": 433.6,
      "y": 540,
      "color": "#16181d",
      "font": {
@@ -309,8 +309,8 @@
     {
      "id": "c1",
      "type": "text",
-     "text": "working",
-     "x": 763.1,
+     "text": "parts",
+     "x": 831.2,
      "y": 540,
      "color": "#16181d",
      "font": {
@@ -322,8 +322,8 @@
     {
      "id": "c2",
      "type": "text",
-     "text": "prototype",
-     "x": 1336.9,
+     "text": "do I need?",
+     "x": 1357.6,
      "y": 540,
      "color": "#16181d",
      "font": {
@@ -335,7 +335,7 @@
     {
      "id": "t0s",
      "type": "rect",
-     "x": 497.6,
+     "x": 630.5,
      "y": 540,
      "w": 132,
      "h": 132,
@@ -352,7 +352,7 @@
      "id": "t0",
      "type": "image",
      "src": "/assets/solder/tile0.png",
-     "x": 497.6,
+     "x": 630.5,
      "y": 540,
      "w": 124,
      "h": 124,
@@ -362,7 +362,7 @@
     {
      "id": "t1s",
      "type": "rect",
-     "x": 1028.5,
+     "x": 1032.0,
      "y": 540,
      "w": 132,
      "h": 132,
@@ -379,7 +379,7 @@
      "id": "t1",
      "type": "image",
      "src": "/assets/solder/tile1.png",
-     "x": 1028.5,
+     "x": 1032.0,
      "y": 540,
      "w": 124,
      "h": 124,
@@ -471,7 +471,41 @@
      "rot": -5
     }
    ],
-   "note": "The sentence explodes, brew-style: real part tiles pop in between the words on consecutive half-beats, a warning card crashes the party."
+   "note": "Question 1: what parts do I need? -- and the real catalog tiles pop in around the words, brew-style, with the warning card crashing the party."
+  },
+  {
+   "id": "iq",
+   "bg": "#f7f8fd",
+   "dur": 0.976,
+   "nodes": [
+    {
+     "id": "iqseg0",
+     "type": "text",
+     "text": "and how will it even",
+     "x": 834.3,
+     "y": 540,
+     "color": "#16181d",
+     "font": {
+      "size": 88,
+      "weight": 650,
+      "family": "inter"
+     }
+    },
+    {
+     "id": "iqseg1",
+     "type": "text",
+     "text": "look?",
+     "x": 1382.9,
+     "y": 540,
+     "color": "#2d52f0",
+     "font": {
+      "size": 88,
+      "weight": 650,
+      "family": "inter"
+     }
+    }
+   ],
+   "note": "Question 2: how will it even look? Two beats, word-rise."
   },
   {
    "id": "i6",
@@ -1171,6 +1205,6 @@
   "fade_out": 0.35,
   "bpm": 123.0,
   "offset": 0.604,
-  "start": 4.019
+  "start": 2.067
  }
 }
