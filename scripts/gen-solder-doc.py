@@ -188,59 +188,18 @@ for gid, s, col, at in LOG:
 tracks.append(keyed("gfoot", opacity=[(2.7, 0), (2.95, 1)]))
 
 # ------------------------------------------- scene 5: the blueprint draws
-K5 = 1.05
-OX = (W - 1320 * K5) / 2
-OY = 120
+# the real diagram, screenshotted from the vector-hardware harness after
+# its choreography settles: full quadcopter with callouts. arrives like
+# footage and the camera pushes in.
 sc5_nodes = [
-    rect("btabs", 960, 56, 1920, 112, 0, "#ffffff"),
-    text("btab1", "Diagram", 760, 56, 26, BLUE, 600),
-    rect("btabu", 760, 88, 96, 4, 2, BLUE),
-    text("btab2", "Wiring", 900, 56, 26, GREY),
-    text("btab3", "Parts", 1020, 56, 26, GREY),
-    text("btab4", "Steps", 1130, 56, 26, GREY),
+    {"id": "qshot", "type": "image", "src": "/assets/solder/quad.png",
+     "x": 960, "y": 540, "w": 1585, "h": 1080},
 ]
-# every path from the real svg, fill and stroke as separate nodes where
-# both exist; leader lines (stroke, no fill) come in with the labels
-part_ids, leader_ids = [], []
-for i, p in enumerate(SVG["paths"]):
-    fill = rgb_hex(p["fill"]) if p["fill"] != "none" else None
-    stroke = rgb_hex(p["stroke"]) if p["stroke"] != "none" else None
-    sw = float(p["sw"].replace("px", ""))
-    is_leader = fill is None and stroke
-    base = {"x": OX, "y": OY, "d": p["d"],
-            "keys": {"scale": [{"t": 0, "v": K5}]}}
-    if fill:
-        n = {"id": f"q{i}f", "type": "path", "fill": fill, **base}
-        if float(p["op"]) < 1:
-            n["opacity"] = float(p["op"])
-        sc5_nodes.append(n)
-        (leader_ids if is_leader else part_ids).append(f"q{i}f")
-    if stroke:
-        n = {"id": f"q{i}s", "type": "path", "fill": stroke,
-             "stroke": sw * K5, **base}
-        sc5_nodes.append(n)
-        (leader_ids if is_leader else part_ids).append(f"q{i}s")
-for j, t in enumerate(SVG["texts"]):
-    lx, ly = float(t["x"]), float(t["y"])
-    s = t["s"]
-    half = len(s) * 15 * MONO_W / 2
-    x = OX + lx * K5 + (-half if t["anchor"] == "end" else half)
-    sc5_nodes.append(text(f"qt{j}", s, round(x, 1), round(OY + ly * K5 - 5, 1),
-                          15, BLUE, 500, "mono"))
-    leader_ids.append(f"qt{j}")
-
-for nid, at in [("btabs", 0.05), ("btab1", 0.15), ("btabu", 0.15),
-                ("btab2", 0.2), ("btab3", 0.25), ("btab4", 0.3)]:
-    tracks.append(rise(nid, at, -24))
-for k, nid in enumerate(part_ids):
-    at = 0.35 + (k / max(1, len(part_ids) - 1)) * 1.3
-    tracks.append(keyed(nid, opacity=[(at, 0), (at + 0.18, 1)],
-                        y=[(at, 14), (at + 0.3, 0, "outCubic")]))
-for k, nid in enumerate(leader_ids):
-    at = 1.9 + (k % 6) * 0.12
-    tracks.append(keyed(nid, opacity=[(at, 0), (at + 0.22, 1)]))
-tracks.append({"target": "j5", "at": 2.6, "cam": {
-    "preset": "zoom-promote", "z": 1.28, "anchor": [960, 560], "dur": 1.4}})
+tracks.append(keyed("qshot",
+                    opacity=[(0.08, 0), (0.55, 1)],
+                    scale=[(0.08, 1.05), (1.3, 1.0, "outCubic")]))
+tracks.append({"target": "j5", "at": 2.4, "cam": {
+    "preset": "zoom-promote", "z": 1.32, "anchor": [960, 560], "dur": 1.5}})
 
 # ----------------------------------------------------- scene 6: end card
 sc6_nodes = [
@@ -267,8 +226,8 @@ scenes = [
      "note": "The job log: parts picked, nets wired, physics checked. A "
              "3V3-on-5V fault appears and Solder repairs itself."},
     {"id": "j5", "bg": BG, "dur": 4.2, "nodes": sc5_nodes,
-     "note": "The blueprint draws: the real quadcopter vector assembles "
-             "part by part, callouts land, camera pushes in."},
+     "note": "The real blueprint, real pixels: the quadcopter diagram "
+             "with its callouts, camera pushing in."},
     {"id": "j6", "bg": BG, "dur": 2.8, "nodes": sc6_nodes,
      "note": "End card: wordmark, 'Type it. Build it.', silence."},
 ]
