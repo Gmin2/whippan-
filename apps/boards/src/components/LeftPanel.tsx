@@ -29,6 +29,7 @@ interface Props {
   onSelectScene(scene: string): void
   onRename(id: string, name: string): void
   onHidePanels(): void
+  onAddScene(): void
   dirty: boolean
   saving: 'idle' | 'saving' | 'saved' | 'error'
   saveError: string | null
@@ -76,7 +77,7 @@ function Row({ depth = 0, icon, label, selected, onClick, onDoubleClick, chevron
 export default function LeftPanel({
   registry, film, onPickFilm,
   pages, activePage, tree, selected, activeScene,
-  onSelectNode, onSelectScene, onRename, onHidePanels,
+  onSelectNode, onSelectScene, onRename, onHidePanels, onAddScene,
   dirty, saving, saveError, onSave,
 }: Props) {
   const [tab, setTab] = useState<'design' | 'motion'>('design')
@@ -133,8 +134,9 @@ export default function LeftPanel({
       <div className="shrink-0">
         <div className="flex h-[26px] items-center gap-1.5 px-2">
           <ChevronDown size={9} className="text-faint" />
-          <span className="flex-1 font-medium">Pages</span>
-          <button className="text-dim transition-colors hover:text-ink" title="new page">
+          <span className="flex-1 font-medium">Scenes</span>
+          <button onClick={onAddScene} title="new scene"
+                  className="text-dim transition-colors hover:text-ink">
             <Plus size={12} />
           </button>
         </div>

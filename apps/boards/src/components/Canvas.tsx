@@ -3,6 +3,7 @@ import { paintFrame } from '@whippan/engine-web/painter'
 import { render } from '../engine'
 import type { Doc } from '../engine/types'
 import type { Artboard, NodePatch, Sel } from '../doc'
+import type { Tool } from './ToolRail'
 import { hitTest, measure } from '../measure'
 import type { Cmd, NodeBox } from '../measure'
 import { CURSORS, handleAt, resize, scaleType } from '../handles'
@@ -33,6 +34,11 @@ interface Props {
   onMeasure(box: NodeBox | null): void
   onSelectScene(scene: string): void
   activeScene: string | null
+  /** the active tool decides whether a canvas drag selects or draws */
+  tool: Tool
+  onCreate(sceneId: string, kind: 'rect' | 'text',
+           box: { x: number; y: number; w: number; h: number }): void
+  onToolDone(): void
 }
 
 
@@ -60,6 +66,7 @@ function withGround(cmds: Cmd[], w: number, h: number): Cmd[] {
 export default function Canvas({
   ck, doc, rev, ground, title, boards, selected, selRow, onSelect, onZoom,
   geo, onDrag, onDragEnd, onMeasure, onSelectScene, activeScene,
+  tool, onCreate, onToolDone,
 }: Props) {
   const wrap = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -69,9 +76,11 @@ export default function Canvas({
   const [hover, setHover] = useState<NodeBox | null>(null)
   const [grab, setGrab] = useState<Handle | null>(null)
   const [guides, setGuides] = useState<Guide[]>([])
+  /** the rubber band shown while a shape is being drawn, in screen pixels */
+  const [band, setBand] = useState<{ x: number; y: number; w: number; h: number } | null>(null)
   const [dragging, setDragging] = useState(false)
   const drag = useRef<{
-    kind: 'pan' | 'move' | 'resize'
+    kind: 'pan' | 'move' | 'resize' | 'draw'
     handle?: Handle
     x: number
     y: number
@@ -82,6 +91,8 @@ export default function Canvas({
     box?: NodeBox
     board?: number
     row?: number
+    origin?: { x: number; y: number }
+    screen?: { x: number; y: number }
   } | null>(null)
 
   const [dw, dh] = doc.stage.size
@@ -291,6 +302,19 @@ export default function Canvas({
 
   const onDown = (e: React.PointerEvent) => {
     const pt = local(e.clientX, e.clientY)
+
+    if (tool === 'rect' || tool === 'text') {
+      const at = locate(e.clientX, e.clientY)
+      if (at?.inside) {
+        drag.current = {
+          kind: 'draw', x: e.clientX, y: e.clientY, moved: false,
+          board: at.board, row: at.row,
+          origin: { x: at.x, y: at.y }, screen: { x: pt.x, y: pt.y },
+        }
+        return
+      }
+    }
+
     const rect = selRect()
     const handle = rect ? handleAt(rect, pt.x, pt.y) : null
 
@@ -337,6 +361,16 @@ export default function Canvas({
     const dx = (e.clientX - d.startX!) / cam.zoom
     const dy = (e.clientY - d.startY!) / cam.zoom
 
+    if (d.kind === 'draw') {
+      const pt = local(e.clientX, e.clientY)
+      setBand({
+        x: Math.min(d.screen!.x, pt.x),
+        y: Math.min(d.screen!.y, pt.y),
+        w: Math.abs(pt.x - d.screen!.x),
+        h: Math.abs(pt.y - d.screen!.y),
+      })
+      return
+    }
     setDragging(true)
     if (d.kind === 'move') {
       const board = d.board ?? 0
@@ -369,7 +403,25 @@ export default function Canvas({
     drag.current = null
     setGuides([])
     setDragging(false)
+    setBand(null)
     if (!d) return
+
+    if (d.kind === 'draw') {
+      const at = locate(e.clientX, e.clientY)
+      const o = d.origin!
+      const end = at ? { x: at.x, y: at.y } : o
+      const w = Math.abs(end.x - o.x)
+      const h = Math.abs(end.y - o.y)
+      const kind = tool === 'text' ? 'text' : 'rect'
+      // a click with no drag gets a sensible default size, the way every
+      // design tool behaves
+      const box = kind === 'text' || w < 4 || h < 4
+        ? { x: o.x, y: o.y, w: 200, h: 100 }
+        : { x: (o.x + end.x) / 2, y: (o.y + end.y) / 2, w, h }
+      onCreate(boards[d.board!].id, kind, box)
+      onToolDone()
+      return
+    }
     if (d.kind !== 'pan' && d.moved) { onDragEnd(); return }
     if (d.moved) return
     const hit = pick(e.clientX, e.clientY)
@@ -381,7 +433,10 @@ export default function Canvas({
     onSelect(null, 0)
   }
 
-  const cursor = grab ? CURSORS[grab] : hover ? 'default' : 'grab'
+  const drawing = tool === 'rect' || tool === 'text'
+  const cursor = drawing ? 'crosshair'
+    : grab ? CURSORS[grab]
+    : hover ? 'default' : 'grab'
 
   return (
     <div
@@ -399,6 +454,11 @@ export default function Canvas({
       style={{ background: ground, cursor }}
     >
       <canvas ref={canvas} className="absolute inset-0 h-full w-full" />
+      {band && (
+        <div className="pointer-events-none absolute border border-[#5e92f4]
+                        bg-[#5e92f4]/10"
+             style={{ left: band.x, top: band.y, width: band.w, height: band.h }} />
+      )}
       <Overlay
         cam={cam}
         boards={boards}

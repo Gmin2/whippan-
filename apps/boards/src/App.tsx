@@ -7,6 +7,9 @@ import RightPanel from './components/RightPanel'
 import { boot, loadDoc, saveDoc } from './engine'
 import type { Doc, Entry, Stage } from './engine/types'
 import { artboards, findNode, tree } from './doc'
+import {
+  addNode, addScene, deleteNode, deleteScene, duplicateNode, newRect, newText,
+} from './ops'
 import type { NodePatch, ScenePatch, Sel } from './doc'
 import type { NodeBox } from './measure'
 
@@ -185,6 +188,16 @@ export default function App() {
         saveRef.current()
         return
       }
+      if (mod && key === 'd') {
+        e.preventDefault()
+        duplicateRef.current()
+        return
+      }
+      if (e.key === 'Backspace' || e.key === 'Delete') {
+        e.preventDefault()
+        removeRef.current()
+        return
+      }
       if (mod && key === 'z') {
         e.preventDefault()
         stepHistory(e.shiftKey ? 'redo' : 'undo')
@@ -230,6 +243,69 @@ export default function App() {
     }
   }, [])
 
+  /** apply a pure stage operation as one undoable step */
+  const apply = useCallback((fn: (stage: Stage) => Stage | null) => {
+    snapshot()
+    let changed = false
+    setDoc(prev => {
+      if (!prev) return prev
+      const next = fn(prev.stage)
+      if (!next || next === prev.stage) return prev
+      changed = true
+      return { ...prev, stage: next }
+    })
+    if (changed) { setRev(r => r + 1); setDirty(true) }
+  }, [snapshot])
+
+  const createNode = useCallback((
+    sceneId: string, kind: 'rect' | 'text',
+    box: { x: number; y: number; w: number; h: number },
+  ) => {
+    const stage = docRef.current?.stage
+    if (!stage) return
+    const node = kind === 'text'
+      ? newText(stage, box.x, box.y)
+      : newRect(stage, box.x, box.y, box.w, box.h)
+    apply(st => addNode(st, sceneId, node))
+    setSel({ scene: sceneId, id: node.id })
+    setScene(sceneId)
+  }, [apply])
+
+  const removeSelection = useCallback(() => {
+    const s = selRef.current
+    if (s) {
+      apply(st => deleteNode(st, s.scene, s.id))
+      setSel(null)
+      setSelBox(null)
+      return
+    }
+    const sc = sceneRef.current
+    if (sc) apply(st => deleteScene(st, sc))
+  }, [apply])
+
+  const duplicateSelection = useCallback(() => {
+    const s = selRef.current
+    if (!s) return
+    let newId: string | null = null
+    apply(st => {
+      const out = duplicateNode(st, s.scene, s.id)
+      if (!out) return null
+      newId = out.id
+      return out.stage
+    })
+    if (newId) setSel({ scene: s.scene, id: newId })
+  }, [apply])
+
+  const createScene = useCallback(() => {
+    let id: string | null = null
+    apply(st => {
+      const out = addScene(st, sceneRef.current ?? undefined)
+      id = out.id
+      return out.stage
+    })
+    if (id) { setScene(id); setSel(null); setSelBox(null) }
+  }, [apply])
+
   const renameScene = useCallback((id: string, name: string) => {
     const next = name.replace(/^\d+\s+/, '').trim()
     if (next && next !== id) patchScene(id, { id: next })
@@ -242,6 +318,9 @@ export default function App() {
   const patchNodeRef = useRef<(p: NodePatch) => void>(() => {})
   const docRef = useRef<Doc | null>(null)
   const saveRef = useRef<() => void>(() => {})
+  const sceneRef = useRef<string | null>(null)
+  const removeRef = useRef<() => void>(() => {})
+  const duplicateRef = useRef<() => void>(() => {})
 
   const boards = useMemo(() => (doc ? artboards(doc) : []), [doc])
   const layers = useMemo(() => (doc ? tree(doc) : []), [doc])
@@ -252,6 +331,9 @@ export default function App() {
   patchNodeRef.current = patchNode
   docRef.current = doc
   saveRef.current = save
+  sceneRef.current = scene
+  removeRef.current = removeSelection
+  duplicateRef.current = duplicateSelection
 
   const onZoom = useCallback((z: number) => setZoom(z), [])
   const onGround = useCallback((h: string, a: number) => {
@@ -300,6 +382,7 @@ export default function App() {
         onSelectScene={s => { setScene(s); setSel(null); setSelBox(null) }}
         onRename={renameScene}
         onHidePanels={() => setPanels(false)}
+        onAddScene={createScene}
         dirty={dirty}
         saving={saving}
         saveError={saveError}
@@ -318,6 +401,9 @@ export default function App() {
         onSelect={onSelect}
         onSelectScene={s => { setScene(s); setSel(null); setSelBox(null) }}
         activeScene={scene}
+        tool={tool}
+        onCreate={createNode}
+        onToolDone={() => setTool('select')}
         onZoom={onZoom}
         geo={found ? {
           x: found.node.x ?? 0,
