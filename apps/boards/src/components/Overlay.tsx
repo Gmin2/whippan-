@@ -1,6 +1,8 @@
 import type { Artboard, Sel } from '../doc'
 import type { NodeBox } from '../measure'
+import { handlePoints } from '../handles'
 import type { Camera } from './Canvas'
+import type { Guide } from '../snap'
 
 interface Frame {
   boxes: NodeBox[]
@@ -17,9 +19,16 @@ interface Props {
   hover: NodeBox | null
   activeScene: string | null
   onSelectScene(scene: string): void
+  /** alignment guides produced by the live drag, in document space */
+  guides: Guide[]
+  /** chrome hides while dragging: only artwork and guides stay */
+  dragging: boolean
 }
 
-const BLUE = '#2d52f0'
+/** sampled off paper's own overlay canvas */
+const ACCENT = '#5e92f4'
+/** snap guides are crimson there, not the selection blue */
+const GUIDE = '#dc4f70'
 /** trim a caption to the width of its board so boards never overwrite each
  *  other's text at low zoom */
 function fit(text: string, px: number): string {
@@ -27,8 +36,8 @@ function fit(text: string, px: number): string {
   if (max < 4) return ''
   return text.length > max ? text.slice(0, max - 1) + '…' : text
 }
-/** resize handle size in screen pixels, so it stays grabbable at any zoom */
-const HANDLE = 7
+/** 8.5 css px outer square, white fill, 1.5px accent border, square corners */
+const HANDLE = 8.5
 
 // Chrome drawn over the engine surface: board labels and captions, the hover
 // outline and the selection box with its handles. Everything is positioned in
@@ -36,7 +45,7 @@ const HANDLE = 7
 // being scaled by them — a handle is always the same size under the cursor.
 export default function Overlay({
   cam, boards, frames, worldX, docSize, title, selected, hover,
-  activeScene, onSelectScene,
+  activeScene, onSelectScene, guides, dragging,
 }: Props) {
   const [dw, dh] = docSize
   const { pan, zoom } = cam
@@ -83,7 +92,7 @@ export default function Overlay({
             <text
               x={x} y={sy(0) - 10} fontSize={12}
               className="pointer-events-auto cursor-pointer"
-              fill={activeScene === b.id ? BLUE : 'rgba(0,0,0,0.45)'}
+              fill={activeScene === b.id ? ACCENT : 'rgba(0,0,0,0.45)'}
               fontWeight={activeScene === b.id ? 600 : 400}
               onPointerDown={e => { e.stopPropagation(); onSelectScene(b.id) }}
             >
@@ -97,45 +106,53 @@ export default function Overlay({
               {b.dur.toFixed(1)}s
             </text>
             <rect x={x} y={sy(0)} width={w} height={dh * zoom} fill="none"
-                  stroke={activeScene === b.id && !selected ? BLUE : 'rgba(0,0,0,0.10)'}
+                  stroke={activeScene === b.id && !selected ? ACCENT : 'rgba(0,0,0,0.10)'}
                   strokeWidth={activeScene === b.id && !selected ? 1.5 : 1} />
           </g>
         )
       })}
 
-      {hov && (() => {
+      {!dragging && hov && (() => {
         const r = rectOf(hov.i, hov.b)
         return <rect x={r.x} y={r.y} width={r.w} height={r.h}
-                     fill="none" stroke={BLUE} strokeWidth={1} opacity={0.55} />
+                     fill="none" stroke={ACCENT} strokeWidth={1} />
       })()}
 
-      {sel && (() => {
+      {sel && !dragging && (() => {
         const r = rectOf(sel.i, sel.b)
-        const pts: [number, number][] = [
-          [r.x, r.y], [r.x + r.w / 2, r.y], [r.x + r.w, r.y],
-          [r.x + r.w, r.y + r.h / 2],
-          [r.x + r.w, r.y + r.h], [r.x + r.w / 2, r.y + r.h], [r.x, r.y + r.h],
-          [r.x, r.y + r.h / 2],
-        ]
+        const label = `${Math.round(sel.b.w)} × ${Math.round(sel.b.h)}`
+        const pillW = label.length * 6.6 + 16
         return (
           <g>
             <rect x={r.x} y={r.y} width={r.w} height={r.h}
-                  fill="none" stroke={BLUE} strokeWidth={1.5} />
-            {pts.map(([hx, hy], k) => (
+                  fill="none" stroke={ACCENT} strokeWidth={1.5} />
+            {handlePoints(r).map(([hx, hy], k) => (
               <rect key={k} x={hx - HANDLE / 2} y={hy - HANDLE / 2}
-                    width={HANDLE} height={HANDLE} rx={1.5}
-                    fill="#fff" stroke={BLUE} strokeWidth={1.25} />
+                    width={HANDLE} height={HANDLE}
+                    fill="#ffffff" stroke={ACCENT} strokeWidth={1.5} />
             ))}
-            <text x={r.x} y={r.y - 7} fill={BLUE} fontSize={11}>
-              {sel.b.id}
-            </text>
-            <text x={r.x + r.w} y={r.y + r.h + 14} textAnchor="end"
-                  fill={BLUE} fontSize={10} fontFamily="monospace">
-              {Math.round(sel.b.w)} × {Math.round(sel.b.h)}
-            </text>
+            <g transform={`translate(${r.x + r.w / 2 - pillW / 2}, ${r.y + r.h + 6.5})`}>
+              <rect width={pillW} height={20} rx={10} fill={ACCENT} />
+              <text x={pillW / 2} y={14} textAnchor="middle" fill="#fff" fontSize={11}>
+                {label}
+              </text>
+            </g>
+            <text x={r.x} y={r.y - 7} fill={ACCENT} fontSize={11}>{sel.b.id}</text>
           </g>
         )
       })()}
+
+      {/* alignment guides, drawn only while a drag is live */}
+      {guides.map((g, k) => (
+        g.axis === 'x'
+          ? <line key={k} x1={sx(g.board, g.at)} y1={sy(g.from)}
+                  x2={sx(g.board, g.at)} y2={sy(g.to)}
+                  stroke={GUIDE} strokeWidth={1} />
+          : <line key={k} x1={sx(g.board, g.from)} y1={sy(g.at)}
+                  x2={sx(g.board, g.to)} y2={sy(g.at)}
+                  stroke={GUIDE} strokeWidth={1} />
+      ))}
+
     </svg>
   )
 }

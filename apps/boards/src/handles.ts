@@ -1,17 +1,19 @@
 import type { NodeBox } from './measure'
 
-/** clockwise from the top-left, matching the order the overlay draws them */
-export const HANDLES = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'] as const
+/**
+ * Corners only, clockwise from the top-left. Paper draws exactly four handles
+ * and no edge midpoints — measured off its overlay canvas, four clusters of
+ * white pixels and nothing on the edges. Edge resizing still works by dragging
+ * the outline itself.
+ */
+export const HANDLES = ['nw', 'ne', 'se', 'sw'] as const
 export type Handle = (typeof HANDLES)[number]
 
 export interface ScreenRect { x: number; y: number; w: number; h: number }
 
 export function handlePoints(r: ScreenRect): [number, number][] {
   return [
-    [r.x, r.y], [r.x + r.w / 2, r.y], [r.x + r.w, r.y],
-    [r.x + r.w, r.y + r.h / 2],
-    [r.x + r.w, r.y + r.h], [r.x + r.w / 2, r.y + r.h], [r.x, r.y + r.h],
-    [r.x, r.y + r.h / 2],
+    [r.x, r.y], [r.x + r.w, r.y], [r.x + r.w, r.y + r.h], [r.x, r.y + r.h],
   ]
 }
 
@@ -29,8 +31,13 @@ export function handleAt(r: ScreenRect, px: number, py: number, grab = 9): Handl
 export const CURSORS: Record<Handle, string> = {
   nw: 'nwse-resize', se: 'nwse-resize',
   ne: 'nesw-resize', sw: 'nesw-resize',
-  n: 'ns-resize', s: 'ns-resize',
-  e: 'ew-resize', w: 'ew-resize',
+}
+
+/** just outside a corner is the rotate zone, the way paper does it */
+export function rotateAt(r: ScreenRect, px: number, py: number, band = 16): Handle | null {
+  const h = handleAt(r, px, py, band)
+  if (!h) return null
+  return handleAt(r, px, py, 9) ? null : h
 }
 
 export interface Geo { x: number; y: number; w: number; h: number }
@@ -41,7 +48,8 @@ export interface Geo { x: number; y: number; w: number; h: number }
  * must not shift the left one.
  */
 export function resize(
-  start: Geo, handle: Handle, dx: number, dy: number, keepAspect: boolean,
+  start: Geo, handle: Handle, dx: number, dy: number,
+  keepAspect: boolean, fromCentre = false,
 ): Geo {
   const east = handle.includes('e')
   const west = handle.includes('w')
@@ -57,6 +65,17 @@ export function resize(
     const k = Math.max(w / start.w, h / start.h)
     w = start.w * k
     h = start.h * k
+  }
+
+  // alt resizes about the centre: the origin does not move and the size
+  // changes by twice the drag
+  if (fromCentre) {
+    return {
+      x: start.x,
+      y: start.y,
+      w: Math.max(1, start.w + 2 * (w - start.w)),
+      h: Math.max(1, start.h + 2 * (h - start.h)),
+    }
   }
 
   return {

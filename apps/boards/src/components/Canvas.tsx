@@ -6,6 +6,8 @@ import type { Artboard, NodePatch, Sel } from '../doc'
 import { hitTest, measure } from '../measure'
 import type { Cmd, NodeBox } from '../measure'
 import { CURSORS, handleAt, resize, scaleType } from '../handles'
+import { snap } from '../snap'
+import type { Guide } from '../snap'
 import type { Handle } from '../handles'
 import Overlay from './Overlay'
 
@@ -69,6 +71,8 @@ export default function Canvas({
   const [cam, setCam] = useState<Camera>({ pan: { x: 120, y: 140 }, zoom: 0.12 })
   const [hover, setHover] = useState<NodeBox | null>(null)
   const [grab, setGrab] = useState<Handle | null>(null)
+  const [guides, setGuides] = useState<Guide[]>([])
+  const [dragging, setDragging] = useState(false)
   const drag = useRef<{
     kind: 'pan' | 'move' | 'resize'
     handle?: Handle
@@ -79,6 +83,7 @@ export default function Canvas({
     moved: boolean
     geo?: { x: number; y: number; w: number; h: number; fontSize?: number }
     box?: NodeBox
+    board?: number
   } | null>(null)
 
   const [dw, dh] = doc.stage.size
@@ -269,7 +274,11 @@ export default function Canvas({
     const node = pick(e.clientX, e.clientY)
     if (node && geo && selected
         && node.id === selected.id && node.scene === selected.scene) {
-      drag.current = { kind: 'move', x: e.clientX, y: e.clientY, moved: false, geo: { ...geo } }
+      const at = locate(e.clientX, e.clientY)
+      drag.current = {
+        kind: 'move', x: e.clientX, y: e.clientY, moved: false,
+        geo: { ...geo }, box: node, board: at?.board ?? 0,
+      }
       return
     }
     drag.current = { kind: 'pan', x: e.clientX, y: e.clientY, moved: false }
@@ -298,8 +307,19 @@ export default function Canvas({
     const dx = (e.clientX - d.startX!) / cam.zoom
     const dy = (e.clientY - d.startY!) / cam.zoom
 
+    setDragging(true)
     if (d.kind === 'move') {
-      onDrag({ x: Math.round(d.geo!.x + dx), y: Math.round(d.geo!.y + dy) })
+      const board = d.board ?? 0
+      const box = d.box!
+      // snap against every other node in the same scene, plus the artboard
+      const siblings = frames[board].boxes.filter(
+        b => !(b.id === box.id && b.scene === box.scene))
+      const s = snap(
+        d.geo!.x + dx, d.geo!.y + dy, box.w, box.h,
+        siblings, [dw, dh], board, cam.zoom,
+      )
+      setGuides(s.guides)
+      onDrag({ x: Math.round(s.x), y: Math.round(s.y) })
       return
     }
     if (d.geo!.fontSize != null) {
@@ -307,7 +327,7 @@ export default function Canvas({
       onDrag({ fontSize: scaleType(d.geo!.fontSize, d.box!, dx, dy) })
       return
     }
-    const g = resize(d.geo!, d.handle!, dx, dy, e.shiftKey)
+    const g = resize(d.geo!, d.handle!, dx, dy, e.shiftKey, e.altKey)
     onDrag({
       x: Math.round(g.x), y: Math.round(g.y),
       w: Math.round(g.w), h: Math.round(g.h),
@@ -317,6 +337,8 @@ export default function Canvas({
   const onUp = (e: React.PointerEvent) => {
     const d = drag.current
     drag.current = null
+    setGuides([])
+    setDragging(false)
     if (!d) return
     if (d.kind !== 'pan' && d.moved) { onDragEnd(); return }
     if (d.moved) return
@@ -358,6 +380,8 @@ export default function Canvas({
         hover={hover}
         activeScene={activeScene}
         onSelectScene={onSelectScene}
+        guides={guides}
+        dragging={dragging}
       />
     </div>
   )

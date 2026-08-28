@@ -136,15 +136,43 @@ export default function App() {
     setRev(r => r + 1)
   }, [])
 
+  // paper's nudge amounts: 1 small, 8 large. arrows with nothing selected pan,
+  // which the canvas owns, so only handle them here when there is a selection.
+  const NUDGE = { small: 1, large: 8 }
+  const TOOL_KEYS: Record<string, Tool> = {
+    v: 'select', h: 'hand', f: 'frame', r: 'rect', p: 'pen', t: 'text', s: 'shader',
+  }
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
       const mod = e.metaKey || e.ctrlKey
-      if (mod && e.key.toLowerCase() === 'z') {
+      const key = e.key.toLowerCase()
+
+      if (mod && key === 'z') {
         e.preventDefault()
         stepHistory(e.shiftKey ? 'redo' : 'undo')
+        return
       }
-      if (e.key === 'Escape') { setSel(null); setSelBox(null) }
+      if (e.key === 'Escape') { setSel(null); setSelBox(null); return }
+
+      const arrows: Record<string, [number, number]> = {
+        ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1],
+      }
+      const dir = arrows[e.key]
+      if (dir && selRef.current) {
+        e.preventDefault()
+        const step = e.shiftKey ? NUDGE.large : NUDGE.small
+        const node = nodeRef.current
+        if (!node) return
+        patchNodeRef.current({
+          x: Math.round((node.x ?? 0) + dir[0] * step),
+          y: Math.round((node.y ?? 0) + dir[1] * step),
+        })
+        return
+      }
+
+      if (!mod && !e.altKey && TOOL_KEYS[key]) setTool(TOOL_KEYS[key])
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -155,10 +183,19 @@ export default function App() {
     if (next && next !== id) patchScene(id, { id: next })
   }, [patchScene])
 
+  // refs so the key handler stays mounted once and still sees current state
+  const selRef = useRef<Sel | null>(null)
+  const nodeRef = useRef<ReturnType<typeof findNode> extends infer T
+    ? T extends { node: infer N } ? N | null : null : null>(null)
+  const patchNodeRef = useRef<(p: NodePatch) => void>(() => {})
+
   const boards = useMemo(() => (doc ? artboards(doc) : []), [doc])
   const layers = useMemo(() => (doc ? tree(doc) : []), [doc])
   const found = useMemo(() => (doc ? findNode(doc, sel) : null), [doc, sel])
   const artboard = boards.find(b => b.id === scene) ?? null
+  selRef.current = sel
+  nodeRef.current = found?.node ?? null
+  patchNodeRef.current = patchNode
 
   const onZoom = useCallback((z: number) => setZoom(z), [])
   const onGround = useCallback((h: string, a: number) => {
