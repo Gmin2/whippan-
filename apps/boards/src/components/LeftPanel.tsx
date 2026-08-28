@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronRight, FileIcon, Frame, PanelIcon, Plus, Rect, TypeMark } from '../icons'
+import FilmMenu from './FilmMenu'
 import type { Sel } from '../doc'
+import type { Entry } from '../engine/types'
 
 interface TreeNode {
   id: string
@@ -15,7 +17,9 @@ interface TreeScene {
 }
 
 interface Props {
-  title: string
+  registry: Entry[]
+  film: string
+  onPickFilm(slug: string): void
   pages: string[]
   activePage: string
   tree: TreeScene[]
@@ -66,7 +70,8 @@ function Row({ depth = 0, icon, label, selected, onClick, onDoubleClick, chevron
 }
 
 export default function LeftPanel({
-  title, pages, activePage, tree, selected, activeScene,
+  registry, film, onPickFilm,
+  pages, activePage, tree, selected, activeScene,
   onSelectNode, onSelectScene, onRename, onHidePanels,
 }: Props) {
   const [tab, setTab] = useState<'design' | 'motion'>('design')
@@ -82,7 +87,7 @@ export default function LeftPanel({
             <span className="absolute bottom-0 right-0 h-2 w-2 rounded-[2px] bg-black/30" />
           </span>
         </span>
-        <span className="flex-1 truncate font-medium">{title}</span>
+        <FilmMenu registry={registry} current={film} onPick={onPickFilm} />
         <button onClick={onHidePanels} title="hide panels"
                 className="text-dim transition-colors hover:text-ink">
           <PanelIcon size={15} />

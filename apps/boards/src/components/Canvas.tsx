@@ -113,6 +113,29 @@ export default function Canvas({
 
   useEffect(() => { onZoom(cam.zoom) }, [cam.zoom, onZoom])
 
+  // fit the whole wall when the document changes: a 15-scene film and a
+  // single-scene one at 1148x712 need very different cameras
+  const fitted = useRef('')
+  useEffect(() => {
+    const key = `${doc.entry.slug}:${size.w}x${size.h}`
+    if (!size.w || !size.h || !boards.length || fitted.current === key) return
+    fitted.current = key
+    const contentW = boards.length * dw + (boards.length - 1) * GAP
+    const pad = 80
+    const zoom = Math.min(
+      (size.w - pad * 2) / contentW,
+      (size.h - pad * 2 - 120) / dh,
+      1,
+    )
+    setCam({
+      zoom,
+      pan: {
+        x: (size.w - contentW * zoom) / 2,
+        y: (size.h - dh * zoom) / 2 + 20,
+      },
+    })
+  }, [doc.entry.slug, size, boards.length, dw, dh])
+
   useEffect(() => {
     if (!selected) { onMeasure(null); return }
     for (const f of frames) {

@@ -15,6 +15,9 @@ const DEFAULT_FILM = 'whippan'
 
 export default function App() {
   const [ck, setCk] = useState<CanvasKit | null>(null)
+  const [registry, setRegistry] = useState<Entry[]>([])
+  const [film, setFilm] = useState(
+    () => new URLSearchParams(location.search).get('film') ?? DEFAULT_FILM)
   const [doc, setDoc] = useState<Doc | null>(null)
   const [error, setError] = useState<string | null>(null)
   // every accepted edit bumps this, which re-renders the affected boards
@@ -35,15 +38,29 @@ export default function App() {
   const dragging = useRef(false)
 
   useEffect(() => {
-    const slug = new URLSearchParams(location.search).get('film') ?? DEFAULT_FILM
-    boot().then(({ CK, registry }) => {
+    boot().then(({ CK, registry: reg }) => {
       setCk(CK)
-      const entry: Entry | undefined = registry.find(e => e.slug === slug) ?? registry[0]
+      setRegistry(reg)
+      const entry: Entry | undefined = reg.find(e => e.slug === film) ?? reg[0]
       if (!entry) { setError('empty registry'); return }
       document.title = `${entry.title} · whippan boards`
       // the loader caches by slug, so edit on a copy and leave the cache clean
       return loadDoc(entry).then(d => setDoc({ ...d, stage: structuredClone(d.stage) }))
     }).catch(e => setError(String(e)))
+  }, [film])
+
+  // switching film clears everything that belonged to the old document
+  const pickFilm = useCallback((slug: string) => {
+    setFilm(slug)
+    setDoc(null)
+    setSel(null)
+    setSelBox(null)
+    setScene(null)
+    undo.current = []
+    redo.current = []
+    const url = new URL(location.href)
+    url.searchParams.set('film', slug)
+    history.replaceState(null, '', url)
   }, [])
 
   const snapshot = useCallback(() => {
@@ -231,7 +248,9 @@ export default function App() {
         </button>
       )}
       {panels && <LeftPanel
-        title={doc.entry.title}
+        registry={registry}
+        film={film}
+        onPickFilm={pickFilm}
         pages={['Page 1']}
         activePage="Page 1"
         tree={layers}
