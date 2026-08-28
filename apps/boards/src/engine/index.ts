@@ -5,6 +5,7 @@ import init, { render, register_font, sfx } from '@whippan/engine-web'
 import wasmUrl from '@whippan/engine-web/pkg/whippan_engine_bg.wasm?url'
 import { paintFrame } from '@whippan/engine-web/painter'
 import type { Anim, Doc, Entry, Stage } from './types'
+import { hitTest, measure } from '../measure'
 
 export interface Engine {
   CK: CanvasKit
@@ -194,6 +195,6 @@ export function queueScene(
 if (import.meta.env.DEV) {
   boot().then(({ CK, registry }) => {
     ;(window as unknown as Record<string, unknown>).whippan =
-      { CK, registry, render, sfx, loadDoc, docDur, sceneStarts }
+      { CK, registry, render, sfx, loadDoc, docDur, sceneStarts, measure, hitTest }
   })
 }
