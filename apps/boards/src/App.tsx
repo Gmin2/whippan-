@@ -5,6 +5,7 @@ import type { Tool } from './components/ToolRail'
 import Canvas from './components/Canvas'
 import RightPanel from './components/RightPanel'
 import AssetPicker from './components/AssetPicker'
+import EffectPicker from './components/EffectPicker'
 import { boot, ensureImage, loadDoc, saveDoc } from './engine'
 import type { Doc, Entry, Stage } from './engine/types'
 import { artboards, findNode, tree } from './doc'
@@ -39,6 +40,7 @@ export default function App() {
   const [saving, setSaving] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [saveError, setSaveError] = useState<string | null>(null)
   const [picking, setPicking] = useState(false)
+  const [effects, setEffects] = useState(false)
   const [ground, setGround] = useState('#d9cac8')
   const [groundAlpha, setGroundAlpha] = useState(1)
   // undo holds whole stage snapshots. a drag pushes one entry when it starts,
@@ -109,7 +111,7 @@ export default function App() {
             if (n.id !== sel.id) return n
             const {
               fontSize, fontFamily, fontWeight, opacity,
-              blur, glow, gradient, ...rest
+              blur, glow, gradient, goo, streak, ...rest
             } = patch
             const next: typeof n = { ...n, ...rest }
             if (fontSize != null || fontFamily != null || fontWeight != null) {
@@ -127,6 +129,10 @@ export default function App() {
             }
             // null means remove the section entirely, undefined means leave it
             if (blur !== undefined) { if (blur === null) delete next.blur; else next.blur = blur }
+            if (goo !== undefined) { if (goo === null) delete next.goo; else next.goo = goo }
+            if (streak !== undefined) {
+              if (streak === null) delete next.streak; else next.streak = streak
+            }
             if (glow !== undefined) { if (glow === null) delete next.glow; else next.glow = glow }
             if (gradient !== undefined) {
               if (gradient === null) delete next.gradient
@@ -186,6 +192,11 @@ export default function App() {
       const mod = e.metaKey || e.ctrlKey
       const key = e.key.toLowerCase()
 
+      if (mod && e.shiftKey && key === 'k') {
+        e.preventDefault()
+        setPicking(true)
+        return
+      }
       if (mod && key === 's') {
         e.preventDefault()
         saveRef.current()
@@ -408,6 +419,7 @@ export default function App() {
         tool={tool}
         onTool={t => {
           if (t === 'image') { setPicking(true); return }
+          if (t === 'shader') { setEffects(true); return }
           setTool(t)
         }}
         floating={!panels}
@@ -415,6 +427,10 @@ export default function App() {
       {picking && (
         <AssetPicker onClose={() => setPicking(false)}
                      onPick={a => { void insertImage(a.src) }} />
+      )}
+      {effects && (
+        <EffectPicker node={found?.node ?? null} onClose={() => setEffects(false)}
+                      onApply={patchNode} />
       )}
       <Canvas
         ck={ck}

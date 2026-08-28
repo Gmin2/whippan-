@@ -37,6 +37,12 @@ export interface Gradient {
   stops: GradientStop[]
 }
 
+export interface Streak {
+  samples?: number
+  window?: number
+  gain?: number
+}
+
 export interface Key { t: number; v: number; ease?: unknown }
 
 export interface Node {
@@ -62,6 +68,7 @@ export interface Node {
   gradient?: Gradient
   stroke?: number
   goo?: string
+  streak?: Streak
   /** static property values live here; the overlay keys the same names */
   keys?: Record<string, Key[]>
 }
