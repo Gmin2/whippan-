@@ -1,5 +1,29 @@
 [
  {
+  "slug": "whippan",
+  "title": "whippan",
+  "dur": 15.6,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "films",
+  "stage": "/docs/whippan.stage.json",
+  "anim": "/docs/whippan.anim.json"
+ },
+ {
+  "slug": "solder",
+  "title": "solder",
+  "dur": 20.0,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "films",
+  "stage": "/docs/solder.stage.json",
+  "anim": "/docs/solder.anim.json"
+ },
+ {
   "slug": "terminal",
   "title": "terminal",
   "dur": 4.23,
@@ -346,30 +370,6 @@
   "group": "reproductions",
   "stage": "/docs/motion-main.stage.json",
   "anim": "/docs/motion-main.anim.json"
- },
- {
-  "slug": "whippan",
-  "title": "whippan \u2014 our launch film",
-  "dur": 15.6,
-  "size": [
-   1920,
-   1080
-  ],
-  "group": "reproductions",
-  "stage": "/docs/whippan.stage.json",
-  "anim": "/docs/whippan.anim.json"
- },
- {
-  "slug": "solder",
-  "title": "solder \u2014 launch film",
-  "dur": 20.0,
-  "size": [
-   1920,
-   1080
-  ],
-  "group": "reproductions",
-  "stage": "/docs/solder.stage.json",
-  "anim": "/docs/solder.anim.json"
  },
  {
   "slug": "reveal",
