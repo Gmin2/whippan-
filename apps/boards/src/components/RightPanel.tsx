@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import ColorPicker from './ColorPicker'
-import type { Artboard } from '../doc'
+import NumField from './NumField'
+import type { Artboard, ScenePatch } from '../doc'
 
 interface Props {
   ground: string
@@ -8,6 +9,7 @@ interface Props {
   onGround(hex: string, alpha: number): void
   zoom: number
   selection: Artboard | null
+  onPatch(id: string, patch: ScenePatch): void
 }
 
 const PEERS = [
@@ -25,17 +27,45 @@ function Section({ label, children }: { label: string; children: React.ReactNode
   )
 }
 
-/** the white value field used for every property row */
+/** the white value field, in its read-only form */
 function Field({ children }: { children: React.ReactNode }) {
   return <div className="inset-control flex h-[26px] items-center gap-2 px-2">{children}</div>
 }
 
-export default function RightPanel({
-  ground, groundAlpha, onGround, zoom, selection,
-}: Props) {
-  const [picking, setPicking] = useState(false)
-  const hex = ground.replace('#', '').toUpperCase()
+/** a hex swatch row that opens the picker over it */
+function ColorRow({ hex, alpha, onChange }: {
+  hex: string
+  alpha: number
+  onChange(hex: string, alpha: number): void
+}) {
+  const [open, setOpen] = useState(false)
+  const flat = hex.replace('#', '').toUpperCase()
+  return (
+    <>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className={`inset-control flex h-[26px] w-full items-center gap-2 px-2
+                    transition-colors hover:bg-black/[0.02]
+                    ${open ? 'border-[#2d52f0] ring-2 ring-[#2d52f0]/25' : ''}`}
+      >
+        <span className="h-3.5 w-3.5 shrink-0 rounded-[3px] border border-black/15"
+              style={{ background: hex, opacity: alpha }} />
+        <span className="tabular-nums">{flat}</span>
+        <span className="ml-auto text-dim tabular-nums">{Math.round(alpha * 100)} %</span>
+      </button>
+      {open && (
+        <div className="absolute right-[calc(100%+8px)] z-50" style={{ top: 0 }}>
+          <ColorPicker hex={flat} alpha={alpha} onClose={() => setOpen(false)}
+                       onChange={(h, a) => onChange('#' + h, a)} />
+        </div>
+      )}
+    </>
+  )
+}
 
+export default function RightPanel({
+  ground, groundAlpha, onGround, zoom, selection, onPatch,
+}: Props) {
   return (
     <aside className="relative flex h-full w-inspector shrink-0 flex-col border-l
                       border-hair bg-panel">
@@ -63,63 +93,79 @@ export default function RightPanel({
         </button>
       </div>
 
-      {selection ? (
-        <>
-          <Section label="Scene">
-            <div className="grid grid-cols-2 gap-1.5">
-              <Field><span className="text-faint">ID</span>
-                <span className="truncate font-mono text-[11px]">{selection.id}</span></Field>
-              <Field><span className="text-faint">No</span>
-                <span className="tabular-nums">{selection.label}</span></Field>
-            </div>
-          </Section>
-          <Section label="Frame">
-            <div className="grid grid-cols-2 gap-1.5">
-              <Field><span className="text-faint">W</span>
-                <span className="tabular-nums">{selection.w}</span></Field>
-              <Field><span className="text-faint">H</span>
-                <span className="tabular-nums">{selection.h}</span></Field>
-            </div>
-          </Section>
-          <Section label="Timing">
-            <div className="grid grid-cols-2 gap-1.5">
-              <Field><span className="text-faint">In</span>
-                <span className="tabular-nums">{selection.start.toFixed(2)}s</span></Field>
-              <Field><span className="text-faint">Dur</span>
-                <span className="tabular-nums">{selection.dur.toFixed(2)}s</span></Field>
-            </div>
-          </Section>
-          <Section label="Note">
-            <p className="leading-relaxed text-dim">{selection.note}</p>
-          </Section>
-        </>
-      ) : (
-        <Section label="Page">
-          <button
-            onClick={() => setPicking(p => !p)}
-            className="inset-control flex h-[26px] w-full items-center gap-2 px-2
-                       transition-colors hover:bg-black/[0.02]"
-          >
-            <span className="h-3.5 w-3.5 shrink-0 rounded-[3px] border border-black/15"
-                  style={{ background: ground, opacity: groundAlpha }} />
-            <span className="tabular-nums">{hex}</span>
-            <span className="ml-auto text-dim tabular-nums">
-              {Math.round(groundAlpha * 100)} %
-            </span>
-          </button>
-        </Section>
-      )}
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        {selection ? (
+          <>
+            <Section label="Scene">
+              <div className="grid grid-cols-2 gap-1.5">
+                <input
+                  defaultValue={selection.id}
+                  key={selection.id}
+                  onBlur={e => {
+                    const v = e.target.value.trim()
+                    if (v && v !== selection.id) onPatch(selection.id, { id: v })
+                  }}
+                  onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
+                  className="inset-control h-[26px] min-w-0 px-2 font-mono text-[11px] outline-none
+                             focus:border-[#2d52f0] focus:ring-2 focus:ring-[#2d52f0]/25"
+                />
+                <Field><span className="text-faint">No</span>
+                  <span className="ml-auto tabular-nums">{selection.label}</span></Field>
+              </div>
+            </Section>
 
-      {picking && (
-        <div className="absolute right-[calc(100%+8px)] top-[92px] z-50">
-          <ColorPicker
-            hex={hex}
-            alpha={groundAlpha}
-            onChange={(h, a) => onGround('#' + h, a)}
-            onClose={() => setPicking(false)}
-          />
-        </div>
-      )}
+            <Section label="Timing">
+              <div className="grid grid-cols-2 gap-1.5">
+                <Field><span className="text-faint">In</span>
+                  <span className="ml-auto tabular-nums">{selection.start.toFixed(2)}s</span></Field>
+                <NumField
+                  label="Dur" value={selection.dur} precision={2} step={0.05} min={0.05}
+                  onChange={v => onPatch(selection.id, { dur: v })}
+                />
+              </div>
+            </Section>
+
+            <Section label="Background">
+              <div className="relative">
+                <ColorRow
+                  hex={selection.bg ?? '#ffffff'}
+                  alpha={1}
+                  onChange={h => onPatch(selection.id, { bg: h })}
+                />
+              </div>
+            </Section>
+
+            <Section label="Note">
+              <textarea
+                key={selection.id}
+                defaultValue={selection.note}
+                onBlur={e => onPatch(selection.id, { note: e.target.value })}
+                rows={4}
+                className="inset-control w-full resize-none px-2 py-1.5 leading-relaxed
+                           outline-none focus:border-[#2d52f0] focus:ring-2 focus:ring-[#2d52f0]/25"
+              />
+            </Section>
+
+            <Section label="Frame">
+              <div className="grid grid-cols-2 gap-1.5">
+                <Field><span className="text-faint">W</span>
+                  <span className="ml-auto tabular-nums">{selection.w}</span></Field>
+                <Field><span className="text-faint">H</span>
+                  <span className="ml-auto tabular-nums">{selection.h}</span></Field>
+              </div>
+              <p className="mt-1.5 text-[10px] text-faint">
+                canvas size is set on the document, not per scene
+              </p>
+            </Section>
+          </>
+        ) : (
+          <Section label="Page">
+            <div className="relative">
+              <ColorRow hex={ground} alpha={groundAlpha} onChange={onGround} />
+            </div>
+          </Section>
+        )}
+      </div>
     </aside>
   )
 }

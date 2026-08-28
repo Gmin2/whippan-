@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
-import { cachedScene, queueScene } from '../engine'
+import { cachedScene, queueScene, sceneKey } from '../engine'
 import type { Doc } from '../engine/types'
 import type { Artboard } from '../doc'
 
 interface Props {
   ck: CanvasKit
   doc: Doc
+  /** bumped on every document edit so changed scenes are re-cut */
+  rev: number
   ground: string
   title: string[]
   boards: Artboard[]
@@ -19,17 +21,20 @@ const GAP = 56
 /** frames are cut at 2x the on-canvas width so they stay sharp when zoomed in */
 const CUT_W = BOARD_W * 2
 
-function Card({ ck, doc, a, selected, onSelect }: {
+function Card({ ck, doc, rev, a, selected, onSelect }: {
   ck: CanvasKit
   doc: Doc
+  rev: number
   a: Artboard
   selected: boolean
   onSelect(): void
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const key = `${doc.entry.slug}:${a.index}`
+  const key = sceneKey(doc, a.index, rev)
   const [src, setSrc] = useState<string | undefined>(() => cachedScene(key))
   const h = Math.round((BOARD_W * a.h) / a.w)
+
+  useEffect(() => { setSrc(cachedScene(key)) }, [key])
 
   useEffect(() => {
     if (src || !ref.current) return
@@ -37,11 +42,11 @@ function Card({ ck, doc, a, selected, onSelect }: {
     const io = new IntersectionObserver(([e]) => {
       if (!e.isIntersecting) return
       io.disconnect()
-      queueScene(ck, doc, a.index, CUT_W).then(u => { if (alive && u) setSrc(u) })
+      queueScene(ck, doc, a.index, CUT_W, rev).then(u => { if (alive && u) setSrc(u) })
     }, { rootMargin: '600px' })
     io.observe(ref.current)
     return () => { alive = false; io.disconnect() }
-  }, [ck, doc, a.index, src])
+  }, [ck, doc, a.index, src, rev])
 
   return (
     <div ref={ref} className="shrink-0" style={{ width: BOARD_W }}>
@@ -77,7 +82,7 @@ function Card({ ck, doc, a, selected, onSelect }: {
 }
 
 export default function Canvas({
-  ck, doc, ground, title, boards, selected, onSelect, onZoom,
+  ck, doc, rev, ground, title, boards, selected, onSelect, onZoom,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [pan, setPan] = useState({ x: 96, y: 110 })
@@ -139,8 +144,8 @@ export default function Canvas({
 
         <div className="flex items-start" style={{ gap: GAP }}>
           {boards.map(a => (
-            <Card key={a.id} ck={ck} doc={doc} a={a} selected={a.id === selected}
-                  onSelect={() => onSelect(a.id)} />
+            <Card key={a.id} ck={ck} doc={doc} rev={rev} a={a}
+                  selected={a.id === selected} onSelect={() => onSelect(a.id)} />
           ))}
         </div>
       </div>

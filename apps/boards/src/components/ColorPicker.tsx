@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import {
-  cssRgb, hexToRgb, hsvToRgb, rgbToHex, rgbToHsl, rgbToHsv, rgbToOklch,
+  cssRgb, hexToRgb, hslToRgb, hsvToRgb, oklchToRgb, rgbToHex, rgbToHsl,
+  rgbToHsv, rgbToOklch,
 } from '../color'
+import NumField from './NumField'
 import type { HSV } from '../color'
 
 interface Props {
@@ -38,9 +40,11 @@ function useDrag(onMove: (x: number, y: number) => void) {
   return { ref, onPointerDown: down }
 }
 
-function Row({ label, values, onCopy }: {
+function Row({ label, values, precision, onEdit, onCopy }: {
   label: string[]
-  values: string[]
+  values: number[]
+  precision: number[]
+  onEdit(i: number, v: number): void
   onCopy(): void
 }) {
   return (
@@ -48,9 +52,12 @@ function Row({ label, values, onCopy }: {
       <div className="grid flex-1 grid-cols-3 gap-1.5">
         {values.map((v, i) => (
           <div key={i}>
-            <div className="inset-control grid h-[26px] place-items-center tabular-nums">
-              {v}
-            </div>
+            <NumField
+              value={v}
+              precision={precision[i]}
+              step={precision[i] >= 3 ? 0.005 : precision[i] >= 1 ? 0.5 : 1}
+              onChange={n => onEdit(i, n)}
+            />
             <p className="mt-1 text-center text-[10px] text-dim">{label[i]}</p>
           </div>
         ))}
@@ -214,14 +221,26 @@ export default function ColorPicker({ hex, alpha, onChange, onClose }: Props) {
           </div>
 
           <div className="flex flex-col gap-2.5">
-            <Row label={['L', 'C', 'H']}
-                 values={[L.toFixed(1), C.toFixed(3), H.toFixed(1)]}
+            <Row label={['L', 'C', 'H']} values={[L, C, H]} precision={[1, 3, 1]}
+                 onEdit={(i, v) => {
+                   const next: [number, number, number] = [L, C, H]
+                   next[i] = v
+                   setHsv(rgbToHsv(oklchToRgb(next)))
+                 }}
                  onCopy={() => copy(`oklch(${L.toFixed(1)}% ${C.toFixed(3)} ${H.toFixed(1)})`)} />
-            <Row label={['H', 'S', 'L']}
-                 values={[hh.toFixed(1), ss.toFixed(1), ll.toFixed(1)]}
+            <Row label={['H', 'S', 'L']} values={[hh, ss, ll]} precision={[1, 1, 1]}
+                 onEdit={(i, v) => {
+                   const next: [number, number, number] = [hh, ss, ll]
+                   next[i] = v
+                   setHsv(rgbToHsv(hslToRgb(next)))
+                 }}
                  onCopy={() => copy(`hsl(${hh.toFixed(1)} ${ss.toFixed(1)}% ${ll.toFixed(1)}%)`)} />
-            <Row label={['R', 'G', 'B']}
-                 values={[Math.round(rgb.r), Math.round(rgb.g), Math.round(rgb.b)].map(String)}
+            <Row label={['R', 'G', 'B']} values={[rgb.r, rgb.g, rgb.b]} precision={[0, 0, 0]}
+                 onEdit={(i, v) => {
+                   const next = { ...rgb }
+                   next[(['r', 'g', 'b'] as const)[i]] = Math.min(255, Math.max(0, v))
+                   setHsv(rgbToHsv(next))
+                 }}
                  onCopy={() => copy(`rgb(${Math.round(rgb.r)} ${Math.round(rgb.g)} ${Math.round(rgb.b)})`)} />
           </div>
         </div>

@@ -11,6 +11,14 @@ export interface Layer {
   kind: LayerKind
 }
 
+/** the fields of a scene boards can edit */
+export interface ScenePatch {
+  id?: string
+  dur?: number
+  note?: string
+  bg?: string
+}
+
 export interface Artboard {
   id: string
   /** the number printed above each board */
@@ -22,6 +30,7 @@ export interface Artboard {
   dur: number
   start: number
   note: string
+  bg?: string
 }
 
 export function artboards(doc: Doc): Artboard[] {
@@ -36,7 +45,8 @@ export function artboards(doc: Doc): Artboard[] {
     h,
     dur: s.dur ?? 3,
     start: starts[i],
-    note: s.note ?? `${s.nodes.length} nodes`,
+    note: s.note ?? '',
+    bg: s.bg,
   }))
 }
 

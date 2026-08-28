@@ -7,6 +7,7 @@ import RightPanel from './components/RightPanel'
 import { boot, loadDoc } from './engine'
 import type { Doc, Entry } from './engine/types'
 import { artboards, layers } from './doc'
+import type { ScenePatch } from './doc'
 
 /** the film boards opens on; ?film=<slug> picks another out of the registry */
 const DEFAULT_FILM = 'whippan'
@@ -15,6 +16,9 @@ export default function App() {
   const [ck, setCk] = useState<CanvasKit | null>(null)
   const [doc, setDoc] = useState<Doc | null>(null)
   const [error, setError] = useState<string | null>(null)
+  // every accepted edit bumps this, which re-keys the frame cache so only the
+  // scenes that actually changed get cut again
+  const [rev, setRev] = useState(0)
 
   const [tool, setTool] = useState<Tool>('select')
   const [selected, setSelected] = useState<string | null>(null)
@@ -26,13 +30,30 @@ export default function App() {
     const slug = new URLSearchParams(location.search).get('film') ?? DEFAULT_FILM
     boot().then(({ CK, registry }) => {
       setCk(CK)
-      const entry: Entry | undefined =
-        registry.find(e => e.slug === slug) ?? registry[0]
+      const entry: Entry | undefined = registry.find(e => e.slug === slug) ?? registry[0]
       if (!entry) { setError('empty registry'); return }
       document.title = `${entry.title} · whippan boards`
-      return loadDoc(entry).then(setDoc)
+      // the loader caches by slug, so edit on a copy and leave the cache clean
+      return loadDoc(entry).then(d => setDoc({ ...d, stage: structuredClone(d.stage) }))
     }).catch(e => setError(String(e)))
   }, [])
+
+  const patchScene = useCallback((id: string, patch: ScenePatch) => {
+    setDoc(prev => {
+      if (!prev) return prev
+      const scenes = prev.stage.scenes.map(s =>
+        s.id === id ? { ...s, ...patch } : s)
+      return { ...prev, stage: { ...prev.stage, scenes } }
+    })
+    if (patch.id && patch.id !== id) setSelected(patch.id)
+    setRev(r => r + 1)
+  }, [])
+
+  // the tree shows "<n>  <id>", so a rename there is a rename of the scene id
+  const renameLayer = useCallback((id: string, name: string) => {
+    const next = name.replace(/^\d+\s+/, '').trim()
+    if (next && next !== id) patchScene(id, { id: next })
+  }, [patchScene])
 
   const boards = useMemo(() => (doc ? artboards(doc) : []), [doc])
   const tree = useMemo(() => (doc ? layers(doc) : []), [doc])
@@ -57,11 +78,13 @@ export default function App() {
         layers={tree}
         selected={selected}
         onSelect={setSelected}
+        onRename={renameLayer}
       />
       <ToolRail tool={tool} onTool={setTool} />
       <Canvas
         ck={ck}
         doc={doc}
+        rev={rev}
         ground={ground}
         title={[doc.entry.title, 'json in, launch film out']}
         boards={boards}
@@ -75,6 +98,7 @@ export default function App() {
         onGround={onGround}
         zoom={zoom}
         selection={selection}
+        onPatch={patchScene}
       />
     </div>
   )

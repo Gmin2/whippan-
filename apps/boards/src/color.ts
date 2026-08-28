@@ -87,3 +87,41 @@ export function rgbToOklch({ r, g, b }: RGB): [number, number, number] {
 
 export const cssRgb = ({ r, g, b }: RGB, a = 1) =>
   `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`
+
+/** inverse of rgbToHsl; h in degrees, s and l as percentages */
+export function hslToRgb([h, s, l]: [number, number, number]): RGB {
+  const S = clamp(s / 100), L = clamp(l / 100)
+  const c = (1 - Math.abs(2 * L - 1)) * S
+  const hh = ((h % 360) + 360) % 360
+  const x = c * (1 - Math.abs(((hh / 60) % 2) - 1))
+  const m = L - c / 2
+  const seg = Math.floor(hh / 60) % 6
+  const [r, g, b] = [
+    [c, x, 0], [x, c, 0], [0, c, x], [0, x, c], [x, 0, c], [c, 0, x],
+  ][seg]
+  return { r: (r + m) * 255, g: (g + m) * 255, b: (b + m) * 255 }
+}
+
+const linearToSrgb = (c: number) =>
+  c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055
+
+/** inverse of rgbToOklch; L as a percentage, C absolute, H in degrees. out of
+    gamut results are clipped rather than gamut-mapped, which is what a picker
+    wants: the swatch stays reachable and the sliders stay predictable */
+export function oklchToRgb([L, C, H]: [number, number, number]): RGB {
+  const l_ = L / 100
+  const h = (H * Math.PI) / 180
+  const a = C * Math.cos(h)
+  const b = C * Math.sin(h)
+  const l = (l_ + 0.3963377774 * a + 0.2158037573 * b) ** 3
+  const m = (l_ - 0.1055613458 * a - 0.0638541728 * b) ** 3
+  const s = (l_ - 0.0894841775 * a - 1.2914855480 * b) ** 3
+  const R = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s
+  const G = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s
+  const B = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
+  return {
+    r: clamp(linearToSrgb(R)) * 255,
+    g: clamp(linearToSrgb(G)) * 255,
+    b: clamp(linearToSrgb(B)) * 255,
+  }
+}

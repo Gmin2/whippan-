@@ -9,21 +9,25 @@ interface Props {
   layers: Layer[]
   selected: string | null
   onSelect(id: string): void
+  onRename(id: string, name: string): void
 }
 
-function Row({ depth = 0, icon, label, selected, onClick, chevron }: {
+function Row({ depth = 0, icon, label, selected, onClick, chevron, onRename }: {
   depth?: number
   icon: React.ReactNode
   label: string
   selected?: boolean
   onClick?(): void
   chevron?: boolean
+  onRename?(name: string): void
 }) {
   const [open, setOpen] = useState(false)
+  const [editing, setEditing] = useState(false)
   return (
-    <button
+    <div
       onClick={onClick}
-      className={`flex h-[26px] w-full items-center gap-1.5 pr-2 text-left
+      onDoubleClick={() => onRename && setEditing(true)}
+      className={`flex h-[26px] w-full cursor-default items-center gap-1.5 pr-2 text-left
                   ${selected ? 'bg-row' : 'hover:bg-black/[0.035]'}`}
       style={{ paddingLeft: 8 + depth * 14 }}
     >
@@ -35,12 +39,29 @@ function Row({ depth = 0, icon, label, selected, onClick, chevron }: {
         {open ? <ChevronDown size={9} /> : <ChevronRight size={9} />}
       </span>
       <span className="grid w-4 shrink-0 place-items-center text-dim">{icon}</span>
-      <span className="truncate">{label}</span>
-    </button>
+      {editing ? (
+        <input
+          autoFocus
+          defaultValue={label}
+          onClick={e => e.stopPropagation()}
+          onBlur={e => { onRename?.(e.target.value.trim()); setEditing(false) }}
+          onKeyDown={e => {
+            if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
+            if (e.key === 'Escape') setEditing(false)
+          }}
+          className="min-w-0 flex-1 rounded-[3px] bg-surface px-1 outline-none
+                     ring-2 ring-[#2d52f0]/40"
+        />
+      ) : (
+        <span className="truncate">{label}</span>
+      )}
+    </div>
   )
 }
 
-export default function LeftPanel({ title, pages, activePage, layers, selected, onSelect }: Props) {
+export default function LeftPanel({
+  title, pages, activePage, layers, selected, onSelect, onRename,
+}: Props) {
   const [tab, setTab] = useState<'design' | 'theme'>('design')
 
   return (
@@ -103,6 +124,7 @@ export default function LeftPanel({ title, pages, activePage, layers, selected, 
             chevron={l.kind === 'frame'}
             selected={l.id === selected}
             onClick={() => onSelect(l.id)}
+            onRename={name => name && onRename(l.id, name)}
           />
         ))}
       </div>

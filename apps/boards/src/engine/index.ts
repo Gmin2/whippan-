@@ -144,12 +144,18 @@ export function sceneStarts(stage: Stage): number[] {
 // which is past the entrance and before the exit on nearly every scene.
 const sceneCache = new Map<string, string>()
 
+export function sceneKey(doc: Doc, i: number, rev: number): string {
+  return `${doc.entry.slug}:${rev}:${i}`
+}
+
 export function cachedScene(key: string): string | undefined {
   return sceneCache.get(key)
 }
 
-async function cutScene(CK: CanvasKit, doc: Doc, i: number, w: number): Promise<string> {
-  const key = `${doc.entry.slug}:${i}`
+async function cutScene(
+  CK: CanvasKit, doc: Doc, i: number, w: number, rev: number,
+): Promise<string> {
+  const key = sceneKey(doc, i, rev)
   const hit = sceneCache.get(key)
   if (hit) return hit
   const [dw, dh] = doc.stage.size
@@ -176,9 +182,9 @@ async function cutScene(CK: CanvasKit, doc: Doc, i: number, w: number): Promise<
 let sceneQueue: Promise<unknown> = Promise.resolve()
 
 export function queueScene(
-  CK: CanvasKit, doc: Doc, i: number, w: number,
+  CK: CanvasKit, doc: Doc, i: number, w: number, rev: number,
 ): Promise<string | null> {
-  const job = sceneQueue.then(() => cutScene(CK, doc, i, w).catch(() => null))
+  const job = sceneQueue.then(() => cutScene(CK, doc, i, w, rev).catch(() => null))
   sceneQueue = job
   return job
 }
