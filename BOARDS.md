@@ -176,6 +176,46 @@ fill, gradient editor, glow, font family/size/weight/colour, image src, path
 this is the half that is whippan rather than a figma clone. the storyboard is
 the right surface for motion precisely because motion lives *between* screens.
 
+### 4.0 two levels, and how much of after effects we actually want
+
+motion mode is not one screen, it is two, and you move between them by zoom:
+
+**the wall** (zoomed out) — the storyboard. seams between boards, morph
+threads, a stagger strip under each column. this level does not exist in after
+effects at all, and it is the reason to build this rather than use theirs:
+motion *between* screens is a first-class object you can see and click.
+
+**inside a scene** (double click a board, or zoom past a threshold) — a real
+timeline dock at the bottom. this is the after-effects-shaped part: one lane
+per node, keyframe diamonds per property, playhead, scrub, play with audio, a
+graph editor for easing.
+
+what we take from after effects:
+
+- the timeline: layer lanes, property rows, keyframes you drag to retime
+- a graph / curve editor for easing on the selected property
+- playhead scrub and true playback, with the audio bed and derived sfx
+- preview that plays the actual output, not an approximation
+
+what we deliberately do **not** take:
+
+- the effects kitchen sink. our whole effect vocabulary is what the engine has:
+  glow, blur, streak, goo, gradient, camera. that is the point, not a gap
+- compositions nested in compositions. scenes are flat
+- an expression language. the document *is* the expression language
+- keyframing every property by hand as the primary gesture. ours is intent
+  presets first, raw keys as the escape hatch — AUTHORING's three authoring
+  depths, in that order of prominence
+
+what we have that after effects does not:
+
+- the seam and morph threads above
+- intent chips (`enter: pop`, `reveal: {unit: word}`) that compile to keys, so
+  a first draft is minutes not hours
+- the taste rails: 140-280ms in-scene, under ~40px translation, >350ms reads
+  slow. the tool tells you when you leave the measured bands
+- the artifact is readable json an agent can author and diff
+
 ### 4.1 the seam is the control
 
 the gap between board N and N+1 holds `transition: {kind, dur, dir, ease}`.
@@ -264,10 +304,10 @@ in the renderer.
 
 ## 6. open questions
 
-1. **does boards replace studio?** studio already has a design view, a boards
-   view and a timeline. two editors over one engine will drift, and the drift
-   will be silent. recommendation: build boards properly and retire studio
-   into it rather than maintaining both.
+1. ~~does boards replace studio?~~ **decided: no.** studio (the older dark
+   editor on 8900) stays as its own thing for now. boards is built alongside
+   it. the three apps are: **gallery** (8901, the public wall of films),
+   **studio** (8900, the old editor), **boards** (8902, this one).
 2. **design mode still time** — settled state per scene (recommended) or t=0.
 3. **motion timeline shape** — per-column stagger strips (recommended, matches
    the storyboard) or one global timeline like studio has today.
