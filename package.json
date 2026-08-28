@@ -1,4 +1,10 @@
 {
   "name": "whippan",
-  "private": true
+  "private": true,
+  "scripts": {
+    "api": "pnpm --filter @whippan/server dev",
+    "boards": "pnpm --filter whippan-boards dev",
+    "gallery": "pnpm --filter whippan-gallery dev",
+    "studio": "pnpm --filter whippan-studio dev"
+  }
 }

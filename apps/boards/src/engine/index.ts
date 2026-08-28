@@ -12,6 +12,13 @@ export interface Engine {
   registry: Entry[]
 }
 
+/**
+ * Where the film API lives. Same origin by default, which is how it runs
+ * deployed behind one host; VITE_API_BASE points it elsewhere for a split
+ * deployment or a remote backend during development.
+ */
+const API = import.meta.env.VITE_API_BASE ?? ''
+
 let booted: Promise<Engine> | null = null
 
 export function boot(): Promise<Engine> {
@@ -22,7 +29,10 @@ export function boot(): Promise<Engine> {
       init(wasmUrl),
       fetch('/fonts/Inter-Variable.ttf').then(r => r.arrayBuffer()),
       fetch('/fonts/JetBrainsMono-Regular.ttf').then(r => r.arrayBuffer()),
-      fetch('/docs/examples/index.json').then(r => r.json() as Promise<Entry[]>),
+      fetch(`${API}/api/films`).then(r => {
+        if (!r.ok) throw new Error(`registry unavailable (${r.status})`)
+        return r.json() as Promise<Entry[]>
+      }),
     ])
     // the engine shapes its own text, so an unregistered font is a blank
     // film rather than a fallback face
@@ -53,18 +63,11 @@ export function loadDoc(entry: Entry): Promise<Doc> {
   const hit = docCache.get(entry.slug)
   if (hit) return hit
   const job = (async (): Promise<Doc> => {
-    const stageUrl = entry.stage ?? `/docs/examples/${entry.slug}.stage.json`
-    const animUrl = entry.anim ?? `/docs/examples/${entry.slug}.anim.json`
-    const [stage, anim] = await Promise.all([
-      fetch(stageUrl).then(r => {
-        if (!r.ok) throw new Error(`missing ${stageUrl}`)
-        return r.json() as Promise<Stage>
-      }),
-      fetch(animUrl).then(r => {
-        if (!r.ok) throw new Error(`missing ${animUrl}`)
-        return r.json() as Promise<Anim>
-      }),
-    ])
+    // documents come from the api, not from static files: that is what lets
+    // the editor behave the same locally and deployed
+    const res = await fetch(`${API}/api/films/${encodeURIComponent(entry.slug)}`)
+    if (!res.ok) throw new Error(`could not load ${entry.slug} (${res.status})`)
+    const { stage, anim } = await res.json() as { stage: Stage; anim: Anim }
     const { CK } = await boot()
     const images = new Map<string, unknown>()
     await Promise.all(imageSources(stage).map(async src => {
@@ -203,8 +206,8 @@ if (import.meta.env.DEV) {
 export async function saveDoc(
   slug: string, stage: Stage, anim: Anim,
 ): Promise<void> {
-  const res = await fetch(`/api/doc/${encodeURIComponent(slug)}`, {
-    method: 'POST',
+  const res = await fetch(`${API}/api/films/${encodeURIComponent(slug)}`, {
+    method: 'PUT',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ stage, anim }),
   })
