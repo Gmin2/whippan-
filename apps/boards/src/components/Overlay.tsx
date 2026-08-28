@@ -1,18 +1,22 @@
 import type { Artboard, Sel } from '../doc'
 import type { NodeBox } from '../measure'
 import { handlePoints } from '../handles'
+import { GAP_Y, HEADER, HEADER_GAP } from '../layout'
 import type { Camera } from './Canvas'
 import type { Guide } from '../snap'
 
 interface Frame {
+  t: number
   boxes: NodeBox[]
 }
 
 interface Props {
   cam: Camera
   boards: Artboard[]
-  frames: Frame[]
+  columns: Frame[][]
   worldX(i: number): number
+  worldY(k: number): number
+  selRow: number
   docSize: [number, number]
   title: string[]
   selected: Sel | null
@@ -29,12 +33,18 @@ interface Props {
 const ACCENT = '#5e92f4'
 /** snap guides are crimson there, not the selection blue */
 const GUIDE = '#dc4f70'
-/** trim a caption to the width of its board so boards never overwrite each
- *  other's text at low zoom */
-function fit(text: string, px: number): string {
-  const max = Math.floor(px / 5.6)
-  if (max < 4) return ''
-  return text.length > max ? text.slice(0, max - 1) + '…' : text
+
+/** naive word wrap for the script card */
+function wrapText(text: string, cols: number): string[] {
+  if (cols < 8) return []
+  const out: string[] = []
+  let line = ''
+  for (const word of text.split(/\s+/)) {
+    if ((line + ' ' + word).trim().length > cols) { out.push(line.trim()); line = word }
+    else line += ' ' + word
+  }
+  if (line.trim()) out.push(line.trim())
+  return out
 }
 /** 8.5 css px outer square, white fill, 1.5px accent border, square corners */
 const HANDLE = 8.5
@@ -44,19 +54,21 @@ const HANDLE = 8.5
 // screen space from the camera, so it tracks pan and zoom exactly without
 // being scaled by them — a handle is always the same size under the cursor.
 export default function Overlay({
-  cam, boards, frames, worldX, docSize, title, selected, hover,
+  cam, boards, columns, worldX, worldY, selRow, docSize, title, selected, hover,
   activeScene, onSelectScene, guides, dragging,
 }: Props) {
   const [dw, dh] = docSize
   const { pan, zoom } = cam
   const sx = (i: number, x: number) => (worldX(i) + x) * zoom + pan.x
   const sy = (y: number) => y * zoom + pan.y
+  const ry = (k: number, y: number) => (worldY(k) + y) * zoom + pan.y
 
   const find = (s: { scene: string; id: string } | null) => {
     if (!s) return null
-    for (let i = 0; i < frames.length; i++) {
-      const b = frames[i].boxes.find(n => n.id === s.id && n.scene === s.scene)
-      if (b) return { i, b }
+    for (let i = 0; i < columns.length; i++) {
+      const k = columns[i][selRow] ? selRow : 0
+      const b = columns[i][k]?.boxes.find(n => n.id === s.id && n.scene === s.scene)
+      if (b) return { i, k, b }
     }
     return null
   }
@@ -65,9 +77,9 @@ export default function Overlay({
     hover.id === selected.id && hover.scene === selected.scene
   const hov = same ? null : find(hover)
 
-  const rectOf = (i: number, b: NodeBox) => ({
+  const rectOf = (i: number, k: number, b: NodeBox) => ({
     x: sx(i, b.x),
-    y: sy(b.y),
+    y: ry(k, b.y),
     w: b.w * zoom,
     h: b.h * zoom,
   })
@@ -76,10 +88,12 @@ export default function Overlay({
     <svg className="pointer-events-none absolute inset-0 h-full w-full"
          style={{ overflow: 'visible' }}>
       {/* the film name, living on the canvas rather than in any board */}
-      <text x={sx(0, 0)} y={sy(0) - 78} fill="rgba(255,255,255,0.75)" fontSize={22}>
+      <text x={sx(0, 0)} y={ry(0, 0) - HEADER_GAP * zoom - Math.max(HEADER * zoom, 82) - 34}
+            fill="rgba(255,255,255,0.75)" fontSize={20}>
         {title[0]}
       </text>
-      <text x={sx(0, 0)} y={sy(0) - 50} fill="rgba(255,255,255,0.6)" fontSize={15}>
+      <text x={sx(0, 0)} y={ry(0, 0) - HEADER_GAP * zoom - Math.max(HEADER * zoom, 82) - 14}
+            fill="rgba(255,255,255,0.55)" fontSize={13}>
         {title[1]}
       </text>
 
@@ -87,39 +101,70 @@ export default function Overlay({
         const x = sx(i, 0)
         const w = dw * zoom
         if (x > 4000 || x + w < -400) return null
+        const active = activeScene === b.id
+        // the card grows with the wall but never shrinks below legible, and it
+        // grows upward from the first frame so it can never eat into one
+        const cardH = Math.max(HEADER * zoom, 82)
+        const cardY = ry(0, 0) - HEADER_GAP * zoom - cardH
+
+        // the card is laid out in world space so it scales with the wall, but
+        // its text is measured in screen pixels: a line of copy has to stay
+        // legible at any zoom, or vanish when there is genuinely no room
+        const pad = Math.min(14, Math.max(6, w * 0.04))
+        const fs = 12
+        const lh = 16
+        const roomForText = w > 104
+        const cols = Math.floor((w - pad * 2) / (fs * 0.52))
+        const maxLines = Math.floor((cardH - pad * 2 - 18) / lh)
+        const lines = roomForText ? wrapText(b.note, cols).slice(0, Math.max(0, maxLines)) : []
+
         return (
           <g key={b.id}>
-            <text
-              x={x} y={sy(0) - 10} fontSize={12}
-              className="pointer-events-auto cursor-pointer"
-              fill={activeScene === b.id ? ACCENT : 'rgba(0,0,0,0.45)'}
-              fontWeight={activeScene === b.id ? 600 : 400}
-              onPointerDown={e => { e.stopPropagation(); onSelectScene(b.id) }}
-            >
-              {b.label}
-            </text>
-            <text x={x} y={sy(dh) + 18} fill="rgba(0,0,0,0.4)" fontSize={11}>
-              {fit(b.note, w - 34)}
-            </text>
-            <text x={x + w} y={sy(dh) + 18} textAnchor="end"
-                  fill="rgba(0,0,0,0.4)" fontSize={11} fontFamily="monospace">
-              {b.dur.toFixed(1)}s
-            </text>
-            <rect x={x} y={sy(0)} width={w} height={dh * zoom} fill="none"
-                  stroke={activeScene === b.id && !selected ? ACCENT : 'rgba(0,0,0,0.10)'}
-                  strokeWidth={activeScene === b.id && !selected ? 1.5 : 1} />
+            <rect x={x} y={cardY} width={w} height={cardH} rx={Math.min(10, w * 0.03)}
+                  fill="#16241d"
+                  className="pointer-events-auto cursor-pointer"
+                  onPointerDown={e => { e.stopPropagation(); onSelectScene(b.id) }} />
+            {roomForText && (
+              <text x={x + pad} y={cardY + pad + 10} fill="rgba(255,255,255,0.42)"
+                    fontSize={10} fontFamily="monospace">
+                {b.label} · {b.dur.toFixed(1)}s
+              </text>
+            )}
+            {lines.map((line, li) => (
+              <text key={li} x={x + pad} y={cardY + pad + 30 + li * lh}
+                    fill="rgba(255,255,255,0.9)" fontSize={fs}>
+                {line}
+              </text>
+            ))}
+
+            {(columns[i] ?? []).map((f, k) => (
+              <g key={k}>
+                {active && !selected && (
+                  <rect x={x} y={ry(k, 0)} width={w} height={dh * zoom}
+                        fill="none" stroke={ACCENT} strokeWidth={1.5} />
+                )}
+                {/* the time sits in the gap above its own frame, and only
+                    when the gap is actually tall enough to hold it */}
+                {w > 70 && GAP_Y * zoom >= 13 && (
+                  <text x={x} y={ry(k, 0) - 5} fill="rgba(0,0,0,0.38)"
+                        fontSize={10} fontFamily="monospace">
+                    {f.t.toFixed(2)}s
+                  </text>
+                )}
+              </g>
+            ))}
           </g>
         )
       })}
 
       {!dragging && hov && (() => {
-        const r = rectOf(hov.i, hov.b)
+        const r = rectOf(hov.i, hov.k, hov.b)
         return <rect x={r.x} y={r.y} width={r.w} height={r.h}
                      fill="none" stroke={ACCENT} strokeWidth={1} />
       })()}
 
       {sel && !dragging && (() => {
-        const r = rectOf(sel.i, sel.b)
+        const r = rectOf(sel.i, sel.k, sel.b)
         const label = `${Math.round(sel.b.w)} × ${Math.round(sel.b.h)}`
         const pillW = label.length * 6.6 + 16
         return (

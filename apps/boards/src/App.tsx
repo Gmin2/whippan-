@@ -26,6 +26,7 @@ export default function App() {
   const [tool, setTool] = useState<Tool>('select')
   const [sel, setSel] = useState<Sel | null>(null)
   const [selBox, setSelBox] = useState<NodeBox | null>(null)
+  const [selRow, setSelRow] = useState(0)
   const [scene, setScene] = useState<string | null>(null)
   const [zoom, setZoom] = useState(0.12)
   const [panels, setPanels] = useState(true)
@@ -219,9 +220,10 @@ export default function App() {
     setGround(h)
     setGroundAlpha(a)
   }, [])
-  const onSelect = useCallback((box: NodeBox | null) => {
+  const onSelect = useCallback((box: NodeBox | null, row: number) => {
     setSel(box ? { scene: box.scene, id: box.id } : null)
     setSelBox(box)
+    setSelRow(row)
     if (box) setScene(box.scene)
   }, [])
   const onMeasure = useCallback((box: NodeBox | null) => setSelBox(box), [])
@@ -270,6 +272,7 @@ export default function App() {
         title={[doc.entry.title, 'json in, launch film out']}
         boards={boards}
         selected={sel}
+        selRow={selRow}
         onSelect={onSelect}
         onSelectScene={s => { setScene(s); setSel(null); setSelBox(null) }}
         activeScene={scene}

@@ -8,6 +8,7 @@ import type { Cmd, NodeBox } from '../measure'
 import { CURSORS, handleAt, resize, scaleType } from '../handles'
 import { snap } from '../snap'
 import type { Guide } from '../snap'
+import { GAP_X, columnX, rowY, sampleTimes, wallSize } from '../layout'
 import type { Handle } from '../handles'
 import Overlay from './Overlay'
 
@@ -19,7 +20,9 @@ interface Props {
   title: string[]
   boards: Artboard[]
   selected: Sel | null
-  onSelect(box: NodeBox | null): void
+  /** which sampled frame of the scene the selection was made in */
+  selRow: number
+  onSelect(box: NodeBox | null, row: number): void
   onZoom(z: number): void
   /** resting geometry of the selected node, what a drag actually edits */
   geo: { x: number; y: number; w: number; h: number; fontSize?: number } | null
@@ -32,16 +35,10 @@ interface Props {
   activeScene: string | null
 }
 
-/** gap between artboards, in document pixels — the wall lives in doc space */
-const GAP = 320
-/**
- * where in a scene we take the still. 70% is past the entrance and before the
- * exit, so each board reads as the settled frame the scene is really about,
- * which is how AUTHORING says to compose a stage.
- */
-const SETTLED = 0.7
 
 interface Frame {
+  /** absolute film time this frame was rendered at */
+  t: number
   cmds: Cmd[]
   boxes: NodeBox[]
 }
@@ -61,7 +58,7 @@ function withGround(cmds: Cmd[], w: number, h: number): Cmd[] {
 }
 
 export default function Canvas({
-  ck, doc, rev, ground, title, boards, selected, onSelect, onZoom,
+  ck, doc, rev, ground, title, boards, selected, selRow, onSelect, onZoom,
   geo, onDrag, onDragEnd, onMeasure, onSelectScene, activeScene,
 }: Props) {
   const wrap = useRef<HTMLDivElement>(null)
@@ -84,30 +81,35 @@ export default function Canvas({
     geo?: { x: number; y: number; w: number; h: number; fontSize?: number }
     box?: NodeBox
     board?: number
+    row?: number
   } | null>(null)
 
   const [dw, dh] = doc.stage.size
 
-  // world position of each board: one row, laid out left to right
-  const worldX = useCallback((i: number) => i * (dw + GAP), [dw])
+  // one column per scene, frames stacked down it
+  const worldX = useCallback((i: number) => columnX(i, dw), [dw])
+  const worldY = useCallback((k: number) => rowY(k, dh), [dh])
 
   // The frame each board shows and the node boxes inside it. A patch replaces
   // only the edited scene object, so identity tells us which boards actually
   // need re-rendering — dragging one node does not re-render the wall. The
   // previous scene is part of the key because a morph reads across the cut.
   const cache = useRef(new Map<string, { self: unknown; prev: unknown; frame: Frame }>())
-  const frames = useMemo(() => {
+  const columns = useMemo(() => {
     const stage = JSON.stringify(doc.stage)
     const anim = JSON.stringify(doc.anim)
     return boards.map((b, i) => {
       const self = doc.stage.scenes[i]
       const prev = doc.stage.scenes[i - 1]
-      const hit = cache.current.get(b.id)
-      if (hit && hit.self === self && hit.prev === prev) return hit.frame
-      const cmds: Cmd[] = JSON.parse(render(stage, anim, b.start + b.dur * SETTLED))
-      const frame: Frame = { cmds: withGround(cmds, dw, dh), boxes: measure(cmds) }
-      cache.current.set(b.id, { self, prev, frame })
-      return frame
+      return sampleTimes(b).map((t, k) => {
+        const key = `${b.id}:${k}`
+        const hit = cache.current.get(key)
+        if (hit && hit.self === self && hit.prev === prev) return hit.frame
+        const cmds: Cmd[] = JSON.parse(render(stage, anim, t))
+        const frame: Frame = { t, cmds: withGround(cmds, dw, dh), boxes: measure(cmds) }
+        cache.current.set(key, { self, prev, frame })
+        return frame
+      })
     })
   }, [doc, boards, rev, dw, dh])
 
@@ -120,30 +122,28 @@ export default function Canvas({
     const key = `${doc.entry.slug}:${size.w}x${size.h}`
     if (!size.w || !size.h || !boards.length || fitted.current === key) return
     fitted.current = key
-    const contentW = boards.length * dw + (boards.length - 1) * GAP
-    const pad = 80
+    const wall = wallSize(boards, dw, dh)
+    const pad = 70
     const zoom = Math.min(
-      (size.w - pad * 2) / contentW,
-      (size.h - pad * 2 - 120) / dh,
+      (size.w - pad * 2) / wall.w,
+      (size.h - pad * 2) / wall.h,
       1,
     )
     setCam({
       zoom,
-      pan: {
-        x: (size.w - contentW * zoom) / 2,
-        y: (size.h - dh * zoom) / 2 + 20,
-      },
+      pan: { x: (size.w - wall.w * zoom) / 2, y: pad + 40 },
     })
   }, [doc.entry.slug, size, boards.length, dw, dh])
 
   useEffect(() => {
     if (!selected) { onMeasure(null); return }
-    for (const f of frames) {
-      const b = f.boxes.find(n => n.id === selected.id && n.scene === selected.scene)
+    for (const col of columns) {
+      const f = col[selRow] ?? col[0]
+      const b = f?.boxes.find(n => n.id === selected.id && n.scene === selected.scene)
       if (b) { onMeasure(b); return }
     }
     onMeasure(null)
-  }, [frames, selected, onMeasure])
+  }, [columns, selected, selRow, onMeasure])
 
   // keep the drawing buffer matched to the element and the display density
   useEffect(() => {
@@ -188,24 +188,25 @@ export default function Canvas({
     skc.clear(ck.parseColorString(ground))
     skc.scale(dpr, dpr)
     const { pan, zoom } = cam
-    frames.forEach((f, i) => {
-      const sx = worldX(i) * zoom + pan.x
-      const sy = 0 * zoom + pan.y
-      // skip boards entirely off screen
-      if (sx > size.w || sx + dw * zoom < 0) return
-      skc.save()
-      skc.translate(sx, sy)
-      skc.scale(zoom, zoom)
-      // an artboard holds its own content: a scene with a camera zoom
-      // transforms about the canvas centre and would otherwise spill across
-      // its neighbours
-      skc.clipRect(ck.LTRBRect(0, 0, dw, dh), ck.ClipOp.Intersect, true)
-      paintFrameSafe(ck, skc, s.paint, f.cmds, doc.images)
-      skc.restore()
+    columns.forEach((col, i) => {
+      const cx = worldX(i) * zoom + pan.x
+      if (cx > size.w || cx + dw * zoom < 0) return
+      col.forEach((f, k) => {
+        const cy = worldY(k) * zoom + pan.y
+        if (cy > size.h || cy + dh * zoom < 0) return
+        skc.save()
+        skc.translate(cx, cy)
+        skc.scale(zoom, zoom)
+        // a scene with a camera zoom transforms about the canvas centre and
+        // would otherwise spill across its neighbours
+        skc.clipRect(ck.LTRBRect(0, 0, dw, dh), ck.ClipOp.Intersect, true)
+        paintFrameSafe(ck, skc, s.paint, f.cmds, doc.images)
+        skc.restore()
+      })
     })
     skc.restore()
     s.surface.flush()
-  }, [ck, frames, cam, size, ground, doc.images, dw, worldX])
+  }, [ck, columns, cam, size, ground, doc.images, dw, dh, worldX, worldY])
 
   // wheel pans, cmd/ctrl wheel zooms at the pointer
   useEffect(() => {
@@ -240,19 +241,23 @@ export default function Canvas({
     const r = el.getBoundingClientRect()
     const wx = (clientX - r.left - cam.pan.x) / cam.zoom
     const wy = (clientY - r.top - cam.pan.y) / cam.zoom
-    const i = Math.floor(wx / (dw + GAP))
-    if (i < 0 || i >= boards.length) return null
+    const i = Math.floor(wx / (dw + GAP_X))
+    if (i < 0 || i >= columns.length) return null
     const x = wx - worldX(i)
-    const y = wy
-    if (x < 0 || x > dw || y < 0 || y > dh) return { board: i, x, y, inside: false }
-    return { board: i, x, y, inside: true }
-  }, [cam, dw, dh, boards.length, worldX])
+    if (x < 0 || x > dw) return { board: i, row: 0, x, y: 0, inside: false }
+    for (let k = 0; k < columns[i].length; k++) {
+      const y = wy - worldY(k)
+      if (y >= 0 && y <= dh) return { board: i, row: k, x, y, inside: true }
+    }
+    return { board: i, row: 0, x, y: wy, inside: false }
+  }, [cam, dw, dh, columns, worldX, worldY])
 
-  const pick = useCallback((clientX: number, clientY: number): NodeBox | null => {
+  const pick = useCallback((clientX: number, clientY: number) => {
     const at = locate(clientX, clientY)
     if (!at || !at.inside) return null
-    return hitTest(frames[at.board].boxes, at.x, at.y)
-  }, [locate, frames])
+    const box = hitTest(columns[at.board][at.row].boxes, at.x, at.y)
+    return box ? { box, row: at.row } : null
+  }, [locate, columns])
 
   // dev hook so automation can ask what the canvas thinks is under a point
   useEffect(() => {
@@ -263,19 +268,21 @@ export default function Canvas({
   /** the selected node's box on screen, which is where the handles live */
   const selRect = useCallback(() => {
     if (!selected) return null
-    for (let i = 0; i < frames.length; i++) {
-      const b = frames[i].boxes.find(n => n.id === selected.id && n.scene === selected.scene)
+    for (let i = 0; i < columns.length; i++) {
+      const f = columns[i][selRow] ?? columns[i][0]
+      const b = f?.boxes.find(n => n.id === selected.id && n.scene === selected.scene)
       if (!b) continue
+      const k = columns[i][selRow] ? selRow : 0
       return {
         x: (worldX(i) + b.x) * cam.zoom + cam.pan.x,
-        y: b.y * cam.zoom + cam.pan.y,
+        y: (worldY(k) + b.y) * cam.zoom + cam.pan.y,
         w: b.w * cam.zoom,
         h: b.h * cam.zoom,
         box: b,
       }
     }
     return null
-  }, [selected, frames, cam, worldX])
+  }, [selected, columns, selRow, cam, worldX, worldY])
 
   const local = (clientX: number, clientY: number) => {
     const r = wrap.current!.getBoundingClientRect()
@@ -294,13 +301,13 @@ export default function Canvas({
       }
       return
     }
-    const node = pick(e.clientX, e.clientY)
-    if (node && geo && selected
-        && node.id === selected.id && node.scene === selected.scene) {
-      const at = locate(e.clientX, e.clientY)
+    const hit = pick(e.clientX, e.clientY)
+    if (hit && geo && selected
+        && hit.box.id === selected.id && hit.box.scene === selected.scene) {
       drag.current = {
         kind: 'move', x: e.clientX, y: e.clientY, moved: false,
-        geo: { ...geo }, box: node, board: at?.board ?? 0,
+        geo: { ...geo }, box: hit.box, board: locate(e.clientX, e.clientY)?.board ?? 0,
+        row: hit.row,
       }
       return
     }
@@ -313,7 +320,7 @@ export default function Canvas({
       const pt = local(e.clientX, e.clientY)
       const rect = selRect()
       setGrab(rect ? handleAt(rect, pt.x, pt.y) : null)
-      setHover(pick(e.clientX, e.clientY))
+      setHover(pick(e.clientX, e.clientY)?.box ?? null)
       return
     }
     const dxs = e.clientX - d.x
@@ -335,7 +342,7 @@ export default function Canvas({
       const board = d.board ?? 0
       const box = d.box!
       // snap against every other node in the same scene, plus the artboard
-      const siblings = frames[board].boxes.filter(
+      const siblings = (columns[board][d.row ?? 0] ?? columns[board][0]).boxes.filter(
         b => !(b.id === box.id && b.scene === box.scene))
       const s = snap(
         d.geo!.x + dx, d.geo!.y + dy, box.w, box.h,
@@ -365,13 +372,13 @@ export default function Canvas({
     if (!d) return
     if (d.kind !== 'pan' && d.moved) { onDragEnd(); return }
     if (d.moved) return
-    const node = pick(e.clientX, e.clientY)
-    if (node) { onSelect(node); return }
+    const hit = pick(e.clientX, e.clientY)
+    if (hit) { onSelect(hit.box, hit.row); return }
     // no node under the cursor: inside a board selects the board, outside
     // clears the selection entirely
     const at = locate(e.clientX, e.clientY)
     if (at?.inside) { onSelectScene(boards[at.board].id); return }
-    onSelect(null)
+    onSelect(null, 0)
   }
 
   const cursor = grab ? CURSORS[grab] : hover ? 'default' : 'grab'
@@ -395,8 +402,10 @@ export default function Canvas({
       <Overlay
         cam={cam}
         boards={boards}
-        frames={frames}
+        columns={columns}
         worldX={worldX}
+        worldY={worldY}
+        selRow={selRow}
         docSize={[dw, dh]}
         title={title}
         selected={selected}
