@@ -246,8 +246,7 @@ fn flatten_path(d: &str) -> Vec<Vec<(f32, f32)>> {
                             let a = (1.0 - u) * (1.0 - u);
                             let b = 2.0 * u * (1.0 - u);
                             let c = u * u;
-                            cur.push((a * x0 + b * q[0] + c * q[2],
-                                      a * y0 + b * q[1] + c * q[3]));
+                            cur.push((a * x0 + b * q[0] + c * q[2], a * y0 + b * q[1] + c * q[3]));
                         }
                         *pos = (q[2], q[3]);
                     }
@@ -264,8 +263,10 @@ fn flatten_path(d: &str) -> Vec<Vec<(f32, f32)>> {
                             let b = 3.0 * v * v * u;
                             let c = 3.0 * v * u * u;
                             let e = u * u * u;
-                            cur.push((a * x0 + b * cseg[0] + c * cseg[2] + e * cseg[4],
-                                      a * y0 + b * cseg[1] + c * cseg[3] + e * cseg[5]));
+                            cur.push((
+                                a * x0 + b * cseg[0] + c * cseg[2] + e * cseg[4],
+                                a * y0 + b * cseg[1] + c * cseg[3] + e * cseg[5],
+                            ));
                         }
                         *pos = (cseg[4], cseg[5]);
                     }
@@ -294,10 +295,13 @@ fn flatten_path(d: &str) -> Vec<Vec<(f32, f32)>> {
             let start = i;
             i += 1;
             while i < bytes.len()
-                && (bytes[i].is_ascii_digit() || bytes[i] == '.'
+                && (bytes[i].is_ascii_digit()
+                    || bytes[i] == '.'
                     || (bytes[i] == '-' && !bytes[i - 1].is_ascii_digit() && bytes[i - 1] != '.'))
             {
-                if bytes[i] == '-' { break; }
+                if bytes[i] == '-' {
+                    break;
+                }
                 i += 1;
             }
             let tok: String = bytes[start..i].iter().collect();
@@ -341,16 +345,20 @@ fn resample(poly: &[(f32, f32)], n: usize) -> Vec<(f32, f32)> {
         }
         let span = (lens[seg + 1] - lens[seg]).max(1e-6);
         let u = (target - lens[seg]) / span;
-        out.push((pts[seg].0 + (pts[seg + 1].0 - pts[seg].0) * u,
-                  pts[seg].1 + (pts[seg + 1].1 - pts[seg].1) * u));
+        out.push((
+            pts[seg].0 + (pts[seg + 1].0 - pts[seg].0) * u,
+            pts[seg].1 + (pts[seg + 1].1 - pts[seg].1) * u,
+        ));
     }
     out
 }
 
 fn centroid(p: &[(f32, f32)]) -> (f32, f32) {
     let n = p.len().max(1) as f32;
-    (p.iter().map(|q| q.0).sum::<f32>() / n,
-     p.iter().map(|q| q.1).sum::<f32>() / n)
+    (
+        p.iter().map(|q| q.0).sum::<f32>() / n,
+        p.iter().map(|q| q.1).sum::<f32>() / n,
+    )
 }
 
 /// interpolate two `d` shapes at progress k: fixed-length loops, cyclic
@@ -409,7 +417,10 @@ fn morph_dseq(seq: &[DKey], t: f32) -> String {
     for w in seq.windows(2) {
         if t < w[1].at {
             let p = (t - w[0].at) / (w[1].at - w[0].at).max(1e-6);
-            let p = ease(p, &w[1].ease.clone().or(Some(Ease::Named("inOutCubic".into()))));
+            let p = ease(
+                p,
+                &w[1].ease.clone().or(Some(Ease::Named("inOutCubic".into()))),
+            );
             return lerp_paths(&w[0].d, &w[1].d, p.clamp(0.0, 1.0));
         }
     }
@@ -432,50 +443,59 @@ fn cam_keys(cm: &CamMove, at: f32) -> Vec<(String, Vec<Key>)> {
     match cm.preset.as_str() {
         "crash-zoom" => {
             // accelerate to peak velocity ~40% in, long decel settle
-            out.push(("cam_zoom".into(), vec![
-                k(0.0, 1.0, None),
-                k(cm.dur * 0.4, 1.0 + (cm.z - 1.0) * 0.78, Some("inCubic")),
-                k(cm.dur, cm.z, Some("outCubic")),
-            ]));
+            out.push((
+                "cam_zoom".into(),
+                vec![
+                    k(0.0, 1.0, None),
+                    k(cm.dur * 0.4, 1.0 + (cm.z - 1.0) * 0.78, Some("inCubic")),
+                    k(cm.dur, cm.z, Some("outCubic")),
+                ],
+            ));
         }
         "zoom-promote" => {
             // the radio-main move: dive hard and stay full-bleed
-            out.push(("cam_zoom".into(), vec![
-                k(0.0, 1.0, None),
-                k(cm.dur, cm.z, Some("inOutCubic")),
-            ]));
+            out.push((
+                "cam_zoom".into(),
+                vec![k(0.0, 1.0, None), k(cm.dur, cm.z, Some("inOutCubic"))],
+            ));
         }
         "whip-pan" => {
-            out.push(("cam_x".into(), vec![
-                k(0.0, 0.0, None),
-                k(cm.dur * 0.4, cm.dx * 0.62, Some("inCubic")),
-                k(cm.dur, cm.dx, Some("outCubic")),
-            ]));
-            if cm.dy != 0.0 {
-                out.push(("cam_y".into(), vec![
+            out.push((
+                "cam_x".into(),
+                vec![
                     k(0.0, 0.0, None),
-                    k(cm.dur * 0.4, cm.dy * 0.62, Some("inCubic")),
-                    k(cm.dur, cm.dy, Some("outCubic")),
-                ]));
+                    k(cm.dur * 0.4, cm.dx * 0.62, Some("inCubic")),
+                    k(cm.dur, cm.dx, Some("outCubic")),
+                ],
+            ));
+            if cm.dy != 0.0 {
+                out.push((
+                    "cam_y".into(),
+                    vec![
+                        k(0.0, 0.0, None),
+                        k(cm.dur * 0.4, cm.dy * 0.62, Some("inCubic")),
+                        k(cm.dur, cm.dy, Some("outCubic")),
+                    ],
+                ));
             }
         }
         "snap" => {
             // 1-frame reframe: design's f197/f228 grammar
-            out.push(("cam_zoom".into(), vec![
-                k(0.0, 1.0, None),
-                k(0.034, cm.z, None),
-            ]));
+            out.push((
+                "cam_zoom".into(),
+                vec![k(0.0, 1.0, None), k(0.034, cm.z, None)],
+            ));
             if cm.dx != 0.0 {
-                out.push(("cam_x".into(), vec![
-                    k(0.0, 0.0, None),
-                    k(0.034, cm.dx, None),
-                ]));
+                out.push((
+                    "cam_x".into(),
+                    vec![k(0.0, 0.0, None), k(0.034, cm.dx, None)],
+                ));
             }
             if cm.dy != 0.0 {
-                out.push(("cam_y".into(), vec![
-                    k(0.0, 0.0, None),
-                    k(0.034, cm.dy, None),
-                ]));
+                out.push((
+                    "cam_y".into(),
+                    vec![k(0.0, 0.0, None), k(0.034, cm.dy, None)],
+                ));
             }
         }
         _ => {}
@@ -755,7 +775,7 @@ pub struct Track {
     pub looped: bool,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Default)]
 pub struct DrawCmd {
     pub op: String,
     pub x: f32,
@@ -785,6 +805,14 @@ pub struct DrawCmd {
     pub color: String,
     pub opacity: f32,
     pub scale: f32,
+    /// the node this command was drawn for, and the scene that node lives in.
+    /// this is what lets an editor turn pixels back into objects: group the
+    /// commands by id and you have the exact geometry the painter used, text
+    /// glyphs and morph clones included.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scene: Option<String>,
 }
 
 /// gradient line for a node's box at the given angle, endpoints relative to
@@ -1017,41 +1045,68 @@ fn preset_keys(name: &str, dur: Option<f32>) -> HashMap<String, Vec<Key>> {
     match name {
         "pop" => {
             let d = dur.unwrap_or(0.17);
-            m.insert("opacity".into(), vec![key(0.0, 0.0, None), key(0.05, 1.0, None)]);
-            m.insert("scale".into(), vec![key(0.0, 0.96, None), key(d, 1.0, popbz())]);
+            m.insert(
+                "opacity".into(),
+                vec![key(0.0, 0.0, None), key(0.05, 1.0, None)],
+            );
+            m.insert(
+                "scale".into(),
+                vec![key(0.0, 0.96, None), key(d, 1.0, popbz())],
+            );
         }
         "rise-fade" => {
             let d = dur.unwrap_or(0.3);
-            m.insert("opacity".into(), vec![key(0.0, 0.0, None), key(d * 0.4, 1.0, None)]);
+            m.insert(
+                "opacity".into(),
+                vec![key(0.0, 0.0, None), key(d * 0.4, 1.0, None)],
+            );
             m.insert("y".into(), vec![key(0.0, 24.0, None), key(d, 0.0, oc())]);
         }
         "drop" => {
             let d = dur.unwrap_or(0.3);
-            m.insert("opacity".into(), vec![key(0.0, 0.0, None), key(d * 0.4, 1.0, None)]);
+            m.insert(
+                "opacity".into(),
+                vec![key(0.0, 0.0, None), key(d * 0.4, 1.0, None)],
+            );
             m.insert("y".into(), vec![key(0.0, -40.0, None), key(d, 0.0, oc())]);
         }
         "slide-left" => {
             let d = dur.unwrap_or(0.35);
-            m.insert("opacity".into(), vec![key(0.0, 0.0, None), key(d * 0.4, 1.0, None)]);
+            m.insert(
+                "opacity".into(),
+                vec![key(0.0, 0.0, None), key(d * 0.4, 1.0, None)],
+            );
             m.insert("x".into(), vec![key(0.0, 80.0, None), key(d, 0.0, oc())]);
         }
         "slide-right" => {
             let d = dur.unwrap_or(0.35);
-            m.insert("opacity".into(), vec![key(0.0, 0.0, None), key(d * 0.4, 1.0, None)]);
+            m.insert(
+                "opacity".into(),
+                vec![key(0.0, 0.0, None), key(d * 0.4, 1.0, None)],
+            );
             m.insert("x".into(), vec![key(0.0, -80.0, None), key(d, 0.0, oc())]);
         }
         "spring-in" => {
             let d = dur.unwrap_or(0.55);
-            m.insert("opacity".into(), vec![key(0.0, 0.0, None), key(0.08, 1.0, None)]);
+            m.insert(
+                "opacity".into(),
+                vec![key(0.0, 0.0, None), key(0.08, 1.0, None)],
+            );
             m.insert(
                 "scale".into(),
-                vec![key(0.0, 0.8, None), key(d, 1.0, Some(Ease::Spring { spring: [7.0, 1.0] }))],
+                vec![
+                    key(0.0, 0.8, None),
+                    key(d, 1.0, Some(Ease::Spring { spring: [7.0, 1.0] })),
+                ],
             );
         }
         _ => {
             // "fade" and anything unknown
             let d = dur.unwrap_or(0.25);
-            m.insert("opacity".into(), vec![key(0.0, 0.0, None), key(d, 1.0, oc())]);
+            m.insert(
+                "opacity".into(),
+                vec![key(0.0, 0.0, None), key(d, 1.0, oc())],
+            );
         }
     }
     m
@@ -1142,16 +1197,10 @@ pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
 }
 
 /// native entry point: the same evaluation returning structured commands
-pub fn render_cmds(
-    stage_json: &str,
-    overlay_json: &str,
-    t: f32,
-) -> Result<Vec<DrawCmd>, String> {
-    let mut stage: Stage =
-        serde_json::from_str(stage_json).map_err(|e| e.to_string())?;
+pub fn render_cmds(stage_json: &str, overlay_json: &str, t: f32) -> Result<Vec<DrawCmd>, String> {
+    let mut stage: Stage = serde_json::from_str(stage_json).map_err(|e| e.to_string())?;
     if !overlay_json.trim().is_empty() {
-        let o: Overlay =
-            serde_json::from_str(overlay_json).map_err(|e| e.to_string())?;
+        let o: Overlay = serde_json::from_str(overlay_json).map_err(|e| e.to_string())?;
         merge(&mut stage, &o);
     }
     let mut cmds: Vec<DrawCmd> = Vec::new();
@@ -1382,6 +1431,7 @@ pub fn render_cmds(
         color: clear_color,
         opacity: 1.0,
         scale: 1.0,
+        ..Default::default()
     });
     if let Some(pp) = prev_pass {
         let prev = &stage.scenes[active - 1];
@@ -1467,8 +1517,12 @@ pub fn sfx_events(stage_json: &str, overlay_json: &str) -> Result<String, String
                         }
                         if let Some(u) = r.untype_at {
                             for i in 0..total {
-                                ev.push((start + at + u + i as f32 * r.cadence,
-                                         "tick", (i as u32 * 7) % 8, 0.45));
+                                ev.push((
+                                    start + at + u + i as f32 * r.cadence,
+                                    "tick",
+                                    (i as u32 * 7) % 8,
+                                    0.45,
+                                ));
                             }
                         }
                     }
@@ -1477,8 +1531,12 @@ pub fn sfx_events(stage_json: &str, overlay_json: &str) -> Result<String, String
                             if i % 3 != 0 {
                                 continue;
                             }
-                            ev.push((start + at + *slot as f32 * r.cadence,
-                                     "tick", (*slot as u32 * 5) % 8, 0.35));
+                            ev.push((
+                                start + at + *slot as f32 * r.cadence,
+                                "tick",
+                                (*slot as u32 * 5) % 8,
+                                0.35,
+                            ));
                         }
                     }
                     _ => {}
@@ -1517,7 +1575,10 @@ pub fn sfx_events(stage_json: &str, overlay_json: &str) -> Result<String, String
     let json: Vec<String> = ev
         .iter()
         .map(|(t, k, v, g)| {
-            format!("{{\"t\":{:.3},\"kind\":\"{}\",\"variant\":{},\"gain\":{:.2}}}", t, k, v, g)
+            format!(
+                "{{\"t\":{:.3},\"kind\":\"{}\",\"variant\":{},\"gain\":{:.2}}}",
+                t, k, v, g
+            )
         })
         .collect();
     Ok(format!("[{}]", json.join(",")))
@@ -1565,6 +1626,18 @@ impl Pass {
     }
 }
 
+/// Attach a node's identity to the commands it produced. Only fills blanks, so
+/// it stays correct even though the camera-blur pass inserts a command at the
+/// front of the scene and shifts every index after it.
+fn stamp(cmds: &mut [DrawCmd], node: &Node, scene: &str) {
+    for c in cmds.iter_mut() {
+        if c.id.is_none() {
+            c.id = Some(node.id.clone());
+            c.scene = Some(scene.to_string());
+        }
+    }
+}
+
 fn render_scene(
     scene: &Scene,
     pass: &Pass,
@@ -1596,13 +1669,26 @@ fn render_scene(
             color: "#000000".into(),
             opacity: 1.0,
             scale: 1.0,
+            ..Default::default()
         });
     }
     {
+        // Commands are stamped with their node at the TOP of the following
+        // iteration rather than at the end of this one: the body has nine
+        // `continue` exits, and stamping from the next pass round means every
+        // one of them is covered without touching that control flow.
+        let mut mark = cmds.len();
+        let mut pending: Option<&Node> = None;
         for node in &scene.nodes {
+            if let Some(p) = pending {
+                stamp(&mut cmds[mark..], p, &scene.id);
+            }
+            pending = None;
+            mark = cmds.len();
             if skip.contains(&node.id) {
                 continue;
             }
+            pending = Some(node);
             let sb = state_blend(node, t);
             // a morphing clone is a solid object: it never rides the crossfade
             let node_fade = if morphs.contains_key(&node.id) {
@@ -1660,6 +1746,7 @@ fn render_scene(
                                         color: color.clone(),
                                         opacity,
                                         scale: scale * k,
+                                        ..Default::default()
                                     });
                                 }
                                 continue;
@@ -1759,6 +1846,7 @@ fn render_scene(
                                     color: ink.clone(),
                                     opacity: opacity * o,
                                     scale,
+                                    ..Default::default()
                                 });
                                 caret_x = left
                                     + word.x
@@ -1767,7 +1855,8 @@ fn render_scene(
                             slot += 1;
                         }
                         if r.caret != "none" {
-                            let untyping = r.untype_at
+                            let untyping = r
+                                .untype_at
                                 .map(|u| t >= at + u && gone_after.unwrap_or(1) > 0)
                                 .unwrap_or(false);
                             let typing = (t >= at && t < done + r.dur) || untyping;
@@ -1803,6 +1892,7 @@ fn render_scene(
                                     color: ink.clone(),
                                     opacity,
                                     scale,
+                                    ..Default::default()
                                 });
                             }
                         }
@@ -1811,7 +1901,8 @@ fn render_scene(
                     // decoder ritual: chars lock left-to-right at `cadence`,
                     // a few trailing slots churn deterministic scramble
                     // glyphs every tick, everything hard-swaps (no fades)
-                    if let Some((at, r)) = node.reveal.clone().filter(|(_, r)| r.unit == "scramble") {
+                    if let Some((at, r)) = node.reveal.clone().filter(|(_, r)| r.unit == "scramble")
+                    {
                         let tick = 0.034_f32;
                         let tick_idx = ((t - at) / tick).floor().max(0.0) as u32;
                         let pool = text::shape_line(&r.charset, size, weight, &family);
@@ -1842,6 +1933,7 @@ fn render_scene(
                                         color: ink.clone(),
                                         opacity,
                                         scale,
+                                        ..Default::default()
                                     });
                                 } else if t >= at
                                     && lock - t < r.churn as f32 * r.cadence
@@ -1869,6 +1961,7 @@ fn render_scene(
                                         color: ink.clone(),
                                         opacity,
                                         scale,
+                                        ..Default::default()
                                     });
                                 }
                                 slot += 1;
@@ -1930,6 +2023,7 @@ fn render_scene(
                                     color,
                                     opacity: opacity * o,
                                     scale,
+                                    ..Default::default()
                                 });
                             }
                         } else {
@@ -1952,6 +2046,7 @@ fn render_scene(
                                 color,
                                 opacity: opacity * o,
                                 scale,
+                                ..Default::default()
                             });
                         }
                     }
@@ -2021,6 +2116,7 @@ fn render_scene(
                                 color: fill.clone(),
                                 opacity: opacity * st.gain * fadeout,
                                 scale,
+                                ..Default::default()
                             });
                         }
                     }
@@ -2053,6 +2149,7 @@ fn render_scene(
                             color: echo_color,
                             opacity: opacity * glow_opacity,
                             scale,
+                            ..Default::default()
                         });
                     }
                     let grad = node
@@ -2077,6 +2174,7 @@ fn render_scene(
                         color: fill,
                         opacity,
                         scale,
+                        ..Default::default()
                     });
                 }
                 "cursor" => {
@@ -2113,6 +2211,7 @@ fn render_scene(
                             color,
                             opacity: opacity * alpha,
                             scale,
+                            ..Default::default()
                         });
                     }
                 }
@@ -2139,6 +2238,7 @@ fn render_scene(
                         color: node.fill.clone().unwrap_or_else(|| "#000000".into()),
                         opacity,
                         scale,
+                        ..Default::default()
                     });
                 }
                 "seq" => {
@@ -2146,10 +2246,7 @@ fn render_scene(
                     let fps = node.fps.unwrap_or(30.0);
                     let count = node.count.unwrap_or(1).max(1);
                     let idx = ((t * fps) as usize).min(count - 1);
-                    let src = node
-                        .src
-                        .as_ref()
-                        .map(|dir| format!("{dir}f{idx:03}.png"));
+                    let src = node.src.as_ref().map(|dir| format!("{dir}f{idx:03}.png"));
                     cmds.push(DrawCmd {
                         op: "image".into(),
                         x: node.x + dx,
@@ -2167,6 +2264,7 @@ fn render_scene(
                         color: "#000000".into(),
                         opacity,
                         scale,
+                        ..Default::default()
                     });
                 }
                 "image" => {
@@ -2188,10 +2286,14 @@ fn render_scene(
                         color: "#000000".into(),
                         opacity,
                         scale,
+                        ..Default::default()
                     });
                 }
                 _ => {}
             }
+        }
+        if let Some(p) = pending {
+            stamp(&mut cmds[mark..], p, &scene.id);
         }
     }
     let zoom = eval_prop(&scene.keys, "cam_zoom", 1.0, t);
@@ -2259,6 +2361,7 @@ fn render_scene(
                 color: "#000000".into(),
                 opacity: 1.0,
                 scale: 1.0,
+                ..Default::default()
             };
             cmds.insert(first, mk("camblur", Some(sigx), Some(sigy)));
             cmds.push(mk("camblur_end", None, None));
@@ -2282,6 +2385,7 @@ fn render_scene(
             color: "#000000".into(),
             opacity: 1.0,
             scale: 1.0,
+            ..Default::default()
         });
     }
 }
@@ -2455,7 +2559,8 @@ mod tests {
         assert!(ms > 0.96 && ms < 1.0, "mid pop scale {ms}");
         assert_eq!(f(1.0)["scale"], 1.0, "settled");
 
-        let spring_overlay = r##"{"tracks":[{"target":"p","at":0.2,"enter":{"preset":"spring-in","dur":0.6}}]}"##;
+        let spring_overlay =
+            r##"{"tracks":[{"target":"p","at":0.2,"enter":{"preset":"spring-in","dur":0.6}}]}"##;
         let cmds: Vec<Value> =
             serde_json::from_str(&render_frame(stage, spring_overlay, 0.5)).unwrap();
         let sc = cmds.iter().find(|c| c["op"] == "rect").unwrap()["scale"]
@@ -2476,16 +2581,18 @@ mod tests {
             {"id":"hero","type":"text","text":"whippan","x":300,"y":600,
              "font":{"weight":600,"size":40},"color":"#e8671f"}]}
         ]}"##;
-        let f = |t: f32| -> Vec<Value> {
-            serde_json::from_str(&render_frame(stage, "", t)).unwrap()
-        };
+        let f =
+            |t: f32| -> Vec<Value> { serde_json::from_str(&render_frame(stage, "", t)).unwrap() };
         // mid-morph: one path per source word, uniform scale between 1.0
         // and 40/120, color between ink and accent, full opacity
         let mid = f(1.3);
         let paths: Vec<&Value> = mid.iter().filter(|c| c["op"] == "path").collect();
         assert_eq!(paths.len(), 1, "one word, one clone");
         let sc = paths[0]["scale"].as_f64().unwrap();
-        assert!(sc < 1.0 && sc > 40.0 / 120.0, "uniform scale mid-lerp: {sc}");
+        assert!(
+            sc < 1.0 && sc > 40.0 / 120.0,
+            "uniform scale mid-lerp: {sc}"
+        );
         assert_eq!(paths[0]["opacity"], 1.0);
         assert_ne!(paths[0]["color"], "#161616");
         assert_ne!(paths[0]["color"], "#e8671f");
@@ -2514,7 +2621,43 @@ mod tests {
         assert!(oo < 1.0, "outgoing fading: {oo}");
         assert!(io > 0.0 && io < 1.0, "incoming entering: {io}");
         assert!(outr["y"].as_f64().unwrap() < 350.0, "outgoing lifted");
-        assert!(inr["y"].as_f64().unwrap() > 350.0, "incoming rising from below");
+        assert!(
+            inr["y"].as_f64().unwrap() > 350.0,
+            "incoming rising from below"
+        );
+    }
+
+    #[test]
+    fn every_command_carries_its_node_and_scene() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[400,300],"scenes":[{"id":"s1","dur":1.0,
+            "nodes":[
+              {"id":"card","type":"rect","x":100,"y":100,"w":80,"h":40,"fill":"#111111"},
+              {"id":"title","type":"text","text":"hi there","x":200,"y":80,
+               "font":{"size":24},"color":"#000000"}
+            ]}]}"##;
+        let anim = r##"{"tracks":[]}"##;
+        let cmds: Vec<Value> =
+            serde_json::from_str(&render_frame(stage, anim, 0.5)).unwrap();
+
+        // the background clear is scene furniture and owns no node; every
+        // command that draws something must name the node it came from
+        let drawn: Vec<&Value> = cmds
+            .iter()
+            .filter(|c| c["op"] == "rect" || c["op"] == "path" || c["op"] == "image")
+            .collect();
+        assert!(!drawn.is_empty());
+        for c in &drawn {
+            assert!(c["id"].is_string(), "untagged command: {c}");
+            assert_eq!(c["scene"], "s1");
+        }
+
+        // the rect is one command; the text is one path per word (per glyph
+        // only while a glyph reveal is running). either way every piece
+        // carries the same node id, which is what makes text selectable as
+        // one object instead of a scatter of outlines.
+        assert_eq!(drawn.iter().filter(|c| c["id"] == "card").count(), 1);
+        assert_eq!(drawn.iter().filter(|c| c["id"] == "title").count(), 2);
     }
 
     #[test]
@@ -2804,7 +2947,10 @@ mod tests {
         let mid = frame(&flat, 0.5);
         let v = mid[1]["rot"].as_f64().unwrap();
         assert!(v < 0.0 && v > -55.0, "keyed rot mid-flight, got {v}");
-        assert!(frame(&flat, 1.5)[1].get("rot").is_none(), "settled rot omitted");
+        assert!(
+            frame(&flat, 1.5)[1].get("rot").is_none(),
+            "settled rot omitted"
+        );
         // static rot rides every glyph and moves the anchors about the center
         let tilted = stage(r#","rot":-12"#);
         let a = frame(&stage(""), 2.0);
@@ -2889,7 +3035,11 @@ mod tests {
         assert!(paths(0.1).is_empty(), "nothing before at");
         // mid-decode: some glyphs drawn, fewer than the full line
         let mid = paths(0.4);
-        assert!(!mid.is_empty() && mid.len() < 15, "partial churn, got {}", mid.len());
+        assert!(
+            !mid.is_empty() && mid.len() < 15,
+            "partial churn, got {}",
+            mid.len()
+        );
         // the churn re-rolls between ticks while the locked prefix holds
         let a = paths(0.40);
         let b = paths(0.44);

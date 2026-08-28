@@ -188,3 +188,12 @@ export function queueScene(
   sceneQueue = job
   return job
 }
+
+// dev hook: the booted engine on window, so the editor work can be probed
+// from the console and from automation without a second wasm instance
+if (import.meta.env.DEV) {
+  boot().then(({ CK, registry }) => {
+    ;(window as unknown as Record<string, unknown>).whippan =
+      { CK, registry, render, sfx, loadDoc, docDur, sceneStarts }
+  })
+}
