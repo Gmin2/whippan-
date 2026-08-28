@@ -10,8 +10,8 @@ import { boot, ensureImage, loadDoc, saveDoc } from './engine'
 import type { Doc, Entry, Stage } from './engine/types'
 import { artboards, findNode, tree } from './doc'
 import {
-  addNode, addScene, deleteNode, deleteScene, duplicateNode, newImage, newRect,
-  newText,
+  addNode, addScene, deleteNode, deleteScene, duplicateNode, newImage, newPath,
+  newRect, newText,
 } from './ops'
 import type { NodePatch, ScenePatch, Sel } from './doc'
 import type { NodeBox } from './measure'
@@ -298,6 +298,18 @@ export default function App() {
     setSel({ scene: target, id: node.id })
   }, [apply, ck])
 
+  const createPath = useCallback((
+    sceneId: string, pts: { x: number; y: number }[], closed: boolean,
+  ) => {
+    const stage = docRef.current?.stage
+    if (!stage) return
+    const node = newPath(stage, pts, closed)
+    if (!node) return
+    apply(st => addNode(st, sceneId, node))
+    setSel({ scene: sceneId, id: node.id })
+    setScene(sceneId)
+  }, [apply])
+
   const removeSelection = useCallback(() => {
     const s = selRef.current
     if (s) {
@@ -447,6 +459,7 @@ export default function App() {
         tool={tool}
         onCreate={createNode}
         onAddScene={createScene}
+        onCreatePath={createPath}
         onToolDone={() => setTool('select')}
         onZoom={onZoom}
         geo={found ? {

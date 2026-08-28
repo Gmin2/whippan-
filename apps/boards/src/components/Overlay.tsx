@@ -27,6 +27,8 @@ interface Props {
   guides: Guide[]
   /** chrome hides while dragging: only artwork and guides stay */
   dragging: boolean
+  /** the path being drawn, in document space */
+  pen: { board: number; pts: { x: number; y: number }[]; cursor: { x: number; y: number } | null } | null
 }
 
 /** sampled off paper's own overlay canvas */
@@ -55,7 +57,7 @@ const HANDLE = 8.5
 // being scaled by them — a handle is always the same size under the cursor.
 export default function Overlay({
   cam, boards, columns, worldX, worldY, selRow, docSize, title, selected, hover,
-  activeScene, onSelectScene, guides, dragging,
+  activeScene, onSelectScene, guides, dragging, pen,
 }: Props) {
   const [dw, dh] = docSize
   const { pan, zoom } = cam
@@ -183,6 +185,30 @@ export default function Overlay({
               </text>
             </g>
             <text x={r.x} y={r.y - 7} fill={ACCENT} fontSize={11}>{sel.b.id}</text>
+          </g>
+        )
+      })()}
+
+      {/* the path in progress: committed segments, a rubber band to the
+          cursor, and anchors sized the way paper draws them */}
+      {pen && pen.pts.length > 0 && (() => {
+        const px = (p: { x: number; y: number }) => [sx(pen.board, p.x), ry(0, p.y)] as const
+        const pts = pen.pts.map(px)
+        const line = pts.map(([x, y], i) => `${i ? 'L' : 'M'}${x} ${y}`).join(' ')
+        const last = pts[pts.length - 1]
+        const cur = pen.cursor ? px(pen.cursor) : null
+        return (
+          <g>
+            <path d={line} fill="none" stroke="#111" strokeWidth={1} />
+            {cur && (
+              <line x1={last[0]} y1={last[1]} x2={cur[0]} y2={cur[1]}
+                    stroke={ACCENT} strokeWidth={2} />
+            )}
+            {pts.map(([x, y], i) => (
+              <circle key={i} cx={x} cy={y} r={i === 0 ? 5.5 : 3.5}
+                      fill={i === 0 ? ACCENT : '#fff'}
+                      stroke={i === 0 ? '#fff' : ACCENT} strokeWidth={2} />
+            ))}
           </g>
         )
       })()}

@@ -67,6 +67,8 @@ export interface Node {
   glow?: Glow
   gradient?: Gradient
   stroke?: number
+  /** path nodes: svg outline data, local to (x, y) */
+  d?: string
   goo?: string
   streak?: Streak
   /** static property values live here; the overlay keys the same names */

@@ -39,6 +39,7 @@ interface Props {
   onCreate(sceneId: string, kind: 'rect' | 'text',
            box: { x: number; y: number; w: number; h: number }): void
   onAddScene(afterId?: string): void
+  onCreatePath(sceneId: string, pts: { x: number; y: number }[], closed: boolean): void
   onToolDone(): void
 }
 
@@ -67,7 +68,7 @@ function withGround(cmds: Cmd[], w: number, h: number): Cmd[] {
 export default function Canvas({
   ck, doc, rev, ground, title, boards, selected, selRow, onSelect, onZoom,
   geo, onDrag, onDragEnd, onMeasure, onSelectScene, activeScene,
-  tool, onCreate, onAddScene, onToolDone,
+  tool, onCreate, onAddScene, onCreatePath, onToolDone,
 }: Props) {
   const wrap = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -80,6 +81,12 @@ export default function Canvas({
   /** the rubber band shown while a shape is being drawn, in screen pixels */
   const [band, setBand] = useState<{ x: number; y: number; w: number; h: number } | null>(null)
   const [dragging, setDragging] = useState(false)
+  /** the path being drawn: points in document space, plus the live cursor */
+  const [pen, setPen] = useState<{
+    board: number
+    pts: { x: number; y: number }[]
+    cursor: { x: number; y: number } | null
+  } | null>(null)
   const drag = useRef<{
     kind: 'pan' | 'move' | 'resize' | 'draw'
     handle?: Handle
@@ -220,6 +227,23 @@ export default function Canvas({
     s.surface.flush()
   }, [ck, columns, cam, size, ground, doc.images, dw, dh, worldX, worldY])
 
+  useEffect(() => {
+    if (tool !== 'pen') { setPen(null); return }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Enter' && e.key !== 'Escape') return
+      e.preventDefault()
+      setPen(prev => {
+        if (prev && e.key === 'Enter' && prev.pts.length > 1) {
+          onCreatePath(boards[prev.board].id, prev.pts, false)
+        }
+        return null
+      })
+      onToolDone()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [tool, pen, boards, onCreatePath, onToolDone])
+
   // wheel pans, cmd/ctrl wheel zooms at the pointer
   useEffect(() => {
     const el = wrap.current
@@ -319,6 +343,27 @@ export default function Canvas({
       return
     }
 
+    if (tool === 'pen') {
+      const at = locate(e.clientX, e.clientY)
+      if (!at?.inside) return
+      setPen(prev => {
+        if (!prev || prev.board !== at.board) {
+          return { board: at.board, pts: [{ x: at.x, y: at.y }], cursor: null }
+        }
+        // clicking the first anchor closes the path, the way paper does it
+        const first = prev.pts[0]
+        const near = Math.hypot(at.x - first.x, at.y - first.y) < 12 / cam.zoom
+        if (near && prev.pts.length > 2) {
+          onCreatePath(boards[prev.board].id, prev.pts, true)
+          onToolDone()
+          return null
+        }
+        return { ...prev, pts: [...prev.pts, { x: at.x, y: at.y }] }
+      })
+      drag.current = null
+      return
+    }
+
     if (tool === 'rect' || tool === 'text') {
       const at = locate(e.clientX, e.clientY)
       if (at?.inside) {
@@ -356,6 +401,11 @@ export default function Canvas({
 
   const onMove = (e: React.PointerEvent) => {
     const d = drag.current
+    if (pen && tool === 'pen') {
+      const at = locate(e.clientX, e.clientY)
+      if (at) setPen(p => (p ? { ...p, cursor: { x: at.x, y: at.y } } : p))
+      return
+    }
     if (!d) {
       const pt = local(e.clientX, e.clientY)
       const rect = selRect()
@@ -449,7 +499,7 @@ export default function Canvas({
     onSelect(null, 0)
   }
 
-  const drawing = tool === 'rect' || tool === 'text' || tool === 'frame'
+  const drawing = tool === 'rect' || tool === 'text' || tool === 'frame' || tool === 'pen'
   const cursor = tool === 'hand' ? 'grab'
     : drawing ? 'crosshair'
     : grab ? CURSORS[grab]
@@ -491,6 +541,7 @@ export default function Canvas({
         onSelectScene={onSelectScene}
         guides={guides}
         dragging={dragging}
+        pen={pen}
       />
     </div>
   )

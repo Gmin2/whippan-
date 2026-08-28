@@ -110,6 +110,31 @@ export function newImage(
     }
 }
 
+/**
+ * A drawn path. `d` is local to the node origin, per the document contract, so
+ * the first point becomes (0,0) and the node sits there. Stroked rather than
+ * filled by default: the engine fills a path unless `stroke` is set, and an
+ * unclosed scribble filling itself is never what you meant.
+ */
+export function newPath(
+  stage: Stage, pts: { x: number; y: number }[], closed: boolean,
+): Node | null {
+  if (pts.length < 2) return null
+  const [o] = pts
+  const d = pts
+    .map((p, i) => `${i === 0 ? 'M' : 'L'}${(p.x - o.x).toFixed(1)} ${(p.y - o.y).toFixed(1)}`)
+    .join(' ') + (closed ? ' Z' : '')
+  return {
+    id: freshId(stage, 'path'),
+    type: 'path',
+    x: Math.round(o.x),
+    y: Math.round(o.y),
+    d,
+    fill: '#161616',
+    stroke: 3,
+  }
+}
+
 export function newText(stage: Stage, x: number, y: number): Node {
   return {
     id: freshId(stage, 'text'),
