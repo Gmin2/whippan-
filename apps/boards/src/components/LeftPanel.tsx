@@ -1,72 +1,79 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronRight, FileIcon, Frame, PanelIcon, Plus, TypeMark } from '../icons'
-import type { Layer } from '../doc'
+import { ChevronDown, ChevronRight, FileIcon, Frame, PanelIcon, Plus, Rect, TypeMark } from '../icons'
+import type { Sel } from '../doc'
+
+interface TreeNode {
+  id: string
+  kind: string
+  label: string
+}
+
+interface TreeScene {
+  scene: string
+  label: string
+  nodes: TreeNode[]
+}
 
 interface Props {
   title: string
   pages: string[]
   activePage: string
-  layers: Layer[]
-  selected: string | null
-  onSelect(id: string): void
+  tree: TreeScene[]
+  selected: Sel | null
+  activeScene: string | null
+  onSelectNode(scene: string, id: string): void
+  onSelectScene(scene: string): void
   onRename(id: string, name: string): void
 }
 
-function Row({ depth = 0, icon, label, selected, onClick, chevron, onRename }: {
+function kindIcon(kind: string) {
+  if (kind === 'text') return <TypeMark className="text-dim" />
+  if (kind === 'image' || kind === 'seq') return <Rect size={11} />
+  return <Rect size={11} />
+}
+
+function Row({ depth = 0, icon, label, selected, onClick, onDoubleClick, chevron, open, onToggle }: {
   depth?: number
   icon: React.ReactNode
   label: string
   selected?: boolean
   onClick?(): void
+  onDoubleClick?(): void
   chevron?: boolean
-  onRename?(name: string): void
+  open?: boolean
+  onToggle?(): void
 }) {
-  const [open, setOpen] = useState(false)
-  const [editing, setEditing] = useState(false)
   return (
     <div
       onClick={onClick}
-      onDoubleClick={() => onRename && setEditing(true)}
+      onDoubleClick={onDoubleClick}
       className={`flex h-[26px] w-full cursor-default items-center gap-1.5 pr-2 text-left
                   ${selected ? 'bg-row' : 'hover:bg-black/[0.035]'}`}
       style={{ paddingLeft: 8 + depth * 14 }}
     >
       <span
-        onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
+        onClick={e => { e.stopPropagation(); onToggle?.() }}
         className={`grid h-3.5 w-3.5 shrink-0 place-items-center text-faint
                     ${chevron ? '' : 'invisible'}`}
       >
         {open ? <ChevronDown size={9} /> : <ChevronRight size={9} />}
       </span>
       <span className="grid w-4 shrink-0 place-items-center text-dim">{icon}</span>
-      {editing ? (
-        <input
-          autoFocus
-          defaultValue={label}
-          onClick={e => e.stopPropagation()}
-          onBlur={e => { onRename?.(e.target.value.trim()); setEditing(false) }}
-          onKeyDown={e => {
-            if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
-            if (e.key === 'Escape') setEditing(false)
-          }}
-          className="min-w-0 flex-1 rounded-[3px] bg-surface px-1 outline-none
-                     ring-2 ring-[#2d52f0]/40"
-        />
-      ) : (
-        <span className="truncate">{label}</span>
-      )}
+      <span className="truncate">{label}</span>
     </div>
   )
 }
 
 export default function LeftPanel({
-  title, pages, activePage, layers, selected, onSelect, onRename,
+  title, pages, activePage, tree, selected, activeScene,
+  onSelectNode, onSelectScene, onRename,
 }: Props) {
-  const [tab, setTab] = useState<'design' | 'theme'>('design')
+  const [tab, setTab] = useState<'design' | 'motion'>('design')
+  const [open, setOpen] = useState<Record<string, boolean>>({})
+  const [editing, setEditing] = useState<string | null>(null)
 
   return (
     <aside className="flex h-full w-panel shrink-0 flex-col bg-panel">
-      {/* file row */}
       <div className="flex h-[41px] shrink-0 items-center gap-2.5 border-b border-hair px-3">
         <span className="grid h-[18px] w-[18px] shrink-0 place-items-center">
           <span className="relative block h-3 w-3">
@@ -80,10 +87,10 @@ export default function LeftPanel({
         </button>
       </div>
 
-      {/* design / theme segmented control */}
+      {/* the document is two layers, so the app is two modes */}
       <div className="shrink-0 p-2">
         <div className="flex rounded-[7px] bg-black/[0.05] p-[2px]">
-          {(['design', 'theme'] as const).map(k => (
+          {(['design', 'motion'] as const).map(k => (
             <button
               key={k}
               onClick={() => setTab(k)}
@@ -98,7 +105,6 @@ export default function LeftPanel({
         </div>
       </div>
 
-      {/* pages */}
       <div className="shrink-0">
         <div className="flex h-[26px] items-center gap-1.5 px-2">
           <ChevronDown size={9} className="text-faint" />
@@ -114,18 +120,46 @@ export default function LeftPanel({
 
       <div className="my-2 h-px shrink-0 bg-hair" />
 
-      {/* layer tree */}
       <div className="min-h-0 flex-1 overflow-y-auto pb-4">
-        {layers.map(l => (
-          <Row
-            key={l.id}
-            icon={l.kind === 'text' ? <TypeMark className="text-dim" /> : <Frame size={12} />}
-            label={l.name}
-            chevron={l.kind === 'frame'}
-            selected={l.id === selected}
-            onClick={() => onSelect(l.id)}
-            onRename={name => name && onRename(l.id, name)}
-          />
+        {tree.map(s => (
+          <div key={s.scene}>
+            {editing === s.scene ? (
+              <div className="flex h-[26px] items-center gap-1.5 pl-[30px] pr-2">
+                <input
+                  autoFocus
+                  defaultValue={s.label}
+                  onBlur={e => { onRename(s.scene, e.target.value.trim()); setEditing(null) }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
+                    if (e.key === 'Escape') setEditing(null)
+                  }}
+                  className="min-w-0 flex-1 rounded-[3px] bg-surface px-1 outline-none
+                             ring-2 ring-[#2d52f0]/40"
+                />
+              </div>
+            ) : (
+              <Row
+                icon={<Frame size={12} />}
+                label={s.label}
+                chevron
+                open={open[s.scene]}
+                onToggle={() => setOpen(o => ({ ...o, [s.scene]: !o[s.scene] }))}
+                selected={!selected && activeScene === s.scene}
+                onClick={() => onSelectScene(s.scene)}
+                onDoubleClick={() => setEditing(s.scene)}
+              />
+            )}
+            {open[s.scene] && s.nodes.map(n => (
+              <Row
+                key={n.id}
+                depth={1}
+                icon={kindIcon(n.kind)}
+                label={n.label}
+                selected={selected?.scene === s.scene && selected?.id === n.id}
+                onClick={() => onSelectNode(s.scene, n.id)}
+              />
+            ))}
+          </div>
         ))}
       </div>
 

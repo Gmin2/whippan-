@@ -17,6 +17,9 @@ interface SkPaint {
 }
 
 interface CanvasKit {
+  parseColorString(color: string): unknown
+  LTRBRect(l: number, t: number, r: number, b: number): unknown
+  ClipOp: { Intersect: unknown }
   MakeCanvasSurface(canvas: HTMLCanvasElement): SkSurface
   MakeSWCanvasSurface?(canvas: HTMLCanvasElement): SkSurface
   MakeImageFromEncoded(bytes: Uint8Array): unknown

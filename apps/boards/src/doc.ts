@@ -58,5 +58,44 @@ export function layers(doc: Doc): Layer[] {
   }))
 }
 
+/** a node the editor is pointing at */
+export interface Sel {
+  scene: string
+  id: string
+}
+
+export interface NodePatch {
+  x?: number
+  y?: number
+  w?: number
+  h?: number
+  radius?: number
+  rot?: number
+  fill?: string
+  color?: string
+  text?: string
+  fontSize?: number
+}
+
+export function findNode(doc: Doc, sel: Sel | null) {
+  if (!sel) return null
+  const scene = doc.stage.scenes.find(s => s.id === sel.scene)
+  const node = scene?.nodes.find(n => n.id === sel.id)
+  return node && scene ? { scene, node } : null
+}
+
+/** scene rows with their nodes underneath, for the layer tree */
+export function tree(doc: Doc) {
+  return doc.stage.scenes.map((s, i) => ({
+    scene: s.id,
+    label: `${i + 1}  ${s.id}`,
+    nodes: s.nodes.map(n => ({
+      id: n.id,
+      kind: n.type,
+      label: n.type === 'text' ? (n.text ?? n.id) : n.id,
+    })),
+  }))
+}
+
 export const filmTitle = (doc: Doc) =>
   `${doc.entry.title} — ${docDur(doc.stage).toFixed(1)}s`

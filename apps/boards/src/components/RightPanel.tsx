@@ -1,7 +1,9 @@
-import { useState } from 'react'
-import ColorPicker from './ColorPicker'
+import ColorRow from './ColorRow'
+import Inspector from './Inspector'
 import NumField from './NumField'
-import type { Artboard, ScenePatch } from '../doc'
+import type { Artboard, NodePatch, ScenePatch } from '../doc'
+import type { Node } from '../engine/types'
+import type { NodeBox } from '../measure'
 
 interface Props {
   ground: string
@@ -9,7 +11,10 @@ interface Props {
   onGround(hex: string, alpha: number): void
   zoom: number
   selection: Artboard | null
+  node: Node | null
+  nodeBox: NodeBox | null
   onPatch(id: string, patch: ScenePatch): void
+  onPatchNode(patch: NodePatch): void
 }
 
 const PEERS = [
@@ -32,39 +37,8 @@ function Field({ children }: { children: React.ReactNode }) {
   return <div className="inset-control flex h-[26px] items-center gap-2 px-2">{children}</div>
 }
 
-/** a hex swatch row that opens the picker over it */
-function ColorRow({ hex, alpha, onChange }: {
-  hex: string
-  alpha: number
-  onChange(hex: string, alpha: number): void
-}) {
-  const [open, setOpen] = useState(false)
-  const flat = hex.replace('#', '').toUpperCase()
-  return (
-    <>
-      <button
-        onClick={() => setOpen(o => !o)}
-        className={`inset-control flex h-[26px] w-full items-center gap-2 px-2
-                    transition-colors hover:bg-black/[0.02]
-                    ${open ? 'border-[#2d52f0] ring-2 ring-[#2d52f0]/25' : ''}`}
-      >
-        <span className="h-3.5 w-3.5 shrink-0 rounded-[3px] border border-black/15"
-              style={{ background: hex, opacity: alpha }} />
-        <span className="tabular-nums">{flat}</span>
-        <span className="ml-auto text-dim tabular-nums">{Math.round(alpha * 100)} %</span>
-      </button>
-      {open && (
-        <div className="absolute right-[calc(100%+8px)] z-50" style={{ top: 0 }}>
-          <ColorPicker hex={flat} alpha={alpha} onClose={() => setOpen(false)}
-                       onChange={(h, a) => onChange('#' + h, a)} />
-        </div>
-      )}
-    </>
-  )
-}
-
 export default function RightPanel({
-  ground, groundAlpha, onGround, zoom, selection, onPatch,
+  ground, groundAlpha, onGround, zoom, selection, node, nodeBox, onPatch, onPatchNode,
 }: Props) {
   return (
     <aside className="relative flex h-full w-inspector shrink-0 flex-col border-l
@@ -94,7 +68,9 @@ export default function RightPanel({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {selection ? (
+        {node ? (
+          <Inspector node={node} box={nodeBox} onPatch={onPatchNode} />
+        ) : selection ? (
           <>
             <Section label="Scene">
               <div className="grid grid-cols-2 gap-1.5">

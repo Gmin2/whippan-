@@ -16,11 +16,28 @@ export interface Entry {
   poster?: number
 }
 
+export interface Font {
+  family?: string
+  size?: number
+  weight?: number
+}
+
 export interface Node {
   id: string
   type: string
   src?: string
   count?: number
+  /** x,y is the CENTRE of the node, per the document contract */
+  x?: number
+  y?: number
+  w?: number
+  h?: number
+  radius?: number
+  rot?: number
+  fill?: string
+  color?: string
+  text?: string
+  font?: Font
 }
 
 export interface Scene {
