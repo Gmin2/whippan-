@@ -25,6 +25,7 @@ export default function App() {
   const [selBox, setSelBox] = useState<NodeBox | null>(null)
   const [scene, setScene] = useState<string | null>(null)
   const [zoom, setZoom] = useState(0.12)
+  const [panels, setPanels] = useState(true)
   const [ground, setGround] = useState('#d9cac8')
   const [groundAlpha, setGroundAlpha] = useState(1)
   // undo holds whole stage snapshots. a drag pushes one entry when it starts,
@@ -78,9 +79,31 @@ export default function App() {
           ...s,
           nodes: s.nodes.map(n => {
             if (n.id !== sel.id) return n
-            const { fontSize, ...rest } = patch
-            const next = { ...n, ...rest }
-            if (fontSize != null) next.font = { ...(n.font ?? {}), size: fontSize }
+            const {
+              fontSize, fontFamily, fontWeight, opacity,
+              blur, glow, gradient, ...rest
+            } = patch
+            const next: typeof n = { ...n, ...rest }
+            if (fontSize != null || fontFamily != null || fontWeight != null) {
+              next.font = {
+                ...(n.font ?? {}),
+                ...(fontSize != null ? { size: fontSize } : {}),
+                ...(fontFamily != null ? { family: fontFamily } : {}),
+                ...(fontWeight != null ? { weight: fontWeight } : {}),
+              }
+            }
+            // opacity is not a node field: the engine reads it off the same
+            // keys map the animation overlay writes into
+            if (opacity != null) {
+              next.keys = { ...(n.keys ?? {}), opacity: [{ t: 0, v: opacity }] }
+            }
+            // null means remove the section entirely, undefined means leave it
+            if (blur !== undefined) { if (blur === null) delete next.blur; else next.blur = blur }
+            if (glow !== undefined) { if (glow === null) delete next.glow; else next.glow = glow }
+            if (gradient !== undefined) {
+              if (gradient === null) delete next.gradient
+              else next.gradient = gradient
+            }
             return next
           }),
         }
@@ -155,8 +178,22 @@ export default function App() {
     return <div className="grid h-full place-items-center text-dim">booting engine</div>
 
   return (
-    <div className="flex h-full w-full">
-      <LeftPanel
+    <div className="relative flex h-full w-full">
+      {!panels && (
+        <button
+          onClick={() => setPanels(true)}
+          className="absolute left-3 top-3 z-30 flex h-[34px] items-center gap-2.5
+                     rounded-[8px] border border-black/10 bg-panel px-3
+                     shadow-[0_6px_20px_-8px_rgba(0,0,0,0.4)]"
+        >
+          <span className="relative block h-3 w-3">
+            <span className="absolute left-0 top-0 h-2 w-2 rounded-[2px] bg-black/70" />
+            <span className="absolute bottom-0 right-0 h-2 w-2 rounded-[2px] bg-black/30" />
+          </span>
+          <span className="font-medium">{doc.entry.title}</span>
+        </button>
+      )}
+      {panels && <LeftPanel
         title={doc.entry.title}
         pages={['Page 1']}
         activePage="Page 1"
@@ -166,8 +203,9 @@ export default function App() {
         onSelectNode={(s, id) => { setSel({ scene: s, id }); setScene(s) }}
         onSelectScene={s => { setScene(s); setSel(null); setSelBox(null) }}
         onRename={renameScene}
-      />
-      <ToolRail tool={tool} onTool={setTool} />
+        onHidePanels={() => setPanels(false)}
+      />}
+      <ToolRail tool={tool} onTool={setTool} floating={!panels} />
       <Canvas
         ck={ck}
         doc={doc}
@@ -177,6 +215,8 @@ export default function App() {
         boards={boards}
         selected={sel}
         onSelect={onSelect}
+        onSelectScene={s => { setScene(s); setSel(null); setSelBox(null) }}
+        activeScene={scene}
         onZoom={onZoom}
         geo={found ? {
           x: found.node.x ?? 0,
@@ -191,7 +231,7 @@ export default function App() {
         onDragEnd={onDragEnd}
         onMeasure={onMeasure}
       />
-      <RightPanel
+      {panels && <RightPanel
         ground={ground}
         groundAlpha={groundAlpha}
         onGround={onGround}
@@ -199,9 +239,10 @@ export default function App() {
         selection={found ? null : artboard}
         node={found?.node ?? null}
         nodeBox={selBox}
+        canvas={doc.stage.size}
         onPatch={patchScene}
         onPatchNode={patchNode}
-      />
+      />}
     </div>
   )
 }

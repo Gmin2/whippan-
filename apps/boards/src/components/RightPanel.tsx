@@ -13,6 +13,7 @@ interface Props {
   selection: Artboard | null
   node: Node | null
   nodeBox: NodeBox | null
+  canvas: [number, number]
   onPatch(id: string, patch: ScenePatch): void
   onPatchNode(patch: NodePatch): void
 }
@@ -38,7 +39,8 @@ function Field({ children }: { children: React.ReactNode }) {
 }
 
 export default function RightPanel({
-  ground, groundAlpha, onGround, zoom, selection, node, nodeBox, onPatch, onPatchNode,
+  ground, groundAlpha, onGround, zoom, selection, node, nodeBox, canvas,
+  onPatch, onPatchNode,
 }: Props) {
   return (
     <aside className="relative flex h-full w-inspector shrink-0 flex-col border-l
@@ -69,7 +71,7 @@ export default function RightPanel({
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         {node ? (
-          <Inspector node={node} box={nodeBox} onPatch={onPatchNode} />
+          <Inspector node={node} box={nodeBox} canvas={canvas} onPatch={onPatchNode} />
         ) : selection ? (
           <>
             <Section label="Scene">

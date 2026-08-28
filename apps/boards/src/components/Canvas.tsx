@@ -26,6 +26,8 @@ interface Props {
   /** the selected node's live box, so the inspector can report what is
    *  actually painted rather than what was painted when it was selected */
   onMeasure(box: NodeBox | null): void
+  onSelectScene(scene: string): void
+  activeScene: string | null
 }
 
 /** gap between artboards, in document pixels — the wall lives in doc space */
@@ -58,7 +60,7 @@ function withGround(cmds: Cmd[], w: number, h: number): Cmd[] {
 
 export default function Canvas({
   ck, doc, rev, ground, title, boards, selected, onSelect, onZoom,
-  geo, onDrag, onDragEnd, onMeasure,
+  geo, onDrag, onDragEnd, onMeasure, onSelectScene, activeScene,
 }: Props) {
   const wrap = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -318,7 +320,13 @@ export default function Canvas({
     if (!d) return
     if (d.kind !== 'pan' && d.moved) { onDragEnd(); return }
     if (d.moved) return
-    onSelect(pick(e.clientX, e.clientY))
+    const node = pick(e.clientX, e.clientY)
+    if (node) { onSelect(node); return }
+    // no node under the cursor: inside a board selects the board, outside
+    // clears the selection entirely
+    const at = locate(e.clientX, e.clientY)
+    if (at?.inside) { onSelectScene(boards[at.board].id); return }
+    onSelect(null)
   }
 
   const cursor = grab ? CURSORS[grab] : hover ? 'default' : 'grab'
@@ -348,6 +356,8 @@ export default function Canvas({
         title={title}
         selected={selected}
         hover={hover}
+        activeScene={activeScene}
+        onSelectScene={onSelectScene}
       />
     </div>
   )

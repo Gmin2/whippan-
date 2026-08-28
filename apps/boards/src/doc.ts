@@ -1,7 +1,7 @@
 // boards views a real whippan document: every scene becomes an artboard, the
 // scene note is its caption, and the frame drawn into it comes from the engine.
 import { docDur, sceneStarts } from './engine'
-import type { Doc } from './engine/types'
+import type { Doc, Glow, Gradient } from './engine/types'
 
 export type LayerKind = 'frame' | 'text'
 
@@ -75,6 +75,13 @@ export interface NodePatch {
   color?: string
   text?: string
   fontSize?: number
+  fontFamily?: string
+  fontWeight?: number
+  /** written as a static key, which is where the engine reads opacity from */
+  opacity?: number
+  blur?: number | null
+  glow?: Glow | null
+  gradient?: Gradient | null
 }
 
 export function findNode(doc: Doc, sel: Sel | null) {

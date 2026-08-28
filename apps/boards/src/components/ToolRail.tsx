@@ -6,6 +6,8 @@ export type Tool = 'select' | 'hand' | 'frame' | 'rect' | 'pen' | 'text' | 'add'
 interface Props {
   tool: Tool
   onTool(t: Tool): void
+  /** with the panels hidden the rail detaches and floats over the canvas */
+  floating?: boolean
 }
 
 // buttons are 40x36 with dividers between the three groups, measured off the
@@ -29,10 +31,12 @@ const GROUPS: { tool: Tool; icon: React.ReactNode; title: string }[][] = [
   ],
 ]
 
-export default function ToolRail({ tool, onTool }: Props) {
+export default function ToolRail({ tool, onTool, floating }: Props) {
   return (
-    <nav className="flex h-full w-rail shrink-0 flex-col items-center border-r
-                    border-hair bg-panel pt-0.5">
+    <nav className={floating
+      ? `absolute left-3 top-[58px] z-30 flex w-rail flex-col items-center rounded-[10px]
+         border border-black/10 bg-panel py-1 shadow-[0_6px_20px_-8px_rgba(0,0,0,0.4)]`
+      : 'flex h-full w-rail shrink-0 flex-col items-center border-r border-hair bg-panel pt-0.5'}>
       {GROUPS.map((group, gi) => (
         <div key={gi} className="contents">
           {gi > 0 && <span className="my-2 h-px w-5 bg-hair" />}

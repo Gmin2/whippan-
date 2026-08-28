@@ -15,6 +15,8 @@ interface Props {
   title: string[]
   selected: Sel | null
   hover: NodeBox | null
+  activeScene: string | null
+  onSelectScene(scene: string): void
 }
 
 const BLUE = '#2d52f0'
@@ -34,6 +36,7 @@ const HANDLE = 7
 // being scaled by them — a handle is always the same size under the cursor.
 export default function Overlay({
   cam, boards, frames, worldX, docSize, title, selected, hover,
+  activeScene, onSelectScene,
 }: Props) {
   const [dw, dh] = docSize
   const { pan, zoom } = cam
@@ -77,7 +80,13 @@ export default function Overlay({
         if (x > 4000 || x + w < -400) return null
         return (
           <g key={b.id}>
-            <text x={x} y={sy(0) - 10} fill="rgba(0,0,0,0.45)" fontSize={12}>
+            <text
+              x={x} y={sy(0) - 10} fontSize={12}
+              className="pointer-events-auto cursor-pointer"
+              fill={activeScene === b.id ? BLUE : 'rgba(0,0,0,0.45)'}
+              fontWeight={activeScene === b.id ? 600 : 400}
+              onPointerDown={e => { e.stopPropagation(); onSelectScene(b.id) }}
+            >
               {b.label}
             </text>
             <text x={x} y={sy(dh) + 18} fill="rgba(0,0,0,0.4)" fontSize={11}>
@@ -87,8 +96,9 @@ export default function Overlay({
                   fill="rgba(0,0,0,0.4)" fontSize={11} fontFamily="monospace">
               {b.dur.toFixed(1)}s
             </text>
-            <rect x={x} y={sy(0)} width={w} height={dh * zoom}
-                  fill="none" stroke="rgba(0,0,0,0.10)" strokeWidth={1} />
+            <rect x={x} y={sy(0)} width={w} height={dh * zoom} fill="none"
+                  stroke={activeScene === b.id && !selected ? BLUE : 'rgba(0,0,0,0.10)'}
+                  strokeWidth={activeScene === b.id && !selected ? 1.5 : 1} />
           </g>
         )
       })}

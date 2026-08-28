@@ -24,6 +24,7 @@ interface Props {
   onSelectNode(scene: string, id: string): void
   onSelectScene(scene: string): void
   onRename(id: string, name: string): void
+  onHidePanels(): void
 }
 
 function kindIcon(kind: string) {
@@ -66,7 +67,7 @@ function Row({ depth = 0, icon, label, selected, onClick, onDoubleClick, chevron
 
 export default function LeftPanel({
   title, pages, activePage, tree, selected, activeScene,
-  onSelectNode, onSelectScene, onRename,
+  onSelectNode, onSelectScene, onRename, onHidePanels,
 }: Props) {
   const [tab, setTab] = useState<'design' | 'motion'>('design')
   const [open, setOpen] = useState<Record<string, boolean>>({})
@@ -82,7 +83,8 @@ export default function LeftPanel({
           </span>
         </span>
         <span className="flex-1 truncate font-medium">{title}</span>
-        <button className="text-dim transition-colors hover:text-ink" title="hide panels">
+        <button onClick={onHidePanels} title="hide panels"
+                className="text-dim transition-colors hover:text-ink">
           <PanelIcon size={15} />
         </button>
       </div>

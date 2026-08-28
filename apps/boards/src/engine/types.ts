@@ -22,6 +22,23 @@ export interface Font {
   weight?: number
 }
 
+export interface Glow {
+  sigma?: number
+  opacity?: number
+  color?: string
+  dx?: number
+  dy?: number
+}
+
+export interface GradientStop { at: number; color: string }
+
+export interface Gradient {
+  angle?: number
+  stops: GradientStop[]
+}
+
+export interface Key { t: number; v: number; ease?: unknown }
+
 export interface Node {
   id: string
   type: string
@@ -38,6 +55,13 @@ export interface Node {
   color?: string
   text?: string
   font?: Font
+  blur?: number
+  glow?: Glow
+  gradient?: Gradient
+  stroke?: number
+  goo?: string
+  /** static property values live here; the overlay keys the same names */
+  keys?: Record<string, Key[]>
 }
 
 export interface Scene {
