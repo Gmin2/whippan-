@@ -2,9 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { paintFrame } from '@whippan/engine-web/painter'
 import { render } from '../engine'
 import type { Doc } from '../engine/types'
-import type { Artboard, Sel } from '../doc'
+import type { Artboard, NodePatch, Sel } from '../doc'
 import { hitTest, measure } from '../measure'
 import type { Cmd, NodeBox } from '../measure'
+import { CURSORS, handleAt, resize, scaleType } from '../handles'
+import type { Handle } from '../handles'
 import Overlay from './Overlay'
 
 interface Props {
@@ -17,6 +19,13 @@ interface Props {
   selected: Sel | null
   onSelect(box: NodeBox | null): void
   onZoom(z: number): void
+  /** resting geometry of the selected node, what a drag actually edits */
+  geo: { x: number; y: number; w: number; h: number; fontSize?: number } | null
+  onDrag(patch: NodePatch): void
+  onDragEnd(): void
+  /** the selected node's live box, so the inspector can report what is
+   *  actually painted rather than what was painted when it was selected */
+  onMeasure(box: NodeBox | null): void
 }
 
 /** gap between artboards, in document pixels — the wall lives in doc space */
@@ -27,6 +36,11 @@ const GAP = 320
  * which is how AUTHORING says to compose a stage.
  */
 const SETTLED = 0.7
+
+interface Frame {
+  cmds: Cmd[]
+  boxes: NodeBox[]
+}
 
 export interface Camera {
   pan: { x: number; y: number }
@@ -44,6 +58,7 @@ function withGround(cmds: Cmd[], w: number, h: number): Cmd[] {
 
 export default function Canvas({
   ck, doc, rev, ground, title, boards, selected, onSelect, onZoom,
+  geo, onDrag, onDragEnd, onMeasure,
 }: Props) {
   const wrap = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -51,25 +66,54 @@ export default function Canvas({
   const [size, setSize] = useState({ w: 0, h: 0 })
   const [cam, setCam] = useState<Camera>({ pan: { x: 120, y: 140 }, zoom: 0.12 })
   const [hover, setHover] = useState<NodeBox | null>(null)
-  const drag = useRef<{ x: number; y: number; moved: boolean } | null>(null)
+  const [grab, setGrab] = useState<Handle | null>(null)
+  const drag = useRef<{
+    kind: 'pan' | 'move' | 'resize'
+    handle?: Handle
+    x: number
+    y: number
+    startX?: number
+    startY?: number
+    moved: boolean
+    geo?: { x: number; y: number; w: number; h: number; fontSize?: number }
+    box?: NodeBox
+  } | null>(null)
 
   const [dw, dh] = doc.stage.size
 
   // world position of each board: one row, laid out left to right
   const worldX = useCallback((i: number) => i * (dw + GAP), [dw])
 
-  // the frame each board shows, and the node boxes inside it. recomputed only
-  // when the document actually changes, never on pan or zoom.
+  // The frame each board shows and the node boxes inside it. A patch replaces
+  // only the edited scene object, so identity tells us which boards actually
+  // need re-rendering — dragging one node does not re-render the wall. The
+  // previous scene is part of the key because a morph reads across the cut.
+  const cache = useRef(new Map<string, { self: unknown; prev: unknown; frame: Frame }>())
   const frames = useMemo(() => {
     const stage = JSON.stringify(doc.stage)
     const anim = JSON.stringify(doc.anim)
-    return boards.map(b => {
+    return boards.map((b, i) => {
+      const self = doc.stage.scenes[i]
+      const prev = doc.stage.scenes[i - 1]
+      const hit = cache.current.get(b.id)
+      if (hit && hit.self === self && hit.prev === prev) return hit.frame
       const cmds: Cmd[] = JSON.parse(render(stage, anim, b.start + b.dur * SETTLED))
-      return { cmds: withGround(cmds, dw, dh), boxes: measure(cmds) }
+      const frame: Frame = { cmds: withGround(cmds, dw, dh), boxes: measure(cmds) }
+      cache.current.set(b.id, { self, prev, frame })
+      return frame
     })
   }, [doc, boards, rev, dw, dh])
 
   useEffect(() => { onZoom(cam.zoom) }, [cam.zoom, onZoom])
+
+  useEffect(() => {
+    if (!selected) { onMeasure(null); return }
+    for (const f of frames) {
+      const b = f.boxes.find(n => n.id === selected.id && n.scene === selected.scene)
+      if (b) { onMeasure(b); return }
+    }
+    onMeasure(null)
+  }, [frames, selected, onMeasure])
 
   // keep the drawing buffer matched to the element and the display density
   useEffect(() => {
@@ -186,29 +230,113 @@ export default function Canvas({
     ;(window as unknown as Record<string, unknown>).boards = { cam, frames, locate, pick }
   }, [cam, frames, locate, pick])
 
+  /** the selected node's box on screen, which is where the handles live */
+  const selRect = useCallback(() => {
+    if (!selected) return null
+    for (let i = 0; i < frames.length; i++) {
+      const b = frames[i].boxes.find(n => n.id === selected.id && n.scene === selected.scene)
+      if (!b) continue
+      return {
+        x: (worldX(i) + b.x) * cam.zoom + cam.pan.x,
+        y: b.y * cam.zoom + cam.pan.y,
+        w: b.w * cam.zoom,
+        h: b.h * cam.zoom,
+        box: b,
+      }
+    }
+    return null
+  }, [selected, frames, cam, worldX])
+
+  const local = (clientX: number, clientY: number) => {
+    const r = wrap.current!.getBoundingClientRect()
+    return { x: clientX - r.left, y: clientY - r.top }
+  }
+
+  const onDown = (e: React.PointerEvent) => {
+    const pt = local(e.clientX, e.clientY)
+    const rect = selRect()
+    const handle = rect ? handleAt(rect, pt.x, pt.y) : null
+
+    if (handle && geo) {
+      drag.current = {
+        kind: 'resize', handle, x: e.clientX, y: e.clientY, moved: false,
+        geo: { ...geo }, box: rect!.box,
+      }
+      return
+    }
+    const node = pick(e.clientX, e.clientY)
+    if (node && geo && selected
+        && node.id === selected.id && node.scene === selected.scene) {
+      drag.current = { kind: 'move', x: e.clientX, y: e.clientY, moved: false, geo: { ...geo } }
+      return
+    }
+    drag.current = { kind: 'pan', x: e.clientX, y: e.clientY, moved: false }
+  }
+
+  const onMove = (e: React.PointerEvent) => {
+    const d = drag.current
+    if (!d) {
+      const pt = local(e.clientX, e.clientY)
+      const rect = selRect()
+      setGrab(rect ? handleAt(rect, pt.x, pt.y) : null)
+      setHover(pick(e.clientX, e.clientY))
+      return
+    }
+    const dxs = e.clientX - d.x
+    const dys = e.clientY - d.y
+    if (Math.abs(dxs) + Math.abs(dys) > 2) d.moved = true
+
+    if (d.kind === 'pan') {
+      setCam(c => ({ ...c, pan: { x: c.pan.x + dxs, y: c.pan.y + dys } }))
+      d.x = e.clientX
+      d.y = e.clientY
+      return
+    }
+    // document-space delta from where the drag began
+    const dx = (e.clientX - d.startX!) / cam.zoom
+    const dy = (e.clientY - d.startY!) / cam.zoom
+
+    if (d.kind === 'move') {
+      onDrag({ x: Math.round(d.geo!.x + dx), y: Math.round(d.geo!.y + dy) })
+      return
+    }
+    if (d.geo!.fontSize != null) {
+      // text has no box of its own; corners scale the type
+      onDrag({ fontSize: scaleType(d.geo!.fontSize, d.box!, dx, dy) })
+      return
+    }
+    const g = resize(d.geo!, d.handle!, dx, dy, e.shiftKey)
+    onDrag({
+      x: Math.round(g.x), y: Math.round(g.y),
+      w: Math.round(g.w), h: Math.round(g.h),
+    })
+  }
+
+  const onUp = (e: React.PointerEvent) => {
+    const d = drag.current
+    drag.current = null
+    if (!d) return
+    if (d.kind !== 'pan' && d.moved) { onDragEnd(); return }
+    if (d.moved) return
+    onSelect(pick(e.clientX, e.clientY))
+  }
+
+  const cursor = grab ? CURSORS[grab] : hover ? 'default' : 'grab'
+
   return (
     <div
       ref={wrap}
-      onPointerDown={e => { drag.current = { x: e.clientX, y: e.clientY, moved: false } }}
-      onPointerMove={e => {
+      onPointerDown={e => {
+        ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+        onDown(e)
         const d = drag.current
-        if (d) {
-          if (Math.abs(e.clientX - d.x) + Math.abs(e.clientY - d.y) > 2) d.moved = true
-          setCam(c => ({ ...c, pan: { x: c.pan.x + e.clientX - d.x, y: c.pan.y + e.clientY - d.y } }))
-          drag.current = { x: e.clientX, y: e.clientY, moved: d.moved }
-          return
-        }
-        setHover(pick(e.clientX, e.clientY))
+        if (d) { d.startX = e.clientX; d.startY = e.clientY }
       }}
-      onPointerUp={e => {
-        const d = drag.current
-        drag.current = null
-        if (d?.moved) return
-        onSelect(pick(e.clientX, e.clientY))
-      }}
-      onPointerLeave={() => { drag.current = null; setHover(null) }}
+      onPointerMove={onMove}
+      onPointerUp={onUp}
+      onPointerLeave={() => { setHover(null); setGrab(null) }}
       className="relative h-full flex-1 overflow-hidden"
-      style={{ background: ground, cursor: hover ? 'default' : 'grab' }}
+      style={{ background: ground, cursor }}
     >
       <canvas ref={canvas} className="absolute inset-0 h-full w-full" />
       <Overlay

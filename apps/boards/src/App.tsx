@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import LeftPanel from './components/LeftPanel'
 import ToolRail from './components/ToolRail'
 import type { Tool } from './components/ToolRail'
 import Canvas from './components/Canvas'
 import RightPanel from './components/RightPanel'
 import { boot, loadDoc } from './engine'
-import type { Doc, Entry } from './engine/types'
+import type { Doc, Entry, Stage } from './engine/types'
 import { artboards, findNode, tree } from './doc'
 import type { NodePatch, ScenePatch, Sel } from './doc'
 import type { NodeBox } from './measure'
@@ -27,6 +27,11 @@ export default function App() {
   const [zoom, setZoom] = useState(0.12)
   const [ground, setGround] = useState('#d9cac8')
   const [groundAlpha, setGroundAlpha] = useState(1)
+  // undo holds whole stage snapshots. a drag pushes one entry when it starts,
+  // not per pointer move, so undoing a drag undoes the whole gesture.
+  const undo = useRef<Stage[]>([])
+  const redo = useRef<Stage[]>([])
+  const dragging = useRef(false)
 
   useEffect(() => {
     const slug = new URLSearchParams(location.search).get('film') ?? DEFAULT_FILM
@@ -40,7 +45,19 @@ export default function App() {
     }).catch(e => setError(String(e)))
   }, [])
 
+  const snapshot = useCallback(() => {
+    setDoc(prev => {
+      if (prev) {
+        undo.current.push(structuredClone(prev.stage))
+        if (undo.current.length > 100) undo.current.shift()
+        redo.current = []
+      }
+      return prev
+    })
+  }, [])
+
   const patchScene = useCallback((id: string, patch: ScenePatch) => {
+    snapshot()
     setDoc(prev => {
       if (!prev) return prev
       const scenes = prev.stage.scenes.map(s => (s.id === id ? { ...s, ...patch } : s))
@@ -48,10 +65,11 @@ export default function App() {
     })
     if (patch.id && patch.id !== id) setScene(patch.id)
     setRev(r => r + 1)
-  }, [])
+  }, [snapshot])
 
-  const patchNode = useCallback((patch: NodePatch) => {
+  const patchNode = useCallback((patch: NodePatch, transient = false) => {
     if (!sel) return
+    if (!transient) snapshot()
     setDoc(prev => {
       if (!prev) return prev
       const scenes = prev.stage.scenes.map(s => {
@@ -70,7 +88,44 @@ export default function App() {
       return { ...prev, stage: { ...prev.stage, scenes } }
     })
     setRev(r => r + 1)
-  }, [sel])
+  }, [sel, snapshot])
+
+  // a drag streams patches; snapshot once at the start of the gesture
+  const onDrag = useCallback((patch: NodePatch) => {
+    if (!dragging.current) {
+      dragging.current = true
+      snapshot()
+    }
+    patchNode(patch, true)
+  }, [patchNode, snapshot])
+  const onDragEnd = useCallback(() => { dragging.current = false }, [])
+
+  const stepHistory = useCallback((dir: 'undo' | 'redo') => {
+    const from = dir === 'undo' ? undo.current : redo.current
+    const to = dir === 'undo' ? redo.current : undo.current
+    const stage = from.pop()
+    if (!stage) return
+    setDoc(prev => {
+      if (!prev) return prev
+      to.push(structuredClone(prev.stage))
+      return { ...prev, stage }
+    })
+    setRev(r => r + 1)
+  }, [])
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+      const mod = e.metaKey || e.ctrlKey
+      if (mod && e.key.toLowerCase() === 'z') {
+        e.preventDefault()
+        stepHistory(e.shiftKey ? 'redo' : 'undo')
+      }
+      if (e.key === 'Escape') { setSel(null); setSelBox(null) }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [stepHistory])
 
   const renameScene = useCallback((id: string, name: string) => {
     const next = name.replace(/^\d+\s+/, '').trim()
@@ -92,6 +147,7 @@ export default function App() {
     setSelBox(box)
     if (box) setScene(box.scene)
   }, [])
+  const onMeasure = useCallback((box: NodeBox | null) => setSelBox(box), [])
 
   if (error)
     return <div className="grid h-full place-items-center text-dim">{error}</div>
@@ -122,6 +178,18 @@ export default function App() {
         selected={sel}
         onSelect={onSelect}
         onZoom={onZoom}
+        geo={found ? {
+          x: found.node.x ?? 0,
+          y: found.node.y ?? 0,
+          w: found.node.w ?? selBox?.w ?? 0,
+          h: found.node.h ?? selBox?.h ?? 0,
+          ...(found.node.type === 'text'
+            ? { fontSize: found.node.font?.size ?? 48 }
+            : {}),
+        } : null}
+        onDrag={onDrag}
+        onDragEnd={onDragEnd}
+        onMeasure={onMeasure}
       />
       <RightPanel
         ground={ground}
