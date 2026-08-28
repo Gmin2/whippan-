@@ -1,0 +1,56 @@
+import { Frame, Gem, Hand, Image, Pen, Pointer, Rect, SquarePlus, Transform, TypeMark } from '../icons'
+
+export type Tool = 'select' | 'hand' | 'frame' | 'rect' | 'pen' | 'text' | 'add'
+  | 'image' | 'transform' | 'shader'
+
+interface Props {
+  tool: Tool
+  onTool(t: Tool): void
+}
+
+// buttons are 40x36 with dividers between the three groups, measured off the
+// paper rail. the active tool is the only filled chip.
+const GROUPS: { tool: Tool; icon: React.ReactNode; title: string }[][] = [
+  [
+    { tool: 'select', icon: <Pointer size={14} />, title: 'select' },
+    { tool: 'hand', icon: <Hand size={16} />, title: 'pan' },
+  ],
+  [
+    { tool: 'frame', icon: <Frame size={15} />, title: 'artboard' },
+    { tool: 'rect', icon: <Rect size={15} />, title: 'rectangle' },
+    { tool: 'pen', icon: <Pen size={16} />, title: 'pen' },
+    { tool: 'text', icon: <TypeMark />, title: 'text' },
+    { tool: 'add', icon: <SquarePlus size={15} />, title: 'insert' },
+  ],
+  [
+    { tool: 'image', icon: <Image size={15} />, title: 'image' },
+    { tool: 'transform', icon: <Transform size={15} />, title: 'transform' },
+    { tool: 'shader', icon: <Gem size={15} />, title: 'shader' },
+  ],
+]
+
+export default function ToolRail({ tool, onTool }: Props) {
+  return (
+    <nav className="flex h-full w-rail shrink-0 flex-col items-center border-r
+                    border-hair bg-panel pt-0.5">
+      {GROUPS.map((group, gi) => (
+        <div key={gi} className="contents">
+          {gi > 0 && <span className="my-2 h-px w-5 bg-hair" />}
+          {group.map(b => (
+            <button
+              key={b.tool}
+              title={b.title}
+              onClick={() => onTool(b.tool)}
+              className={`grid h-9 w-9 shrink-0 place-items-center rounded-md transition-colors
+                          ${tool === b.tool
+                            ? 'inset-control text-ink'
+                            : 'text-ink/70 hover:bg-black/[0.05] hover:text-ink'}`}
+            >
+              {b.icon}
+            </button>
+          ))}
+        </div>
+      ))}
+    </nav>
+  )
+}

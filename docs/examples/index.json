@@ -14,7 +14,7 @@
  {
   "slug": "solder",
   "title": "solder",
-  "dur": 20.0,
+  "dur": 27.81,
   "size": [
    1920,
    1080
@@ -172,8 +172,8 @@
   "title": "state-slim (repro)",
   "dur": 55.53,
   "size": [
-   1920,
-   1080
+   1138,
+   640
   ],
   "group": "reproductions",
   "stage": "/docs/state-slim.stage.json",

@@ -1,1 +1,55 @@
 @import "tailwindcss";
+
+/* the palette is lifted off our own launch film's end card, so the site and
+   the films it shows are the same brand rather than two guesses at one */
+@theme {
+  --color-ground: #f4f4f3;
+  --color-ink: #111111;
+  --color-flame: #ff5c1a;
+  --color-hair: #dededc;
+  --color-mute: #8a8a86;
+  --color-letterbox: #e9e9e7;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter-Variable.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+
+html {
+  background: var(--color-ground);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+}
+
+/* the microtype the whole site labels with: mono, small, wide, quiet */
+@utility label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+}
+
+/* the hairline clock under a live card, one pass per film loop */
+@keyframes sweep {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
