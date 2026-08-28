@@ -1,6 +1,7 @@
 import type { Artboard, Sel } from '../doc'
 import type { NodeBox } from '../measure'
 import { handlePoints } from '../handles'
+import { elbow } from '../wires'
 import type { Camera } from './Canvas'
 import type { Guide } from '../snap'
 
@@ -27,6 +28,9 @@ interface Props {
 
 /** sampled off paper's own overlay canvas */
 const ACCENT = '#5e92f4'
+/** connector grey, quiet enough to read as structure rather than content */
+const WIRE = 'rgba(0,0,0,0.22)'
+const PORT = 5
 /** snap guides are crimson there, not the selection blue */
 const GUIDE = '#dc4f70'
 /** trim a caption to the width of its board so boards never overwrite each
@@ -83,6 +87,52 @@ export default function Overlay({
         {title[1]}
       </text>
 
+      {/* seams: how each scene enters the one before it, and the node ids
+          that carry across the cut. a linear film gives straight wires; the
+          fan appears wherever a morph pairs several nodes at once. */}
+      {boards.map((b, i) => {
+        if (i === 0) return null
+        const x1 = sx(i - 1, dw)
+        const x2 = sx(i, 0)
+        if (x2 < -200 || x1 > 4000) return null
+        const midY = sy(dh / 2)
+        const kind = b.transition?.kind ?? 'cut'
+        const morph = b.transition?.morph
+        const threads = morph ? b.carried.slice(0, 8) : []
+        return (
+          <g key={`seam-${b.id}`}>
+            <circle cx={x1} cy={midY} r={PORT / 2} fill={WIRE} />
+            <path d={elbow(x1, midY, x2, midY, 10 * zoom)} fill="none"
+                  stroke={WIRE} strokeWidth={1} />
+            <circle cx={x2} cy={midY} r={PORT / 2} fill={WIRE} />
+            {zoom > 0.05 && (
+              <g transform={`translate(${(x1 + x2) / 2}, ${midY})`}>
+                <rect x={-26} y={-9} width={52} height={18} rx={9}
+                      fill="#fff" stroke="rgba(0,0,0,0.12)" />
+                <text y={4} textAnchor="middle" fontSize={10}
+                      fill={morph ? ACCENT : 'rgba(0,0,0,0.55)'}>
+                  {morph ? 'morph' : kind}
+                </text>
+              </g>
+            )}
+            {threads.map(id => {
+              const a = frames[i - 1]?.boxes.find(n => n.id === id)
+              const c = frames[i]?.boxes.find(n => n.id === id)
+              if (!a || !c) return null
+              return (
+                <path
+                  key={id}
+                  d={elbow(sx(i - 1, a.x + a.w), sy(a.y + a.h / 2),
+                           sx(i, c.x), sy(c.y + c.h / 2), 12 * zoom)}
+                  fill="none" stroke={ACCENT} strokeWidth={1} opacity={0.5}
+                  strokeDasharray="3 3"
+                />
+              )
+            })}
+          </g>
+        )
+      })}
+
       {boards.map((b, i) => {
         const x = sx(i, 0)
         const w = dw * zoom
@@ -105,9 +155,12 @@ export default function Overlay({
                   fill="rgba(0,0,0,0.4)" fontSize={11} fontFamily="monospace">
               {b.dur.toFixed(1)}s
             </text>
-            <rect x={x} y={sy(0)} width={w} height={dh * zoom} fill="none"
-                  stroke={activeScene === b.id && !selected ? ACCENT : 'rgba(0,0,0,0.10)'}
-                  strokeWidth={activeScene === b.id && !selected ? 1.5 : 1} />
+            {/* no outline at rest: a board is defined by its own ground
+                against the canvas, not by a box drawn around it */}
+            {activeScene === b.id && !selected && (
+              <rect x={x} y={sy(0)} width={w} height={dh * zoom}
+                    fill="none" stroke={ACCENT} strokeWidth={1.5} />
+            )}
           </g>
         )
       })}

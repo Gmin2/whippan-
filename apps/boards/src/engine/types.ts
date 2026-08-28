@@ -64,11 +64,19 @@ export interface Node {
   keys?: Record<string, Key[]>
 }
 
+export interface Transition {
+  kind?: string
+  dur?: number
+  dir?: string
+  morph?: boolean
+}
+
 export interface Scene {
   id: string
   bg?: string
   dur?: number
   note?: string
+  transition?: Transition
   nodes: Node[]
 }
 
