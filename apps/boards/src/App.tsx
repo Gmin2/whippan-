@@ -4,11 +4,13 @@ import ToolRail from './components/ToolRail'
 import type { Tool } from './components/ToolRail'
 import Canvas from './components/Canvas'
 import RightPanel from './components/RightPanel'
-import { boot, loadDoc, saveDoc } from './engine'
+import AssetPicker from './components/AssetPicker'
+import { boot, ensureImage, loadDoc, saveDoc } from './engine'
 import type { Doc, Entry, Stage } from './engine/types'
 import { artboards, findNode, tree } from './doc'
 import {
-  addNode, addScene, deleteNode, deleteScene, duplicateNode, newRect, newText,
+  addNode, addScene, deleteNode, deleteScene, duplicateNode, newImage, newRect,
+  newText,
 } from './ops'
 import type { NodePatch, ScenePatch, Sel } from './doc'
 import type { NodeBox } from './measure'
@@ -36,6 +38,7 @@ export default function App() {
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [picking, setPicking] = useState(false)
   const [ground, setGround] = useState('#d9cac8')
   const [groundAlpha, setGroundAlpha] = useState(1)
   // undo holds whole stage snapshots. a drag pushes one entry when it starts,
@@ -271,6 +274,19 @@ export default function App() {
     setScene(sceneId)
   }, [apply])
 
+  const insertImage = useCallback(async (src: string) => {
+    const current = docRef.current
+    const target = sceneRef.current ?? current?.stage.scenes[0]?.id
+    if (!current || !ck || !target) return
+    // decode it before it lands, so the board paints the image immediately
+    // rather than a hole that fills in on the next edit
+    if (!src.endsWith('/')) await ensureImage(ck, current, src)
+    const [cw, ch] = current.stage.size
+    const node = newImage(current.stage, src, cw / 2, ch / 2)
+    apply(st => addNode(st, target, node))
+    setSel({ scene: target, id: node.id })
+  }, [apply, ck])
+
   const removeSelection = useCallback(() => {
     const s = selRef.current
     if (s) {
@@ -296,10 +312,10 @@ export default function App() {
     if (newId) setSel({ scene: s.scene, id: newId })
   }, [apply])
 
-  const createScene = useCallback(() => {
+  const createScene = useCallback((afterId?: string) => {
     let id: string | null = null
     apply(st => {
-      const out = addScene(st, sceneRef.current ?? undefined)
+      const out = addScene(st, afterId ?? sceneRef.current ?? undefined)
       id = out.id
       return out.stage
     })
@@ -382,13 +398,24 @@ export default function App() {
         onSelectScene={s => { setScene(s); setSel(null); setSelBox(null) }}
         onRename={renameScene}
         onHidePanels={() => setPanels(false)}
-        onAddScene={createScene}
+        onAddScene={() => createScene()}
         dirty={dirty}
         saving={saving}
         saveError={saveError}
         onSave={save}
       />}
-      <ToolRail tool={tool} onTool={setTool} floating={!panels} />
+      <ToolRail
+        tool={tool}
+        onTool={t => {
+          if (t === 'image') { setPicking(true); return }
+          setTool(t)
+        }}
+        floating={!panels}
+      />
+      {picking && (
+        <AssetPicker onClose={() => setPicking(false)}
+                     onPick={a => { void insertImage(a.src) }} />
+      )}
       <Canvas
         ck={ck}
         doc={doc}
@@ -403,6 +430,7 @@ export default function App() {
         activeScene={scene}
         tool={tool}
         onCreate={createNode}
+        onAddScene={createScene}
         onToolDone={() => setTool('select')}
         onZoom={onZoom}
         geo={found ? {

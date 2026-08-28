@@ -1,6 +1,10 @@
-import { access, mkdir, readFile, rename, writeFile } from 'node:fs/promises'
-import { join, resolve, sep } from 'node:path'
-import type { DocStore, FilmDoc, FilmEntry } from './types.js'
+import { access, mkdir, readdir, readFile, rename, stat, writeFile } from 'node:fs/promises'
+import { join, relative, resolve, sep } from 'node:path'
+import type { Asset, DocStore, FilmDoc, FilmEntry } from './types.js'
+
+const IMAGE = /\.(png|jpe?g|webp|gif|avif)$/i
+/** frame sequences hold hundreds of files; list the directory, not the frames */
+const SEQ_FRAME = /f\d{3,}\.(png|jpe?g|webp)$/i
 
 /**
  * Films on a filesystem: the repo checkout in development, a mounted volume in
@@ -93,6 +97,48 @@ export class FsStore implements DocStore {
       stagePath, JSON.stringify(doc.stage, null, await FsStore.indentOf(stagePath)))
     await FsStore.writeAtomic(
       animPath, JSON.stringify(doc.anim, null, await FsStore.indentOf(animPath)))
+  }
+
+  /**
+   * Walk the asset tree once and return what a document could reference. Frame
+   * sequences collapse to their directory, because a `seq` node points at the
+   * folder and expands the frames itself.
+   */
+  async assets(): Promise<Asset[]> {
+    const root = resolve(this.base, '..', 'assets')
+    const out: Asset[] = []
+    const seen = new Set<string>()
+
+    const walk = async (dir: string, depth: number): Promise<void> => {
+      if (depth > 4) return
+      let entries
+      try {
+        entries = await readdir(dir, { withFileTypes: true })
+      } catch {
+        return
+      }
+      for (const e of entries) {
+        const path = join(dir, e.name)
+        if (e.isDirectory()) {
+          await walk(path, depth + 1)
+          continue
+        }
+        if (!IMAGE.test(e.name)) continue
+        const rel = relative(root, path).split(sep).join('/')
+        if (SEQ_FRAME.test(e.name)) {
+          const folder = rel.slice(0, rel.lastIndexOf('/') + 1)
+          if (seen.has(folder)) continue
+          seen.add(folder)
+          out.push({ src: `/assets/${folder}`, bytes: 0 })
+          continue
+        }
+        const info = await stat(path).catch(() => null)
+        out.push({ src: `/assets/${rel}`, bytes: info?.size ?? 0 })
+      }
+    }
+
+    await walk(root, 0)
+    return out.sort((a, b) => a.src.localeCompare(b.src))
   }
 
   get description(): string {

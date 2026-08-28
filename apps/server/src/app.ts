@@ -32,6 +32,14 @@ export function createApp(store: DocStore, config: Config) {
     }
   })
 
+  app.get('/api/assets', async c => {
+    try {
+      return c.json(await store.assets())
+    } catch (e) {
+      return c.json({ error: String(e) }, 503)
+    }
+  })
+
   app.get('/api/films/:slug', async c => {
     const slug = c.req.param('slug')
     if (!SLUG.test(slug)) return c.json({ error: 'bad slug' }, 400)

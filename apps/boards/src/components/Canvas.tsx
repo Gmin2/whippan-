@@ -38,6 +38,7 @@ interface Props {
   tool: Tool
   onCreate(sceneId: string, kind: 'rect' | 'text',
            box: { x: number; y: number; w: number; h: number }): void
+  onAddScene(afterId?: string): void
   onToolDone(): void
 }
 
@@ -66,7 +67,7 @@ function withGround(cmds: Cmd[], w: number, h: number): Cmd[] {
 export default function Canvas({
   ck, doc, rev, ground, title, boards, selected, selRow, onSelect, onZoom,
   geo, onDrag, onDragEnd, onMeasure, onSelectScene, activeScene,
-  tool, onCreate, onToolDone,
+  tool, onCreate, onAddScene, onToolDone,
 }: Props) {
   const wrap = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -303,6 +304,21 @@ export default function Canvas({
   const onDown = (e: React.PointerEvent) => {
     const pt = local(e.clientX, e.clientY)
 
+    if (tool === 'hand') {
+      drag.current = { kind: 'pan', x: e.clientX, y: e.clientY, moved: false }
+      return
+    }
+
+    if (tool === 'frame') {
+      // a frame is a scene here: the wall lays columns out itself, so the
+      // gesture is "add a beat after this one" rather than "draw a box"
+      const at = locate(e.clientX, e.clientY)
+      onAddScene(at ? boards[at.board]?.id : undefined)
+      onToolDone()
+      drag.current = null
+      return
+    }
+
     if (tool === 'rect' || tool === 'text') {
       const at = locate(e.clientX, e.clientY)
       if (at?.inside) {
@@ -433,8 +449,9 @@ export default function Canvas({
     onSelect(null, 0)
   }
 
-  const drawing = tool === 'rect' || tool === 'text'
-  const cursor = drawing ? 'crosshair'
+  const drawing = tool === 'rect' || tool === 'text' || tool === 'frame'
+  const cursor = tool === 'hand' ? 'grab'
+    : drawing ? 'crosshair'
     : grab ? CURSORS[grab]
     : hover ? 'default' : 'grab'
 

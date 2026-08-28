@@ -19,6 +19,12 @@ export interface FilmEntry {
  * nothing else. Slugs are validated before they reach a store, but a store is
  * still responsible for never resolving one outside its own namespace.
  */
+export interface Asset {
+  /** the path a document's `src` refers to, eg /assets/solder/home.png */
+  src: string
+  bytes: number
+}
+
 export interface DocStore {
   /** the registry every client reads to know what exists */
   list(): Promise<FilmEntry[]>
@@ -26,4 +32,6 @@ export interface DocStore {
   put(slug: string, doc: FilmDoc): Promise<void>
   /** true if the film exists at all */
   has(slug: string): Promise<boolean>
+  /** images a document can reference, for the editor's insert picker */
+  assets(): Promise<Asset[]>
 }

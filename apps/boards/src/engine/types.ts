@@ -44,6 +44,8 @@ export interface Node {
   type: string
   src?: string
   count?: number
+  /** seq nodes play their folder's frames at this rate */
+  fps?: number
   /** x,y is the CENTRE of the node, per the document contract */
   x?: number
   y?: number
@@ -94,6 +96,11 @@ export interface Doc {
   stage: Stage
   anim: Anim
   images: Map<string, unknown>
+}
+
+export interface Asset {
+  src: string
+  bytes: number
 }
 
 export interface SfxEvent {

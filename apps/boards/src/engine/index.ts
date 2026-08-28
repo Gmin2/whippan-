@@ -4,7 +4,7 @@
 import init, { render, register_font, sfx } from '@whippan/engine-web'
 import wasmUrl from '@whippan/engine-web/pkg/whippan_engine_bg.wasm?url'
 import { paintFrame } from '@whippan/engine-web/painter'
-import type { Anim, Doc, Entry, Stage } from './types'
+import type { Anim, Asset, Doc, Entry, Stage } from './types'
 import { hitTest, measure } from '../measure'
 
 export interface Engine {
@@ -200,6 +200,20 @@ if (import.meta.env.DEV) {
     ;(window as unknown as Record<string, unknown>).whippan =
       { CK, registry, render, sfx, loadDoc, docDur, sceneStarts, measure, hitTest }
   })
+}
+
+/** the images a document can reference */
+export async function listAssets(): Promise<Asset[]> {
+  const res = await fetch(`${API}/api/assets`)
+  if (!res.ok) throw new Error(`assets unavailable (${res.status})`)
+  return res.json() as Promise<Asset[]>
+}
+
+/** load an image the engine has not seen yet, so a new node paints at once */
+export async function ensureImage(CK: CanvasKit, doc: Doc, src: string): Promise<void> {
+  if (doc.images.has(src)) return
+  const buf = await fetch(src).then(r => r.arrayBuffer())
+  doc.images.set(src, CK.MakeImageFromEncoded(new Uint8Array(buf)))
 }
 
 /** write a document back to the repo through the dev server */

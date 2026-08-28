@@ -87,6 +87,29 @@ export function newRect(stage: Stage, x: number, y: number, w: number, h: number
   }
 }
 
+export function newImage(
+  stage: Stage, src: string, x: number, y: number, w = 800, h = 500,
+): Node {
+  const seq = src.endsWith('/')
+  return seq
+    ? {
+      id: freshId(stage, 'seq'),
+      type: 'seq',
+      src,
+      // the real count comes from the folder; 60 is a safe first guess the
+      // inspector can correct
+      count: 60,
+      fps: 30,
+      x: Math.round(x), y: Math.round(y), w, h,
+    }
+    : {
+      id: freshId(stage, 'img'),
+      type: 'image',
+      src,
+      x: Math.round(x), y: Math.round(y), w, h, radius: 0,
+    }
+}
+
 export function newText(stage: Stage, x: number, y: number): Node {
   return {
     id: freshId(stage, 'text'),
