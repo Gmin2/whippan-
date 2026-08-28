@@ -13,6 +13,9 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.3.3
         version: 4.3.3(vite@8.2.2(@types/node@24.13.3)(jiti@2.7.0))
+      '@whippan/engine-web':
+        specifier: workspace:*
+        version: link:../../packages/engine-web
       react:
         specifier: ^19.2.8
         version: 19.2.8
