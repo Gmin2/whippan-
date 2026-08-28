@@ -29,6 +29,10 @@ interface Props {
   onSelectScene(scene: string): void
   onRename(id: string, name: string): void
   onHidePanels(): void
+  dirty: boolean
+  saving: 'idle' | 'saving' | 'saved' | 'error'
+  saveError: string | null
+  onSave(): void
 }
 
 function kindIcon(kind: string) {
@@ -73,6 +77,7 @@ export default function LeftPanel({
   registry, film, onPickFilm,
   pages, activePage, tree, selected, activeScene,
   onSelectNode, onSelectScene, onRename, onHidePanels,
+  dirty, saving, saveError, onSave,
 }: Props) {
   const [tab, setTab] = useState<'design' | 'motion'>('design')
   const [open, setOpen] = useState<Record<string, boolean>>({})
@@ -88,8 +93,21 @@ export default function LeftPanel({
           </span>
         </span>
         <FilmMenu registry={registry} current={film} onPick={onPickFilm} />
+        <button
+          onClick={onSave}
+          title={saveError ?? (dirty ? 'unsaved changes — ⌘S' : 'saved')}
+          className={`shrink-0 rounded-[5px] px-1.5 py-0.5 text-[11px] transition-colors
+                      ${saving === 'error' ? 'text-[#c0392b]'
+                        : dirty ? 'text-flame hover:bg-black/[0.05]'
+                        : 'text-faint'}`}
+        >
+          {saving === 'saving' ? 'saving…'
+            : saving === 'error' ? 'failed'
+            : saving === 'saved' ? 'saved'
+            : dirty ? '• save' : 'saved'}
+        </button>
         <button onClick={onHidePanels} title="hide panels"
-                className="text-dim transition-colors hover:text-ink">
+                className="shrink-0 text-dim transition-colors hover:text-ink">
           <PanelIcon size={15} />
         </button>
       </div>

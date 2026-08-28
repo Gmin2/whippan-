@@ -198,3 +198,18 @@ if (import.meta.env.DEV) {
       { CK, registry, render, sfx, loadDoc, docDur, sceneStarts, measure, hitTest }
   })
 }
+
+/** write a document back to the repo through the dev server */
+export async function saveDoc(
+  slug: string, stage: Stage, anim: Anim,
+): Promise<void> {
+  const res = await fetch(`/api/doc/${encodeURIComponent(slug)}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ stage, anim }),
+  })
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({ error: res.statusText }))
+    throw new Error((detail as { error?: string }).error ?? `save failed (${res.status})`)
+  }
+}

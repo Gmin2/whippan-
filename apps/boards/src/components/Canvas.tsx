@@ -262,8 +262,8 @@ export default function Canvas({
   // dev hook so automation can ask what the canvas thinks is under a point
   useEffect(() => {
     if (!import.meta.env.DEV) return
-    ;(window as unknown as Record<string, unknown>).boards = { cam, frames, locate, pick }
-  }, [cam, frames, locate, pick])
+    ;(window as unknown as Record<string, unknown>).boards = { cam, columns, locate, pick, worldX, worldY }
+  }, [cam, columns, locate, pick, worldX, worldY])
 
   /** the selected node's box on screen, which is where the handles live */
   const selRect = useCallback(() => {

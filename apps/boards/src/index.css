@@ -12,6 +12,7 @@
   --color-faint: rgba(0, 0, 0, 0.28);
   --color-hair: rgba(0, 0, 0, 0.08);
   --color-row: rgba(0, 0, 0, 0.07);
+  --color-flame: #ff5c1a;
 
   --font-sans: "Inter", -apple-system, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;

@@ -4,7 +4,7 @@ import ToolRail from './components/ToolRail'
 import type { Tool } from './components/ToolRail'
 import Canvas from './components/Canvas'
 import RightPanel from './components/RightPanel'
-import { boot, loadDoc } from './engine'
+import { boot, loadDoc, saveDoc } from './engine'
 import type { Doc, Entry, Stage } from './engine/types'
 import { artboards, findNode, tree } from './doc'
 import type { NodePatch, ScenePatch, Sel } from './doc'
@@ -30,6 +30,9 @@ export default function App() {
   const [scene, setScene] = useState<string | null>(null)
   const [zoom, setZoom] = useState(0.12)
   const [panels, setPanels] = useState(true)
+  const [dirty, setDirty] = useState(false)
+  const [saving, setSaving] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [ground, setGround] = useState('#d9cac8')
   const [groundAlpha, setGroundAlpha] = useState(1)
   // undo holds whole stage snapshots. a drag pushes one entry when it starts,
@@ -84,6 +87,7 @@ export default function App() {
     })
     if (patch.id && patch.id !== id) setScene(patch.id)
     setRev(r => r + 1)
+    setDirty(true)
   }, [snapshot])
 
   const patchNode = useCallback((patch: NodePatch, transient = false) => {
@@ -129,6 +133,7 @@ export default function App() {
       return { ...prev, stage: { ...prev.stage, scenes } }
     })
     setRev(r => r + 1)
+    setDirty(true)
   }, [sel, snapshot])
 
   // a drag streams patches; snapshot once at the start of the gesture
@@ -152,6 +157,7 @@ export default function App() {
       return { ...prev, stage }
     })
     setRev(r => r + 1)
+    setDirty(true)
   }, [])
 
   // paper's nudge amounts: 1 small, 8 large. arrows with nothing selected pan,
@@ -162,11 +168,23 @@ export default function App() {
   }
 
   useEffect(() => {
+    if (!dirty) return
+    const warn = (e: BeforeUnloadEvent) => { e.preventDefault() }
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [dirty])
+
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
       const mod = e.metaKey || e.ctrlKey
       const key = e.key.toLowerCase()
 
+      if (mod && key === 's') {
+        e.preventDefault()
+        saveRef.current()
+        return
+      }
       if (mod && key === 'z') {
         e.preventDefault()
         stepHistory(e.shiftKey ? 'redo' : 'undo')
@@ -196,6 +214,22 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [stepHistory])
 
+  const save = useCallback(async () => {
+    const current = docRef.current
+    if (!current) return
+    setSaving('saving')
+    setSaveError(null)
+    try {
+      await saveDoc(current.entry.slug, current.stage, current.anim)
+      setDirty(false)
+      setSaving('saved')
+      setTimeout(() => setSaving(s => (s === 'saved' ? 'idle' : s)), 1600)
+    } catch (e) {
+      setSaving('error')
+      setSaveError(String(e))
+    }
+  }, [])
+
   const renameScene = useCallback((id: string, name: string) => {
     const next = name.replace(/^\d+\s+/, '').trim()
     if (next && next !== id) patchScene(id, { id: next })
@@ -206,6 +240,8 @@ export default function App() {
   const nodeRef = useRef<ReturnType<typeof findNode> extends infer T
     ? T extends { node: infer N } ? N | null : null : null>(null)
   const patchNodeRef = useRef<(p: NodePatch) => void>(() => {})
+  const docRef = useRef<Doc | null>(null)
+  const saveRef = useRef<() => void>(() => {})
 
   const boards = useMemo(() => (doc ? artboards(doc) : []), [doc])
   const layers = useMemo(() => (doc ? tree(doc) : []), [doc])
@@ -214,6 +250,8 @@ export default function App() {
   selRef.current = sel
   nodeRef.current = found?.node ?? null
   patchNodeRef.current = patchNode
+  docRef.current = doc
+  saveRef.current = save
 
   const onZoom = useCallback((z: number) => setZoom(z), [])
   const onGround = useCallback((h: string, a: number) => {
@@ -262,6 +300,10 @@ export default function App() {
         onSelectScene={s => { setScene(s); setSel(null); setSelBox(null) }}
         onRename={renameScene}
         onHidePanels={() => setPanels(false)}
+        dirty={dirty}
+        saving={saving}
+        saveError={saveError}
+        onSave={save}
       />}
       <ToolRail tool={tool} onTool={setTool} floating={!panels} />
       <Canvas
