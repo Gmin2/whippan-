@@ -9,6 +9,8 @@ export function render(stage_json: string, overlay_json: string, t: number): str
 
 export function sfx(stage_json: string, overlay_json: string): string;
 
+export function timeline(stage_json: string, overlay_json: string): string;
+
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
@@ -17,6 +19,7 @@ export interface InitOutput {
     readonly register_font: (a: number, b: number, c: number, d: number) => void;
     readonly render: (a: number, b: number, c: number, d: number, e: number) => [number, number];
     readonly sfx: (a: number, b: number, c: number, d: number) => [number, number];
+    readonly timeline: (a: number, b: number, c: number, d: number) => [number, number];
     readonly __wbindgen_externrefs: WebAssembly.Table;
     readonly __wbindgen_malloc: (a: number, b: number) => number;
     readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;

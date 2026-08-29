@@ -1,3 +1,4 @@
+import { timeline } from './engine'
 import type { Anim, Doc, Key } from './engine/types'
 
 /**
@@ -21,6 +22,8 @@ export interface Span {
   keys: Key[]
   kind: 'keys' | 'reveal' | 'state' | 'enter' | 'cam'
   looped: boolean
+  /** words, glyphs or keystrokes a reveal splits into, from the engine */
+  pieces?: number
 }
 
 export interface Lane {
@@ -81,19 +84,65 @@ function spansOfTrack(tr: RawTrack, track: number): Span[] {
   return out
 }
 
+/**
+ * The engine's own account of what animates and when.
+ *
+ * The raw overlay cannot answer this: `enter: "pop"` is one word that becomes
+ * several keyframes at load, and a reveal's length depends on how the text
+ * shapes, which only the renderer knows. This asks it.
+ */
+interface EngineSpan {
+  scene: string
+  node: string
+  prop: string
+  kind: Span['kind']
+  t0: number
+  t1: number
+  keys: number[]
+  looped: boolean
+  pieces?: number
+}
+
+let cache: { key: string; spans: EngineSpan[] } | null = null
+
+function engineSpans(doc: Doc): EngineSpan[] {
+  const stage = JSON.stringify(doc.stage)
+  const anim = JSON.stringify(doc.anim)
+  const key = `${stage.length}:${anim.length}:${doc.entry.slug}:${anim}`
+  if (cache?.key === key) return cache.spans
+  let spans: EngineSpan[] = []
+  try {
+    const out = JSON.parse(timeline(stage, anim))
+    if (Array.isArray(out)) spans = out
+  } catch {
+    // the estimate below still works if the engine call fails
+  }
+  cache = { key, spans }
+  return spans
+}
+
 /** every lane in one scene, in the scene's own node order */
 export function lanesOf(doc: Doc, sceneId: string): Lane[] {
   const scene = doc.stage.scenes.find(s => s.id === sceneId)
   if (!scene) return []
   const tracks = tracksOf(doc.anim)
 
+  const exact = engineSpans(doc).filter(s => s.scene === sceneId)
+
   const lanes: Lane[] = []
   for (const node of scene.nodes) {
-    const spans = tracks
+    const raw = tracks
       .map((t, i) => ({ t, i }))
       .filter(({ t }) => t.target === node.id)
       .flatMap(({ t, i }) => spansOfTrack(t, i))
-      .sort((a, b) => a.t0 - b.t0)
+
+    // the engine knows the true extents; keep the raw span's provenance so an
+    // edit can still find the track it came from
+    const spans = raw.map(sp => {
+      const hit = exact.find(e => e.node === node.id && e.prop === sp.prop)
+      return hit ? { ...sp, t0: hit.t0, t1: hit.t1, pieces: hit.pieces } : sp
+    }).sort((a, b) => a.t0 - b.t0)
+
     lanes.push({ target: node.id, kind: node.type, spans })
   }
 

@@ -1187,6 +1187,161 @@ fn merge(stage: &mut Stage, overlay: &Overlay) {
     }
 }
 
+/// One property's real extent inside a scene, after presets have expanded and
+/// text has actually been shaped.
+#[derive(Serialize)]
+pub struct TimelineSpan {
+    pub scene: String,
+    pub node: String,
+    /// "y", "opacity", "reveal:word", "enter", "state:pressed", "cam_zoom"...
+    pub prop: String,
+    pub kind: String,
+    /// scene-local seconds
+    pub t0: f32,
+    pub t1: f32,
+    /// key times, scene-local, empty for reveals and state flips
+    pub keys: Vec<f32>,
+    pub looped: bool,
+    /// pieces a reveal splits into: words, glyphs or keystrokes
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pieces: Option<usize>,
+}
+
+/// How long a reveal actually runs. This cannot be estimated from the document
+/// alone: word and glyph reveals stagger across the shaped pieces, and a
+/// typewriter's cadence ramps between `cadence` and `cadence_end`, so the end
+/// time depends on how the text lays out. Shaping it here is the only way an
+/// editor can draw the true span.
+fn reveal_extent(node: &Node, r: &Reveal) -> (f32, usize) {
+    let text = node.text.clone().unwrap_or_default();
+    let (size, weight, family) = match &node.font {
+        Some(f) => (f.size, f.weight as f32, f.family.clone()),
+        None => (default_size(), default_weight() as f32, default_family()),
+    };
+    let line = text::shape_line(&text, size, weight, &family);
+
+    let (words, glyphs) = match &line {
+        Some(l) => (
+            l.words.len(),
+            l.words.iter().map(|w| w.glyphs.len()).sum::<usize>(),
+        ),
+        // no face registered: fall back to counting the string itself
+        None => (
+            text.split_whitespace().count().max(1),
+            text.chars().count().max(1),
+        ),
+    };
+
+    match r.unit.as_str() {
+        "type" | "scramble" => {
+            // every glyph is a keystroke, and the spaces between words cost one
+            let total = glyphs + words.saturating_sub(1);
+            let n = total.max(1);
+            let span = match r.cadence_end {
+                Some(end) if n > 1 => {
+                    // the cadence ramps linearly, so the total is the mean of
+                    // the two rates over the run
+                    (r.cadence + end) * 0.5 * (n - 1) as f32
+                }
+                _ => r.cadence * (n - 1) as f32,
+            };
+            (span + r.dur, n)
+        }
+        "glyph" => {
+            let n = glyphs.max(1);
+            (r.stagger * (n - 1) as f32 + r.dur, n)
+        }
+        _ => {
+            let n = words.max(1);
+            (r.stagger * (n - 1) as f32 + r.dur, n)
+        }
+    }
+}
+
+/// The document's real timing, scene by scene: what animates, when it starts
+/// and when it truly ends. The overlay alone cannot answer this — `enter: pop`
+/// is one word that becomes several keyframes at load, and a reveal's length
+/// depends on shaping — so an editor that reads the raw json can only estimate.
+pub fn timeline_spans(stage_json: &str, overlay_json: &str) -> Result<String, String> {
+    let mut stage: Stage = serde_json::from_str(stage_json).map_err(|e| e.to_string())?;
+    let overlay: Overlay = serde_json::from_str(overlay_json).map_err(|e| e.to_string())?;
+    merge(&mut stage, &overlay);
+
+    let mut out: Vec<TimelineSpan> = Vec::new();
+    for scene in &stage.scenes {
+        // camera tracks target the scene rather than a node
+        for (prop, keys) in &scene.keys {
+            if keys.is_empty() {
+                continue;
+            }
+            let ts: Vec<f32> = keys.iter().map(|k| k.t).collect();
+            out.push(TimelineSpan {
+                scene: scene.id.clone(),
+                node: scene.id.clone(),
+                prop: prop.clone(),
+                kind: "cam".into(),
+                t0: ts.iter().cloned().fold(f32::INFINITY, f32::min),
+                t1: ts.iter().cloned().fold(f32::NEG_INFINITY, f32::max),
+                keys: ts,
+                looped: false,
+                pieces: None,
+            });
+        }
+
+        for node in &scene.nodes {
+            for (prop, keys) in &node.keys {
+                if keys.is_empty() {
+                    continue;
+                }
+                let ts: Vec<f32> = keys.iter().map(|k| k.t).collect();
+                out.push(TimelineSpan {
+                    scene: scene.id.clone(),
+                    node: node.id.clone(),
+                    prop: prop.clone(),
+                    kind: "keys".into(),
+                    t0: ts.iter().cloned().fold(f32::INFINITY, f32::min),
+                    t1: ts.iter().cloned().fold(f32::NEG_INFINITY, f32::max),
+                    keys: ts,
+                    looped: false,
+                    pieces: None,
+                });
+            }
+
+            if let Some((at, r)) = &node.reveal {
+                let (span, pieces) = reveal_extent(node, r);
+                out.push(TimelineSpan {
+                    scene: scene.id.clone(),
+                    node: node.id.clone(),
+                    prop: format!("reveal:{}", r.unit),
+                    kind: "reveal".into(),
+                    t0: *at,
+                    t1: at + span,
+                    keys: vec![],
+                    looped: false,
+                    pieces: Some(pieces),
+                });
+            }
+
+            for (at, name) in &node.flips {
+                out.push(TimelineSpan {
+                    scene: scene.id.clone(),
+                    node: node.id.clone(),
+                    prop: format!("state:{name}"),
+                    kind: "state".into(),
+                    t0: *at,
+                    // states lerp over a fixed 0.12s
+                    t1: at + 0.12,
+                    keys: vec![],
+                    looped: false,
+                    pieces: None,
+                });
+            }
+        }
+    }
+
+    serde_json::to_string(&out).map_err(|e| e.to_string())
+}
+
 /// evaluate stage + overlay at time `t` into a flat list of draw commands.
 /// deterministic: same inputs always yield the same output.
 pub fn render_frame(stage_json: &str, overlay_json: &str, t: f32) -> String {
@@ -2406,6 +2561,14 @@ mod wasm {
         super::register_font(name, bytes.to_vec());
     }
     #[wasm_bindgen]
+    pub fn timeline(stage_json: &str, overlay_json: &str) -> String {
+        match super::timeline_spans(stage_json, overlay_json) {
+            Ok(json) => json,
+            Err(e) => format!("{{\"error\":{:?}}}", e),
+        }
+    }
+
+    #[wasm_bindgen]
     pub fn sfx(stage_json: &str, overlay_json: &str) -> String {
         super::sfx_events(stage_json, overlay_json).unwrap_or_else(|_| "[]".into())
     }
@@ -2625,6 +2788,49 @@ mod tests {
             inr["y"].as_f64().unwrap() > 350.0,
             "incoming rising from below"
         );
+    }
+
+    #[test]
+    fn timeline_reports_the_true_reveal_length() {
+        load_font();
+        // eight words: a word reveal runs (8-1) staggers plus one piece's dur,
+        // which no estimate from the json alone can know
+        let stage = r##"{"fps":30,"size":[1920,1080],"scenes":[{"id":"s1","dur":4.0,
+            "nodes":[{"id":"line","type":"text",
+              "text":"one two three four five six seven eight",
+              "x":960,"y":540,"font":{"size":48},"color":"#111111"}]}]}"##;
+        let anim = r##"{"tracks":[{"target":"line","at":0.5,
+            "reveal":{"unit":"word","stagger":0.1,"dur":0.3}}]}"##;
+
+        let spans: Vec<Value> =
+            serde_json::from_str(&timeline_spans(stage, anim).unwrap()).unwrap();
+        let rev = spans.iter().find(|s| s["kind"] == "reveal").expect("a reveal span");
+
+        assert_eq!(rev["pieces"], 8);
+        assert_eq!(rev["t0"].as_f64().unwrap(), 0.5);
+        // 0.5 + 7*0.1 + 0.3
+        let t1 = rev["t1"].as_f64().unwrap();
+        assert!((t1 - 1.5).abs() < 1e-4, "expected 1.5, got {t1}");
+    }
+
+    #[test]
+    fn timeline_expands_enter_presets_into_real_keys() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1920,1080],"scenes":[{"id":"s1","dur":2.0,
+            "nodes":[{"id":"card","type":"rect","x":100,"y":100,"w":80,"h":40,
+              "fill":"#111111"}]}]}"##;
+        // one word in the document; the engine turns it into keyframes at load,
+        // so the raw overlay has no times to read
+        let anim = r##"{"tracks":[{"target":"card","at":0.2,"enter":"pop"}]}"##;
+
+        let spans: Vec<Value> =
+            serde_json::from_str(&timeline_spans(stage, anim).unwrap()).unwrap();
+        let keyed: Vec<&Value> = spans.iter().filter(|s| s["kind"] == "keys").collect();
+        assert!(!keyed.is_empty(), "a preset should expand into keyed spans");
+        for s in &keyed {
+            assert!(s["keys"].as_array().unwrap().len() >= 2);
+            assert!(s["t0"].as_f64().unwrap() >= 0.2 - 1e-6);
+        }
     }
 
     #[test]

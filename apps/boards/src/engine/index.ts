@@ -1,7 +1,7 @@
 // one-time boot of canvaskit + the wasm engine + fonts + the film registry.
 // every pixel the gallery draws goes through render() and paintFrame(); there
 // is no second render path.
-import init, { render, register_font, sfx } from '@whippan/engine-web'
+import init, { render, register_font, sfx, timeline } from '@whippan/engine-web'
 import wasmUrl from '@whippan/engine-web/pkg/whippan_engine_bg.wasm?url'
 import { paintFrame } from '@whippan/engine-web/painter'
 import type { Anim, Asset, Doc, Entry, Stage } from './types'
@@ -135,7 +135,7 @@ export function queuePoster(CK: CanvasKit, entry: Entry): Promise<string | null>
   return job
 }
 
-export { render, sfx, paintFrame }
+export { render, sfx, timeline, paintFrame }
 
 /** absolute start time of each scene, in order */
 export function sceneStarts(stage: Stage): number[] {
@@ -198,7 +198,7 @@ export function queueScene(
 if (import.meta.env.DEV) {
   boot().then(({ CK, registry }) => {
     ;(window as unknown as Record<string, unknown>).whippan =
-      { CK, registry, render, sfx, loadDoc, docDur, sceneStarts, measure, hitTest }
+      { CK, registry, render, sfx, timeline, loadDoc, docDur, sceneStarts, measure, hitTest }
   })
 }
 
