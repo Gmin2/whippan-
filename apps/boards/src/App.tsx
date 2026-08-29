@@ -17,7 +17,7 @@ import { docDur } from './engine'
 import { sceneAt } from './motion'
 import {
   addNode, addScene, deleteNode, deleteScene, duplicateNode, newImage, newPath,
-  newRect, newText, reorderNode, moveNodeTo,
+  newRect, newSvg, newText, reorderNode, moveNodeTo,
 } from './ops'
 import type { Reorder } from './ops'
 import {
@@ -25,6 +25,10 @@ import {
   motionClip, pasteNodes, styleClip,
 } from './clipboard'
 import ContextMenu from './components/ContextMenu'
+import AIBar from './components/AIBar'
+import { askImage, askMotion, askVector, capabilities, motionContext } from './ai'
+import type { AiKind, Capability, MotionProposal } from './ai'
+import { AI_TOOLS } from './components/ToolRail'
 import type { Item } from './components/ContextMenu'
 import type { NodePatch, ScenePatch, Sel } from './doc'
 import type { NodeBox } from './measure'
@@ -59,6 +63,12 @@ export default function App() {
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [saveError, setSaveError] = useState<string | null>(null)
+  /** which prompt bar is open, if any */
+  const [ai, setAi] = useState<AiKind | null>(null)
+  const [caps, setCaps] = useState<Capability[]>([])
+  const [aiBusy, setAiBusy] = useState(false)
+  const [aiError, setAiError] = useState<string | null>(null)
+  const [proposal, setProposal] = useState<MotionProposal | null>(null)
   /** bumped to ask the canvas to open its text field on the selection */
   const [editRequest, setEditRequest] = useState(0)
   /** where the right-click menu is open, in client pixels */
@@ -270,6 +280,9 @@ export default function App() {
   const TOOL_KEYS: Record<string, Tool> = {
     v: 'select', h: 'hand', f: 'frame', r: 'rect', p: 'pen', t: 'text', s: 'shader',
   }
+
+  // ask the server what it actually has keys for, once
+  useEffect(() => { capabilities().then(setCaps).catch(() => setCaps([])) }, [])
 
   useEffect(() => {
     if (!dirty) return
@@ -558,6 +571,79 @@ export default function App() {
     if (changed) { setRev(r => r + 1); setDirty(true) }
   }, [snapshot])
 
+  /**
+   * Running a prompt. Motion comes back as a proposal rather than an edit: it
+   * is shown, and only lands on the document when it is accepted. Image and
+   * vector make a node straight away, because there is nothing to judge until
+   * you can see it on the board.
+   */
+  const runAi = useCallback(async (
+    kind: AiKind, prompt: string, model: string, extra: Record<string, unknown>,
+  ) => {
+    const current = docRef.current
+    if (!current) return
+    setAiBusy(true)
+    setAiError(null)
+    try {
+      if (kind === 'motion') {
+        const picked = selectionRef.current
+        const sceneId = picked[0]?.scene ?? sceneRef.current
+        const index = current.stage.scenes.findIndex(s => s.id === sceneId)
+        const sc = current.stage.scenes[index]
+        if (!sc) throw new Error('select something on a board first')
+        const ids = new Set(picked.map(p => p.id))
+        const nodes = sc.nodes.filter(n => ids.has(n.id))
+        const tracks = (current.anim.tracks ?? []).filter(t => ids.has(t.target as string))
+        const out = await askMotion({
+          prompt, model,
+          ...motionContext(sc, nodes, tracks, index, current.stage.scenes.length),
+        })
+        if (!out.tracks.length) throw new Error('the model proposed nothing that applies here')
+        setProposal(out)
+        return
+      }
+      const target = sceneRef.current ?? current.stage.scenes[0]?.id
+      if (!target) throw new Error('no scene to put it in')
+      const [cw, ch] = current.stage.size
+
+      if (kind === 'image') {
+        const out = await askImage({ prompt, model, ...extra })
+        if (ck) await ensureImage(ck, current, out.dataUrl)
+        const node = newImage(current.stage, out.dataUrl, cw / 2, ch / 2)
+        apply(st => addNode(st, target, node))
+        setSel({ scene: target, id: node.id })
+        setExtra([])
+      } else {
+        const out = await askVector({ prompt, model, ...extra })
+        const node = newSvg(current.stage, out.svg, cw / 2, ch / 2)
+        if (!node) throw new Error('that svg had no drawable outline')
+        apply(st => addNode(st, target, node))
+        setSel({ scene: target, id: node.id })
+        setExtra([])
+      }
+      setAi(null)
+    } catch (e) {
+      setAiError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setAiBusy(false)
+    }
+  }, [apply, ck])
+
+  /** accept a motion proposal: its tracks replace what those nodes had */
+  const acceptProposal = useCallback(() => {
+    if (!proposal) return
+    const targets = new Set(proposal.tracks.map(t => t.target as string))
+    applyAnim(a => ({
+      ...a,
+      tracks: [
+        ...(a.tracks ?? []).filter(t => !targets.has(t.target as string)),
+        ...proposal.tracks,
+      ],
+    }))
+    setProposal(null)
+    setAi(null)
+  }, [proposal, applyAnim])
+
   const copyStyleFrom = useCallback(() => {
     const current = docRef.current
     const s = selRef.current
@@ -659,6 +745,13 @@ export default function App() {
   /** the primary node first, then everything else picked with it */
   const selection = useMemo(() => (sel ? [sel, ...extra] : []), [sel, extra])
   const artboard = boards.find(b => b.id === scene) ?? null
+
+  /** what the prompt bar says it will act on, so you can see it before sending */
+  const aiSubject = ai === 'motion'
+    ? (selection.length > 1 ? `${selection.length} nodes` : sel?.id ?? 'nothing selected')
+    : scene
+      ? `into ${scene}`
+      : ''
 
   /**
    * What the right-click menu offers. Design mode is about the object, motion
@@ -866,6 +959,14 @@ export default function App() {
         onTool={t => {
           if (t === 'image') { setPicking(true); return }
           if (t === 'shader') { setEffects(true); return }
+          if (t in AI_TOOLS) {
+            const kind = AI_TOOLS[t as keyof typeof AI_TOOLS]
+            // clicking the same one again closes it, the way a panel toggle reads
+            setAi(prev => (prev === kind ? null : kind))
+            setProposal(null)
+            setAiError(null)
+            return
+          }
           setTool(t)
         }}
         floating={!panels}
@@ -892,7 +993,21 @@ export default function App() {
           onClose={() => setExporting(false)}
         />
       )}
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="relative flex min-w-0 flex-1 flex-col">
+        {ai && (
+          <AIBar
+            kind={ai}
+            caps={caps}
+            subject={aiSubject}
+            busy={aiBusy}
+            error={aiError}
+            proposal={ai === 'motion' ? proposal : null}
+            onRun={(prompt, model, extra) => void runAi(ai, prompt, model, extra)}
+            onAccept={acceptProposal}
+            onDiscard={() => setProposal(null)}
+            onClose={() => { setAi(null); setProposal(null); setAiError(null) }}
+          />
+        )}
         <Canvas
         ck={ck}
         doc={doc}

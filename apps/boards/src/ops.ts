@@ -1,4 +1,5 @@
 import type { Node, Scene, Stage } from './engine/types'
+import { svgToPath } from './svg'
 
 /**
  * Document operations. Every one returns a new Stage rather than mutating,
@@ -192,4 +193,29 @@ function moved<T>(list: T[], from: number, to: number): T[] {
   const [item] = out.splice(from, 1)
   out.splice(at, 0, item)
   return out
+}
+
+/**
+ * A path node from a generated svg, scaled to a comfortable size on the board
+ * and centred where it was asked for. The outline keeps the svg's own
+ * coordinates, so the node's w/h carry the scale.
+ */
+export function newSvg(stage: Stage, svg: string, x: number, y: number): Node | null {
+  const vec = svgToPath(svg)
+  if (!vec) return null
+  const [vw, vh] = vec.size
+  // a generated icon arrives in a 12 to 512 unit box; put it on the board at a
+  // size you can actually see without having to hunt for it
+  const target = Math.min(stage.size[0], stage.size[1]) * 0.22
+  const scale = target / Math.max(vw, vh, 1)
+  return {
+    id: freshId(stage, 'vector'),
+    type: 'path',
+    x: Math.round(x),
+    y: Math.round(y),
+    w: Math.round(vw * scale),
+    h: Math.round(vh * scale),
+    d: vec.d,
+    fill: vec.fill,
+  }
 }

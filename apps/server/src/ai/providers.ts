@@ -1,0 +1,195 @@
+import type {
+  Capability, ImageRequest, MotionProposal, MotionRequest, VectorRequest,
+} from './types.js'
+
+/**
+ * The three model providers behind the prompt bar, matching what paper runs on:
+ * QuiverAI's Arrow for vectors and Google's Nano Banana for images, plus Claude
+ * for motion, which is the one that is actually ours.
+ *
+ * Keys are read here and never leave the process. A missing key is not an
+ * error: the capability simply reports itself as not ready and the bar says so
+ * rather than failing when you press the button.
+ */
+
+// overridable so a proxy, a regional endpoint or a test double can stand in
+const ANTHROPIC = process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com/v1/messages'
+const QUIVER = process.env.QUIVERAI_BASE_URL ?? 'https://api.quiver.ai/v1/svgs/generations'
+const GEMINI = process.env.GEMINI_BASE_URL
+  ?? 'https://generativelanguage.googleapis.com/v1beta/models'
+
+const key = (name: string) => process.env[name]?.trim() || null
+
+export function capabilities(): Capability[] {
+  return [
+    {
+      kind: 'motion',
+      provider: 'Anthropic',
+      ready: !!key('ANTHROPIC_API_KEY'),
+      reason: key('ANTHROPIC_API_KEY') ? undefined : 'set ANTHROPIC_API_KEY on the server',
+      models: [
+        { id: 'claude-sonnet-5', label: 'Claude Sonnet 5', note: 'fast enough to iterate' },
+        { id: 'claude-opus-5', label: 'Claude Opus 5', note: 'better taste, slower' },
+      ],
+    },
+    {
+      kind: 'image',
+      provider: 'Google',
+      ready: !!key('GEMINI_API_KEY'),
+      reason: key('GEMINI_API_KEY') ? undefined : 'set GEMINI_API_KEY on the server',
+      models: [
+        { id: 'gemini-3.1-flash-image', label: 'Nano Banana 2', note: 'the workhorse' },
+        { id: 'gemini-3-pro-image', label: 'Nano Banana Pro', note: '4K, legible text' },
+        { id: 'gemini-3.1-flash-lite-image', label: 'Nano Banana 2 Lite', note: 'cheapest' },
+      ],
+    },
+    {
+      kind: 'vector',
+      provider: 'QuiverAI',
+      ready: !!key('QUIVERAI_API_KEY'),
+      reason: key('QUIVERAI_API_KEY') ? undefined : 'set QUIVERAI_API_KEY on the server',
+      models: [
+        { id: 'arrow-1.1', label: 'Arrow 1.1', note: 'general purpose' },
+        { id: 'arrow-1.1-max', label: 'Arrow 1.1 Max', note: 'precision, slower' },
+      ],
+    },
+  ]
+}
+
+class Missing extends Error {}
+export const isMissingKey = (e: unknown) => e instanceof Missing
+
+function need(name: string): string {
+  const v = key(name)
+  if (!v) throw new Missing(`${name} is not set on the server`)
+  return v
+}
+
+/**
+ * The contract the model has to write against. This is the same set of rules
+ * AUTHORING states, compressed to what actually bites: the silent failures.
+ */
+const CONTRACT = `You write whippan animation tracks. A track is JSON:
+
+  { "target": "<node id>", "at": <scene-local seconds>, "keys": { "<prop>": [{ "t": <relative>, "v": <number>, "ease": <ease> }] } }
+
+Rules that fail silently if broken, so never break them:
+- "at" is scene-local and shifts the whole track. Key "t" is RELATIVE to "at".
+- ONE track per node per property. A later track REPLACES an earlier one.
+- "x" and "y" keys are OFFSETS from the node's stage position. Every other
+  property is absolute.
+- Only use node ids that were given to you.
+
+Shorthands you may use instead of raw keys, one per track:
+- "enter": one of pop, rise-fade, drop, slide-left, slide-right, spring-in, fade
+- "reveal": { "unit": "word"|"glyph"|"type"|"scramble", "stagger": <s>, "dur": <s> }
+
+Ease is a name ("outCubic", "inCubic", "inOutCubic", "spring"), four bezier
+numbers, or { "spring": [damping, cycles] }.
+
+Timing measured off 29 launch films, treat it as the house style:
+- in-scene motion 140-280ms. Past 350ms reads slow.
+- entrances ease out, 200-280ms, starting ~80ms in.
+- exits ease in, ~150ms.
+- text travel under 40px. Stagger between siblings 40-80ms.
+
+Reply with ONLY a JSON object, no prose and no code fence:
+{ "note": "<one short line on what you did>", "tracks": [ ...tracks... ] }`
+
+export async function runMotion(req: MotionRequest): Promise<MotionProposal> {
+  const auth = need('ANTHROPIC_API_KEY')
+  const model = req.model || 'claude-sonnet-5'
+
+  const brief = [
+    `Scene "${req.scene.id}", ${req.scene.dur}s long, beat ${req.scene.index + 1} of ${req.scene.total}.`,
+    `Nodes selected:\n${JSON.stringify(req.nodes, null, 1)}`,
+    req.tracks.length
+      ? `Their current tracks, which you are editing:\n${JSON.stringify(req.tracks, null, 1)}`
+      : 'These nodes have no motion yet.',
+    `What the director asked for: ${req.prompt}`,
+  ].join('\n\n')
+
+  const res = await fetch(ANTHROPIC, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': auth,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 2000,
+      system: CONTRACT,
+      messages: [{ role: 'user', content: brief }],
+    }),
+  })
+  if (!res.ok) throw new Error(`anthropic ${res.status}: ${(await res.text()).slice(0, 300)}`)
+
+  const body = await res.json() as { content?: { type: string; text?: string }[] }
+  const text = (body.content ?? []).filter(c => c.type === 'text').map(c => c.text).join('')
+  const parsed = parseJsonObject(text)
+  const tracks = Array.isArray(parsed.tracks) ? parsed.tracks as Record<string, unknown>[] : []
+  const allowed = new Set(req.nodes.map(n => n.id))
+
+  return {
+    note: typeof parsed.note === 'string' ? parsed.note : 'proposed motion',
+    // a track aimed at a node that was not in the selection would animate
+    // something the director never pointed at
+    tracks: tracks.filter(t => typeof t.target === 'string' && allowed.has(t.target as string)),
+  }
+}
+
+/** models like to wrap json in a fence or a sentence however firmly you ask */
+function parseJsonObject(text: string): Record<string, unknown> {
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/)
+  const raw = fenced ? fenced[1] : text
+  const start = raw.indexOf('{')
+  const end = raw.lastIndexOf('}')
+  if (start < 0 || end <= start) throw new Error(`no json in the reply: ${text.slice(0, 200)}`)
+  return JSON.parse(raw.slice(start, end + 1)) as Record<string, unknown>
+}
+
+/** a data url, so the caller can drop it straight into an image node */
+export async function runImage(req: ImageRequest): Promise<{ dataUrl: string; mime: string }> {
+  const auth = need('GEMINI_API_KEY')
+  const model = req.model || 'gemini-3.1-flash-image'
+  const res = await fetch(`${GEMINI}/${model}:generateContent`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-goog-api-key': auth },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: req.prompt }] }],
+      generationConfig: {
+        responseModalities: ['IMAGE'],
+        ...(req.aspect ? { imageConfig: { aspectRatio: req.aspect } } : {}),
+      },
+    }),
+  })
+  if (!res.ok) throw new Error(`gemini ${res.status}: ${(await res.text()).slice(0, 300)}`)
+
+  const body = await res.json() as {
+    candidates?: { content?: { parts?: { inlineData?: { data: string; mimeType: string } }[] } }[]
+  }
+  const part = body.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData
+  if (!part) throw new Error('gemini returned no image')
+  return { dataUrl: `data:${part.mimeType};base64,${part.data}`, mime: part.mimeType }
+}
+
+export async function runVector(req: VectorRequest): Promise<{ svg: string }> {
+  const auth = need('QUIVERAI_API_KEY')
+  const res = await fetch(QUIVER, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${auth}` },
+    body: JSON.stringify({
+      model: req.model || 'arrow-1.1',
+      prompt: req.prompt,
+      ...(req.instructions ? { instructions: req.instructions } : {}),
+      n: 1,
+    }),
+  })
+  if (!res.ok) throw new Error(`quiver ${res.status}: ${(await res.text()).slice(0, 300)}`)
+
+  const body = await res.json() as { data?: { svg?: string; url?: string }[] }
+  const svg = body.data?.[0]?.svg
+  if (!svg) throw new Error('quiver returned no svg')
+  return { svg }
+}

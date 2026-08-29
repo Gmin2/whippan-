@@ -5,6 +5,7 @@ import type { Config } from './config.js'
 import type { DocStore } from './store/types.js'
 import { SLUG, validateDoc } from './validate.js'
 import { ExportQueue } from './export/queue.js'
+import { capabilities, isMissingKey, runImage, runMotion, runVector } from './ai/providers.js'
 import { createReadStream } from 'node:fs'
 import { Readable } from 'node:stream'
 
@@ -78,6 +79,56 @@ export function createApp(store: DocStore, config: Config, queue?: ExportQueue) 
   // request: POST queues it, GET polls it, and the file is fetched separately.
   // The document travels in the body so what you see in the editor is what
   // gets rendered, unsaved edits included.
+
+  /**
+   * The prompt bar. The browser never sees a provider key: it asks what is
+   * configured, then posts a prompt and gets back a proposal it can show.
+   */
+  app.get('/api/ai', c => c.json(capabilities()))
+
+  app.post('/api/ai/:kind', async c => {
+    const kind = c.req.param('kind')
+    let body: Record<string, unknown>
+    try {
+      body = await c.req.json() as Record<string, unknown>
+    } catch {
+      return c.json({ error: 'body must be json' }, 400)
+    }
+    const prompt = typeof body.prompt === 'string' ? body.prompt.trim() : ''
+    if (!prompt) return c.json({ error: 'prompt is required' }, 400)
+    if (prompt.length > 4000) return c.json({ error: 'prompt is too long' }, 400)
+    const model = typeof body.model === 'string' ? body.model : undefined
+
+    try {
+      if (kind === 'motion') {
+        const nodes = Array.isArray(body.nodes) ? body.nodes : []
+        if (!nodes.length) return c.json({ error: 'select something first' }, 400)
+        return c.json(await runMotion({
+          prompt, model,
+          nodes: nodes as { id: string; type: string }[],
+          scene: body.scene as { id: string; dur: number; index: number; total: number },
+          tracks: Array.isArray(body.tracks) ? body.tracks : [],
+        }))
+      }
+      if (kind === 'image') {
+        return c.json(await runImage({
+          prompt, model,
+          aspect: typeof body.aspect === 'string' ? body.aspect : undefined,
+        }))
+      }
+      if (kind === 'vector') {
+        return c.json(await runVector({
+          prompt, model,
+          instructions: typeof body.instructions === 'string' ? body.instructions : undefined,
+        }))
+      }
+      return c.json({ error: `no such action: ${kind}` }, 404)
+    } catch (e) {
+      // a missing key is a configuration answer, not a server fault
+      if (isMissingKey(e)) return c.json({ error: String((e as Error).message) }, 503)
+      return c.json({ error: e instanceof Error ? e.message : String(e) }, 502)
+    }
+  })
 
   if (queue) {
     app.post('/api/films/:slug/export', async c => {
