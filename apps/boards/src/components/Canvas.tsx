@@ -4,7 +4,7 @@ import { render } from '../engine'
 import type { Doc } from '../engine/types'
 import type { Artboard, NodePatch, Sel } from '../doc'
 import type { Tool } from './ToolRail'
-import { hitTest, measure } from '../measure'
+import { groupBox, hitTest, measure } from '../measure'
 import type { Cmd, NodeBox } from '../measure'
 import { CURSORS, handleAt, resize, scaleType } from '../handles'
 import { snap } from '../snap'
@@ -17,6 +17,7 @@ import Overlay from './Overlay'
 import TextEditor from './TextEditor'
 import StaggerStrip from './StaggerStrip'
 import { lanesOf } from '../motion'
+import { groupOf, membersOf } from '../ops'
 
 interface Props {
   ck: CanvasKit
@@ -71,6 +72,12 @@ interface Props {
   onContext(x: number, y: number): void
   /** bumped by the menu's Edit text entry: open the field on the selection */
   editRequest: number
+  /** the group you have stepped inside, whose members select directly */
+  inside: string | null
+  onEnterGroup(id: string | null): void
+  /** every measured box in the current frame, for operations that need real
+   *  geometry rather than authored x/y */
+  onBoxes(boxes: NodeBox[]): void
 }
 
 
@@ -101,7 +108,7 @@ export default function Canvas({
   geo, onDrag, onDragEnd, onMeasure, onSelectScene, activeScene,
   tool, onCreate, onAddScene, onCreatePath, onToolDone, mode, playhead,
   selectedSeam, onSelectSeam, onEditText, onEditStart, onEditEnd,
-  onSelectTarget, onShiftTrack, onContext, editRequest,
+  onSelectTarget, onShiftTrack, onContext, editRequest, inside, onEnterGroup, onBoxes,
 }: Props) {
   const wrap = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -236,13 +243,17 @@ export default function Canvas({
 
   useEffect(() => {
     if (!selected) { onMeasure(null); return }
+    // a group has no command of its own, so what it measures is its contents
+    const members = membersOf(doc.stage, selected.scene, selected.id)
     for (const col of columns) {
       const f = col[selRow] ?? col[0]
-      const b = f?.boxes.find(n => n.id === selected.id && n.scene === selected.scene)
-      if (b) { onMeasure(b); return }
+      const b = members.length
+        ? groupBox(f?.boxes ?? [], selected.scene, members)
+        : f?.boxes.find(n => n.id === selected.id && n.scene === selected.scene)
+      if (b) { onMeasure(members.length ? { ...b, id: selected.id } : b); return }
     }
     onMeasure(null)
-  }, [columns, selected, selRow, onMeasure])
+  }, [columns, selected, selRow, onMeasure, doc.stage])
 
   // keep the drawing buffer matched to the element and the display density
   useEffect(() => {
@@ -379,6 +390,11 @@ export default function Canvas({
     return box ? { box, row: at.row } : null
   }, [locate, columns])
 
+  // a ref upstream, so reporting geometry every frame costs no render
+  useEffect(() => {
+    onBoxes(columns.flatMap(col => (col[selRow] ?? col[0])?.boxes ?? []))
+  }, [columns, selRow, onBoxes])
+
   // dev hook so automation can ask what the canvas thinks is under a point
   useEffect(() => {
     if (!import.meta.env.DEV) return
@@ -388,9 +404,13 @@ export default function Canvas({
   /** the selected node's box on screen, which is where the handles live */
   const selRect = useCallback(() => {
     if (!selected) return null
+    // a group draws nothing, so its box is whatever its members add up to
+    const members = membersOf(doc.stage, selected.scene, selected.id)
     for (let i = 0; i < columns.length; i++) {
       const f = columns[i][selRow] ?? columns[i][0]
-      const b = f?.boxes.find(n => n.id === selected.id && n.scene === selected.scene)
+      const b = members.length
+        ? groupBox(f?.boxes ?? [], selected.scene, members)
+        : f?.boxes.find(n => n.id === selected.id && n.scene === selected.scene)
       if (!b) continue
       const k = columns[i][selRow] ? selRow : 0
       return {
@@ -402,7 +422,7 @@ export default function Canvas({
       }
     }
     return null
-  }, [selected, columns, selRow, cam, worldX, worldY])
+  }, [selected, columns, selRow, cam, worldX, worldY, doc.stage])
 
   const editNode = useMemo(() => {
     if (!editing) return null
@@ -459,9 +479,6 @@ export default function Canvas({
     return true
   }, [onSelect, onEditStart, doc.stage.scenes, boards, worldX, worldY, size.w, size.h])
 
-  /** a recognised double click, waiting for the press to finish */
-  const pendingEdit = useRef<{ box: NodeBox; row: number } | null>(null)
-
   /** the previous click, for recognising a double click on the same node */
   const lastClick = useRef<
     { id: string; scene: string; t: number; x: number; y: number } | null
@@ -497,8 +514,16 @@ export default function Canvas({
         ? { id: hit.box.id, scene: hit.box.scene, t: e.timeStamp, x: e.clientX, y: e.clientY }
         : null
       if (again) {
-        
         lastClick.current = null
+        // a second click steps inside a group you are not already in; once you
+        // are inside it, or if there is no group, it means edit the text
+        const g = groupOf(doc.stage, hit!.box.scene, hit!.box.id)
+        if (g && g !== inside) {
+          onEnterGroup(g)
+          onSelect(hit!.box, hit!.row)
+          drag.current = null
+          return
+        }
         if (startEdit(hit!.box, hit!.row)) { drag.current = null; return }
       }
     }
@@ -563,8 +588,14 @@ export default function Canvas({
       return
     }
     const hit = pick(e.clientX, e.clientY)
-    const held = hit && (selected?.id === hit.box.id && selected.scene === hit.box.scene
-      || others.some(o => o.id === hit.box.id && o.scene === hit.box.scene))
+    // a member of the selected group counts as the selection: that is the
+    // whole point of grouping, dragging any part of a card drags the card
+    const hitGroup = hit ? groupOf(doc.stage, hit.box.scene, hit.box.id) : null
+    const held = hit && (
+      (selected?.id === hit.box.id && selected.scene === hit.box.scene)
+      || (selected?.id === hitGroup && selected.scene === hit.box.scene)
+      || others.some(o => o.id === hit.box.id && o.scene === hit.box.scene)
+      || others.some(o => o.id === hitGroup && o.scene === hit.box.scene))
     if (hit && geo && held) {
       drag.current = {
         kind: 'move', x: e.clientX, y: e.clientY, moved: false,
@@ -660,13 +691,6 @@ export default function Canvas({
   }
 
   const onUp = (e: React.PointerEvent) => {
-    const pending = pendingEdit.current
-    pendingEdit.current = null
-    if (pending) {
-      // focus settles after the press, so mount the field a frame later
-      requestAnimationFrame(() => startEdit(pending.box, pending.row))
-      return
-    }
     const d = drag.current
     drag.current = null
     setGuides([])

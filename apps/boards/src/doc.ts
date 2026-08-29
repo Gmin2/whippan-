@@ -106,15 +106,25 @@ export function findNode(doc: Doc, sel: Sel | null) {
 
 /** scene rows with their nodes underneath, for the layer tree */
 export function tree(doc: Doc) {
-  return doc.stage.scenes.map((s, i) => ({
-    scene: s.id,
-    label: `${i + 1}  ${s.id}`,
-    nodes: s.nodes.map(n => ({
+  return doc.stage.scenes.map((s, i) => {
+    const row = (n: (typeof s.nodes)[number], depth: number) => ({
       id: n.id,
       kind: n.type,
       label: n.type === 'text' ? (n.text ?? n.id) : n.id,
-    })),
-  }))
+      depth,
+    })
+    // members are listed under their container. groups do not nest, so this is
+    // one level and needs no recursion
+    const nodes: ReturnType<typeof row>[] = []
+    for (const n of s.nodes) {
+      if (n.group) continue
+      nodes.push(row(n, 0))
+      if (n.type === 'group') {
+        for (const m of s.nodes) if (m.group === n.id) nodes.push(row(m, 1))
+      }
+    }
+    return { scene: s.id, label: `${i + 1}  ${s.id}`, nodes }
+  })
 }
 
 export const filmTitle = (doc: Doc) =>

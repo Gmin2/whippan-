@@ -73,6 +73,8 @@ export interface Node {
   streak?: Streak
   /** static property values live here; the overlay keys the same names */
   keys?: Record<string, Key[]>
+  /** the id of a `group` node this belongs to; groups own members by id */
+  group?: string
 }
 
 /** how a scene enters from the one before it */

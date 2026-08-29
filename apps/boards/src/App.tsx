@@ -11,13 +11,15 @@ import Timeline from './components/Timeline'
 import { boot, ensureImage, loadDoc, saveDoc } from './engine'
 import type { Anim, Doc, Entry, Stage } from './engine/types'
 import { artboards, findNode, tree } from './doc'
+import { groupBox } from './measure'
 import { patchTrack, tracksFor } from './tracks'
 import type { TrackPatch } from './tracks'
 import { docDur } from './engine'
 import { sceneAt } from './motion'
 import {
   addNode, addScene, deleteNode, deleteScene, duplicateNode, newImage, newPath,
-  newRect, newSvg, newText, reorderNode, moveNodeTo,
+  newRect, newSvg, newText, reorderNode, moveNodeBefore, groupNodes, ungroupNodes, groupOf,
+  membersOf,
 } from './ops'
 import type { Reorder } from './ops'
 import {
@@ -69,6 +71,8 @@ export default function App() {
   const [aiBusy, setAiBusy] = useState(false)
   const [aiError, setAiError] = useState<string | null>(null)
   const [proposal, setProposal] = useState<MotionProposal | null>(null)
+  /** the group you have stepped inside; its members then select directly */
+  const [inside, setInside] = useState<string | null>(null)
   /** bumped to ask the canvas to open its text field on the selection */
   const [editRequest, setEditRequest] = useState(0)
   /** where the right-click menu is open, in client pixels */
@@ -210,7 +214,19 @@ export default function App() {
    * distance the pointer did.
    */
   const shiftOthers = useCallback((dx: number, dy: number) => {
-    const others = selectionRef.current.slice(1)
+    const current = docRef.current
+    const picked = selectionRef.current
+    // the primary is driven by its own absolute patch; everything else follows.
+    // a selected group brings its members, because the format has no nesting:
+    // members hold absolute coordinates and a static move moves all of them.
+    // the group's own motion, which the engine composes, lives in its tracks.
+    const others = [
+      ...picked.slice(1),
+      ...(current
+        ? picked.flatMap(p => membersOf(current.stage, p.scene, p.id)
+            .map(id => ({ scene: p.scene, id })))
+        : []),
+    ]
     if (!others.length || (!dx && !dy)) return
     setDoc(prev => {
       if (!prev) return prev
@@ -349,6 +365,11 @@ export default function App() {
         reorderRef.current(e.shiftKey ? (up ? 'front' : 'back') : (up ? 'up' : 'down'))
         return
       }
+      if (mod && key === 'g') {
+        e.preventDefault()
+        ;(e.shiftKey ? ungroupRef : groupRef).current()
+        return
+      }
       if (mod && key === 'd') {
         e.preventDefault()
         duplicateRef.current()
@@ -364,7 +385,12 @@ export default function App() {
         stepHistory(e.shiftKey ? 'redo' : 'undo')
         return
       }
-      if (e.key === 'Escape') { setSel(null); setExtra([]); setSelBox(null); return }
+      if (e.key === 'Escape') {
+        // stepping back out of a group first, then clearing
+        if (insideRef.current) { exitGroupRef.current(); return }
+        setSel(null); setExtra([]); setSelBox(null)
+        return
+      }
 
       const arrows: Record<string, [number, number]> = {
         ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1],
@@ -553,8 +579,8 @@ export default function App() {
     apply(st => order.reduce((acc, p) => reorderNode(acc, p.scene, p.id, where), st))
   }, [apply])
 
-  const reorderTo = useCallback((scene: string, id: string, index: number) => {
-    apply(st => moveNodeTo(st, scene, id, index))
+  const reorderTo = useCallback((scene: string, id: string, beforeId: string | null) => {
+    apply(st => moveNodeBefore(st, scene, id, beforeId))
   }, [apply])
 
   /** an edit that touches the overlay rather than the stage */
@@ -644,6 +670,66 @@ export default function App() {
     setAi(null)
   }, [proposal, applyAnim])
 
+  /**
+   * Grouping.
+   *
+   * The container's centre is the middle of what it holds, measured off what
+   * is actually painted rather than the authored x/y, because a text node's
+   * box is decided by its shaping and only the renderer knows it.
+   */
+  const groupSelection = useCallback(() => {
+    const picked = selectionRef.current
+    const current = docRef.current
+    if (picked.length < 2 || !current) return
+    const scene = picked[0].scene
+    if (picked.some(p => p.scene !== scene)) return
+    const box = groupBox(boxesRef.current, scene, picked.map(p => p.id))
+    if (!box) return
+    let made: string | null = null
+    apply(st => {
+      const out = groupNodes(st, scene, picked.map(p => p.id),
+                            { x: box.x + box.w / 2, y: box.y + box.h / 2 })
+      if (!out) return null
+      made = out.id
+      return out.stage
+    })
+    if (made) { setSel({ scene, id: made }); setExtra([]); setInside(null) }
+  }, [apply])
+
+  const ungroupSelection = useCallback(() => {
+    const picked = selectionRef.current
+    const current = docRef.current
+    if (!picked.length || !current) return
+    const scene = picked[0].scene
+    // ungroup what is selected, or the group you are standing inside
+    const ids = picked
+      .filter(p => current.stage.scenes.find(s => s.id === scene)?.nodes
+        .some(n => n.id === p.id && n.type === 'group'))
+      .map(p => p.id)
+    const targets = ids.length ? ids : insideRef.current ? [insideRef.current] : []
+    if (!targets.length) return
+    let freed: string[] = []
+    apply(st => {
+      const out = ungroupNodes(st, scene, targets)
+      if (!out) return null
+      freed = out.ids
+      return out.stage
+    })
+    setInside(null)
+    if (freed.length) {
+      setSel({ scene, id: freed[0] })
+      setExtra(freed.slice(1).map(id => ({ scene, id })))
+    }
+  }, [apply])
+
+  /** stepping out selects the container you were inside */
+  const exitGroup = useCallback(() => {
+    const g = insideRef.current
+    const scene = selRef.current?.scene ?? sceneRef.current
+    setInside(null)
+    if (g && scene) { setSel({ scene, id: g }); setExtra([]); setSelBox(null) }
+  }, [])
+
   const copyStyleFrom = useCallback(() => {
     const current = docRef.current
     const s = selRef.current
@@ -705,6 +791,13 @@ export default function App() {
   const reorderRef = useRef<(w: Reorder) => void>(() => {})
   const selectAllRef = useRef<() => void>(() => {})
   const nudgeRef = useRef<(dx: number, dy: number) => void>(() => {})
+  const groupRef = useRef<() => void>(() => {})
+  const ungroupRef = useRef<() => void>(() => {})
+  const exitGroupRef = useRef<() => void>(() => {})
+  /** the painted geometry of the current frame, kept off the render path */
+  const boxesRef = useRef<NodeBox[]>([])
+  const takeBoxes = useCallback((b: NodeBox[]) => { boxesRef.current = b }, [])
+  const insideRef = useRef<string | null>(null)
   const copyStyleRef = useRef<() => void>(() => {})
   const pasteStyleRef = useRef<() => void>(() => {})
   const copyMotionRef = useRef<() => void>(() => {})
@@ -818,6 +911,16 @@ export default function App() {
       { label: 'Paste', keys: '⌘V', disabled: !clipboard.has(), run: () => pasteRef.current() },
       { label: 'Duplicate', keys: '⌘D', run: () => duplicateRef.current() },
       { sep: true },
+      {
+        label: many > 1 ? `Group ${many} nodes` : 'Group', keys: '⌘G',
+        disabled: many < 2, run: () => groupRef.current(),
+      },
+      {
+        label: 'Ungroup', keys: '⇧⌘G',
+        disabled: node?.type !== 'group' && !inside,
+        run: () => ungroupRef.current(),
+      },
+      { sep: true },
       { label: 'Copy styles', keys: '⌥⌘C', disabled: many !== 1, run: copyStyleFrom },
       {
         label: many > 1 ? `Paste styles onto ${many}` : 'Paste styles', keys: '⌥⌘V',
@@ -826,7 +929,7 @@ export default function App() {
       ...shared,
     ]
   }, [
-    sel, selection.length, found, mode, scene, motionAt.local, apply, createScene,
+    sel, selection.length, found, mode, scene, motionAt.local, inside, apply, createScene,
     copyMotionFrom, pasteMotionTo, clearMotionOn, startAtPlayhead, copyStyleFrom,
     pasteStyleTo,
   ])
@@ -837,6 +940,10 @@ export default function App() {
   reorderRef.current = reorderSelection
   selectAllRef.current = selectAll
   nudgeRef.current = nudge
+  groupRef.current = groupSelection
+  ungroupRef.current = ungroupSelection
+  exitGroupRef.current = exitGroup
+  insideRef.current = inside
   copyStyleRef.current = copyStyleFrom
   pasteStyleRef.current = pasteStyleTo
   copyMotionRef.current = copyMotionFrom
@@ -845,7 +952,9 @@ export default function App() {
   patchNodeRef.current = patchNode
   docRef.current = doc
   if (import.meta.env.DEV) {
-    ;(window as unknown as Record<string, unknown>).__doc = doc
+    const w = window as unknown as Record<string, unknown>
+    w.__doc = doc
+    w.__sel = { sel, extra, inside, geo: found?.node ?? null }
   }
   saveRef.current = save
   sceneRef.current = scene
@@ -862,13 +971,15 @@ export default function App() {
     setSeam(null)
     setSelRow(row)
     if (!box) { setSel(null); setExtra([]); setSelBox(null); return }
-    const hit: Sel = { scene: box.scene, id: box.id }
+    // a click lands on the container, not the contents, until you go inside
+    const g = docRef.current ? groupOf(docRef.current.stage, box.scene, box.id) : null
+    const hit: Sel = g && g !== inside ? { scene: box.scene, id: g } : { scene: box.scene, id: box.id }
     setScene(box.scene)
 
     if (!additive) {
       setSel(hit)
       setExtra([])
-      setSelBox(box)
+      setSelBox(hit.id === box.id ? box : null)
       return
     }
     // shift-clicking the primary promotes the next one rather than leaving the
@@ -884,7 +995,7 @@ export default function App() {
     setSel(hit)
     setExtra(current)
     setSelBox(box)
-  }, [])
+  }, [inside])
 
   /** what a marquee sweep landed on, replacing the selection wholesale */
   const onSelectMany = useCallback((picked: Sel[], row: number) => {
@@ -1047,6 +1158,9 @@ export default function App() {
         onEditStart={snapshot}
         onEditEnd={commit => { if (!commit) undo.current.pop() }}
         editRequest={editRequest}
+        inside={inside}
+        onEnterGroup={setInside}
+        onBoxes={takeBoxes}
         onContext={(x, y) => setMenu({ x, y })}
         onSelectTarget={(s, id) => { setSel({ scene: s, id }); setExtra([]); setScene(s) }}
         onShiftTrack={(target, at, done) => motionGesture(target, { at }, done)}

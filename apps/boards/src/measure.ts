@@ -229,3 +229,28 @@ export function hitTest(boxes: NodeBox[], x: number, y: number): NodeBox | null 
   }
   return best
 }
+
+/**
+ * A group's box is the union of what it holds.
+ *
+ * Groups draw nothing, so unlike every other node there is no command to
+ * measure. Everything downstream — the selection outline, the handles, the
+ * inspector's on-screen size — asks for this instead.
+ */
+export function groupBox(
+  boxes: NodeBox[], scene: string, memberIds: readonly string[],
+): NodeBox | null {
+  const set = new Set(memberIds)
+  const held = boxes.filter(b => b.scene === scene && set.has(b.id))
+  if (!held.length) return null
+  const x0 = Math.min(...held.map(b => b.x))
+  const y0 = Math.min(...held.map(b => b.y))
+  const x1 = Math.max(...held.map(b => b.x + b.w))
+  const y1 = Math.max(...held.map(b => b.y + b.h))
+  return {
+    scene,
+    id: '',
+    x: x0, y: y0, w: x1 - x0, h: y1 - y0,
+    z: Math.max(...held.map(b => b.z)),
+  }
+}

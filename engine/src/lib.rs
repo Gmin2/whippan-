@@ -158,6 +158,13 @@ pub struct Node {
     /// multi-exposure trail while the node moves
     #[serde(default)]
     pub streak: Option<Streak>,
+    /// the id of a `group` node this belongs to. groups own their members by
+    /// id rather than nesting them, so the scene stays one flat list and
+    /// everything keyed to an id — morph continuity, goo, z-order, overlay
+    /// tracks — keeps working untouched. a group's own motion composes onto
+    /// every member.
+    #[serde(default)]
+    pub group: Option<String>,
 }
 
 #[derive(Deserialize, Clone)]
@@ -969,6 +976,68 @@ fn arrow_path(s: f32) -> String {
 
 /// property lookup with loop support: looped tracks wrap time inside their
 /// window so the keys repeat forever from the track start.
+/// What a group contributes to each of its members at time `t`.
+///
+/// Translation and opacity simply compose. Scale is about the GROUP's centre,
+/// not the member's, which is the whole point of grouping: a card that pops in
+/// has to converge on its own middle, not have five pieces each shrink towards
+/// themselves. Group rotation is deliberately not folded in yet — see
+/// AUTHORING; it needs the member to both orbit and spin, and doing half of
+/// that would be worse than doing none.
+#[derive(Clone, Copy)]
+struct GroupXf {
+    dx: f32,
+    dy: f32,
+    scale: f32,
+    opacity: f32,
+    cx: f32,
+    cy: f32,
+}
+
+impl GroupXf {
+    const NONE: GroupXf = GroupXf {
+        dx: 0.0, dy: 0.0, scale: 1.0, opacity: 1.0, cx: 0.0, cy: 0.0,
+    };
+    fn is_none(&self) -> bool {
+        self.dx == 0.0 && self.dy == 0.0 && self.scale == 1.0 && self.opacity == 1.0
+    }
+    /// where a member ends up once the group has had its say
+    fn place(&self, x: f32, y: f32) -> (f32, f32) {
+        if self.scale == 1.0 {
+            return (x + self.dx, y + self.dy);
+        }
+        (
+            self.cx + (x - self.cx) * self.scale + self.dx,
+            self.cy + (y - self.cy) * self.scale + self.dy,
+        )
+    }
+}
+
+/// the transform a node inherits from its group, or the identity
+fn group_xf(scene: &Scene, node: &Node, t: f32) -> GroupXf {
+    let Some(gid) = node.group.as_deref() else {
+        return GroupXf::NONE;
+    };
+    // a group naming itself, or a member naming a node that is not a group,
+    // is an authoring slip rather than a crash
+    let Some(g) = scene
+        .nodes
+        .iter()
+        .find(|n| n.id == gid && n.kind == "group" && n.id != node.id)
+    else {
+        return GroupXf::NONE;
+    };
+    let sb = state_blend(g, t);
+    GroupXf {
+        dx: node_prop(g, "x", 0.0, t),
+        dy: node_prop(g, "y", 0.0, t) + sb.dy,
+        scale: node_prop(g, "scale", 1.0, t) * sb.scale,
+        opacity: node_prop(g, "opacity", 1.0, t) * sb.opacity,
+        cx: g.x,
+        cy: g.y,
+    }
+}
+
 fn node_prop(node: &Node, name: &str, default: f32, t: f32) -> f32 {
     let t = match node.loops.get(name) {
         Some((at, period)) if t > *at => at + (t - at) % period,
@@ -1870,10 +1939,24 @@ fn render_scene(
             } else {
                 fade
             };
-            let opacity = node_prop(node, "opacity", 1.0, t) * node_fade * sb.opacity;
-            let dx = node_prop(node, "x", 0.0, t);
-            let dy = node_prop(node, "y", 0.0, t) + sb.dy;
-            let scale = node_prop(node, "scale", 1.0, t) * sb.scale;
+            // a group node is a container, not a mark: it owns a transform and
+            // draws nothing of its own
+            if node.kind == "group" {
+                pending = None;
+                continue;
+            }
+            let gx = group_xf(scene, node, t);
+            let opacity =
+                node_prop(node, "opacity", 1.0, t) * node_fade * sb.opacity * gx.opacity;
+            // the group moves its members about ITS centre, so the member's own
+            // offset is placed through the group before anything else reads it
+            let (px, py) = gx.place(
+                node.x + node_prop(node, "x", 0.0, t),
+                node.y + node_prop(node, "y", 0.0, t) + sb.dy,
+            );
+            let dx = px - node.x;
+            let dy = py - node.y;
+            let scale = node_prop(node, "scale", 1.0, t) * sb.scale * gx.scale;
             match node.kind.as_str() {
                 "text" => {
                     if let Some(src) = morphs.get(&node.id) {
@@ -2835,6 +2918,82 @@ mod tests {
         let sp: Vec<f32> = serde_json::from_str(
             &ease_curve("{\"spring\":[6.0,1.0]}", 64).unwrap()).unwrap();
         assert!(sp.iter().any(|v| *v > 1.0), "a spring should pass 1 on the way");
+    }
+
+    #[test]
+    fn a_group_moves_and_scales_its_members_about_its_own_centre() {
+        load_font();
+        // two rects either side of the group centre at (500, 300)
+        let stage = r##"{"fps":30,"size":[1000,600],"scenes":[{"id":"s1","dur":2.0,
+            "nodes":[
+              {"id":"card","type":"group","x":500,"y":300},
+              {"id":"a","type":"rect","x":400,"y":300,"w":100,"h":100,
+               "fill":"#ff0000","group":"card"},
+              {"id":"b","type":"rect","x":600,"y":300,"w":100,"h":100,
+               "fill":"#00ff00","group":"card"},
+              {"id":"loose","type":"rect","x":100,"y":100,"w":50,"h":50,
+               "fill":"#0000ff"}]}]}"##;
+
+        let at = |anim: &str, t: f32| -> Vec<Value> {
+            serde_json::from_str(&render_frame(stage, anim, t)).unwrap()
+        };
+        let find = |cmds: &[Value], id: &str| -> (f32, f32, f32) {
+            let c = cmds
+                .iter()
+                .find(|c| c["id"] == id)
+                .unwrap_or_else(|| panic!("no command for {id}"));
+            (
+                c["x"].as_f64().unwrap() as f32,
+                c["y"].as_f64().unwrap() as f32,
+                c["opacity"].as_f64().unwrap_or(1.0) as f32,
+            )
+        };
+
+        // the group draws nothing of its own
+        let rest = at(r##"{"tracks":[]}"##, 0.0);
+        assert!(rest.iter().all(|c| c["id"] != "card"), "a group is not a mark");
+
+        // moving the group moves every member by the same amount, and nothing else
+        let moved = at(
+            r##"{"tracks":[{"target":"card","keys":{"x":[{"t":0,"v":80}]}}]}"##,
+            0.0,
+        );
+        assert_eq!(find(&moved, "a").0, 480.0);
+        assert_eq!(find(&moved, "b").0, 680.0);
+        assert_eq!(find(&moved, "loose").0, find(&rest, "loose").0);
+
+        // scaling converges on the GROUP centre: half size pulls both members
+        // halfway in, rather than each shrinking where it stands
+        let small = at(
+            r##"{"tracks":[{"target":"card","keys":{"scale":[{"t":0,"v":0.5}]}}]}"##,
+            0.0,
+        );
+        assert_eq!(find(&small, "a").0, 450.0);
+        assert_eq!(find(&small, "b").0, 550.0);
+
+        // group opacity multiplies through to the members
+        let faded = at(
+            r##"{"tracks":[{"target":"card","keys":{"opacity":[{"t":0,"v":0.5}]}}]}"##,
+            0.0,
+        );
+        assert!((find(&faded, "a").2 - 0.5).abs() < 1e-5);
+        assert_eq!(find(&faded, "loose").2, 1.0);
+    }
+
+    #[test]
+    fn a_group_that_names_a_missing_or_circular_parent_is_ignored() {
+        load_font();
+        let stage = r##"{"fps":30,"size":[1000,600],"scenes":[{"id":"s1","dur":1.0,
+            "nodes":[
+              {"id":"self","type":"rect","x":300,"y":300,"w":10,"h":10,
+               "fill":"#fff","group":"self"},
+              {"id":"gone","type":"rect","x":400,"y":300,"w":10,"h":10,
+               "fill":"#fff","group":"nope"}]}]}"##;
+        let cmds: Vec<Value> =
+            serde_json::from_str(&render_frame(stage, r##"{"tracks":[]}"##, 0.0)).unwrap();
+        // both still draw, where they were authored
+        assert_eq!(cmds.iter().find(|c| c["id"] == "self").unwrap()["x"], 300.0);
+        assert_eq!(cmds.iter().find(|c| c["id"] == "gone").unwrap()["x"], 400.0);
     }
 
     #[test]

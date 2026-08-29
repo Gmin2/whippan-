@@ -207,6 +207,36 @@ junk glyphs every 34ms until they lock. the settle is the beat.
 measured entrance keyframes expanded at load: `pop`, `rise-fade`, `drop`,
 `slide-left`, `slide-right`, `spring-in`, `fade`.
 
+### groups
+
+a group owns its members **by id**, not by nesting them. the scene stays one
+flat node list, so morph continuity, goo, z-order and overlay tracks all keep
+working exactly as they do for a loose node.
+
+```json
+{"id": "card", "type": "group", "x": 960, "y": 540},
+{"id": "card_bg",    "type": "rect", "x": 960, "y": 540, "w": 720, "h": 400,
+ "fill": "#ffffff", "group": "card"},
+{"id": "card_title", "type": "text", "x": 960, "y": 470,
+ "text": "Ship the film", "group": "card"}
+```
+
+- a `group` node draws nothing. it carries only `x`, `y` — its centre — and
+  whatever motion you key onto it.
+- a track targeting the group animates every member at once. this is the
+  point: one `enter` on `card` brings the whole card in, instead of five
+  tracks you have to keep in sync.
+- `x` / `y` on the group translate its members. `opacity` multiplies through.
+  `scale` scales about the **group's** centre, so a card that pops converges
+  on its own middle rather than each piece shrinking where it stands.
+- group `rot` is not folded in yet. a member would have to both orbit the
+  group and spin on itself, and doing half of that looks worse than doing
+  none. rotate the members individually for now.
+- a member naming a missing group, a node that is not a group, or itself, is
+  drawn where it was authored. groups do not nest.
+- member motion still composes: a node's own `x` key is applied first, then
+  the group places it.
+
 ## 4. the contract (binding rules — violations fail silently)
 
 1. **`at` is scene-local time.** every scene's clock starts at 0. a track
@@ -223,6 +253,9 @@ measured entrance keyframes expanded at load: `pop`, `rise-fade`, `drop`,
    means 40px left of home. everything else (`w`, `h`, `scale`, `rot`,
    `opacity`, `blur`) is absolute. before its first key a property holds
    the first key's value.
+5. **a group's transform composes onto its members, and does not nest.** a
+   member of a group that is itself in a group only inherits from its own
+   group. keep containers one level deep.
 
 ## 5. taste (what the 29 references actually do)
 

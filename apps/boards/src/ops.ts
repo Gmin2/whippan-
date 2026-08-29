@@ -172,16 +172,32 @@ export function reorderNode(
   }
 }
 
-/** drop a node at an explicit index, which is what dragging a layer row does */
-export function moveNodeTo(
-  stage: Stage, sceneId: string, nodeId: string, index: number,
+/**
+ * Drop a node directly beneath another in paint order, which is what dragging
+ * a layer row does.
+ *
+ * Addressed by id rather than by index: the layer list nests a group's members
+ * under it, so a row's position in what you see is no longer the reverse of its
+ * position in the document, and index arithmetic across the two quietly lies.
+ * `beforeId` is the node the dragged one should end up just behind, or null to
+ * send it to the very front.
+ */
+export function moveNodeBefore(
+  stage: Stage, sceneId: string, nodeId: string, beforeId: string | null,
 ): Stage {
+  if (nodeId === beforeId) return stage
   return {
     ...stage,
     scenes: stage.scenes.map(s => {
       if (s.id !== sceneId) return s
-      const i = s.nodes.findIndex(n => n.id === nodeId)
-      return i < 0 ? s : { ...s, nodes: moved(s.nodes, i, index) }
+      const from = s.nodes.findIndex(n => n.id === nodeId)
+      if (from < 0) return s
+      const rest = s.nodes.filter(n => n.id !== nodeId)
+      const at = beforeId ? rest.findIndex(n => n.id === beforeId) : rest.length
+      if (beforeId && at < 0) return s
+      const nodes = rest.slice()
+      nodes.splice(at, 0, s.nodes[from])
+      return { ...s, nodes }
     }),
   }
 }
@@ -219,3 +235,72 @@ export function newSvg(stage: Stage, svg: string, x: number, y: number): Node | 
     fill: vec.fill,
   }
 }
+
+
+/**
+ * Grouping.
+ *
+ * A group owns its members by id, so this adds one container node and stamps
+ * the members with its id. The group's centre is the middle of what it holds,
+ * which is what a scale about the group has to converge on.
+ *
+ * The container is inserted at the position of the FRONTMOST member so the
+ * group's own paint order matches what you were already looking at, and the
+ * members keep their relative stacking.
+ */
+export function groupNodes(
+  stage: Stage, sceneId: string, ids: string[], bounds: { x: number; y: number },
+): { stage: Stage; id: string } | null {
+  const scene = stage.scenes.find(s => s.id === sceneId)
+  if (!scene || ids.length < 2) return null
+  const set = new Set(ids)
+  // a node already in a group joins this one instead; groups do not nest
+  const members = scene.nodes.filter(n => set.has(n.id) && n.type !== 'group')
+  if (members.length < 2) return null
+
+  const id = freshId(stage, 'group')
+  const group: Node = { id, type: 'group', x: Math.round(bounds.x), y: Math.round(bounds.y) }
+  const front = Math.max(...members.map(m => scene.nodes.findIndex(n => n.id === m.id)))
+
+  const nodes = scene.nodes.map(n => (set.has(n.id) && n.type !== 'group' ? { ...n, group: id } : n))
+  nodes.splice(front + 1, 0, group)
+
+  return {
+    stage: { ...stage, scenes: stage.scenes.map(s => (s.id === sceneId ? { ...s, nodes } : s)) },
+    id,
+  }
+}
+
+/** members are released where they stand; the container goes */
+export function ungroupNodes(
+  stage: Stage, sceneId: string, groupIds: string[],
+): { stage: Stage; ids: string[] } | null {
+  const scene = stage.scenes.find(s => s.id === sceneId)
+  if (!scene) return null
+  const gone = new Set(groupIds)
+  const freed = scene.nodes.filter(n => n.group && gone.has(n.group)).map(n => n.id)
+  if (!freed.length) return null
+  const nodes = scene.nodes
+    .filter(n => !(n.type === 'group' && gone.has(n.id)))
+    .map(n => {
+      if (!n.group || !gone.has(n.group)) return n
+      const { group: _drop, ...rest } = n
+      return rest as Node
+    })
+  return {
+    stage: { ...stage, scenes: stage.scenes.map(s => (s.id === sceneId ? { ...s, nodes } : s)) },
+    ids: freed,
+  }
+}
+
+/** the group a node answers to when you click it, if any */
+export function groupOf(stage: Stage, sceneId: string, nodeId: string): string | null {
+  const scene = stage.scenes.find(s => s.id === sceneId)
+  const node = scene?.nodes.find(n => n.id === nodeId)
+  if (!node?.group) return null
+  return scene!.nodes.some(n => n.id === node.group && n.type === 'group') ? node.group : null
+}
+
+export const membersOf = (stage: Stage, sceneId: string, groupId: string): string[] =>
+  stage.scenes.find(s => s.id === sceneId)?.nodes
+    .filter(n => n.group === groupId).map(n => n.id) ?? []

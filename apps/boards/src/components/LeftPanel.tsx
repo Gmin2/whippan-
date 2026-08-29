@@ -8,6 +8,8 @@ interface TreeNode {
   id: string
   kind: string
   label: string
+  /** 0 for a loose node or a container, 1 for a group's member */
+  depth: number
 }
 
 interface TreeScene {
@@ -28,8 +30,8 @@ interface Props {
   others: Sel[]
   activeScene: string | null
   onSelectNode(scene: string, id: string, additive?: boolean): void
-  /** drop a layer at an index in the scene's own node order */
-  onReorder(scene: string, id: string, index: number): void
+  /** drop a layer just behind `beforeId` in paint order, or null for the front */
+  onReorder(scene: string, id: string, beforeId: string | null): void
   onSelectScene(scene: string): void
   onRename(id: string, name: string): void
   onHidePanels(): void
@@ -44,6 +46,7 @@ interface Props {
 }
 
 function kindIcon(kind: string) {
+  if (kind === 'group') return <Frame size={11} />
   if (kind === 'text') return <TypeMark className="text-dim" />
   if (kind === 'image' || kind === 'seq') return <Rect size={11} />
   return <Rect size={11} />
@@ -124,6 +127,7 @@ export default function LeftPanel({
 
   const beginDrag = (
     e: React.PointerEvent, scene: string, id: string, from: number, count: number,
+    rows: TreeNode[],
   ) => {
     if (e.button !== 0) return
     const start = { x: e.clientX, y: e.clientY }
@@ -152,7 +156,18 @@ export default function LeftPanel({
       // dropping into your own gap changes nothing
       const to = d.gap > d.from ? d.gap - 1 : d.gap
       if (to === d.from) return
-      onReorder(scene, id, count - 1 - to)
+      // a row only moves among its own siblings: a member cannot be dragged out
+      // of its group, and a loose node cannot be dragged into one
+      const me = rows[d.from]
+      const sibling = (r: TreeNode) => r.depth === me.depth
+      // the row it lands above in the list is the one it goes behind in paint
+      // order, since the list runs front to back
+      let above: TreeNode | null = null
+      for (let i = to; i < rows.length; i++) {
+        const r = rows[i]
+        if (r.id !== id && sibling(r)) { above = r; break }
+      }
+      onReorder(scene, id, above?.id ?? null)
     }
     window.addEventListener('pointermove', move)
     window.addEventListener('pointerup', up)
@@ -264,13 +279,14 @@ export default function LeftPanel({
                 {[...s.nodes].reverse().map((n, d) => (
                   <Row
                     key={n.id}
-                    depth={1}
+                    depth={1 + n.depth}
                     icon={kindIcon(n.kind)}
                     label={n.label}
                     selected={picked(s.scene, n.id)}
                     dim={drag?.id === n.id && drag.scene === s.scene}
                     line={lineFor(s.scene, d, s.nodes.length)}
-                    onPointerDown={e => beginDrag(e, s.scene, n.id, d, s.nodes.length)}
+                    onPointerDown={e =>
+                      beginDrag(e, s.scene, n.id, d, s.nodes.length, [...s.nodes].reverse())}
                     onClick={e => onSelectNode(s.scene, n.id, e.shiftKey || e.metaKey || e.ctrlKey)}
                   />
                 ))}
