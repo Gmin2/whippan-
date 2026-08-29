@@ -2,6 +2,8 @@ import type { Artboard, Sel } from '../doc'
 import type { NodeBox } from '../measure'
 import { handlePoints } from '../handles'
 import { GAP_Y, HEADER, HEADER_GAP } from '../layout'
+import { elbow } from '../wires'
+import { glyph, isDefault, kindOf } from '../transitions'
 import type { Camera } from './Canvas'
 import type { Guide } from '../snap'
 
@@ -30,6 +32,9 @@ interface Props {
   /** the path being drawn, in document space */
   pen: { board: number; pts: { x: number; y: number }[]; cursor: { x: number; y: number } | null } | null
   mode: 'design' | 'motion'
+  /** the seam whose transition is being edited: the scene it enters */
+  selectedSeam: string | null
+  onSelectSeam(sceneId: string | null): void
 }
 
 /** sampled off paper's own overlay canvas */
@@ -59,6 +64,7 @@ const HANDLE = 8.5
 export default function Overlay({
   cam, boards, columns, worldX, worldY, selRow, docSize, title, selected, hover,
   activeScene, onSelectScene, guides, dragging, pen, mode,
+  selectedSeam, onSelectSeam,
 }: Props) {
   const [dw, dh] = docSize
   const { pan, zoom } = cam
@@ -190,6 +196,56 @@ export default function Overlay({
           </g>
         )
       })()}
+
+      {/* the seam: the gap between two boards is where the transition lives.
+          clicking it edits that transition; morph threads show which nodes
+          carry across the cut and which die at it. */}
+      {boards.map((b, i) => {
+        if (i === 0) return null
+        const x1 = sx(i - 1, dw)
+        const x2 = sx(i, 0)
+        if (x2 < -300 || x1 > 4200) return null
+        const midY = ry(0, dh / 2)
+        const cx = (x1 + x2) / 2
+        const on = selectedSeam === b.id
+        const quiet = isDefault(b.transition)
+        const stroke = on ? ACCENT : quiet ? 'rgba(0,0,0,0.16)' : 'rgba(0,0,0,0.34)'
+        const threads = b.transition?.morph ? b.carried.slice(0, 10) : []
+
+        return (
+          <g key={`seam-${b.id}`}>
+            <path d={elbow(x1, midY, x2, midY, 10 * zoom)} fill="none"
+                  stroke={stroke} strokeWidth={on ? 1.6 : 1}
+                  strokeDasharray={quiet ? '3 4' : undefined} />
+
+            {threads.map(id => {
+              const a = columns[i - 1]?.[0]?.boxes.find(n => n.id === id)
+              const c = columns[i]?.[0]?.boxes.find(n => n.id === id)
+              if (!a || !c) return null
+              return (
+                <path
+                  key={id}
+                  d={elbow(sx(i - 1, a.x + a.w), ry(0, a.y + a.h / 2),
+                           sx(i, c.x), ry(0, c.y + c.h / 2), 14 * zoom)}
+                  fill="none" stroke={ACCENT} strokeWidth={1}
+                  opacity={0.45} strokeDasharray="3 3"
+                />
+              )
+            })}
+
+            <g className="pointer-events-auto cursor-pointer"
+               onPointerDown={e => { e.stopPropagation(); onSelectSeam(on ? null : b.id) }}>
+              <rect x={cx - 30} y={midY - 11} width={60} height={22} rx={11}
+                    fill={on ? ACCENT : '#fff'}
+                    stroke={on ? ACCENT : 'rgba(0,0,0,0.14)'} strokeWidth={1} />
+              <text x={cx} y={midY + 4} textAnchor="middle" fontSize={10}
+                    fill={on ? '#fff' : quiet ? 'rgba(0,0,0,0.45)' : ACCENT}>
+                {glyph(b.transition)} {b.transition?.morph ? 'morph' : kindOf(b.transition)}
+              </text>
+            </g>
+          </g>
+        )
+      })}
 
       {/* the path in progress: committed segments, a rubber band to the
           cursor, and anchors sized the way paper draws them */}

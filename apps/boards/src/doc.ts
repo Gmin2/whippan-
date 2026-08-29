@@ -1,7 +1,7 @@
 // boards views a real whippan document: every scene becomes an artboard, the
 // scene note is its caption, and the frame drawn into it comes from the engine.
 import { docDur, sceneStarts } from './engine'
-import type { Doc, Glow, Gradient, Streak } from './engine/types'
+import type { Doc, Glow, Gradient, Streak, Transition } from './engine/types'
 
 export type LayerKind = 'frame' | 'text'
 
@@ -17,6 +17,8 @@ export interface ScenePatch {
   dur?: number
   note?: string
   bg?: string
+  /** null removes the transition, which the engine reads as a hard cut */
+  transition?: Transition | null
 }
 
 export interface Artboard {
@@ -31,23 +33,32 @@ export interface Artboard {
   start: number
   note: string
   bg?: string
+  /** how this scene enters from the previous one */
+  transition?: Transition
+  /** node ids shared with the previous scene: what magic move pairs */
+  carried: string[]
 }
 
 export function artboards(doc: Doc): Artboard[] {
   const starts = sceneStarts(doc.stage)
   const [w, h] = doc.stage.size
-  return doc.stage.scenes.map((s, i) => ({
-    id: s.id,
-    label: String(i + 1),
-    name: s.id,
-    index: i,
-    w,
-    h,
-    dur: s.dur ?? 3,
-    start: starts[i],
-    note: s.note ?? '',
-    bg: s.bg,
-  }))
+  return doc.stage.scenes.map((s, i) => {
+    const prevIds = new Set(doc.stage.scenes[i - 1]?.nodes.map(n => n.id) ?? [])
+    return {
+      id: s.id,
+      label: String(i + 1),
+      name: s.id,
+      index: i,
+      w,
+      h,
+      dur: s.dur ?? 3,
+      start: starts[i],
+      note: s.note ?? '',
+      bg: s.bg,
+      transition: s.transition,
+      carried: s.nodes.filter(n => prevIds.has(n.id)).map(n => n.id),
+    }
+  })
 }
 
 export function layers(doc: Doc): Layer[] {

@@ -1,9 +1,10 @@
 import ColorRow from './ColorRow'
 import Inspector from './Inspector'
 import MotionInspector from './MotionInspector'
+import SeamInspector from './SeamInspector'
 import NumField from './NumField'
 import type { Artboard, NodePatch, ScenePatch } from '../doc'
-import type { Node, Track } from '../engine/types'
+import type { Node, Track, Transition } from '../engine/types'
 import type { TrackPatch } from '../tracks'
 import type { NodeBox } from '../measure'
 
@@ -25,6 +26,10 @@ interface Props {
   localTime: number
   sceneDur: number
   onPatchMotion(patch: TrackPatch): void
+  /** the seam being edited, if any: it outranks a node selection */
+  seam: Artboard | null
+  seamFrom: Artboard | null
+  onPatchSeam(t: Transition | null): void
 }
 
 const PEERS = [
@@ -51,6 +56,7 @@ export default function RightPanel({
   ground, groundAlpha, onGround, zoom, selection, node, nodeBox, canvas,
   onPatch, onPatchNode,
   mode, tracks, sceneId, localTime, sceneDur, onPatchMotion,
+  seam, seamFrom, onPatchSeam,
 }: Props) {
   return (
     <aside className="relative flex h-full w-inspector shrink-0 flex-col border-l
@@ -80,7 +86,9 @@ export default function RightPanel({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {mode === 'motion' ? (
+        {seam ? (
+          <SeamInspector into={seam} from={seamFrom} onPatch={onPatchSeam} />
+        ) : mode === 'motion' ? (
           <MotionInspector
             node={node}
             sceneId={sceneId}

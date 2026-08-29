@@ -44,6 +44,8 @@ interface Props {
   /** design samples each scene through time; motion follows one playhead */
   mode: 'design' | 'motion'
   playhead: number
+  selectedSeam: string | null
+  onSelectSeam(sceneId: string | null): void
 }
 
 
@@ -72,6 +74,7 @@ export default function Canvas({
   ck, doc, rev, ground, title, boards, selected, selRow, onSelect, onZoom,
   geo, onDrag, onDragEnd, onMeasure, onSelectScene, activeScene,
   tool, onCreate, onAddScene, onCreatePath, onToolDone, mode, playhead,
+  selectedSeam, onSelectSeam,
 }: Props) {
   const wrap = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -580,6 +583,8 @@ export default function Canvas({
         dragging={dragging}
         pen={pen}
         mode={mode}
+        selectedSeam={selectedSeam}
+        onSelectSeam={onSelectSeam}
       />
     </div>
   )

@@ -75,11 +75,25 @@ export interface Node {
   keys?: Record<string, Key[]>
 }
 
+/** how a scene enters from the one before it */
+export interface Transition {
+  kind?: string
+  dur?: number
+  /** push/whip/wipe direction, or the colour for a dip */
+  dir?: string
+  ease?: unknown
+  /** magic move: nodes sharing an id across the cut glide instead of fading */
+  morph?: boolean
+  morph_dur?: number
+  morph_ease?: unknown
+}
+
 export interface Scene {
   id: string
   bg?: string
   dur?: number
   note?: string
+  transition?: Transition
   nodes: Node[]
 }
 

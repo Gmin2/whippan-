@@ -38,6 +38,7 @@ export default function App() {
   const [sel, setSel] = useState<Sel | null>(null)
   const [selBox, setSelBox] = useState<NodeBox | null>(null)
   const [selRow, setSelRow] = useState(0)
+  const [seam, setSeam] = useState<string | null>(null)
   const [scene, setScene] = useState<string | null>(null)
   const [zoom, setZoom] = useState(0.12)
   const [panels, setPanels] = useState(true)
@@ -103,7 +104,17 @@ export default function App() {
     snapshot()
     setDoc(prev => {
       if (!prev) return prev
-      const scenes = prev.stage.scenes.map(s => (s.id === id ? { ...s, ...patch } : s))
+      const scenes = prev.stage.scenes.map(s => {
+        if (s.id !== id) return s
+        const { transition, ...rest } = patch
+        const next: typeof s = { ...s, ...rest }
+        // null clears it, which the engine reads back as a hard cut
+        if (transition !== undefined) {
+          if (transition === null) delete next.transition
+          else next.transition = transition
+        }
+        return next
+      })
       return { ...prev, stage: { ...prev.stage, scenes } }
     })
     if (patch.id && patch.id !== id) setScene(patch.id)
@@ -430,6 +441,7 @@ export default function App() {
     setGroundAlpha(a)
   }, [])
   const onSelect = useCallback((box: NodeBox | null, row: number) => {
+    setSeam(null)
     setSel(box ? { scene: box.scene, id: box.id } : null)
     setSelBox(box)
     setSelRow(row)
@@ -516,6 +528,8 @@ export default function App() {
         onToolDone={() => setTool('select')}
         mode={mode}
         playhead={playhead}
+        selectedSeam={seam}
+        onSelectSeam={id => { setSeam(id); if (id) { setSel(null); setSelBox(null) } }}
         onZoom={onZoom}
         geo={found ? {
           x: found.node.x ?? 0,
@@ -560,6 +574,11 @@ export default function App() {
         localTime={motionAt.local}
         sceneDur={doc.stage.scenes.find(s => s.id === motionAt.id)?.dur ?? 3}
         onPatchMotion={patchMotion}
+        seam={seam ? boards.find(b => b.id === seam) ?? null : null}
+        seamFrom={seam
+          ? boards[boards.findIndex(b => b.id === seam) - 1] ?? null
+          : null}
+        onPatchSeam={t => { if (seam) patchScene(seam, { transition: t }) }}
       />}
     </div>
   )
