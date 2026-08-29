@@ -2,6 +2,23 @@ export interface Key { t: number; v: number; ease?: unknown }
 
 export const NAMED = ['linear', 'outCubic', 'inCubic', 'inOutCubic', 'spring'] as const
 
+/**
+ * What each ease does, in front of what it is called.
+ *
+ * "ease out" is the worst-named idea in motion: it sounds like fading out and
+ * has nothing to do with opacity. Naming the consequence first and keeping the
+ * technical name beside it means you learn the real word by seeing it next to
+ * its meaning, instead of being tested on it.
+ */
+export const MEANING: Record<string, { verb: string; hint: string }> = {
+  linear: { verb: 'constant', hint: 'no acceleration. nothing physical moves this way, so it reads mechanical' },
+  outCubic: { verb: 'settles', hint: 'fast, then slows into place. what arrives should decelerate' },
+  inCubic: { verb: 'takes off', hint: 'slow, then accelerates away. what leaves should pick up speed' },
+  inOutCubic: { verb: 'glides', hint: 'slow at both ends. for moving between two places that both matter' },
+  spring: { verb: 'overshoots', hint: 'passes the target and settles back. one per film reads as confidence' },
+  bezier: { verb: 'custom', hint: 'four numbers drawing the exact speed curve' },
+}
+
 export const SPRING_DEFAULT: [number, number] = [6, 1]
 
 /** the bezier the reference films reach for most often */

@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
 import NumField from './NumField'
+import { TONE, checkDuration, checkTravel } from '../taste'
+import type { Note } from '../taste'
 import ColorRow from './ColorRow'
 import EaseCurve from './motion/EaseCurve'
 import {
-  NAMED, bezierArgs, easeKind, easeLabel, sortKeys, springArgs, valueAt,
+  MEANING, NAMED, bezierArgs, easeKind, easeLabel, sortKeys, springArgs, valueAt,
 } from './motion/ease'
 import type { Key } from './motion/ease'
 import type { Node } from '../engine/types'
@@ -98,27 +100,62 @@ const Pair = ({ children }: { children: React.ReactNode }) => (
   <div className="grid grid-cols-2 gap-1.5">{children}</div>
 )
 
-function Field({ label, value }: { label: string; value: string }) {
+function Field({ label, value, note }: { label: string; value: string; note?: Note | null }) {
+  const tone = note ? TONE[note.level] : null
   return (
-    <div className="inset-control flex h-[26px] items-center gap-2 px-2">
+    <div
+      title={note?.text}
+      className="inset-control flex h-[26px] items-center gap-2 px-2"
+      style={tone && note!.level === 'warn'
+        ? { borderColor: tone.border, background: tone.tint }
+        : undefined}
+    >
       <span className="text-faint">{label}</span>
-      <span className="ml-auto tabular-nums">{value}</span>
+      <span className="ml-auto tabular-nums"
+            style={tone && note!.level === 'warn' ? { color: tone.text } : undefined}>
+        {value}
+      </span>
     </div>
   )
 }
 
-function Chip({ on, onClick, children, title }: {
+/** the reason a band was broken, shown where the number is rather than in a footnote */
+function Band({ note }: { note: Note | null }) {
+  if (!note) return null
+  return (
+    <p className="mt-1 text-[10px] leading-relaxed"
+       style={{ color: TONE[note.level].text }}>
+      {note.text}
+    </p>
+  )
+}
+
+/** the consequence in front, the name it is actually called underneath */
+function EaseName({ kind }: { kind: string }) {
+  const m = MEANING[kind]
+  if (!m) return <>{kind}</>
+  return (
+    <span className="block leading-[1.15]">
+      <span className="block truncate">{m.verb}</span>
+      <span className="block truncate font-mono text-[9px] text-faint">{kind}</span>
+    </span>
+  )
+}
+
+function Chip({ on, onClick, children, title, tall }: {
   on: boolean
   onClick(): void
   children: React.ReactNode
   title?: string
+  /** two lines of label instead of one */
+  tall?: boolean
 }) {
   return (
     <button
       onClick={onClick}
       title={title}
-      className={`h-[24px] min-w-0 truncate rounded-[5px] border px-1.5 text-[11px]
-                  transition-colors
+      className={`${tall ? 'py-1' : 'h-[24px] truncate'} min-w-0 rounded-[5px] border px-1.5
+                  text-[11px] transition-colors
                   ${on
                     ? 'border-[#5e92f4] bg-[#5e92f4]/12 font-medium text-[#2f6ad4]'
                     : 'border-hair bg-surface text-dim hover:text-ink'}`}
@@ -232,6 +269,35 @@ export default function MotionInspector({
     return { in: track.at + Math.min(...ts), out: track.at + Math.max(...ts) }
   }, [track])
 
+  /**
+   * How long the move actually takes, and whether that is inside the band.
+   *
+   * The band is about ONE move, so it is only applied to something shaped like
+   * one. Two exemptions, both real cases in the reference films:
+   *
+   *  - a looped track is a hold, not a move; a two second pulse is the point
+   *  - a track with many keys is a path or a follow, not an A to B. the caret
+   *    tracking a typewriter runs 3.9s across a dozen keys and is correct
+   *
+   * Warning on those would be noise, and a check that cries wolf is worse than
+   * the paragraph it replaced.
+   */
+  const span = bounds ? bounds.out - bounds.in : null
+  const steps = useMemo(
+    () => Math.max(0, ...Object.values(track.keys).map(ks => ks.length)),
+    [track.keys])
+  const simple = !track.loop && steps <= 3
+  const durNote = span == null || !simple ? null : checkDuration(span)
+
+  /** how far an x or y key asks a node to travel, the other band worth catching */
+  const travelNote = useMemo(() => {
+    let far = 0
+    for (const p of ['x', 'y']) {
+      for (const k of track.keys[p] ?? []) far = Math.max(far, Math.abs(NUM(k.v, 0)))
+    }
+    return checkTravel(far)
+  }, [track.keys])
+
   const writeKeys = (p: string, ks: Key[] | null) => onPatch({ keys: { [p]: ks } })
 
   const patchKey = (i: number, next: Key) => {
@@ -329,6 +395,16 @@ export default function MotionInspector({
             <Field label="Out" value={bounds ? secs(bounds.out) : '—'} />
           </Pair>
         </div>
+        {/* the band that matters most, checked where the number is rather than
+            explained in a footnote nobody reads */}
+        <div className="mt-1.5">
+          <Field
+            label="Takes"
+            value={span == null ? '—' : `${Math.round(span * 1000)} ms`}
+            note={durNote}
+          />
+        </div>
+        <Band note={durNote} />
         <p className="mt-1.5 text-[10px] leading-relaxed text-faint">
           at is scene-local and shifts the whole track; key times are relative to it
           {track.split && ' · these tracks disagree on at, editing folds them onto one'}
@@ -463,6 +539,7 @@ export default function MotionInspector({
                   className="text-dim hover:text-ink">{adding ? '×' : '+'}</button>
         }
       >
+        <Band note={travelNote} />
         {adding && (
           <div className="mb-2 grid grid-cols-2 gap-1.5 rounded-[6px] bg-black/[0.03] p-1.5">
             {Object.keys(table).filter(p => !track.keys[p]).map(p => (
@@ -572,15 +649,15 @@ export default function MotionInspector({
 
             <div className="mt-1.5 grid grid-cols-3 gap-1.5">
               {NAMED.map(e => (
-                <Chip key={e} on={easeKind(key.ease) === e}
+                <Chip key={e} tall on={easeKind(key.ease) === e} title={MEANING[e]?.hint}
                       onClick={() => setEase(e === 'linear' ? null : e === 'spring'
                         ? { spring: springArgs(key.ease) } : e)}>
-                  {e}
+                  <EaseName kind={e} />
                 </Chip>
               ))}
-              <Chip on={easeKind(key.ease) === 'bezier'}
+              <Chip tall on={easeKind(key.ease) === 'bezier'} title={MEANING.bezier.hint}
                     onClick={() => setEase(bezierArgs(key.ease) as unknown)}>
-                bezier
+                <EaseName kind="bezier" />
               </Chip>
             </div>
 
@@ -641,9 +718,9 @@ export default function MotionInspector({
           </p>
         ))}
         <p className="text-[10px] leading-relaxed text-faint">
-          measured off 29 launch films: in-scene motion 140–280ms, entrances ease out
-          200–280ms after ~80ms, exits ease in ~150ms, text travel under ~40px.
-          anything past 350ms in-scene reads slow.
+          the bands above are measured off 29 launch films. they flag as you type
+          rather than asking you to remember them: entrances ease out 200–280ms
+          after ~80ms, exits ease in ~150ms, siblings 40–80ms apart.
         </p>
       </div>
     </>
