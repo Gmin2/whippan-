@@ -1,6 +1,26 @@
 /* @ts-self-types="./whippan_engine.d.ts" */
 
 /**
+ * @param {string} ease_json
+ * @param {number} samples
+ * @returns {string}
+ */
+export function ease_curve(ease_json, samples) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(ease_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.ease_curve(ptr0, len0, samples);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
  * @param {Uint8Array} bytes
  * @returns {boolean}
  */

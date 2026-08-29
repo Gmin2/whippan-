@@ -1258,6 +1258,25 @@ fn reveal_extent(node: &Node, r: &Reveal) -> (f32, usize) {
     }
 }
 
+/// One easing curve, sampled by the renderer itself.
+///
+/// The editor draws these curves and reads values off them, and a curve drawn
+/// from a second implementation is a curve that can disagree with the film. The
+/// argument is the same json an `ease` field carries: a name, a four-number
+/// bezier, or `{"spring": [damping, cycles]}`.
+pub fn ease_curve(ease_json: &str, samples: usize) -> Result<String, String> {
+    let kind: Option<Ease> = if ease_json.trim().is_empty() || ease_json.trim() == "null" {
+        None
+    } else {
+        Some(serde_json::from_str(ease_json).map_err(|e| e.to_string())?)
+    };
+    let n = samples.clamp(2, 512);
+    let out: Vec<f32> = (0..n)
+        .map(|i| ease(i as f32 / (n - 1) as f32, &kind))
+        .collect();
+    serde_json::to_string(&out).map_err(|e| e.to_string())
+}
+
 /// The document's real timing, scene by scene: what animates, when it starts
 /// and when it truly ends. The overlay alone cannot answer this — `enter: pop`
 /// is one word that becomes several keyframes at load, and a reveal's length
@@ -2569,6 +2588,14 @@ mod wasm {
     }
 
     #[wasm_bindgen]
+    pub fn ease_curve(ease_json: &str, samples: usize) -> String {
+        match super::ease_curve(ease_json, samples) {
+            Ok(json) => json,
+            Err(e) => format!("{{\"error\":{:?}}}", e),
+        }
+    }
+
+    #[wasm_bindgen]
     pub fn sfx(stage_json: &str, overlay_json: &str) -> String {
         super::sfx_events(stage_json, overlay_json).unwrap_or_else(|_| "[]".into())
     }
@@ -2788,6 +2815,26 @@ mod tests {
             inr["y"].as_f64().unwrap() > 350.0,
             "incoming rising from below"
         );
+    }
+
+    #[test]
+    fn ease_curve_matches_the_renderer() {
+        let named: Vec<f32> = serde_json::from_str(
+            &ease_curve("\"outCubic\"", 5).unwrap()).unwrap();
+        assert_eq!(named.len(), 5);
+        assert!((named[0] - 0.0).abs() < 1e-6);
+        assert!((named[4] - 1.0).abs() < 1e-6);
+        // the sample at the halfway point is the engine's own out_cubic
+        assert!((named[2] - out_cubic(0.5)).abs() < 1e-6);
+
+        // linear when there is no ease at all
+        let none: Vec<f32> = serde_json::from_str(&ease_curve("null", 3).unwrap()).unwrap();
+        assert!((none[1] - 0.5).abs() < 1e-6);
+
+        // a spring overshoots, which is the whole reason to draw it
+        let sp: Vec<f32> = serde_json::from_str(
+            &ease_curve("{\"spring\":[6.0,1.0]}", 64).unwrap()).unwrap();
+        assert!(sp.iter().any(|v| *v > 1.0), "a spring should pass 1 on the way");
     }
 
     #[test]

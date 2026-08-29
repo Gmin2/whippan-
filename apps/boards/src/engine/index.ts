@@ -1,7 +1,7 @@
 // one-time boot of canvaskit + the wasm engine + fonts + the film registry.
 // every pixel the gallery draws goes through render() and paintFrame(); there
 // is no second render path.
-import init, { render, register_font, sfx, timeline } from '@whippan/engine-web'
+import init, { render, register_font, sfx, timeline, ease_curve } from '@whippan/engine-web'
 import wasmUrl from '@whippan/engine-web/pkg/whippan_engine_bg.wasm?url'
 import { paintFrame } from '@whippan/engine-web/painter'
 import type { Anim, Asset, Doc, Entry, Stage } from './types'
@@ -135,6 +135,19 @@ export function queuePoster(CK: CanvasKit, entry: Entry): Promise<string | null>
   return job
 }
 
+/**
+ * The engine's own easing curve, sampled. Returns null before the wasm module
+ * has booted, or if the ease is one it cannot parse, so callers keep a fallback.
+ */
+export function easeCurve(ease: unknown, samples: number): number[] | null {
+  try {
+    const out = JSON.parse(ease_curve(ease == null ? 'null' : JSON.stringify(ease), samples))
+    return Array.isArray(out) ? out : null
+  } catch {
+    return null
+  }
+}
+
 export { render, sfx, timeline, paintFrame }
 
 /** absolute start time of each scene, in order */
@@ -198,7 +211,7 @@ export function queueScene(
 if (import.meta.env.DEV) {
   boot().then(({ CK, registry }) => {
     ;(window as unknown as Record<string, unknown>).whippan =
-      { CK, registry, render, sfx, timeline, loadDoc, docDur, sceneStarts, measure, hitTest }
+      { CK, registry, render, sfx, timeline, ease_curve, loadDoc, docDur, sceneStarts, measure, hitTest }
   })
 }
 

@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+import { easeCurve } from '../../engine'
 import { easeFn } from './ease'
 
 const W = 253
@@ -20,9 +22,25 @@ interface Props {
  * The ease drawn as a graph: time across, value up. The dashed diagonal is
  * linear, so an ease reads as how far it bows away from it.
  */
+const STEPS = 72
+
 export default function EaseCurve({ ease, progress }: Props) {
-  const fn = easeFn(ease)
-  const steps = 72
+  // the renderer's own curve: a graph drawn from a second implementation is a
+  // graph that can quietly disagree with the film
+  const curve = useMemo(() => easeCurve(ease, STEPS + 1), [ease])
+  const fn = useMemo(() => {
+    if (!curve) return easeFn(ease)
+    // between samples, and past the last one, fall back to reading the ends
+    return (t: number) => {
+      const x = Math.min(1, Math.max(0, t)) * STEPS
+      const i = Math.floor(x)
+      const a = curve[Math.min(STEPS, i)]
+      const b = curve[Math.min(STEPS, i + 1)]
+      return a + (b - a) * (x - i)
+    }
+  }, [curve, ease])
+
+  const steps = STEPS
   const pts: string[] = []
   for (let i = 0; i <= steps; i++) {
     const t = i / steps

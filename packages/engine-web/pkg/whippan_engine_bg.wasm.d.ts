@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
+export const ease_curve: (a: number, b: number, c: number) => [number, number];
 export const init_font: (a: number, b: number) => number;
 export const register_font: (a: number, b: number, c: number, d: number) => void;
 export const render: (a: number, b: number, c: number, d: number, e: number) => [number, number];

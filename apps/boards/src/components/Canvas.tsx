@@ -688,7 +688,11 @@ export default function Canvas({
     <div
       ref={wrap}
       onPointerDown={e => {
-        ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+        // capture keeps a drag alive past the window edge; a pointer that has
+        // already been released has nothing to capture, which is not an error
+        try {
+          ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+        } catch { /* the gesture still works without it */ }
         onDown(e)
         const d = drag.current
         if (d) { d.startX = e.clientX; d.startY = e.clientY }

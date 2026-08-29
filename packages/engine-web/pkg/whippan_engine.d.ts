@@ -1,6 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
+export function ease_curve(ease_json: string, samples: number): string;
+
 export function init_font(bytes: Uint8Array): boolean;
 
 export function register_font(name: string, bytes: Uint8Array): void;
@@ -15,6 +17,7 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
     readonly memory: WebAssembly.Memory;
+    readonly ease_curve: (a: number, b: number, c: number) => [number, number];
     readonly init_font: (a: number, b: number) => number;
     readonly register_font: (a: number, b: number, c: number, d: number) => void;
     readonly render: (a: number, b: number, c: number, d: number, e: number) => [number, number];
