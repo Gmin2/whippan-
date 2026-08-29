@@ -14,13 +14,11 @@ interface Props {
   onSelect(target: string): void
   /** restagger: shift this node's track by delta seconds. `done` ends the gesture */
   onShift(target: string, at: number, done: boolean): void
+  /** the document's frame rate, which is the grid a drag snaps to */
+  fps?: number
 }
 
-/**
- * The strip never sees the document, so the frame grid it snaps to is a
- * constant rather than `stage.fps`. 30 is the stage default; a film authored at
- * another rate snaps coarser or finer than its own frames.
- */
+/** the stage default, used when the caller does not say */
 const FPS = 30
 const ACCENT = '#5e92f4'
 const ROW_H = 13
@@ -95,7 +93,7 @@ const round4 = (v: number) => Math.round(v * 1e4) / 1e4
  * relative to it.
  */
 export default function StaggerStrip({
-  lanes, dur, playhead, width, selected, onSelect, onShift,
+  lanes, dur, playhead, width, selected, onSelect, onShift, fps,
 }: Props) {
   const [drag, setDrag] = useState<Drag | null>(null)
   /**
@@ -159,11 +157,12 @@ export default function StaggerStrip({
     const delta = (clientX - d.startX) / pps
     // the document is frame based, so a time between frames is one the renderer
     // can never show; 4/30 also repeats, hence the round
-    const at = round4(Math.max(0, Math.round((d.startAt + delta) * FPS) / FPS))
+    const grid = fps ?? FPS
+    const at = round4(Math.max(0, Math.round((d.startAt + delta) * grid) / grid))
     onShift(d.target, at, done)
     d.at = at
     setDrag({ ...d })
-  }, [pps, onShift])
+  }, [pps, onShift, fps])
 
   useEffect(() => {
     gesture.current = drag

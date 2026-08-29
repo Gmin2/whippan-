@@ -103,21 +103,23 @@ interface EngineSpan {
   pieces?: number
 }
 
-let cache: { key: string; spans: EngineSpan[] } | null = null
+/**
+ * Keyed on object identity, not content: every edit path in the app replaces
+ * the stage or the overlay rather than mutating it, so identity is enough and
+ * a playing timeline never pays to serialise the document 60 times a second.
+ */
+let cache: { stage: unknown; anim: unknown; spans: EngineSpan[] } | null = null
 
 function engineSpans(doc: Doc): EngineSpan[] {
-  const stage = JSON.stringify(doc.stage)
-  const anim = JSON.stringify(doc.anim)
-  const key = `${stage.length}:${anim.length}:${doc.entry.slug}:${anim}`
-  if (cache?.key === key) return cache.spans
+  if (cache && cache.stage === doc.stage && cache.anim === doc.anim) return cache.spans
   let spans: EngineSpan[] = []
   try {
-    const out = JSON.parse(timeline(stage, anim))
+    const out = JSON.parse(timeline(JSON.stringify(doc.stage), JSON.stringify(doc.anim)))
     if (Array.isArray(out)) spans = out
   } catch {
     // the estimate below still works if the engine call fails
   }
-  cache = { key, spans }
+  cache = { stage: doc.stage, anim: doc.anim, spans }
   return spans
 }
 

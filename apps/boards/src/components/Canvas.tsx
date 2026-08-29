@@ -13,6 +13,8 @@ import { GAP_X, columnX, rowY, sampleTimes, wallSize } from '../layout'
 import type { Handle } from '../handles'
 import Overlay from './Overlay'
 import TextEditor from './TextEditor'
+import StaggerStrip from './StaggerStrip'
+import { lanesOf } from '../motion'
 
 interface Props {
   ck: CanvasKit
@@ -59,6 +61,10 @@ interface Props {
   onEditStart(): void
   /** a cancelled edit drops that snapshot again, leaving no empty undo step */
   onEditEnd(commit: boolean): void
+  /** picking a lane on a stagger strip selects the node it belongs to */
+  onSelectTarget(scene: string, id: string): void
+  /** restagger from a strip: move a node's whole track to a new scene-local at */
+  onShiftTrack(target: string, at: number, done: boolean): void
 }
 
 
@@ -89,6 +95,7 @@ export default function Canvas({
   geo, onDrag, onDragEnd, onMeasure, onSelectScene, activeScene,
   tool, onCreate, onAddScene, onCreatePath, onToolDone, mode, playhead,
   selectedSeam, onSelectSeam, onEditText, onEditStart, onEditEnd,
+  onSelectTarget, onShiftTrack,
 }: Props) {
   const wrap = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -389,6 +396,13 @@ export default function Canvas({
 
   // an open field leaves the wall alone if its node vanishes under it
   useEffect(() => { if (editing && !editNode) setEditing(null) }, [editing, editNode])
+
+  /** lanes for every column, rebuilt only when the document actually changes */
+  const strips = useMemo(
+    () => (mode === 'motion'
+      ? boards.map((b, i) => ({ b, i, lanes: lanesOf(doc, b.id) }))
+      : []),
+    [mode, boards, doc])
 
   /** the smallest type worth putting a caret in */
   const LEGIBLE = 13
@@ -704,6 +718,30 @@ export default function Canvas({
           />
         ) : null
       })()}
+      {/* one strip under each column, so the stagger reads per beat rather
+          than as one long film-length timeline */}
+      {mode === 'motion' && strips.map(({ b, i, lanes }) => {
+        const w = dw * cam.zoom
+        const x = worldX(i) * cam.zoom + cam.pan.x
+        const y = (worldY(0) + dh) * cam.zoom + cam.pan.y + 12
+        if (x + w < 0 || x > size.w || y > size.h) return null
+        const local = playhead - b.start
+        return (
+          <div key={b.id} className="absolute" style={{ left: x, top: y, width: w }}>
+            <StaggerStrip
+              lanes={lanes}
+              dur={b.dur}
+              playhead={local >= 0 && local <= b.dur ? local : null}
+              width={w}
+              fps={doc.stage.fps}
+              selected={selected?.scene === b.id ? selected.id : null}
+              onSelect={id => onSelectTarget(b.id, id)}
+              onShift={onShiftTrack}
+            />
+          </div>
+        )
+      })}
+
       <Overlay
         others={others}
         cam={cam}

@@ -771,6 +771,8 @@ export default function App() {
         onEditText={text => patchNode({ text }, true)}
         onEditStart={snapshot}
         onEditEnd={commit => { if (!commit) undo.current.pop() }}
+        onSelectTarget={(s, id) => { setSel({ scene: s, id }); setExtra([]); setScene(s) }}
+        onShiftTrack={(target, at, done) => motionGesture(target, { at }, done)}
         onMeasure={onMeasure}
         />
         {mode === 'motion' && (
