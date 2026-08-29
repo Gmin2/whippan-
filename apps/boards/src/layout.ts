@@ -37,8 +37,13 @@ export const columnX = (i: number, dw: number) => i * (dw + GAP_X)
 export const rowY = (k: number, dh: number) => HEADER + HEADER_GAP + k * (dh + GAP_Y)
 
 /** total wall size in document pixels, for fitting the camera */
-export function wallSize(boards: Artboard[], dw: number, dh: number) {
-  const rows = Math.max(1, ...boards.map(b => sampleCount(b.dur)))
+export function wallSize(
+  boards: Artboard[], dw: number, dh: number, mode: 'design' | 'motion' = 'design',
+) {
+  // motion mode is one frame per column, so the wall is a single row
+  const rows = mode === 'motion'
+    ? 1
+    : Math.max(1, ...boards.map(b => sampleCount(b.dur)))
   return {
     w: boards.length * dw + Math.max(0, boards.length - 1) * GAP_X,
     h: HEADER + HEADER_GAP + rows * dh + (rows - 1) * GAP_Y,

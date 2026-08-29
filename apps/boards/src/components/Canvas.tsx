@@ -41,6 +41,9 @@ interface Props {
   onAddScene(afterId?: string): void
   onCreatePath(sceneId: string, pts: { x: number; y: number }[], closed: boolean): void
   onToolDone(): void
+  /** design samples each scene through time; motion follows one playhead */
+  mode: 'design' | 'motion'
+  playhead: number
 }
 
 
@@ -68,7 +71,7 @@ function withGround(cmds: Cmd[], w: number, h: number): Cmd[] {
 export default function Canvas({
   ck, doc, rev, ground, title, boards, selected, selRow, onSelect, onZoom,
   geo, onDrag, onDragEnd, onMeasure, onSelectScene, activeScene,
-  tool, onCreate, onAddScene, onCreatePath, onToolDone,
+  tool, onCreate, onAddScene, onCreatePath, onToolDone, mode, playhead,
 }: Props) {
   const wrap = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -120,17 +123,26 @@ export default function Canvas({
     return boards.map((b, i) => {
       const self = doc.stage.scenes[i]
       const prev = doc.stage.scenes[i - 1]
-      return sampleTimes(b).map((t, k) => {
-        const key = `${b.id}:${k}`
+      // in motion mode a column is one frame: the scene under the playhead
+      // plays, the rest hold at whichever edge is nearest, so the film reads
+      // in context rather than as a wall of stills
+      const times = mode === 'motion'
+        ? [Math.min(Math.max(playhead, b.start), b.start + b.dur - 0.001)]
+        : sampleTimes(b)
+      return times.map((t, k) => {
+        // the playhead moves continuously, so a motion frame is keyed by its
+        // own time and never served from the design-mode cache
+        const key = mode === 'motion' ? `${b.id}:m:${t.toFixed(3)}` : `${b.id}:${k}`
         const hit = cache.current.get(key)
         if (hit && hit.self === self && hit.prev === prev) return hit.frame
         const cmds: Cmd[] = JSON.parse(render(stage, anim, t))
         const frame: Frame = { t, cmds: withGround(cmds, dw, dh), boxes: measure(cmds) }
+        if (cache.current.size > 400) cache.current.clear()
         cache.current.set(key, { self, prev, frame })
         return frame
       })
     })
-  }, [doc, boards, rev, dw, dh])
+  }, [doc, boards, rev, dw, dh, mode, playhead])
 
   useEffect(() => { onZoom(cam.zoom) }, [cam.zoom, onZoom])
 
@@ -138,11 +150,20 @@ export default function Canvas({
   // single-scene one at 1148x712 need very different cameras
   const fitted = useRef('')
   useEffect(() => {
-    const key = `${doc.entry.slug}:${size.w}x${size.h}`
+    const key = `${doc.entry.slug}:${mode}:${size.w}x${size.h}`
     if (!size.w || !size.h || !boards.length || fitted.current === key) return
     fitted.current = key
-    const wall = wallSize(boards, dw, dh)
     const pad = 70
+
+    if (mode === 'motion') {
+      // watching the film means one scene at a readable size, not fifteen
+      // thumbnails; the camera follows the playhead from here
+      const zoom = Math.min((size.w * 0.52) / dw, (size.h - pad * 2) / dh, 1)
+      setCam({ zoom, pan: { x: pad, y: pad } })
+      return
+    }
+
+    const wall = wallSize(boards, dw, dh, mode)
     const zoom = Math.min(
       (size.w - pad * 2) / wall.w,
       (size.h - pad * 2) / wall.h,
@@ -152,7 +173,23 @@ export default function Canvas({
       zoom,
       pan: { x: (size.w - wall.w * zoom) / 2, y: pad + 40 },
     })
-  }, [doc.entry.slug, size, boards.length, dw, dh])
+  }, [doc.entry.slug, size, boards, dw, dh, mode])
+
+  // in motion mode the wall scrolls under the playhead: the scene being played
+  // stays centred, and its neighbours stay visible at the edges as context
+  const activeBoard = useMemo(() => {
+    if (mode !== 'motion') return -1
+    return boards.findIndex(b => playhead >= b.start && playhead < b.start + b.dur)
+  }, [mode, boards, playhead])
+
+  useEffect(() => {
+    if (mode !== 'motion' || activeBoard < 0 || !size.w) return
+    setCam(c => {
+      const wantX = size.w / 2 - (worldX(activeBoard) + dw / 2) * c.zoom
+      // only chase when the scene actually changes, so a manual pan sticks
+      return Math.abs(wantX - c.pan.x) < 1 ? c : { ...c, pan: { ...c.pan, x: wantX } }
+    })
+  }, [activeBoard, mode, size.w, dw, worldX])
 
   useEffect(() => {
     if (!selected) { onMeasure(null); return }
@@ -542,6 +579,7 @@ export default function Canvas({
         guides={guides}
         dragging={dragging}
         pen={pen}
+        mode={mode}
       />
     </div>
   )

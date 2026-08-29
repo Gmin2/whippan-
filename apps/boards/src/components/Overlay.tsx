@@ -29,6 +29,7 @@ interface Props {
   dragging: boolean
   /** the path being drawn, in document space */
   pen: { board: number; pts: { x: number; y: number }[]; cursor: { x: number; y: number } | null } | null
+  mode: 'design' | 'motion'
 }
 
 /** sampled off paper's own overlay canvas */
@@ -57,7 +58,7 @@ const HANDLE = 8.5
 // being scaled by them — a handle is always the same size under the cursor.
 export default function Overlay({
   cam, boards, columns, worldX, worldY, selRow, docSize, title, selected, hover,
-  activeScene, onSelectScene, guides, dragging, pen,
+  activeScene, onSelectScene, guides, dragging, pen, mode,
 }: Props) {
   const [dw, dh] = docSize
   const { pan, zoom } = cam
@@ -106,7 +107,7 @@ export default function Overlay({
         const active = activeScene === b.id
         // the card grows with the wall but never shrinks below legible, and it
         // grows upward from the first frame so it can never eat into one
-        const cardH = Math.max(HEADER * zoom, 82)
+        const cardH = mode === 'motion' ? 22 : Math.max(HEADER * zoom, 82)
         const cardY = ry(0, 0) - HEADER_GAP * zoom - cardH
 
         // the card is laid out in world space so it scales with the wall, but
@@ -115,7 +116,7 @@ export default function Overlay({
         const pad = Math.min(14, Math.max(6, w * 0.04))
         const fs = 12
         const lh = 16
-        const roomForText = w > 104
+        const roomForText = mode === 'design' && w > 104
         const cols = Math.floor((w - pad * 2) / (fs * 0.52))
         const maxLines = Math.floor((cardH - pad * 2 - 18) / lh)
         const lines = roomForText ? wrapText(b.note, cols).slice(0, Math.max(0, maxLines)) : []
@@ -126,8 +127,9 @@ export default function Overlay({
                   fill="#16241d"
                   className="pointer-events-auto cursor-pointer"
                   onPointerDown={e => { e.stopPropagation(); onSelectScene(b.id) }} />
-            {roomForText && (
-              <text x={x + pad} y={cardY + pad + 10} fill="rgba(255,255,255,0.42)"
+            {(roomForText || mode === 'motion') && (
+              <text x={x + pad} y={cardY + (mode === 'motion' ? 15 : pad + 10)}
+                    fill="rgba(255,255,255,0.6)"
                     fontSize={10} fontFamily="monospace">
                 {b.label} · {b.dur.toFixed(1)}s
               </text>

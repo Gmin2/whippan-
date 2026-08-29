@@ -6,9 +6,11 @@ import Canvas from './components/Canvas'
 import RightPanel from './components/RightPanel'
 import AssetPicker from './components/AssetPicker'
 import EffectPicker from './components/EffectPicker'
+import Timeline from './components/Timeline'
 import { boot, ensureImage, loadDoc, saveDoc } from './engine'
 import type { Doc, Entry, Stage } from './engine/types'
 import { artboards, findNode, tree } from './doc'
+import { docDur } from './engine'
 import {
   addNode, addScene, deleteNode, deleteScene, duplicateNode, newImage, newPath,
   newRect, newText,
@@ -41,6 +43,10 @@ export default function App() {
   const [saveError, setSaveError] = useState<string | null>(null)
   const [picking, setPicking] = useState(false)
   const [effects, setEffects] = useState(false)
+  const [mode, setMode] = useState<'design' | 'motion'>('design')
+  const [playhead, setPlayhead] = useState(0)
+  const [playing, setPlaying] = useState(false)
+  const raf = useRef(0)
   const [ground, setGround] = useState('#d9cac8')
   const [groundAlpha, setGroundAlpha] = useState(1)
   // undo holds whole stage snapshots. a drag pushes one entry when it starts,
@@ -192,6 +198,11 @@ export default function App() {
       const mod = e.metaKey || e.ctrlKey
       const key = e.key.toLowerCase()
 
+      if (e.key === ' ' && modeRef.current === 'motion') {
+        e.preventDefault()
+        setPlaying(p => !p)
+        return
+      }
       if (mod && e.shiftKey && key === 'k') {
         e.preventDefault()
         setPicking(true)
@@ -358,8 +369,28 @@ export default function App() {
   const docRef = useRef<Doc | null>(null)
   const saveRef = useRef<() => void>(() => {})
   const sceneRef = useRef<string | null>(null)
+  const modeRef = useRef<'design' | 'motion'>('design')
   const removeRef = useRef<() => void>(() => {})
   const duplicateRef = useRef<() => void>(() => {})
+
+  const filmDur = doc ? docDur(doc.stage) : 0
+
+  // playback: one clock, wrapping at the end of the film
+  useEffect(() => {
+    if (!playing || !filmDur) return
+    let last = performance.now()
+    const tick = (now: number) => {
+      const dt = (now - last) / 1000
+      last = now
+      setPlayhead(p => (p + dt) % filmDur)
+      raf.current = requestAnimationFrame(tick)
+    }
+    raf.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf.current)
+  }, [playing, filmDur])
+
+  // leaving motion mode should not leave a clock running
+  useEffect(() => { if (mode !== 'motion') setPlaying(false) }, [mode])
 
   const boards = useMemo(() => (doc ? artboards(doc) : []), [doc])
   const layers = useMemo(() => (doc ? tree(doc) : []), [doc])
@@ -371,6 +402,7 @@ export default function App() {
   docRef.current = doc
   saveRef.current = save
   sceneRef.current = scene
+  modeRef.current = mode
   removeRef.current = removeSelection
   duplicateRef.current = duplicateSelection
 
@@ -419,6 +451,8 @@ export default function App() {
         activeScene={scene}
         onSelectNode={(s, id) => { setSel({ scene: s, id }); setScene(s) }}
         onSelectScene={s => { setScene(s); setSel(null); setSelBox(null) }}
+        mode={mode}
+        onMode={setMode}
         onRename={renameScene}
         onHidePanels={() => setPanels(false)}
         onAddScene={() => createScene()}
@@ -444,7 +478,8 @@ export default function App() {
         <EffectPicker node={found?.node ?? null} onClose={() => setEffects(false)}
                       onApply={patchNode} />
       )}
-      <Canvas
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Canvas
         ck={ck}
         doc={doc}
         rev={rev}
@@ -461,6 +496,8 @@ export default function App() {
         onAddScene={createScene}
         onCreatePath={createPath}
         onToolDone={() => setTool('select')}
+        mode={mode}
+        playhead={playhead}
         onZoom={onZoom}
         geo={found ? {
           x: found.node.x ?? 0,
@@ -474,7 +511,20 @@ export default function App() {
         onDrag={onDrag}
         onDragEnd={onDragEnd}
         onMeasure={onMeasure}
-      />
+        />
+        {mode === 'motion' && (
+          <Timeline
+            doc={doc}
+            dur={filmDur}
+            t={playhead}
+            playing={playing}
+            selected={sel}
+            onSeek={v => { setPlaying(false); setPlayhead(v) }}
+            onPlay={setPlaying}
+            onSelectNode={(s, id) => { setSel({ scene: s, id }); setScene(s) }}
+          />
+        )}
+      </div>
       {panels && <RightPanel
         ground={ground}
         groundAlpha={groundAlpha}

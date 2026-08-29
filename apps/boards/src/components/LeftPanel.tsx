@@ -30,6 +30,8 @@ interface Props {
   onRename(id: string, name: string): void
   onHidePanels(): void
   onAddScene(): void
+  mode: 'design' | 'motion'
+  onMode(m: 'design' | 'motion'): void
   dirty: boolean
   saving: 'idle' | 'saving' | 'saved' | 'error'
   saveError: string | null
@@ -78,9 +80,8 @@ export default function LeftPanel({
   registry, film, onPickFilm,
   pages, activePage, tree, selected, activeScene,
   onSelectNode, onSelectScene, onRename, onHidePanels, onAddScene,
-  dirty, saving, saveError, onSave,
+  mode, onMode, dirty, saving, saveError, onSave,
 }: Props) {
-  const [tab, setTab] = useState<'design' | 'motion'>('design')
   const [open, setOpen] = useState<Record<string, boolean>>({})
   const [editing, setEditing] = useState<string | null>(null)
 
@@ -119,9 +120,9 @@ export default function LeftPanel({
           {(['design', 'motion'] as const).map(k => (
             <button
               key={k}
-              onClick={() => setTab(k)}
+              onClick={() => onMode(k)}
               className={`h-[26px] flex-1 rounded-[5px] capitalize transition-colors
-                          ${tab === k
+                          ${mode === k
                             ? 'bg-surface font-medium shadow-[0_1px_2px_rgba(0,0,0,0.07)]'
                             : 'text-dim hover:text-ink'}`}
             >
