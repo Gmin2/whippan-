@@ -584,6 +584,9 @@ export default function App() {
         } : null}
         onDrag={onDrag}
         onDragEnd={onDragEnd}
+        onEditText={text => patchNode({ text }, true)}
+        onEditStart={snapshot}
+        onEditEnd={commit => { if (!commit) undo.current.pop() }}
         onMeasure={onMeasure}
         />
         {mode === 'motion' && (

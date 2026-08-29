@@ -12,6 +12,7 @@ import type { Guide } from '../snap'
 import { GAP_X, columnX, rowY, sampleTimes, wallSize } from '../layout'
 import type { Handle } from '../handles'
 import Overlay from './Overlay'
+import TextEditor from './TextEditor'
 
 interface Props {
   ck: CanvasKit
@@ -46,6 +47,12 @@ interface Props {
   playhead: number
   selectedSeam: string | null
   onSelectSeam(sceneId: string | null): void
+  /** double-clicking a text node edits it here; this streams every keystroke */
+  onEditText(text: string): void
+  /** one snapshot at the start of an edit, so undo steps over the whole word */
+  onEditStart(): void
+  /** a cancelled edit drops that snapshot again, leaving no empty undo step */
+  onEditEnd(commit: boolean): void
 }
 
 
@@ -74,7 +81,7 @@ export default function Canvas({
   ck, doc, rev, ground, title, boards, selected, selRow, onSelect, onZoom,
   geo, onDrag, onDragEnd, onMeasure, onSelectScene, activeScene,
   tool, onCreate, onAddScene, onCreatePath, onToolDone, mode, playhead,
-  selectedSeam, onSelectSeam,
+  selectedSeam, onSelectSeam, onEditText, onEditStart, onEditEnd,
 }: Props) {
   const wrap = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -233,6 +240,10 @@ export default function Canvas({
     }
   }, [ck, size.w, size.h])
 
+  /** the text node being edited in place, if any */
+  const [editing, setEditing] = useState<{ id: string; scene: string; row: number } | null>(null)
+  // the field draws the glyphs while it is open, so the engine must not
+  const hidden = editing
   // one surface, every board drawn through the camera
   useEffect(() => {
     const s = surf.current
@@ -259,13 +270,13 @@ export default function Canvas({
         // a scene with a camera zoom transforms about the canvas centre and
         // would otherwise spill across its neighbours
         skc.clipRect(ck.LTRBRect(0, 0, dw, dh), ck.ClipOp.Intersect, true)
-        paintFrameSafe(ck, skc, s.paint, f.cmds, doc.images)
+        paintFrameSafe(ck, skc, s.paint, hidden ? f.cmds.filter(c => !(c.id === hidden.id && c.scene === hidden.scene)) : f.cmds, doc.images)
         skc.restore()
       })
     })
     skc.restore()
     s.surface.flush()
-  }, [ck, columns, cam, size, ground, doc.images, dw, dh, worldX, worldY])
+  }, [ck, columns, cam, size, ground, doc.images, dw, dh, worldX, worldY, hidden])
 
   useEffect(() => {
     if (tool !== 'pen') { setPen(null); return }
@@ -360,6 +371,49 @@ export default function Canvas({
     return null
   }, [selected, columns, selRow, cam, worldX, worldY])
 
+  const editNode = useMemo(() => {
+    if (!editing) return null
+    const sc = doc.stage.scenes.find(s => s.id === editing.scene)
+    return sc?.nodes.find(n => n.id === editing.id) ?? null
+  }, [editing, doc.stage.scenes])
+
+  // an open field leaves the wall alone if its node vanishes under it
+  useEffect(() => { if (editing && !editNode) setEditing(null) }, [editing, editNode])
+
+  /** the smallest type worth putting a caret in */
+  const LEGIBLE = 13
+
+  /** true when the node was a text node and the field opened */
+  const startEdit = useCallback((box: NodeBox, row: number) => {
+    const sc = doc.stage.scenes.find(s => s.id === box.scene)
+    const node = sc?.nodes.find(n => n.id === box.id)
+    if (node?.type !== 'text') return false
+    onSelect(box, row)
+    onEditStart()
+    setEditing({ id: box.id, scene: box.scene, row })
+
+    // at wall zoom a headline is two pixels tall, so editing it would mean
+    // typing into nothing. zoom until it is legible and centre it
+    const type = node.font?.size ?? 48
+    const col = boards.findIndex(b => b.id === box.scene)
+    setCam(prev => {
+      if (type * prev.zoom >= LEGIBLE || col < 0) return prev
+      const zoom = Math.min(1.5, LEGIBLE / type)
+      const wx = worldX(col) + box.x + box.w / 2
+      const wy = worldY(row) + box.y + box.h / 2
+      return { zoom, pan: { x: size.w / 2 - wx * zoom, y: size.h / 2 - wy * zoom } }
+    })
+    return true
+  }, [onSelect, onEditStart, doc.stage.scenes, boards, worldX, worldY, size.w, size.h])
+
+  /** a recognised double click, waiting for the press to finish */
+  const pendingEdit = useRef<{ box: NodeBox; row: number } | null>(null)
+
+  /** the previous click, for recognising a double click on the same node */
+  const lastClick = useRef<
+    { id: string; scene: string; t: number; x: number; y: number } | null
+  >(null)
+
   const local = (clientX: number, clientY: number) => {
     const r = wrap.current!.getBoundingClientRect()
     return { x: clientX - r.left, y: clientY - r.top }
@@ -367,6 +421,24 @@ export default function Canvas({
 
   const onDown = (e: React.PointerEvent) => {
     const pt = local(e.clientX, e.clientY)
+
+    // pointer capture is taken on every down, and Chrome will not raise a
+    // native dblclick through it, so the second click is recognised here
+    if (tool === 'select') {
+      const hit = pick(e.clientX, e.clientY)
+      const last = lastClick.current
+      const again = hit && last && last.id === hit.box.id && last.scene === hit.box.scene
+        && e.timeStamp - last.t < 450
+        && Math.hypot(e.clientX - last.x, e.clientY - last.y) < 6
+      lastClick.current = hit
+        ? { id: hit.box.id, scene: hit.box.scene, t: e.timeStamp, x: e.clientX, y: e.clientY }
+        : null
+      if (again) {
+        
+        lastClick.current = null
+        if (startEdit(hit!.box, hit!.row)) { drag.current = null; return }
+      }
+    }
 
     if (tool === 'hand') {
       drag.current = { kind: 'pan', x: e.clientX, y: e.clientY, moved: false }
@@ -505,6 +577,13 @@ export default function Canvas({
   }
 
   const onUp = (e: React.PointerEvent) => {
+    const pending = pendingEdit.current
+    pendingEdit.current = null
+    if (pending) {
+      // focus settles after the press, so mount the field a frame later
+      requestAnimationFrame(() => startEdit(pending.box, pending.row))
+      return
+    }
     const d = drag.current
     drag.current = null
     setGuides([])
@@ -566,6 +645,19 @@ export default function Canvas({
                         bg-[#5e92f4]/10"
              style={{ left: band.x, top: band.y, width: band.w, height: band.h }} />
       )}
+      {editing && editNode && (() => {
+        const r = selRect()
+        return r ? (
+          <TextEditor
+            key={`${editing.scene}/${editing.id}`}
+            rect={r}
+            node={editNode}
+            zoom={cam.zoom}
+            onChange={onEditText}
+            onDone={commit => { setEditing(null); onEditEnd(commit) }}
+          />
+        ) : null
+      })()}
       <Overlay
         cam={cam}
         boards={boards}

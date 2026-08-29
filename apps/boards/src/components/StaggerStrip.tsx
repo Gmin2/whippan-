@@ -27,10 +27,10 @@ const ROW_H = 13
 const BAR_H = 8
 const HEAD_H = 15
 const FOOT_H = 12
-const GUTTER = 62
+const GUTTER = 92
 const PAD = 5
 /** below this the node ids stop fitting next to a usable track */
-const LABEL_MIN = 200
+const LABEL_MIN = 215
 /** below this even one bar per row is too short to aim at */
 const BARS_MIN = 118
 const SUMMARY_H = 15
@@ -207,21 +207,25 @@ export default function StaggerStrip({
     setDrag({ target: r.target, startX: e.clientX, startAt: r.at, at: r.at })
   }, [onSelect, ordered])
 
+  // the narrowest mode has no room for the words, only for the numbers
+  const tight = mode === 'summary'
+  const sp = tight ? '' : ' '
   const headRight = drag
     ? `${drag.at.toFixed(2)}s`
     : beat
       ? beat.even
-        ? `Δ ${beat.lo.toFixed(2)}s`
-        : `Δ ${beat.lo.toFixed(2)}–${beat.hi.toFixed(2)}s`
+        ? `Δ${sp}${beat.lo.toFixed(2)}s`
+        : `Δ${sp}${beat.lo.toFixed(2)}–${beat.hi.toFixed(2)}s`
       : null
 
   const head = (
     <div className="flex items-baseline gap-1.5 px-[5px]" style={{ height: HEAD_H }}>
-      <span className="shrink-0 font-mono text-[9px] tabular-nums text-faint">
+      <span className="shrink-0 font-mono text-[9px] tabular-nums text-faint"
+            title={`${rows.length} node${rows.length === 1 ? '' : 's'} with motion`}>
         {rows.length}
-        <span className="ml-1">{rows.length === 1 ? 'node' : 'nodes'}</span>
+        {!tight && <span className="ml-1">{rows.length === 1 ? 'node' : 'nodes'}</span>}
       </span>
-      {mode !== 'summary' && staticCount > 0 && (
+      {mode === 'full' && staticCount > 0 && (
         <span className="truncate font-mono text-[9px] tabular-nums text-faint/70">
           +{staticCount} static
         </span>
@@ -291,13 +295,13 @@ export default function StaggerStrip({
       <div className="relative px-[5px]">
         {/* the ladder joins entries in order; a kink is an uneven stagger */}
         <svg
-          className="pointer-events-none absolute z-10"
+          className="pointer-events-none absolute"
           style={{ left: PAD + (labels ? GUTTER : 0), top: 0, width: trackW, height: ordered.length * ROW_H }}
           width={trackW}
           height={ordered.length * ROW_H}
           aria-hidden
         >
-          <polyline points={ladder} fill="none" stroke="rgba(0,0,0,0.16)" strokeWidth="1" />
+          <polyline points={ladder} fill="none" stroke="rgba(0,0,0,0.14)" strokeWidth="1" />
         </svg>
 
         {ordered.map(r => {
