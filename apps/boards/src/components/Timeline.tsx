@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { lanesOf, sceneAt, spanColor } from '../motion'
+import type { Key } from '../engine/types'
 import type { Span } from '../motion'
 import type { Doc } from '../engine/types'
 import type { Sel } from '../doc'
@@ -14,6 +15,13 @@ interface Props {
   onSeek(t: number): void
   onPlay(playing: boolean): void
   onSelectNode(scene: string, id: string): void
+  /**
+   * Retime one property's keys. `done` marks the end of a gesture so the whole
+   * drag lands as a single undo step rather than one per pointer move.
+   */
+  onRetime(target: string, prop: string, keys: Key[], done: boolean): void
+  /** shift a whole track by moving its `at` */
+  onShiftTrack(target: string, at: number, done: boolean): void
 }
 
 const ACCENT = '#5e92f4'
@@ -68,6 +76,12 @@ interface Bar {
   color: string
   label: string
   title: string
+  /**
+   * Only set when the bar is exactly one property of one track. A folded bar
+   * shows the union of several properties' key times, and dragging one of
+   * those would be ambiguous, so only unfolded bars are editable.
+   */
+  source?: { track: number; prop: string; at: number; keys: Key[] }
 }
 
 const KIND_ORDER: Span['kind'][] = ['cam', 'reveal', 'state', 'enter', 'keys']
@@ -81,10 +95,14 @@ function barOf(group: Span[]): Bar {
     .sort((a, b) => a - b)
     .map(v => v / 1000)
   const looped = group.some(s => s.looped)
+  const only = group.length === 1 && group[0].kind === 'keys' ? group[0] : null
   return {
     t0,
     t1,
     keys,
+    source: only
+      ? { track: only.track, prop: only.prop, at: only.at, keys: only.keys }
+      : undefined,
     color: spanColor(kind),
     label: props.length <= 3 ? props.join(' · ') : `${props.length} props`,
     title: `${props.join(', ')}  ${t0.toFixed(2)}–${t1.toFixed(2)}s`
@@ -110,6 +128,19 @@ function clusters(spans: Span[]): Bar[] {
   }
   if (group.length) out.push(barOf(group))
   return out
+}
+
+interface Drag {
+  kind: 'key' | 'bar'
+  target: string
+  prop: string
+  /** index into the property's own key list */
+  index: number
+  startX: number
+  startKeys: Key[]
+  startAt: number
+  /** live scene-local time of the thing being dragged, for the readout */
+  at: number
 }
 
 interface LaneRow {
@@ -161,6 +192,7 @@ const IconPlus = () => (
  */
 export default function Timeline({
   doc, dur, t, playing, selected, onSeek, onPlay, onSelectNode,
+  onRetime, onShiftTrack,
 }: Props) {
   const ruler = useRef<HTMLDivElement>(null)
   const lanesBox = useRef<HTMLDivElement>(null)
@@ -168,6 +200,8 @@ export default function Timeline({
   const [mode, setMode] = useState<Mode>('scene')
   const [pps, setPps] = useState(0)
   const [scroll, setScroll] = useState(0)
+  /** a retime in progress: what is being moved and where it started */
+  const [drag, setDrag] = useState<Drag | null>(null)
   const scrub = useRef(false)
   const ppsRef = useRef(0)
   const scrollRef = useRef(0)
@@ -269,6 +303,82 @@ export default function Timeline({
     for (const el of els) el.addEventListener('wheel', onWheel, { passive: false })
     return () => { for (const el of els) el.removeEventListener('wheel', onWheel) }
   }, [pps, viewW, dur, zoomAt, clampScroll])
+
+  const fps = doc.stage.fps ?? 30
+
+  /**
+   * Retiming, in scene-local seconds.
+   *
+   * A key lands on a frame boundary because the document is frame-based and a
+   * time between frames is one the renderer can never actually show. Keys stay
+   * in order: dragging one past its neighbour would silently reorder the list,
+   * and the engine reads keys in order.
+   */
+  /**
+   * The live gesture. Held in a ref as well as state: the patch callbacks are
+   * side effects and must not run inside a setState updater, where React makes
+   * no promise about when or how often the function is invoked.
+   */
+  const gesture = useRef<Drag | null>(null)
+  const cancelled = useRef(false)
+
+  const applyDrag = useCallback((clientX: number, done: boolean) => {
+    const d = gesture.current
+    if (!d || !pps || cancelled.current) return
+    const delta = (clientX - d.startX) / pps
+
+    if (d.kind === 'bar') {
+      const at = Math.round(Math.max(0, Math.round((d.startAt + delta) * fps) / fps) * 1e4) / 1e4
+      onShiftTrack(d.target, at, done)
+      setDrag({ ...d, at })
+      return
+    }
+
+    const ks = d.startKeys
+    const moved = ks[d.index].t + delta
+    // clamp between the neighbours, a frame either side, so order holds
+    const lo = d.index > 0 ? ks[d.index - 1].t + 1 / fps : -Infinity
+    const hi = d.index < ks.length - 1 ? ks[d.index + 1].t - 1 / fps : Infinity
+    // 4/30 is a repeating decimal, so round it: the difference is far under a
+    // frame and it keeps the document readable
+    const snapped = clamp(Math.round(moved * fps) / fps, lo, hi)
+    const t = Math.round(snapped * 1e4) / 1e4
+    const next = ks.map((k, i) => (i === d.index ? { ...k, t } : k))
+    onRetime(d.target, d.prop, next, done)
+    setDrag({ ...d, at: d.startAt + t })
+  }, [pps, fps, onRetime, onShiftTrack])
+
+  // a drag is followed on the window so it survives leaving the lane
+  useEffect(() => {
+    gesture.current = drag
+    if (!drag) return
+    const move = (e: PointerEvent) => applyDrag(e.clientX, false)
+    const up = (e: PointerEvent) => {
+      applyDrag(e.clientX, true)
+      gesture.current = null
+      setDrag(null)
+    }
+    const key = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      e.stopPropagation()
+      cancelled.current = true
+      // put it back where it was, then end the gesture
+      if (drag.kind === 'bar') onShiftTrack(drag.target, drag.startAt, true)
+      else onRetime(drag.target, drag.prop, drag.startKeys, true)
+      gesture.current = null
+      setDrag(null)
+    }
+    cancelled.current = false
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+    // capture phase, so escape reaches the drag before the app clears selection
+    window.addEventListener('keydown', key, true)
+    return () => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+      window.removeEventListener('keydown', key, true)
+    }
+  }, [drag, applyDrag, onRetime, onShiftTrack])
 
   const seekFrom = useCallback((clientX: number) => {
     const el = ruler.current
@@ -444,9 +554,31 @@ export default function Timeline({
                   <span className="absolute inset-y-0 block"
                         style={{ width: contentW, left: -scroll }}>
                     {l.rows.map((r, ri) => r.bars.map((b, bi) => (
-                      <BarView key={`${ri}-${bi}`} bar={b} pps={pps} base={base}
-                               top={LANE_PAD + ri * ROW_H + (ROW_H - BAR_H) / 2}
-                               scroll={scroll} viewW={viewW} strong={on} />
+                      <BarView
+                        key={`${ri}-${bi}`} bar={b} pps={pps} base={base}
+                        top={LANE_PAD + ri * ROW_H + (ROW_H - BAR_H) / 2}
+                        scroll={scroll} viewW={viewW} strong={on}
+                        dragIndex={
+                          drag && drag.target === l.target && b.source
+                            && drag.prop === b.source.prop && drag.kind === 'key'
+                            ? drag.index : null
+                        }
+                        onGrab={(e, index) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          const src = b.source!
+                          setDrag({
+                            kind: index === null ? 'bar' : 'key',
+                            target: l.target,
+                            prop: src.prop,
+                            index: index ?? 0,
+                            startX: e.clientX,
+                            startKeys: src.keys.map(k => ({ ...k })),
+                            startAt: index === null ? src.at : src.at,
+                            at: b.t0,
+                          })
+                        }}
+                      />
                     )))}
                   </span>
                 </span>
@@ -524,10 +656,14 @@ function StepBtn({ title, onClick, children }: {
  * to stay separate, and they are clamped inside the bar; otherwise the bar
  * carries a count, and the tooltip carries the rest.
  */
-function BarView({ bar, pps, base, top, scroll, viewW, strong }: {
+function BarView({ bar, pps, base, top, scroll, viewW, strong, onGrab, dragIndex }: {
   bar: Bar; pps: number; base: number; top: number
   scroll: number; viewW: number; strong: boolean
+  /** null index means the bar body was grabbed rather than a key */
+  onGrab?(e: React.PointerEvent, index: number | null): void
+  dragIndex?: number | null
 }) {
+  const editable = !!bar.source && !!onGrab
   const left = (base + bar.t0) * pps
   const raw = (bar.t1 - bar.t0) * pps
   if (left > scroll + viewW + 40 || left + Math.max(raw, 8) < scroll - 40) return null
@@ -537,11 +673,13 @@ function BarView({ bar, pps, base, top, scroll, viewW, strong }: {
     return (
       <span
         title={bar.title}
-        className="absolute rotate-45"
+        onPointerDown={editable ? e => onGrab!(e, 0) : undefined}
+        className={`absolute rotate-45 ${editable ? 'cursor-ew-resize' : ''}`}
         style={{
           left: left - KEY_SIZE / 2, top: top + (BAR_H - KEY_SIZE) / 2,
           width: KEY_SIZE, height: KEY_SIZE,
-          background: '#fff', border: `1.25px solid ${bar.color}`,
+          background: dragIndex === 0 ? bar.color : '#fff',
+          border: `1.25px solid ${bar.color}`,
         }}
       />
     )
@@ -577,8 +715,9 @@ function BarView({ bar, pps, base, top, scroll, viewW, strong }: {
 
   return (
     <span
-      title={bar.title}
-      className="absolute block rounded-[3px]"
+      title={editable ? `${bar.title}  ·  drag a key to retime, the bar to shift` : bar.title}
+      onPointerDown={editable ? e => onGrab!(e, null) : undefined}
+      className={`absolute block rounded-[3px] ${editable ? 'cursor-grab' : ''}`}
       style={{
         left, top, width: w, height: BAR_H,
         background: `${bar.color}${strong ? '30' : '1f'}`,
@@ -603,11 +742,18 @@ function BarView({ bar, pps, base, top, scroll, viewW, strong }: {
       {drawKeys && xs.map((x, i) => (
         <span
           key={i}
-          className="absolute rotate-45"
+          onPointerDown={editable
+            ? e => { e.stopPropagation(); onGrab!(e, i) }
+            : undefined}
+          className={`absolute rotate-45 ${editable ? 'cursor-ew-resize' : ''}`}
           style={{
             left: x - half, top: (BAR_H - 2 - KEY_SIZE) / 2,
             width: KEY_SIZE, height: KEY_SIZE,
-            background: '#fff', border: `1.25px solid ${bar.color}`,
+            background: dragIndex === i ? bar.color : '#fff',
+            border: `1.25px solid ${bar.color}`,
+            // a bare 7px diamond is a hard target; widen the hit area without
+            // changing what is drawn
+            boxShadow: editable ? '0 0 0 3px transparent' : undefined,
           }}
         />
       ))}

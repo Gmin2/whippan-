@@ -11,6 +11,10 @@ import type { Anim, Doc, Key } from './engine/types'
 
 export interface Span {
   prop: string
+  /** which track in anim.tracks this came from, so an edit can find it again */
+  track: number
+  /** the track's `at`, since key times are stored relative to it */
+  at: number
   /** scene-local seconds */
   t0: number
   t1: number
@@ -39,7 +43,7 @@ interface RawTrack {
 
 const tracksOf = (anim: Anim): RawTrack[] => (anim.tracks as RawTrack[]) ?? []
 
-function spansOfTrack(tr: RawTrack): Span[] {
+function spansOfTrack(tr: RawTrack, track: number): Span[] {
   const at = tr.at ?? 0
   const out: Span[] = []
   const looped = !!tr.loop
@@ -48,7 +52,7 @@ function spansOfTrack(tr: RawTrack): Span[] {
     if (!keys.length) continue
     const ts = keys.map(k => k.t)
     out.push({
-      prop,
+      prop, track, at,
       t0: at + Math.min(...ts),
       t1: at + Math.max(...ts),
       keys,
@@ -63,16 +67,16 @@ function spansOfTrack(tr: RawTrack): Span[] {
     // the text, so this is the floor rather than the true end
     const r = tr.reveal
     const dur = (r.dur ?? 0.27) + (r.stagger ?? 0.05) * 4
-    out.push({ prop: `reveal:${r.unit ?? 'word'}`, t0: at, t1: at + dur, keys: [], kind: 'reveal', looped })
+    out.push({ track, at, prop: `reveal:${r.unit ?? 'word'}`, t0: at, t1: at + dur, keys: [], kind: 'reveal', looped })
   }
   if (tr.enter) {
-    out.push({ prop: 'enter', t0: at, t1: at + 0.4, keys: [], kind: 'enter', looped })
+    out.push({ track, at, prop: 'enter', t0: at, t1: at + 0.4, keys: [], kind: 'enter', looped })
   }
   if (tr.state) {
-    out.push({ prop: `state:${tr.state}`, t0: at, t1: at + 0.12, keys: [], kind: 'state', looped })
+    out.push({ track, at, prop: `state:${tr.state}`, t0: at, t1: at + 0.12, keys: [], kind: 'state', looped })
   }
   if (tr.cam) {
-    out.push({ prop: 'camera', t0: at, t1: at + 1, keys: [], kind: 'cam', looped })
+    out.push({ track, at, prop: 'camera', t0: at, t1: at + 1, keys: [], kind: 'cam', looped })
   }
   return out
 }
@@ -86,14 +90,18 @@ export function lanesOf(doc: Doc, sceneId: string): Lane[] {
   const lanes: Lane[] = []
   for (const node of scene.nodes) {
     const spans = tracks
-      .filter(t => t.target === node.id)
-      .flatMap(spansOfTrack)
+      .map((t, i) => ({ t, i }))
+      .filter(({ t }) => t.target === node.id)
+      .flatMap(({ t, i }) => spansOfTrack(t, i))
       .sort((a, b) => a.t0 - b.t0)
     lanes.push({ target: node.id, kind: node.type, spans })
   }
 
   // camera tracks target the scene itself
-  const cam = tracks.filter(t => t.target === sceneId).flatMap(spansOfTrack)
+  const cam = tracks
+    .map((t, i) => ({ t, i }))
+    .filter(({ t }) => t.target === sceneId)
+    .flatMap(({ t, i }) => spansOfTrack(t, i))
   if (cam.length) lanes.unshift({ target: sceneId, kind: 'camera', spans: cam })
 
   return lanes

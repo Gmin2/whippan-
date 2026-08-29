@@ -346,15 +346,36 @@ export default function App() {
     setScene(sceneId)
   }, [apply])
 
-  /** edit the animation overlay for the selected node */
-  const patchMotion = useCallback((patch: TrackPatch) => {
-    const s = selRef.current
-    if (!s) return
-    snapshot()
-    setDoc(prev => (prev ? { ...prev, anim: patchTrack(prev.anim, s.id, patch) } : prev))
+  /** edit the animation overlay for a node */
+  const patchMotionFor = useCallback((
+    target: string, patch: TrackPatch, transient = false,
+  ) => {
+    if (!transient) snapshot()
+    setDoc(prev => (prev ? { ...prev, anim: patchTrack(prev.anim, target, patch) } : prev))
     setRev(r => r + 1)
     setDirty(true)
   }, [snapshot])
+
+  const patchMotion = useCallback((patch: TrackPatch) => {
+    const s = selRef.current
+    if (s) patchMotionFor(s.id, patch)
+  }, [patchMotionFor])
+
+  /**
+   * Retiming from the timeline. A drag streams patches, so the snapshot is
+   * taken once when the gesture starts: one drag is one undo, not thirty.
+   */
+  const retiming = useRef(false)
+  const motionGesture = useCallback((
+    target: string, patch: TrackPatch, done: boolean,
+  ) => {
+    if (!retiming.current) {
+      retiming.current = true
+      snapshot()
+    }
+    patchMotionFor(target, patch, true)
+    if (done) retiming.current = false
+  }, [patchMotionFor, snapshot])
 
   const removeSelection = useCallback(() => {
     const s = selRef.current
@@ -436,6 +457,9 @@ export default function App() {
   nodeRef.current = found?.node ?? null
   patchNodeRef.current = patchNode
   docRef.current = doc
+  if (import.meta.env.DEV) {
+    ;(window as unknown as Record<string, unknown>).__doc = doc
+  }
   saveRef.current = save
   sceneRef.current = scene
   modeRef.current = mode
@@ -572,6 +596,10 @@ export default function App() {
             onSeek={v => { setPlaying(false); setPlayhead(v) }}
             onPlay={setPlaying}
             onSelectNode={(s, id) => { setSel({ scene: s, id }); setScene(s) }}
+            onRetime={(target, prop, keys, done) =>
+              motionGesture(target, { keys: { [prop]: keys } }, done)}
+            onShiftTrack={(target, at, done) =>
+              motionGesture(target, { at }, done)}
           />
         )}
       </div>
