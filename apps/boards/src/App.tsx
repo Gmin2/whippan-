@@ -8,9 +8,12 @@ import AssetPicker from './components/AssetPicker'
 import EffectPicker from './components/EffectPicker'
 import Timeline from './components/Timeline'
 import { boot, ensureImage, loadDoc, saveDoc } from './engine'
-import type { Doc, Entry, Stage } from './engine/types'
+import type { Anim, Doc, Entry, Stage } from './engine/types'
 import { artboards, findNode, tree } from './doc'
+import { patchTrack, tracksFor } from './tracks'
+import type { TrackPatch } from './tracks'
 import { docDur } from './engine'
+import { sceneAt } from './motion'
 import {
   addNode, addScene, deleteNode, deleteScene, duplicateNode, newImage, newPath,
   newRect, newText,
@@ -51,8 +54,9 @@ export default function App() {
   const [groundAlpha, setGroundAlpha] = useState(1)
   // undo holds whole stage snapshots. a drag pushes one entry when it starts,
   // not per pointer move, so undoing a drag undoes the whole gesture.
-  const undo = useRef<Stage[]>([])
-  const redo = useRef<Stage[]>([])
+  // both layers, because motion mode edits anim.json as well as stage.json
+  const undo = useRef<{ stage: Stage; anim: Anim }[]>([])
+  const redo = useRef<{ stage: Stage; anim: Anim }[]>([])
   const dragging = useRef(false)
 
   useEffect(() => {
@@ -84,7 +88,10 @@ export default function App() {
   const snapshot = useCallback(() => {
     setDoc(prev => {
       if (prev) {
-        undo.current.push(structuredClone(prev.stage))
+        undo.current.push({
+          stage: structuredClone(prev.stage),
+          anim: structuredClone(prev.anim),
+        })
         if (undo.current.length > 100) undo.current.shift()
         redo.current = []
       }
@@ -167,12 +174,12 @@ export default function App() {
   const stepHistory = useCallback((dir: 'undo' | 'redo') => {
     const from = dir === 'undo' ? undo.current : redo.current
     const to = dir === 'undo' ? redo.current : undo.current
-    const stage = from.pop()
-    if (!stage) return
+    const snap = from.pop()
+    if (!snap) return
     setDoc(prev => {
       if (!prev) return prev
-      to.push(structuredClone(prev.stage))
-      return { ...prev, stage }
+      to.push({ stage: structuredClone(prev.stage), anim: structuredClone(prev.anim) })
+      return { ...prev, stage: snap.stage, anim: snap.anim }
     })
     setRev(r => r + 1)
     setDirty(true)
@@ -321,6 +328,16 @@ export default function App() {
     setScene(sceneId)
   }, [apply])
 
+  /** edit the animation overlay for the selected node */
+  const patchMotion = useCallback((patch: TrackPatch) => {
+    const s = selRef.current
+    if (!s) return
+    snapshot()
+    setDoc(prev => (prev ? { ...prev, anim: patchTrack(prev.anim, s.id, patch) } : prev))
+    setRev(r => r + 1)
+    setDirty(true)
+  }, [snapshot])
+
   const removeSelection = useCallback(() => {
     const s = selRef.current
     if (s) {
@@ -374,6 +391,7 @@ export default function App() {
   const duplicateRef = useRef<() => void>(() => {})
 
   const filmDur = doc ? docDur(doc.stage) : 0
+  const motionAt = doc ? sceneAt(doc, playhead) : { index: 0, id: '', local: 0 }
 
   // playback: one clock, wrapping at the end of the film
   useEffect(() => {
@@ -536,6 +554,12 @@ export default function App() {
         canvas={doc.stage.size}
         onPatch={patchScene}
         onPatchNode={patchNode}
+        mode={mode}
+        tracks={sel ? tracksFor(doc.anim, sel.id) : []}
+        sceneId={scene}
+        localTime={motionAt.local}
+        sceneDur={doc.stage.scenes.find(s => s.id === motionAt.id)?.dur ?? 3}
+        onPatchMotion={patchMotion}
       />}
     </div>
   )

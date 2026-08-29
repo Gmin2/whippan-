@@ -1,8 +1,10 @@
 import ColorRow from './ColorRow'
 import Inspector from './Inspector'
+import MotionInspector from './MotionInspector'
 import NumField from './NumField'
 import type { Artboard, NodePatch, ScenePatch } from '../doc'
-import type { Node } from '../engine/types'
+import type { Node, Track } from '../engine/types'
+import type { TrackPatch } from '../tracks'
 import type { NodeBox } from '../measure'
 
 interface Props {
@@ -16,6 +18,13 @@ interface Props {
   canvas: [number, number]
   onPatch(id: string, patch: ScenePatch): void
   onPatchNode(patch: NodePatch): void
+  /** motion mode swaps the inspector for the animation one */
+  mode: 'design' | 'motion'
+  tracks: Track[]
+  sceneId: string | null
+  localTime: number
+  sceneDur: number
+  onPatchMotion(patch: TrackPatch): void
 }
 
 const PEERS = [
@@ -41,6 +50,7 @@ function Field({ children }: { children: React.ReactNode }) {
 export default function RightPanel({
   ground, groundAlpha, onGround, zoom, selection, node, nodeBox, canvas,
   onPatch, onPatchNode,
+  mode, tracks, sceneId, localTime, sceneDur, onPatchMotion,
 }: Props) {
   return (
     <aside className="relative flex h-full w-inspector shrink-0 flex-col border-l
@@ -70,7 +80,16 @@ export default function RightPanel({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {node ? (
+        {mode === 'motion' ? (
+          <MotionInspector
+            node={node}
+            sceneId={sceneId}
+            tracks={tracks}
+            localTime={localTime}
+            sceneDur={sceneDur}
+            onPatch={onPatchMotion}
+          />
+        ) : node ? (
           <Inspector node={node} box={nodeBox} canvas={canvas} onPatch={onPatchNode} />
         ) : selection ? (
           <>

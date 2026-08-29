@@ -96,8 +96,21 @@ export interface Stage {
   scenes: Scene[]
 }
 
+export interface Track {
+  target?: string
+  /** scene-local, shifts the whole track; key times are relative to it */
+  at?: number
+  loop?: boolean
+  keys?: Record<string, Key[]>
+  reveal?: Record<string, unknown>
+  enter?: unknown
+  state?: string
+  cam?: unknown
+  [k: string]: unknown
+}
+
 export interface Anim {
-  tracks: unknown[]
+  tracks: Track[]
 }
 
 export interface Doc {
