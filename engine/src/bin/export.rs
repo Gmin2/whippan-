@@ -4,8 +4,8 @@ mod app {
     use skia_safe::image_filters;
     use skia_safe::utils::parse_path::from_svg;
     use skia_safe::{
-        surfaces, AlphaType, BlurStyle, Color, ColorType, Data, ImageInfo, MaskFilter, Paint,
-        Point, RRect, Rect, Shader, TileMode,
+        surfaces, AlphaType, BlurStyle, Color, ColorType, Data, EncodedImageFormat, ImageInfo,
+        MaskFilter, Paint, Point, RRect, Rect, Shader, TileMode,
     };
     use std::collections::HashMap;
     use std::io::Write;
@@ -177,15 +177,35 @@ mod app {
     }
 
     pub fn run() {
-        let args: Vec<String> = std::env::args().collect();
-        if args.len() < 4 {
-            eprintln!("usage: export <stage.json> <anim.json> <out.mp4> [fps]");
+        let argv: Vec<String> = std::env::args().collect();
+        // `export frames ...` writes one png per requested time instead of an
+        // mp4. everything up to the surface is identical, so the two modes
+        // share font registration, image decoding and the painter rather than
+        // forking into a second binary that would drift.
+        let stills = argv.get(1).map(|s| s == "frames").unwrap_or(false);
+        let args: Vec<String> = if stills {
+            let mut a = vec![argv[0].clone()];
+            a.extend(argv[2..].iter().cloned());
+            a
+        } else {
+            argv
+        };
+        if args.len() < 4 || (stills && args.len() < 5) {
+            eprintln!("usage: export <stage.json> <anim.json> <out.mp4> [fps] [supersample]");
+            eprintln!(
+                "       export frames <stage.json> <anim.json> <out-dir> <times.txt> [supersample]"
+            );
             std::process::exit(1);
         }
         let stage = std::fs::read_to_string(&args[1]).expect("stage json");
         let anim = std::fs::read_to_string(&args[2]).expect("anim json");
         let out = args[3].clone();
-        let fps: f32 = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(30.0);
+        // in stills mode args[4] is the times file, so fps is not read from it
+        let fps: f32 = if stills {
+            30.0
+        } else {
+            args.get(4).and_then(|s| s.parse().ok()).unwrap_or(30.0)
+        };
         // render supersample: 2 = 4k output from a 1080p doc, using 2x
         // assets at native resolution
         let ss: i32 = args.get(5).and_then(|s| s.parse().ok()).unwrap_or(1);
@@ -262,6 +282,54 @@ mod app {
         let (wi, hi) = (w as i32, h as i32);
         let dur = doc_duration(&stage).expect("duration");
         let frames = (dur * fps).round() as u32;
+
+        // stills: render exactly the times asked for and stop. this is what the
+        // conformance harness drives, so the times come from the reference
+        // video's own presentation timestamps rather than a rate of our choosing
+        if stills {
+            let listing = std::fs::read_to_string(&args[4])
+                .unwrap_or_else(|_| panic!("times file {}", args[4]));
+            let times: Vec<f32> = listing
+                .lines()
+                .filter_map(|l| l.trim().parse::<f32>().ok())
+                .collect();
+            if times.is_empty() {
+                eprintln!("no parseable times in {}", args[4]);
+                std::process::exit(1);
+            }
+            std::fs::create_dir_all(&out).expect("out dir");
+            let mut surface =
+                surfaces::raster_n32_premul((wi * ss, hi * ss)).expect("surface");
+            let step = (times.len() / 20).max(1);
+            for (i, t) in times.iter().enumerate() {
+                if i % step == 0 {
+                    eprintln!("progress {i}/{}", times.len());
+                }
+                // the engine emits a clear as its first command, so frames do
+                // not bleed into each other on a reused surface
+                let cmds = render_cmds(&stage, &anim, *t).expect("render");
+                surface.canvas().save();
+                surface.canvas().scale((ss as f32, ss as f32));
+                paint_frame(surface.canvas(), &cmds, &images);
+                surface.canvas().restore();
+                let png = surface
+                    .image_snapshot()
+                    .encode(None, EncodedImageFormat::PNG, 100)
+                    .expect("png encode");
+                // 1-indexed four digits, matching how the reference frames were
+                // extracted, so a frame lines up with its counterpart by name
+                std::fs::write(format!("{out}/f{:04}.png", i + 1), png.as_bytes())
+                    .expect("write png");
+            }
+            eprintln!("progress {}/{}", times.len(), times.len());
+            println!(
+                "{out}: {} frames at {}x{}",
+                times.len(),
+                wi * ss,
+                hi * ss
+            );
+            return;
+        }
 
         let audio = parsed.get("audio").filter(|a| !a.is_null()).map(|a| {
             (
