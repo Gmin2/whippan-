@@ -49,3 +49,58 @@ export function wallSize(
     h: HEADER + HEADER_GAP + rows * dh + (rows - 1) * GAP_Y,
   }
 }
+
+/**
+ * Script card geometry.
+ *
+ * The card's copy is drawn in screen pixels so it stays legible at any zoom,
+ * which means the card's height is a screen measurement too, not a scaled world
+ * one. Both the overlay that draws the cards and the camera that has to leave
+ * room for them need the same answer, so the rule lives here.
+ */
+export const CARD = {
+  fs: 12,
+  lh: 16,
+  /** the number-and-duration line above the copy */
+  title: 18,
+  /** a long note must not build a tower over the wall */
+  maxLines: 5,
+  /** no room for the copy: the card becomes a label strip */
+  slim: 17,
+  /** narrower than this and even the label is noise */
+  minW: 34,
+  /** the copy needs at least this much width to be worth wrapping */
+  textW: 104,
+  /**
+   * The film title and its subtitle sit above the tallest card, on baselines
+   * 34 and 14 above it. 20px type needs its ascender clearing the top edge too,
+   * so this is that stack plus a margin.
+   */
+  titleRoom: 70,
+}
+
+export const cardPad = (w: number) => Math.min(14, Math.max(6, w * 0.04))
+
+/** naive word wrap, shared so the height and the drawing never disagree */
+export function wrapNote(text: string, cols: number): string[] {
+  if (cols < 8) return []
+  const out: string[] = []
+  let line = ''
+  for (const word of text.split(/\s+/)) {
+    if ((line + ' ' + word).trim().length > cols) { out.push(line.trim()); line = word }
+    else line += ' ' + word
+  }
+  if (line.trim()) out.push(line.trim())
+  return out
+}
+
+/** a card's height in screen pixels, and the lines it will actually show */
+export function cardBox(note: string, w: number, motion: boolean) {
+  if (motion) return { h: 22, lines: [] as string[], pad: 8 }
+  if (w < CARD.minW) return { h: 0, lines: [] as string[], pad: 0 }
+  const pad = cardPad(w)
+  const cols = Math.floor((w - pad * 2) / (CARD.fs * 0.52))
+  const lines = w > CARD.textW ? wrapNote(note, cols).slice(0, CARD.maxLines) : []
+  if (!lines.length) return { h: CARD.slim, lines, pad }
+  return { h: pad + CARD.title + lines.length * CARD.lh + pad - 4, lines, pad }
+}

@@ -9,7 +9,9 @@ import type { Cmd, NodeBox } from '../measure'
 import { CURSORS, handleAt, resize, scaleType } from '../handles'
 import { snap } from '../snap'
 import type { Guide } from '../snap'
-import { GAP_X, columnX, rowY, sampleTimes, wallSize } from '../layout'
+import {
+  CARD, GAP_X, HEADER, HEADER_GAP, cardBox, columnX, rowY, sampleTimes, wallSize,
+} from '../layout'
 import type { Handle } from '../handles'
 import Overlay from './Overlay'
 import TextEditor from './TextEditor'
@@ -194,15 +196,25 @@ export default function Canvas({
       return
     }
 
+    // the script cards and the film title are screen-space chrome, so the room
+    // they need is screen pixels and does not shrink with the wall. it also
+    // depends on the zoom, through the card's width tier, so this fits once to
+    // learn the tier and again with the room that tier actually needs
     const wall = wallSize(boards, dw, dh, mode)
-    const zoom = Math.min(
+    const artH = wall.h - (HEADER + HEADER_GAP)
+    const fitTo = (room: number) => Math.min(
       (size.w - pad * 2) / wall.w,
-      (size.h - pad * 2) / wall.h,
+      (size.h - pad * 2 - room) / artH,
       1,
     )
+    const band = (z: number) =>
+      // motion mode returned above, so these are always design-mode cards
+      Math.max(0, ...boards.map(b => cardBox(b.note, dw * z, false).h))
+    const room = band(fitTo(0)) + CARD.titleRoom
+    const zoom = fitTo(room)
     setCam({
       zoom,
-      pan: { x: (size.w - wall.w * zoom) / 2, y: pad + 40 },
+      pan: { x: (size.w - wall.w * zoom) / 2, y: room - (HEADER + HEADER_GAP) * zoom },
     })
   }, [doc.entry.slug, size, boards, dw, dh, mode])
 

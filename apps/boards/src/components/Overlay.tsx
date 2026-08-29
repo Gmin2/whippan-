@@ -1,7 +1,7 @@
 import type { Artboard, Sel } from '../doc'
 import type { NodeBox } from '../measure'
 import { handlePoints } from '../handles'
-import { GAP_Y, HEADER, HEADER_GAP } from '../layout'
+import { CARD, GAP_Y, HEADER_GAP, cardBox } from '../layout'
 import { elbow } from '../wires'
 import { glyph, isDefault, kindOf } from '../transitions'
 import type { Camera } from './Canvas'
@@ -44,18 +44,10 @@ const ACCENT = '#5e92f4'
 /** snap guides are crimson there, not the selection blue */
 const GUIDE = '#dc4f70'
 
-/** naive word wrap for the script card */
-function wrapText(text: string, cols: number): string[] {
-  if (cols < 8) return []
-  const out: string[] = []
-  let line = ''
-  for (const word of text.split(/\s+/)) {
-    if ((line + ' ' + word).trim().length > cols) { out.push(line.trim()); line = word }
-    else line += ' ' + word
-  }
-  if (line.trim()) out.push(line.trim())
-  return out
-}
+/** the seam chip needs this much gap before its label fits between two boards */
+const SEAM_FULL = 66
+/** below that it becomes a round mark carrying only the transition's glyph */
+const SEAM_MARK = 18
 /** 8.5 css px outer square, white fill, 1.5px accent border, square corners */
 const HANDLE = 8.5
 
@@ -88,6 +80,20 @@ export default function Overlay({
     hover.id === selected.id && hover.scene === selected.scene
   const hov = same ? null : find(hover)
 
+  /**
+   * What a script card actually needs.
+   *
+   * The height follows the copy rather than the zoom. The card's text is drawn
+   * in screen pixels so it stays legible, which means a card scaled by zoom
+   * ends up either cramped or mostly empty; sizing it to the wrapped lines
+   * keeps it honest at every scale. When there is no room for the copy the card
+   * shrinks to a label strip instead of staying a slab you cannot read.
+   */
+  const cardOf = (b: Artboard) => cardBox(b.note, dw * zoom, mode === 'motion')
+
+  /** the tallest card decides where the film title sits, so it never collides */
+  const bandH = Math.max(0, ...boards.map(b => cardOf(b).h))
+
   const rectOf = (i: number, k: number, b: NodeBox) => ({
     x: sx(i, b.x),
     y: ry(k, b.y),
@@ -99,11 +105,11 @@ export default function Overlay({
     <svg className="pointer-events-none absolute inset-0 h-full w-full"
          style={{ overflow: 'visible' }}>
       {/* the film name, living on the canvas rather than in any board */}
-      <text x={sx(0, 0)} y={ry(0, 0) - HEADER_GAP * zoom - Math.max(HEADER * zoom, 82) - 34}
+      <text x={sx(0, 0)} y={ry(0, 0) - HEADER_GAP * zoom - bandH - 34}
             fill="rgba(255,255,255,0.75)" fontSize={20}>
         {title[0]}
       </text>
-      <text x={sx(0, 0)} y={ry(0, 0) - HEADER_GAP * zoom - Math.max(HEADER * zoom, 82) - 14}
+      <text x={sx(0, 0)} y={ry(0, 0) - HEADER_GAP * zoom - bandH - 14}
             fill="rgba(255,255,255,0.55)" fontSize={13}>
         {title[1]}
       </text>
@@ -113,38 +119,34 @@ export default function Overlay({
         const w = dw * zoom
         if (x > 4000 || x + w < -400) return null
         const active = activeScene === b.id
-        // the card grows with the wall but never shrinks below legible, and it
-        // grows upward from the first frame so it can never eat into one
-        const cardH = mode === 'motion' ? 22 : Math.max(HEADER * zoom, 82)
+        // it grows upward from the first frame, so a tall card can never eat
+        // into the artwork it is labelling
+        const { h: cardH, lines, pad } = cardOf(b)
         const cardY = ry(0, 0) - HEADER_GAP * zoom - cardH
-
-        // the card is laid out in world space so it scales with the wall, but
-        // its text is measured in screen pixels: a line of copy has to stay
-        // legible at any zoom, or vanish when there is genuinely no room
-        const pad = Math.min(14, Math.max(6, w * 0.04))
-        const fs = 12
-        const lh = 16
-        const roomForText = mode === 'design' && w > 104
-        const cols = Math.floor((w - pad * 2) / (fs * 0.52))
-        const maxLines = Math.floor((cardH - pad * 2 - 18) / lh)
-        const lines = roomForText ? wrapText(b.note, cols).slice(0, Math.max(0, maxLines)) : []
+        const roomForText = lines.length > 0
 
         return (
           <g key={b.id}>
-            <rect x={x} y={cardY} width={w} height={cardH} rx={Math.min(10, w * 0.03)}
-                  fill="#16241d"
-                  className="pointer-events-auto cursor-pointer"
-                  onPointerDown={e => { e.stopPropagation(); onSelectScene(b.id) }} />
-            {(roomForText || mode === 'motion') && (
-              <text x={x + pad} y={cardY + (mode === 'motion' ? 15 : pad + 10)}
+            {cardH > 0 && (
+              <rect x={x} y={cardY} width={w} height={cardH}
+                    rx={Math.min(10, w * 0.03, cardH / 2)}
+                    fill="#16241d"
+                    className="pointer-events-auto cursor-pointer"
+                    onPointerDown={e => { e.stopPropagation(); onSelectScene(b.id) }} />
+            )}
+            {cardH > 0 && (
+              <text x={x + Math.max(5, pad)}
+                    y={roomForText ? cardY + pad + 10 : cardY + cardH / 2 + 3.5}
                     fill="rgba(255,255,255,0.6)"
                     fontSize={10} fontFamily="monospace">
-                {b.label} · {b.dur.toFixed(1)}s
+                {/* the duration is the first thing to go: a clipped "10 · 2.4"
+                    is worse than a clean "10" */}
+                {w > 68 ? `${b.label} · ${b.dur.toFixed(1)}s` : b.label}
               </text>
             )}
             {lines.map((line, li) => (
-              <text key={li} x={x + pad} y={cardY + pad + 30 + li * lh}
-                    fill="rgba(255,255,255,0.9)" fontSize={fs}>
+              <text key={li} x={x + pad} y={cardY + pad + CARD.title + 12 + li * CARD.lh}
+                    fill="rgba(255,255,255,0.9)" fontSize={CARD.fs}>
                 {line}
               </text>
             ))}
@@ -157,7 +159,9 @@ export default function Overlay({
                 )}
                 {/* the time sits in the gap above its own frame, and only
                     when the gap is actually tall enough to hold it */}
-                {w > 70 && GAP_Y * zoom >= 13 && (
+                {/* row zero's gap is the header gap, not the row gap; using the
+                    wrong one puts the timestamp under the script card */}
+                {w > 70 && (k === 0 ? HEADER_GAP : GAP_Y) * zoom >= 13 && (
                   <text x={x} y={ry(k, 0) - 5} fill="rgba(0,0,0,0.38)"
                         fontSize={10} fontFamily="monospace">
                     {f.t.toFixed(2)}s
@@ -224,6 +228,7 @@ export default function Overlay({
         if (x2 < -300 || x1 > 4200) return null
         const midY = ry(0, dh / 2)
         const cx = (x1 + x2) / 2
+        const gap = x2 - x1
         const on = selectedSeam === b.id
         const quiet = isDefault(b.transition)
         const stroke = on ? ACCENT : quiet ? 'rgba(0,0,0,0.16)' : 'rgba(0,0,0,0.34)'
@@ -250,15 +255,42 @@ export default function Overlay({
               )
             })}
 
+            {/* the chip has to live in the gap between two boards, so it
+                degrades with it: label, then glyph, then nothing but a target.
+                a 60px pill dropped into a 7px gap lands on the artwork either
+                side and turns a wall of scenes into a row of collisions. */}
             <g className="pointer-events-auto cursor-pointer"
                onPointerDown={e => { e.stopPropagation(); onSelectSeam(on ? null : b.id) }}>
-              <rect x={cx - 30} y={midY - 11} width={60} height={22} rx={11}
-                    fill={on ? ACCENT : '#fff'}
-                    stroke={on ? ACCENT : 'rgba(0,0,0,0.14)'} strokeWidth={1} />
-              <text x={cx} y={midY + 4} textAnchor="middle" fontSize={10}
-                    fill={on ? '#fff' : quiet ? 'rgba(0,0,0,0.45)' : ACCENT}>
-                {glyph(b.transition)} {b.transition?.morph ? 'morph' : kindOf(b.transition)}
-              </text>
+              {gap >= SEAM_FULL ? (
+                <>
+                  <rect x={cx - 30} y={midY - 11} width={60} height={22} rx={11}
+                        fill={on ? ACCENT : '#fff'}
+                        stroke={on ? ACCENT : 'rgba(0,0,0,0.14)'} strokeWidth={1} />
+                  <text x={cx} y={midY + 4} textAnchor="middle" fontSize={10}
+                        fill={on ? '#fff' : quiet ? 'rgba(0,0,0,0.45)' : ACCENT}>
+                    {glyph(b.transition)} {b.transition?.morph ? 'morph' : kindOf(b.transition)}
+                  </text>
+                </>
+              ) : gap >= SEAM_MARK ? (
+                <>
+                  <circle cx={cx} cy={midY} r={Math.min(9, gap / 2 - 1)}
+                          fill={on ? ACCENT : '#fff'}
+                          stroke={on ? ACCENT : 'rgba(0,0,0,0.14)'} strokeWidth={1} />
+                  <text x={cx} y={midY + 3} textAnchor="middle" fontSize={9}
+                        fill={on ? '#fff' : quiet ? 'rgba(0,0,0,0.45)' : ACCENT}>
+                    {glyph(b.transition)}
+                  </text>
+                </>
+              ) : (
+                <>
+                  {/* nothing to draw but the seam still has to be clickable */}
+                  <rect x={cx - 5} y={midY - 9} width={10} height={18} fill="transparent" />
+                  {(on || !quiet) && (
+                    <rect x={cx - 1} y={midY - 5} width={2} height={10} rx={1}
+                          fill={on ? ACCENT : 'rgba(0,0,0,0.34)'} />
+                  )}
+                </>
+              )}
             </g>
           </g>
         )
