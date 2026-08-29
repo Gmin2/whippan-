@@ -16,6 +16,9 @@ interface Props {
   onShift(target: string, at: number, done: boolean): void
   /** the document's frame rate, which is the grid a drag snaps to */
   fps?: number
+  /** collapsed to the header alone; one flag for every strip on the wall */
+  collapsed?: boolean
+  onCollapse?(next: boolean): void
 }
 
 /** the stage default, used when the caller does not say */
@@ -93,7 +96,7 @@ const round4 = (v: number) => Math.round(v * 1e4) / 1e4
  * relative to it.
  */
 export default function StaggerStrip({
-  lanes, dur, playhead, width, selected, onSelect, onShift, fps,
+  lanes, dur, playhead, width, selected, onSelect, onShift, fps, collapsed, onCollapse,
 }: Props) {
   const [drag, setDrag] = useState<Drag | null>(null)
   /**
@@ -218,7 +221,24 @@ export default function StaggerStrip({
       : null
 
   const head = (
-    <div className="flex items-baseline gap-1.5 px-[5px]" style={{ height: HEAD_H }}>
+    <div
+      onPointerDown={onCollapse ? e => { e.stopPropagation(); onCollapse(!collapsed) } : undefined}
+      title={onCollapse
+        ? (collapsed ? 'show the lanes' : 'collapse the strips')
+        : undefined}
+      className={`flex items-baseline gap-1.5 px-[5px]
+                  ${onCollapse ? 'cursor-pointer hover:bg-black/[0.035]' : ''}`}
+      style={{ height: HEAD_H }}
+    >
+      {onCollapse && (
+        <span className={`shrink-0 self-center text-faint transition-transform
+                          ${collapsed ? '-rotate-90' : ''}`}>
+          <svg width="7" height="7" viewBox="0 0 10 10" fill="none" stroke="currentColor"
+               strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M2 3.75 5 6.5l3-2.75" />
+          </svg>
+        </span>
+      )}
       <span className="shrink-0 font-mono text-[9px] tabular-nums text-faint"
             title={`${rows.length} node${rows.length === 1 ? '' : 's'} with motion`}>
         {rows.length}
@@ -240,6 +260,12 @@ export default function StaggerStrip({
       )}
     </div>
   )
+
+  if (collapsed) {
+    return (
+      <div className="border-t border-hair bg-panel" style={{ width }}>{head}</div>
+    )
+  }
 
   if (!rows.length) {
     return (

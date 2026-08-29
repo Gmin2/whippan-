@@ -42,6 +42,24 @@ const MAX_PPS = 1200
 const SCENE_FILL = 0.72
 /** the dock's height, in the same panel language as the side panels */
 export const DOCK_H = 268
+/** the transport bar alone, which is what is left when the dock is collapsed */
+const SHUT_H = 34
+/** ruler plus a couple of lanes; below this the dock says nothing useful */
+const MIN_H = 132
+/** always leave this much canvas, however far up the dock is dragged */
+const CANVAS_MIN = 220
+const STORE = 'whippan.dock'
+
+const dockMax = () => Math.max(MIN_H, window.innerHeight - CANVAS_MIN)
+
+/** the dock keeps its height across reloads; a private window just gets the default */
+function readHeight(): number {
+  try {
+    const v = Number(localStorage.getItem(STORE))
+    if (Number.isFinite(v) && v >= SHUT_H) return v
+  } catch { /* storage can throw outright in some contexts */ }
+  return DOCK_H
+}
 
 type Mode = 'fit' | 'scene' | 'free'
 
@@ -173,6 +191,14 @@ const IconMinus = () => (
   </svg>
 )
 
+/** points down when the dock is shut, up when it is open */
+const IconChevron = () => (
+  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor"
+       strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path d="M2 3.75 5 6.5l3-2.75" />
+  </svg>
+)
+
 const IconPlus = () => (
   <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden>
     <rect x="1" y="4.5" width="8" height="1" fill="currentColor" />
@@ -194,6 +220,62 @@ export default function Timeline({
   doc, dur, t, playing, selected, onSeek, onPlay, onSelectNode,
   onRetime, onShiftTrack,
 }: Props) {
+  /** dock height, dragged from the top edge; SHUT_H means collapsed */
+  const [height, setHeight] = useState(readHeight)
+  const [sizing, setSizing] = useState(false)
+  const shut = height <= SHUT_H
+  /** the height to come back to when it is opened again */
+  const lastOpen = useRef(Math.max(MIN_H, readHeight()))
+
+  useEffect(() => {
+    try { localStorage.setItem(STORE, String(height)) } catch { /* not essential */ }
+  }, [height])
+
+  // a window that shrinks under the dock would otherwise leave no canvas
+  useEffect(() => {
+    const fit = () => setHeight(h => (h <= SHUT_H ? h : Math.min(h, dockMax())))
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [])
+
+  const toggleDock = useCallback(() => {
+    setHeight(h => {
+      if (h <= SHUT_H) return Math.min(lastOpen.current, dockMax())
+      lastOpen.current = h
+      return SHUT_H
+    })
+  }, [])
+
+  /**
+   * Dragging the top edge. The gesture is held on the window rather than the
+   * handle so it survives the pointer leaving the 6px strip, and a drag that
+   * ends below the minimum shuts the dock instead of snapping back, which is
+   * what every editor with a bottom panel does.
+   */
+  const startResize = (e: React.PointerEvent) => {
+    e.preventDefault()
+    const y0 = e.clientY
+    const h0 = height <= SHUT_H ? SHUT_H : height
+    setSizing(true)
+    let last = h0
+    const move = (ev: PointerEvent) => {
+      const want = h0 + (y0 - ev.clientY)
+      last = want < MIN_H - 24 ? SHUT_H : Math.min(dockMax(), Math.max(MIN_H, want))
+      setHeight(last)
+    }
+    const up = () => {
+      setSizing(false)
+      // dragging shut should come back to the height you had, not to the one
+      // it happened to pass through on the way down
+      if (last > SHUT_H) lastOpen.current = last
+      else if (h0 > SHUT_H) lastOpen.current = h0
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+  }
+
   const ruler = useRef<HTMLDivElement>(null)
   const lanesBox = useRef<HTMLDivElement>(null)
   const [viewW, setViewW] = useState(0)
@@ -424,7 +506,18 @@ export default function Timeline({
 
   return (
     <div className="relative flex shrink-0 flex-col border-t border-hair bg-panel"
-         style={{ height: DOCK_H }}>
+         style={{ height }}>
+      {/* the resize edge: a thin strip that thickens into a grip on hover */}
+      <div
+        onPointerDown={startResize}
+        onDoubleClick={toggleDock}
+        title="drag to resize, double click to collapse"
+        className="group absolute inset-x-0 -top-[3px] z-20 h-[7px] cursor-ns-resize"
+      >
+        <span className={`absolute left-1/2 top-[2px] h-[3px] w-[36px] -translate-x-1/2
+                          rounded-full transition-colors
+                          ${sizing ? 'bg-[#5e92f4]' : 'bg-transparent group-hover:bg-black/20'}`} />
+      </div>
       {/* transport */}
       <div className="flex h-[34px] shrink-0 items-center gap-3 border-b border-hair px-3">
         <button
@@ -463,11 +556,21 @@ export default function Timeline({
           <span className="font-mono text-[10px] text-faint tabular-nums">
             {doc.stage.fps ?? 30} fps
           </span>
+          <button
+            onClick={toggleDock}
+            title={shut ? 'show the lanes' : 'collapse to the transport'}
+            className="grid h-6 w-6 place-items-center rounded-[5px] text-ink/60
+                       transition-colors hover:bg-black/[0.05] hover:text-ink"
+          >
+            <span className={`block transition-transform ${shut ? '' : 'rotate-180'}`}>
+              <IconChevron />
+            </span>
+          </button>
         </div>
       </div>
 
       {/* ruler + scene blocks */}
-      <div className="flex shrink-0 border-b border-hair" style={{ height: RULER_H }}>
+      {!shut && <div className="flex shrink-0 border-b border-hair" style={{ height: RULER_H }}>
         <div className="shrink-0 border-r border-hair px-3 py-1.5" style={{ width: GUTTER }}>
           <p className="text-[10px] uppercase tracking-[0.14em] text-faint">scenes</p>
         </div>
@@ -514,10 +617,10 @@ export default function Timeline({
             })}
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* lanes for the scene under the playhead */}
-      <div ref={lanesBox} className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+      {!shut && <div ref={lanesBox} className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
         <div className="relative min-h-full">
           {view.map((l, i) => {
             const on = selected?.scene === at.id && selected.id === l.target
@@ -601,17 +704,17 @@ export default function Timeline({
             ))}
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* playhead, clipped to the track so it can never drift off the axis */}
-      <div className="pointer-events-none absolute right-0 overflow-hidden"
+      {!shut && <div className="pointer-events-none absolute right-0 overflow-hidden"
            style={{ left: GUTTER, top: TRANSPORT_H, bottom: 0 }}>
         <div className="absolute inset-y-0" style={{ left: t * pps - scroll }}>
           <span className="absolute -left-px inset-y-0 w-[1.5px]" style={{ background: ACCENT }} />
           <span className="absolute -left-[5px] top-0 h-[9px] w-[11px] rounded-b-[2px]"
                 style={{ background: ACCENT }} />
         </div>
-      </div>
+      </div>}
     </div>
   )
 }

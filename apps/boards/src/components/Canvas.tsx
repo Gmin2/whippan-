@@ -401,6 +401,19 @@ export default function Canvas({
   // an open field leaves the wall alone if its node vanishes under it
   useEffect(() => { if (editing && !editNode) setEditing(null) }, [editing, editNode])
 
+  /**
+   * The strips collapse together. They are one row of the same control, so
+   * collapsing one and not the rest would only ever be a misclick, and the
+   * choice is worth keeping across reloads.
+   */
+  const [stripsShut, setStripsShut] = useState(() => {
+    try { return localStorage.getItem('whippan.strips') === 'shut' } catch { return false }
+  })
+  const toggleStrips = useCallback((next: boolean) => {
+    setStripsShut(next)
+    try { localStorage.setItem('whippan.strips', next ? 'shut' : 'open') } catch { /* fine */ }
+  }, [])
+
   /** lanes for every column, rebuilt only when the document actually changes */
   const strips = useMemo(
     () => (mode === 'motion'
@@ -767,6 +780,8 @@ export default function Canvas({
               playhead={local >= 0 && local <= b.dur ? local : null}
               width={w}
               fps={doc.stage.fps}
+              collapsed={stripsShut}
+              onCollapse={toggleStrips}
               selected={selected?.scene === b.id ? selected.id : null}
               onSelect={id => onSelectTarget(b.id, id)}
               onShift={onShiftTrack}
