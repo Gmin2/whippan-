@@ -4,19 +4,22 @@ import { logger } from 'hono/logger'
 import type { Config } from './config.js'
 import type { DocStore } from './store/types.js'
 import { SLUG, validateDoc } from './validate.js'
+import { ExportQueue } from './export/queue.js'
+import { createReadStream } from 'node:fs'
+import { Readable } from 'node:stream'
 
 /**
  * The film API. Deliberately storage-agnostic: it is handed a DocStore and
  * never learns whether that is a filesystem, object storage or a database.
  */
-export function createApp(store: DocStore, config: Config) {
+export function createApp(store: DocStore, config: Config, queue?: ExportQueue) {
   const app = new Hono()
 
   app.use('*', logger())
   if (config.corsOrigins.length) {
     app.use('/api/*', cors({
       origin: config.corsOrigins.includes('*') ? '*' : config.corsOrigins,
-      allowMethods: ['GET', 'PUT', 'OPTIONS'],
+      allowMethods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
       allowHeaders: ['content-type'],
     }))
   }
@@ -69,6 +72,70 @@ export function createApp(store: DocStore, config: Config) {
       return c.json({ error: String(e) }, 500)
     }
   })
+
+  // ---- export -------------------------------------------------------------
+  // Rendering a film takes seconds, so an export is a job rather than a
+  // request: POST queues it, GET polls it, and the file is fetched separately.
+  // The document travels in the body so what you see in the editor is what
+  // gets rendered, unsaved edits included.
+
+  if (queue) {
+    app.post('/api/films/:slug/export', async c => {
+      const slug = c.req.param('slug')
+      if (!SLUG.test(slug)) return c.json({ error: 'bad slug' }, 400)
+
+      let body: unknown
+      try {
+        body = await c.req.json()
+      } catch {
+        return c.json({ error: 'body is not json' }, 400)
+      }
+
+      const { fps, supersample } = (body ?? {}) as
+        { fps?: unknown; supersample?: unknown }
+      const checked = validateDoc(body)
+      if ('error' in checked) return c.json(checked, 422)
+
+      const ready = await queue.preflight()
+      if (!ready.ok) return c.json({ error: ready.reason }, 503)
+
+      const rate = Number(fps)
+      const job = queue.enqueue(slug, checked.stage, checked.anim, {
+        fps: Number.isFinite(rate) && rate >= 1 && rate <= 120 ? rate : undefined,
+        supersample: supersample === 2 ? 2 : 1,
+      })
+      return c.json(queue.get(job.id), 202)
+    })
+
+    app.get('/api/exports', c => c.json(queue.list()))
+
+    app.get('/api/exports/:id', c => {
+      const job = queue.get(c.req.param('id'))
+      return job ? c.json(job) : c.json({ error: 'no such job' }, 404)
+    })
+
+    app.delete('/api/exports/:id', c => {
+      const ok = queue.cancel(c.req.param('id'))
+      return ok ? c.json({ ok: true }) : c.json({ error: 'not cancellable' }, 409)
+    })
+
+    app.get('/api/exports/:id/file', async c => {
+      const id = c.req.param('id')
+      const job = queue.get(id)
+      if (!job) return c.json({ error: 'no such job' }, 404)
+      if (job.status !== 'done') {
+        return c.json({ error: `job is ${job.status}` }, 409)
+      }
+      const path = queue.fileOf(id)
+      if (!path) return c.json({ error: 'artifact swept' }, 410)
+
+      c.header('content-type', 'video/mp4')
+      c.header('content-length', String(job.bytes ?? 0))
+      c.header('content-disposition', `attachment; filename="${job.slug}.mp4"`)
+      // stream it: a 4K export is tens of megabytes and should not be buffered
+      return c.body(Readable.toWeb(createReadStream(path)) as ReadableStream)
+    })
+  }
 
   app.notFound(c => c.json({ error: 'no such route' }, 404))
   return app

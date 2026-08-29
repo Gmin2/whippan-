@@ -230,3 +230,48 @@ export async function saveDoc(
     throw new Error((detail as { error?: string }).error ?? `save failed (${res.status})`)
   }
 }
+
+/** an export job, as the api reports it */
+export interface ExportJob {
+  id: string
+  slug: string
+  status: 'queued' | 'running' | 'done' | 'failed' | 'cancelled'
+  progress: number | null
+  frames?: number
+  totalFrames?: number
+  bytes?: number
+  error?: string
+  log?: string
+  downloadUrl?: string
+  options: { fps: number; supersample: 1 | 2 }
+  queuedAt: number
+  startedAt?: number
+  finishedAt?: number
+}
+
+/** queue a render of the document as it stands, unsaved edits included */
+export async function startExport(
+  slug: string, stage: Stage, anim: Anim,
+  opts: { fps?: number; supersample?: 1 | 2 } = {},
+): Promise<ExportJob> {
+  const res = await fetch(`${API}/api/films/${encodeURIComponent(slug)}/export`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ stage, anim, ...opts }),
+  })
+  const body = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error((body as { error?: string }).error ?? `export failed (${res.status})`)
+  return body as ExportJob
+}
+
+export async function pollExport(id: string): Promise<ExportJob> {
+  const res = await fetch(`${API}/api/exports/${encodeURIComponent(id)}`)
+  if (!res.ok) throw new Error(`job ${id} is gone`)
+  return res.json() as Promise<ExportJob>
+}
+
+export async function cancelExport(id: string): Promise<void> {
+  await fetch(`${API}/api/exports/${encodeURIComponent(id)}`, { method: 'DELETE' })
+}
+
+export const exportFileUrl = (id: string) => `${API}/api/exports/${id}/file`

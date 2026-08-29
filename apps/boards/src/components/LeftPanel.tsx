@@ -30,6 +30,7 @@ interface Props {
   onRename(id: string, name: string): void
   onHidePanels(): void
   onAddScene(): void
+  onExport(): void
   mode: 'design' | 'motion'
   onMode(m: 'design' | 'motion'): void
   dirty: boolean
@@ -79,7 +80,7 @@ function Row({ depth = 0, icon, label, selected, onClick, onDoubleClick, chevron
 export default function LeftPanel({
   registry, film, onPickFilm,
   pages, activePage, tree, selected, activeScene,
-  onSelectNode, onSelectScene, onRename, onHidePanels, onAddScene,
+  onSelectNode, onSelectScene, onRename, onHidePanels, onAddScene, onExport,
   mode, onMode, dirty, saving, saveError, onSave,
 }: Props) {
   const [open, setOpen] = useState<Record<string, boolean>>({})
@@ -189,6 +190,17 @@ export default function LeftPanel({
             ))}
           </div>
         ))}
+      </div>
+
+      <div className="shrink-0 border-t border-hair px-2 py-2">
+        <button
+          onClick={onExport}
+          className="inset-control flex h-[28px] w-full items-center justify-center gap-2
+                     transition-colors hover:bg-black/[0.02]"
+        >
+          <span>Export</span>
+          <span className="text-faint">⇧⌘E</span>
+        </button>
       </div>
 
       <div className="flex h-9 shrink-0 items-center gap-2 px-3 text-dim">

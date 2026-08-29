@@ -360,7 +360,13 @@ mod app {
         let mut buf = vec![0u8; row * (hi as usize) * (ss as usize)];
 
         let start = std::time::Instant::now();
+        // report progress on stderr so a supervising process can follow a long
+        // render; roughly twenty updates whatever the length
+        let step = (frames / 20).max(1);
         for i in 0..frames {
+            if i % step == 0 {
+                eprintln!("progress {i}/{frames}");
+            }
             let t = i as f32 / fps;
             let cmds = render_cmds(&stage, &anim, t).expect("render");
             surface.canvas().save();
@@ -372,6 +378,7 @@ mod app {
             }
             pipe.write_all(&buf).expect("pipe");
         }
+        eprintln!("progress {frames}/{frames}");
         drop(pipe);
         let status = ffmpeg.wait().expect("ffmpeg wait");
         let secs = start.elapsed().as_secs_f32();

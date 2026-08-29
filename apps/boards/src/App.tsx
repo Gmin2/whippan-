@@ -6,6 +6,7 @@ import Canvas from './components/Canvas'
 import RightPanel from './components/RightPanel'
 import AssetPicker from './components/AssetPicker'
 import EffectPicker from './components/EffectPicker'
+import ExportDialog from './components/ExportDialog'
 import Timeline from './components/Timeline'
 import { boot, ensureImage, loadDoc, saveDoc } from './engine'
 import type { Anim, Doc, Entry, Stage } from './engine/types'
@@ -47,6 +48,7 @@ export default function App() {
   const [saveError, setSaveError] = useState<string | null>(null)
   const [picking, setPicking] = useState(false)
   const [effects, setEffects] = useState(false)
+  const [exporting, setExporting] = useState(false)
   const [mode, setMode] = useState<'design' | 'motion'>('design')
   const [playhead, setPlayhead] = useState(0)
   const [playing, setPlaying] = useState(false)
@@ -219,6 +221,11 @@ export default function App() {
       if (e.key === ' ' && modeRef.current === 'motion') {
         e.preventDefault()
         setPlaying(p => !p)
+        return
+      }
+      if (mod && e.shiftKey && key === 'e') {
+        e.preventDefault()
+        setExporting(true)
         return
       }
       if (mod && e.shiftKey && key === 'k') {
@@ -486,6 +493,7 @@ export default function App() {
         onRename={renameScene}
         onHidePanels={() => setPanels(false)}
         onAddScene={() => createScene()}
+        onExport={() => setExporting(true)}
         dirty={dirty}
         saving={saving}
         saveError={saveError}
@@ -507,6 +515,16 @@ export default function App() {
       {effects && (
         <EffectPicker node={found?.node ?? null} onClose={() => setEffects(false)}
                       onApply={patchNode} />
+      )}
+      {exporting && (
+        <ExportDialog
+          slug={doc.entry.slug}
+          title={doc.entry.title}
+          stage={doc.stage}
+          anim={doc.anim}
+          dur={filmDur}
+          onClose={() => setExporting(false)}
+        />
       )}
       <div className="flex min-w-0 flex-1 flex-col">
         <Canvas
