@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ChevronDown, ChevronRight, FileIcon, Frame, PanelIcon, Plus, Rect, TypeMark } from '../icons'
 import FilmMenu from './FilmMenu'
 import type { Sel } from '../doc'
@@ -24,8 +24,12 @@ interface Props {
   activePage: string
   tree: TreeScene[]
   selected: Sel | null
+  /** the rest of the selection, highlighted the same way */
+  others: Sel[]
   activeScene: string | null
-  onSelectNode(scene: string, id: string): void
+  onSelectNode(scene: string, id: string, additive?: boolean): void
+  /** drop a layer at an index in the scene's own node order */
+  onReorder(scene: string, id: string, index: number): void
   onSelectScene(scene: string): void
   onRename(id: string, name: string): void
   onHidePanels(): void
@@ -45,25 +49,39 @@ function kindIcon(kind: string) {
   return <Rect size={11} />
 }
 
-function Row({ depth = 0, icon, label, selected, onClick, onDoubleClick, chevron, open, onToggle }: {
+function Row({
+  depth = 0, icon, label, selected, onClick, onDoubleClick, chevron, open, onToggle,
+  onPointerDown, dim, line,
+}: {
   depth?: number
   icon: React.ReactNode
   label: string
   selected?: boolean
-  onClick?(): void
+  onClick?(e: React.MouseEvent): void
   onDoubleClick?(): void
   chevron?: boolean
   open?: boolean
   onToggle?(): void
+  onPointerDown?(e: React.PointerEvent): void
+  /** the row being dragged, shown as a ghost of itself */
+  dim?: boolean
+  /** where the drop would land: above this row, or below it for the last gap */
+  line?: 'above' | 'below'
 }) {
   return (
     <div
       onClick={onClick}
       onDoubleClick={onDoubleClick}
-      className={`flex h-[26px] w-full cursor-default items-center gap-1.5 pr-2 text-left
+      onPointerDown={onPointerDown}
+      className={`relative flex h-[26px] w-full cursor-default items-center gap-1.5 pr-2
+                  text-left ${dim ? 'opacity-40' : ''}
                   ${selected ? 'bg-row' : 'hover:bg-black/[0.035]'}`}
       style={{ paddingLeft: 8 + depth * 14 }}
     >
+      {line && (
+        <span className={`pointer-events-none absolute left-2 right-2 h-px bg-[#5e92f4]
+                          ${line === 'above' ? 'top-0' : 'bottom-0'}`} />
+      )}
       <span
         onClick={e => { e.stopPropagation(); onToggle?.() }}
         className={`grid h-3.5 w-3.5 shrink-0 place-items-center text-faint
@@ -79,12 +97,73 @@ function Row({ depth = 0, icon, label, selected, onClick, onDoubleClick, chevron
 
 export default function LeftPanel({
   registry, film, onPickFilm,
-  pages, activePage, tree, selected, activeScene,
+  pages, activePage, tree, selected, others, activeScene, onReorder,
   onSelectNode, onSelectScene, onRename, onHidePanels, onAddScene, onExport,
   mode, onMode, dirty, saving, saveError, onSave,
 }: Props) {
   const [open, setOpen] = useState<Record<string, boolean>>({})
   const [editing, setEditing] = useState<string | null>(null)
+
+  const picked = (scene: string, id: string) =>
+    (selected?.scene === scene && selected.id === id)
+    || others.some(o => o.scene === scene && o.id === id)
+
+  /**
+   * Dragging a layer to restack it.
+   *
+   * The gap the pointer is over is worked out from the row heights rather than
+   * from hover events, so the insertion line still tracks when the pointer
+   * leaves the panel sideways. Display index 0 is the front of the scene, so
+   * the doc index a drop lands on is counted from the other end.
+   */
+  const lists = useRef<Record<string, HTMLDivElement | null>>({})
+  const [drag, setDrag] = useState<
+    { scene: string; id: string; from: number; count: number; gap: number } | null
+  >(null)
+  const live = useRef<typeof drag>(null)
+
+  const beginDrag = (
+    e: React.PointerEvent, scene: string, id: string, from: number, count: number,
+  ) => {
+    if (e.button !== 0) return
+    const start = { x: e.clientX, y: e.clientY }
+    let armed = false
+
+    const move = (ev: PointerEvent) => {
+      if (!armed) {
+        if (Math.abs(ev.clientY - start.y) + Math.abs(ev.clientX - start.x) < 4) return
+        armed = true
+      }
+      const box = lists.current[scene]?.getBoundingClientRect()
+      if (!box) return
+      const row = box.height / Math.max(1, count)
+      const gap = Math.max(0, Math.min(count, Math.round((ev.clientY - box.top) / row)))
+      const next = { scene, id, from, count, gap }
+      live.current = next
+      setDrag(next)
+    }
+    const up = () => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+      const d = live.current
+      live.current = null
+      setDrag(null)
+      if (!d || !armed) return
+      // dropping into your own gap changes nothing
+      const to = d.gap > d.from ? d.gap - 1 : d.gap
+      if (to === d.from) return
+      onReorder(scene, id, count - 1 - to)
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+  }
+
+  const lineFor = (scene: string, d: number, count: number): 'above' | 'below' | undefined => {
+    if (!drag || drag.scene !== scene) return undefined
+    if (drag.gap === d) return 'above'
+    if (drag.gap === count && d === count - 1) return 'below'
+    return undefined
+  }
 
   return (
     <aside className="flex h-full w-panel shrink-0 flex-col bg-panel">
@@ -178,16 +257,25 @@ export default function LeftPanel({
                 onDoubleClick={() => setEditing(s.scene)}
               />
             )}
-            {open[s.scene] && s.nodes.map(n => (
-              <Row
-                key={n.id}
-                depth={1}
-                icon={kindIcon(n.kind)}
-                label={n.label}
-                selected={selected?.scene === s.scene && selected?.id === n.id}
-                onClick={() => onSelectNode(s.scene, n.id)}
-              />
-            ))}
+            {open[s.scene] && (
+              <div ref={el => { lists.current[s.scene] = el }}>
+                {/* topmost first, the way every layer list reads; the document
+                    stores them the other way round, which is paint order */}
+                {[...s.nodes].reverse().map((n, d) => (
+                  <Row
+                    key={n.id}
+                    depth={1}
+                    icon={kindIcon(n.kind)}
+                    label={n.label}
+                    selected={picked(s.scene, n.id)}
+                    dim={drag?.id === n.id && drag.scene === s.scene}
+                    line={lineFor(s.scene, d, s.nodes.length)}
+                    onPointerDown={e => beginDrag(e, s.scene, n.id, d, s.nodes.length)}
+                    onClick={e => onSelectNode(s.scene, n.id, e.shiftKey || e.metaKey || e.ctrlKey)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>

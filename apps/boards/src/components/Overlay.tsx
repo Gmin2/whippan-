@@ -22,6 +22,8 @@ interface Props {
   docSize: [number, number]
   title: string[]
   selected: Sel | null
+  /** the rest of the selection: outlined, but only the primary gets handles */
+  others: Sel[]
   hover: NodeBox | null
   activeScene: string | null
   onSelectScene(scene: string): void
@@ -62,7 +64,7 @@ const HANDLE = 8.5
 // screen space from the camera, so it tracks pan and zoom exactly without
 // being scaled by them — a handle is always the same size under the cursor.
 export default function Overlay({
-  cam, boards, columns, worldX, worldY, selRow, docSize, title, selected, hover,
+  cam, boards, columns, worldX, worldY, selRow, docSize, title, selected, others, hover,
   activeScene, onSelectScene, guides, dragging, pen, mode,
   selectedSeam, onSelectSeam,
 }: Props) {
@@ -173,15 +175,30 @@ export default function Overlay({
                      fill="none" stroke={ACCENT} strokeWidth={1} />
       })()}
 
+      {/* the followers: same outline, no handles, so it is obvious which node
+          a resize belongs to */}
+      {others.map(o => {
+        const f = find(o)
+        if (!f) return null
+        const r = rectOf(f.i, f.k, f.b)
+        return (
+          <rect key={`${o.scene}/${o.id}`} x={r.x} y={r.y} width={r.w} height={r.h}
+                fill="none" stroke={ACCENT} strokeWidth={1} strokeOpacity={0.7} />
+        )
+      })}
+
       {sel && !dragging && (() => {
         const r = rectOf(sel.i, sel.k, sel.b)
-        const label = `${Math.round(sel.b.w)} × ${Math.round(sel.b.h)}`
+        const label = others.length
+          ? `${others.length + 1} selected`
+          : `${Math.round(sel.b.w)} × ${Math.round(sel.b.h)}`
         const pillW = label.length * 6.6 + 16
         return (
           <g>
             <rect x={r.x} y={r.y} width={r.w} height={r.h}
                   fill="none" stroke={ACCENT} strokeWidth={1.5} />
-            {handlePoints(r).map(([hx, hy], k) => (
+            {/* handles belong to one node; a set gets outlines and a count */}
+            {!others.length && handlePoints(r).map(([hx, hy], k) => (
               <rect key={k} x={hx - HANDLE / 2} y={hy - HANDLE / 2}
                     width={HANDLE} height={HANDLE}
                     fill="#ffffff" stroke={ACCENT} strokeWidth={1.5} />

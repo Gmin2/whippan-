@@ -17,8 +17,10 @@ import { docDur } from './engine'
 import { sceneAt } from './motion'
 import {
   addNode, addScene, deleteNode, deleteScene, duplicateNode, newImage, newPath,
-  newRect, newText,
+  newRect, newText, reorderNode, moveNodeTo,
 } from './ops'
+import type { Reorder } from './ops'
+import { clipboard, copyNodes, pasteNodes } from './clipboard'
 import type { NodePatch, ScenePatch, Sel } from './doc'
 import type { NodeBox } from './measure'
 
@@ -37,6 +39,12 @@ export default function App() {
 
   const [tool, setTool] = useState<Tool>('select')
   const [sel, setSel] = useState<Sel | null>(null)
+  /**
+   * Nodes selected alongside the primary one. The primary stays first-class:
+   * it is what the inspector reads and what a resize handle belongs to, while
+   * move, delete, duplicate, copy and order act on the whole set.
+   */
+  const [extra, setExtra] = useState<Sel[]>([])
   const [selBox, setSelBox] = useState<NodeBox | null>(null)
   const [selRow, setSelRow] = useState(0)
   const [seam, setSeam] = useState<string | null>(null)
@@ -79,6 +87,7 @@ export default function App() {
     setFilm(slug)
     setDoc(null)
     setSel(null)
+    setExtra([])
     setSelBox(null)
     setScene(null)
     undo.current = []
@@ -174,14 +183,62 @@ export default function App() {
     setDirty(true)
   }, [sel, snapshot])
 
+  /**
+   * Move every node in the selection by the same delta.
+   *
+   * The primary node is driven by an absolute patch (it is the one that snaps),
+   * so the rest follow the distance it actually travelled rather than the
+   * distance the pointer did.
+   */
+  const shiftOthers = useCallback((dx: number, dy: number) => {
+    const others = selectionRef.current.slice(1)
+    if (!others.length || (!dx && !dy)) return
+    setDoc(prev => {
+      if (!prev) return prev
+      const scenes = prev.stage.scenes.map(s => {
+        const here = others.filter(o => o.scene === s.id)
+        if (!here.length) return s
+        return {
+          ...s,
+          nodes: s.nodes.map(n => here.some(o => o.id === n.id)
+            ? { ...n, x: Math.round((n.x ?? 0) + dx), y: Math.round((n.y ?? 0) + dy) }
+            : n),
+        }
+      })
+      return { ...prev, stage: { ...prev.stage, scenes } }
+    })
+  }, [])
+
+  /** arrow keys, which move the whole selection rather than just the primary */
+  const nudge = useCallback((dx: number, dy: number) => {
+    const node = nodeRef.current
+    if (!node) return
+    snapshot()
+    patchNode({ x: Math.round((node.x ?? 0) + dx), y: Math.round((node.y ?? 0) + dy) }, true)
+    shiftOthers(dx, dy)
+  }, [patchNode, shiftOthers, snapshot])
+
+  const selectAll = useCallback(() => {
+    const current = docRef.current
+    const target = selRef.current?.scene ?? sceneRef.current
+    const scene = current?.stage.scenes.find(s => s.id === target)
+      ?? current?.stage.scenes[0]
+    if (!scene?.nodes.length) return
+    const all = scene.nodes.map(n => ({ scene: scene.id, id: n.id }))
+    setSel(all[0])
+    setExtra(all.slice(1))
+    setScene(scene.id)
+  }, [])
+
   // a drag streams patches; snapshot once at the start of the gesture
-  const onDrag = useCallback((patch: NodePatch) => {
+  const onDrag = useCallback((patch: NodePatch, follow?: { dx: number; dy: number }) => {
     if (!dragging.current) {
       dragging.current = true
       snapshot()
     }
     patchNode(patch, true)
-  }, [patchNode, snapshot])
+    if (follow) shiftOthers(follow.dx, follow.dy)
+  }, [patchNode, shiftOthers, snapshot])
   const onDragEnd = useCallback(() => { dragging.current = false }, [])
 
   const stepHistory = useCallback((dir: 'undo' | 'redo') => {
@@ -238,6 +295,29 @@ export default function App() {
         saveRef.current()
         return
       }
+      if (mod && (key === 'c' || key === 'x')) {
+        e.preventDefault()
+        copyRef.current()
+        if (key === 'x') removeRef.current()
+        return
+      }
+      if (mod && key === 'v') {
+        e.preventDefault()
+        pasteRef.current()
+        return
+      }
+      if (mod && key === 'a') {
+        e.preventDefault()
+        selectAllRef.current()
+        return
+      }
+      // paint order: bracket alone steps, with shift it goes all the way
+      if (mod && (e.key === ']' || e.key === '[')) {
+        e.preventDefault()
+        const up = e.key === ']'
+        reorderRef.current(e.shiftKey ? (up ? 'front' : 'back') : (up ? 'up' : 'down'))
+        return
+      }
       if (mod && key === 'd') {
         e.preventDefault()
         duplicateRef.current()
@@ -253,7 +333,7 @@ export default function App() {
         stepHistory(e.shiftKey ? 'redo' : 'undo')
         return
       }
-      if (e.key === 'Escape') { setSel(null); setSelBox(null); return }
+      if (e.key === 'Escape') { setSel(null); setExtra([]); setSelBox(null); return }
 
       const arrows: Record<string, [number, number]> = {
         ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1],
@@ -262,12 +342,7 @@ export default function App() {
       if (dir && selRef.current) {
         e.preventDefault()
         const step = e.shiftKey ? NUDGE.large : NUDGE.small
-        const node = nodeRef.current
-        if (!node) return
-        patchNodeRef.current({
-          x: Math.round((node.x ?? 0) + dir[0] * step),
-          y: Math.round((node.y ?? 0) + dir[1] * step),
-        })
+        nudgeRef.current(dir[0] * step, dir[1] * step)
         return
       }
 
@@ -378,10 +453,11 @@ export default function App() {
   }, [patchMotionFor, snapshot])
 
   const removeSelection = useCallback(() => {
-    const s = selRef.current
-    if (s) {
-      apply(st => deleteNode(st, s.scene, s.id))
+    const picked = selectionRef.current
+    if (picked.length) {
+      apply(st => picked.reduce((acc, p) => deleteNode(acc, p.scene, p.id), st))
       setSel(null)
+      setExtra([])
       setSelBox(null)
       return
     }
@@ -390,16 +466,64 @@ export default function App() {
   }, [apply])
 
   const duplicateSelection = useCallback(() => {
-    const s = selRef.current
-    if (!s) return
-    let newId: string | null = null
+    const picked = selectionRef.current
+    if (!picked.length) return
+    const made: Sel[] = []
     apply(st => {
-      const out = duplicateNode(st, s.scene, s.id)
-      if (!out) return null
-      newId = out.id
-      return out.stage
+      let next = st
+      for (const p of picked) {
+        const out = duplicateNode(next, p.scene, p.id)
+        if (!out) continue
+        next = out.stage
+        made.push({ scene: p.scene, id: out.id })
+      }
+      return made.length ? next : null
     })
-    if (newId) setSel({ scene: s.scene, id: newId })
+    // the copies become the selection, the way every design tool behaves
+    if (made.length) { setSel(made[0]); setExtra(made.slice(1)) }
+  }, [apply])
+
+  const copySelection = useCallback(() => {
+    const current = docRef.current
+    if (current) copyNodes(current, selectionRef.current)
+  }, [])
+
+  const paste = useCallback(() => {
+    const clip = clipboard.get()
+    const current = docRef.current
+    // paste lands in the scene you are looking at, not the one it came from
+    const target = selRef.current?.scene ?? sceneRef.current ?? current?.stage.scenes[0]?.id
+    if (!clip || !current || !target) return
+    snapshot()
+    let made: Sel[] = []
+    setDoc(prev => {
+      if (!prev) return prev
+      const out = pasteNodes(prev.stage, prev.anim, target, clip)
+      if (!out) return prev
+      made = out.ids.map(id => ({ scene: target, id }))
+      return { ...prev, stage: out.stage, anim: out.anim }
+    })
+    if (made.length) {
+      setSel(made[0])
+      setExtra(made.slice(1))
+      setScene(target)
+      setRev(r => r + 1)
+      setDirty(true)
+    }
+  }, [snapshot])
+
+  /** paint order, over the whole selection so a group keeps its own stacking */
+  const reorderSelection = useCallback((where: Reorder) => {
+    const picked = selectionRef.current
+    if (!picked.length) return
+    // front and up walk forwards, back and down backwards, so a multi-node
+    // move keeps the group stacked the way it already was
+    const order = where === 'front' || where === 'up' ? picked : [...picked].reverse()
+    apply(st => order.reduce((acc, p) => reorderNode(acc, p.scene, p.id, where), st))
+  }, [apply])
+
+  const reorderTo = useCallback((scene: string, id: string, index: number) => {
+    apply(st => moveNodeTo(st, scene, id, index))
   }, [apply])
 
   const createScene = useCallback((afterId?: string) => {
@@ -409,7 +533,7 @@ export default function App() {
       id = out.id
       return out.stage
     })
-    if (id) { setScene(id); setSel(null); setSelBox(null) }
+    if (id) { setScene(id); setSel(null); setExtra([]); setSelBox(null) }
   }, [apply])
 
   const renameScene = useCallback((id: string, name: string) => {
@@ -419,6 +543,12 @@ export default function App() {
 
   // refs so the key handler stays mounted once and still sees current state
   const selRef = useRef<Sel | null>(null)
+  const selectionRef = useRef<Sel[]>([])
+  const copyRef = useRef<() => void>(() => {})
+  const pasteRef = useRef<() => void>(() => {})
+  const reorderRef = useRef<(w: Reorder) => void>(() => {})
+  const selectAllRef = useRef<() => void>(() => {})
+  const nudgeRef = useRef<(dx: number, dy: number) => void>(() => {})
   const nodeRef = useRef<ReturnType<typeof findNode> extends infer T
     ? T extends { node: infer N } ? N | null : null : null>(null)
   const patchNodeRef = useRef<(p: NodePatch) => void>(() => {})
@@ -452,8 +582,16 @@ export default function App() {
   const boards = useMemo(() => (doc ? artboards(doc) : []), [doc])
   const layers = useMemo(() => (doc ? tree(doc) : []), [doc])
   const found = useMemo(() => (doc ? findNode(doc, sel) : null), [doc, sel])
+  /** the primary node first, then everything else picked with it */
+  const selection = useMemo(() => (sel ? [sel, ...extra] : []), [sel, extra])
   const artboard = boards.find(b => b.id === scene) ?? null
   selRef.current = sel
+  selectionRef.current = selection
+  copyRef.current = copySelection
+  pasteRef.current = paste
+  reorderRef.current = reorderSelection
+  selectAllRef.current = selectAll
+  nudgeRef.current = nudge
   nodeRef.current = found?.node ?? null
   patchNodeRef.current = patchNode
   docRef.current = doc
@@ -471,12 +609,42 @@ export default function App() {
     setGround(h)
     setGroundAlpha(a)
   }, [])
-  const onSelect = useCallback((box: NodeBox | null, row: number) => {
+  const onSelect = useCallback((box: NodeBox | null, row: number, additive = false) => {
     setSeam(null)
-    setSel(box ? { scene: box.scene, id: box.id } : null)
-    setSelBox(box)
     setSelRow(row)
-    if (box) setScene(box.scene)
+    if (!box) { setSel(null); setExtra([]); setSelBox(null); return }
+    const hit: Sel = { scene: box.scene, id: box.id }
+    setScene(box.scene)
+
+    if (!additive) {
+      setSel(hit)
+      setExtra([])
+      setSelBox(box)
+      return
+    }
+    // shift-clicking the primary promotes the next one rather than leaving the
+    // set headless, and shift-clicking a follower just drops it
+    const current = selectionRef.current
+    if (current.some(p => p.id === hit.id && p.scene === hit.scene)) {
+      const rest = current.filter(p => !(p.id === hit.id && p.scene === hit.scene))
+      setSel(rest[0] ?? null)
+      setExtra(rest.slice(1))
+      if (!rest.length) setSelBox(null)
+      return
+    }
+    setSel(hit)
+    setExtra(current)
+    setSelBox(box)
+  }, [])
+
+  /** what a marquee sweep landed on, replacing the selection wholesale */
+  const onSelectMany = useCallback((picked: Sel[], row: number) => {
+    setSeam(null)
+    setSelRow(row)
+    setSel(picked[0] ?? null)
+    setExtra(picked.slice(1))
+    if (picked[0]) setScene(picked[0].scene)
+    if (!picked.length) setSelBox(null)
   }, [])
   const onMeasure = useCallback((box: NodeBox | null) => setSelBox(box), [])
 
@@ -509,9 +677,23 @@ export default function App() {
         activePage="Page 1"
         tree={layers}
         selected={sel}
+        others={extra}
         activeScene={scene}
-        onSelectNode={(s, id) => { setSel({ scene: s, id }); setScene(s) }}
-        onSelectScene={s => { setScene(s); setSel(null); setSelBox(null) }}
+        onReorder={reorderTo}
+        onSelectNode={(s, id, additive) => {
+          setScene(s)
+          if (!additive) { setSel({ scene: s, id }); setExtra([]); return }
+          const current = selectionRef.current
+          if (current.some(p => p.id === id && p.scene === s)) {
+            const rest = current.filter(p => !(p.id === id && p.scene === s))
+            setSel(rest[0] ?? null)
+            setExtra(rest.slice(1))
+            return
+          }
+          setSel({ scene: s, id })
+          setExtra(current)
+        }}
+        onSelectScene={s => { setScene(s); setSel(null); setExtra([]); setSelBox(null) }}
         mode={mode}
         onMode={setMode}
         onRename={renameScene}
@@ -561,7 +743,9 @@ export default function App() {
         selected={sel}
         selRow={selRow}
         onSelect={onSelect}
-        onSelectScene={s => { setScene(s); setSel(null); setSelBox(null) }}
+        others={extra}
+        onSelectMany={onSelectMany}
+        onSelectScene={s => { setScene(s); setSel(null); setExtra([]); setSelBox(null) }}
         activeScene={scene}
         tool={tool}
         onCreate={createNode}
@@ -571,7 +755,7 @@ export default function App() {
         mode={mode}
         playhead={playhead}
         selectedSeam={seam}
-        onSelectSeam={id => { setSeam(id); if (id) { setSel(null); setSelBox(null) } }}
+        onSelectSeam={id => { setSeam(id); if (id) { setSel(null); setExtra([]); setSelBox(null) } }}
         onZoom={onZoom}
         geo={found ? {
           x: found.node.x ?? 0,

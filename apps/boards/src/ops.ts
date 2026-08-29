@@ -146,3 +146,50 @@ export function newText(stage: Stage, x: number, y: number): Node {
     font: { family: 'inter', weight: 600, size: 72 },
   }
 }
+
+/**
+ * Paint order. A scene's node array is its z-order: later entries draw over
+ * earlier ones, so "bring forward" is a swap towards the end.
+ */
+export type Reorder = 'front' | 'back' | 'up' | 'down'
+
+export function reorderNode(
+  stage: Stage, sceneId: string, nodeId: string, where: Reorder,
+): Stage {
+  return {
+    ...stage,
+    scenes: stage.scenes.map(s => {
+      if (s.id !== sceneId) return s
+      const i = s.nodes.findIndex(n => n.id === nodeId)
+      if (i < 0) return s
+      const to = where === 'front' ? s.nodes.length - 1
+        : where === 'back' ? 0
+        : where === 'up' ? i + 1
+        : i - 1
+      return { ...s, nodes: moved(s.nodes, i, to) }
+    }),
+  }
+}
+
+/** drop a node at an explicit index, which is what dragging a layer row does */
+export function moveNodeTo(
+  stage: Stage, sceneId: string, nodeId: string, index: number,
+): Stage {
+  return {
+    ...stage,
+    scenes: stage.scenes.map(s => {
+      if (s.id !== sceneId) return s
+      const i = s.nodes.findIndex(n => n.id === nodeId)
+      return i < 0 ? s : { ...s, nodes: moved(s.nodes, i, index) }
+    }),
+  }
+}
+
+function moved<T>(list: T[], from: number, to: number): T[] {
+  const at = Math.max(0, Math.min(list.length - 1, to))
+  if (at === from) return list
+  const out = list.slice()
+  const [item] = out.splice(from, 1)
+  out.splice(at, 0, item)
+  return out
+}

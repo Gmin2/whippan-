@@ -24,11 +24,17 @@ interface Props {
   selected: Sel | null
   /** which sampled frame of the scene the selection was made in */
   selRow: number
-  onSelect(box: NodeBox | null, row: number): void
+  /** additive means shift or cmd was held: add to or drop from the selection */
+  onSelect(box: NodeBox | null, row: number, additive?: boolean): void
+  /** everything picked alongside the primary, outlined but not handled */
+  others: Sel[]
+  /** a marquee inside a board replaces the selection with what it enclosed */
+  onSelectMany(picked: Sel[], row: number): void
   onZoom(z: number): void
   /** resting geometry of the selected node, what a drag actually edits */
   geo: { x: number; y: number; w: number; h: number; fontSize?: number } | null
-  onDrag(patch: NodePatch): void
+  /** follow is the distance the primary actually moved, for the rest to match */
+  onDrag(patch: NodePatch, follow?: { dx: number; dy: number }): void
   onDragEnd(): void
   /** the selected node's live box, so the inspector can report what is
    *  actually painted rather than what was painted when it was selected */
@@ -78,7 +84,8 @@ function withGround(cmds: Cmd[], w: number, h: number): Cmd[] {
 }
 
 export default function Canvas({
-  ck, doc, rev, ground, title, boards, selected, selRow, onSelect, onZoom,
+  ck, doc, rev, ground, title, boards, selected, selRow, onSelect, others,
+  onSelectMany, onZoom,
   geo, onDrag, onDragEnd, onMeasure, onSelectScene, activeScene,
   tool, onCreate, onAddScene, onCreatePath, onToolDone, mode, playhead,
   selectedSeam, onSelectSeam, onEditText, onEditStart, onEditEnd,
@@ -101,7 +108,7 @@ export default function Canvas({
     cursor: { x: number; y: number } | null
   } | null>(null)
   const drag = useRef<{
-    kind: 'pan' | 'move' | 'resize' | 'draw'
+    kind: 'pan' | 'move' | 'resize' | 'draw' | 'marquee'
     handle?: Handle
     x: number
     y: number
@@ -114,6 +121,9 @@ export default function Canvas({
     row?: number
     origin?: { x: number; y: number }
     screen?: { x: number; y: number }
+    /** where the primary node was left on the previous move, for the followers */
+    lastX?: number
+    lastY?: number
   } | null>(null)
 
   const [dw, dh] = doc.stage.size
@@ -489,7 +499,8 @@ export default function Canvas({
     }
 
     const rect = selRect()
-    const handle = rect ? handleAt(rect, pt.x, pt.y) : null
+    // a resize acts on one node, so a multi-selection offers no handles
+    const handle = rect && !others.length ? handleAt(rect, pt.x, pt.y) : null
 
     if (handle && geo) {
       drag.current = {
@@ -499,12 +510,25 @@ export default function Canvas({
       return
     }
     const hit = pick(e.clientX, e.clientY)
-    if (hit && geo && selected
-        && hit.box.id === selected.id && hit.box.scene === selected.scene) {
+    const held = hit && (selected?.id === hit.box.id && selected.scene === hit.box.scene
+      || others.some(o => o.id === hit.box.id && o.scene === hit.box.scene))
+    if (hit && geo && held) {
       drag.current = {
         kind: 'move', x: e.clientX, y: e.clientY, moved: false,
         geo: { ...geo }, box: hit.box, board: locate(e.clientX, e.clientY)?.board ?? 0,
         row: hit.row,
+      }
+      return
+    }
+    // a press on a board's empty area sweeps a marquee; the wall behind the
+    // boards is the thing you pan by, the way the hand tool always does
+    const at = locate(e.clientX, e.clientY)
+    if (!hit && at?.inside && tool === 'select') {
+      const pt2 = local(e.clientX, e.clientY)
+      drag.current = {
+        kind: 'marquee', x: e.clientX, y: e.clientY, moved: false,
+        board: at.board, row: at.row, origin: { x: at.x, y: at.y },
+        screen: { x: pt2.x, y: pt2.y },
       }
       return
     }
@@ -521,7 +545,7 @@ export default function Canvas({
     if (!d) {
       const pt = local(e.clientX, e.clientY)
       const rect = selRect()
-      setGrab(rect ? handleAt(rect, pt.x, pt.y) : null)
+      setGrab(rect && !others.length ? handleAt(rect, pt.x, pt.y) : null)
       setHover(pick(e.clientX, e.clientY)?.box ?? null)
       return
     }
@@ -539,7 +563,7 @@ export default function Canvas({
     const dx = (e.clientX - d.startX!) / cam.zoom
     const dy = (e.clientY - d.startY!) / cam.zoom
 
-    if (d.kind === 'draw') {
+    if (d.kind === 'draw' || d.kind === 'marquee') {
       const pt = local(e.clientX, e.clientY)
       setBand({
         x: Math.min(d.screen!.x, pt.x),
@@ -561,7 +585,13 @@ export default function Canvas({
         siblings, [dw, dh], board, cam.zoom,
       )
       setGuides(s.guides)
-      onDrag({ x: Math.round(s.x), y: Math.round(s.y) })
+      const nx = Math.round(s.x)
+      const ny = Math.round(s.y)
+      // the rest of the selection follows the snapped distance, not the raw one
+      const step = { dx: nx - (d.lastX ?? d.geo!.x), dy: ny - (d.lastY ?? d.geo!.y) }
+      d.lastX = nx
+      d.lastY = ny
+      onDrag({ x: nx, y: ny }, step)
       return
     }
     if (d.geo!.fontSize != null) {
@@ -607,10 +637,26 @@ export default function Canvas({
       onToolDone()
       return
     }
+    if (d.kind === 'marquee') {
+      if (!d.moved) { onSelectScene(boards[d.board!].id); return }
+      const at = locate(e.clientX, e.clientY)
+      const o = d.origin!
+      const end = at ? { x: at.x, y: at.y } : o
+      const x0 = Math.min(o.x, end.x)
+      const y0 = Math.min(o.y, end.y)
+      const x1 = Math.max(o.x, end.x)
+      const y1 = Math.max(o.y, end.y)
+      const frame = columns[d.board!][d.row!] ?? columns[d.board!][0]
+      // enclosed, not touched: a sweep that clips a headline should not take it
+      const inside = frame.boxes.filter(
+        b => b.x >= x0 && b.y >= y0 && b.x + b.w <= x1 && b.y + b.h <= y1)
+      onSelectMany(inside.map(b => ({ scene: b.scene, id: b.id })), d.row!)
+      return
+    }
     if (d.kind !== 'pan' && d.moved) { onDragEnd(); return }
     if (d.moved) return
     const hit = pick(e.clientX, e.clientY)
-    if (hit) { onSelect(hit.box, hit.row); return }
+    if (hit) { onSelect(hit.box, hit.row, e.shiftKey || e.metaKey || e.ctrlKey); return }
     // no node under the cursor: inside a board selects the board, outside
     // clears the selection entirely
     const at = locate(e.clientX, e.clientY)
@@ -659,6 +705,7 @@ export default function Canvas({
         ) : null
       })()}
       <Overlay
+        others={others}
         cam={cam}
         boards={boards}
         columns={columns}
