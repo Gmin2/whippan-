@@ -20,7 +20,12 @@ import {
   newRect, newText, reorderNode, moveNodeTo,
 } from './ops'
 import type { Reorder } from './ops'
-import { clipboard, copyNodes, pasteNodes } from './clipboard'
+import {
+  applyMotion, applyStyle, clearMotion, clipboard, copyMotion, copyNodes, copyStyle,
+  motionClip, pasteNodes, styleClip,
+} from './clipboard'
+import ContextMenu from './components/ContextMenu'
+import type { Item } from './components/ContextMenu'
 import type { NodePatch, ScenePatch, Sel } from './doc'
 import type { NodeBox } from './measure'
 
@@ -54,6 +59,10 @@ export default function App() {
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [saveError, setSaveError] = useState<string | null>(null)
+  /** bumped to ask the canvas to open its text field on the selection */
+  const [editRequest, setEditRequest] = useState(0)
+  /** where the right-click menu is open, in client pixels */
+  const [menu, setMenu] = useState<{ x: number; y: number } | null>(null)
   const [picking, setPicking] = useState(false)
   const [effects, setEffects] = useState(false)
   const [exporting, setExporting] = useState(false)
@@ -295,6 +304,15 @@ export default function App() {
         saveRef.current()
         return
       }
+      // alt makes copy and paste mean the attributes rather than the node:
+      // styles in design, timing in motion
+      if (mod && e.altKey && (key === 'c' || key === 'v')) {
+        e.preventDefault()
+        const motion = modeRef.current === 'motion'
+        if (key === 'c') (motion ? copyMotionRef : copyStyleRef).current()
+        else (motion ? pasteMotionRef : pasteStyleRef).current()
+        return
+      }
       if (mod && (key === 'c' || key === 'x')) {
         e.preventDefault()
         copyRef.current()
@@ -526,6 +544,58 @@ export default function App() {
     apply(st => moveNodeTo(st, scene, id, index))
   }, [apply])
 
+  /** an edit that touches the overlay rather than the stage */
+  const applyAnim = useCallback((fn: (anim: Anim) => Anim | null) => {
+    snapshot()
+    let changed = false
+    setDoc(prev => {
+      if (!prev) return prev
+      const next = fn(prev.anim)
+      if (!next || next === prev.anim) return prev
+      changed = true
+      return { ...prev, anim: next }
+    })
+    if (changed) { setRev(r => r + 1); setDirty(true) }
+  }, [snapshot])
+
+  const copyStyleFrom = useCallback(() => {
+    const current = docRef.current
+    const s = selRef.current
+    if (current && s) copyStyle(current, s)
+  }, [])
+
+  const pasteStyleTo = useCallback(() => {
+    const style = styleClip.get()
+    const picked = selectionRef.current
+    if (style && picked.length) apply(st => applyStyle(st, picked, style))
+  }, [apply])
+
+  const copyMotionFrom = useCallback(() => {
+    const current = docRef.current
+    const s = selRef.current
+    if (current && s) copyMotion(current, s)
+  }, [])
+
+  const pasteMotionTo = useCallback(() => {
+    const tracks = motionClip.get()
+    const picked = selectionRef.current
+    if (tracks?.length && picked.length) applyAnim(a => applyMotion(a, picked, tracks))
+  }, [applyAnim])
+
+  const clearMotionOn = useCallback(() => {
+    const picked = selectionRef.current
+    if (picked.length) applyAnim(a => clearMotion(a, picked))
+  }, [applyAnim])
+
+  /** put the selection's motion at the playhead, which is where you are looking */
+  const startAtPlayhead = useCallback((local: number) => {
+    const picked = selectionRef.current
+    if (!picked.length) return
+    const at = Math.round(local * 30) / 30
+    snapshot()
+    for (const p of picked) patchMotionFor(p.id, { at: Number(at.toFixed(4)) }, true)
+  }, [patchMotionFor, snapshot])
+
   const createScene = useCallback((afterId?: string) => {
     let id: string | null = null
     apply(st => {
@@ -549,6 +619,10 @@ export default function App() {
   const reorderRef = useRef<(w: Reorder) => void>(() => {})
   const selectAllRef = useRef<() => void>(() => {})
   const nudgeRef = useRef<(dx: number, dy: number) => void>(() => {})
+  const copyStyleRef = useRef<() => void>(() => {})
+  const pasteStyleRef = useRef<() => void>(() => {})
+  const copyMotionRef = useRef<() => void>(() => {})
+  const pasteMotionRef = useRef<() => void>(() => {})
   const nodeRef = useRef<ReturnType<typeof findNode> extends infer T
     ? T extends { node: infer N } ? N | null : null : null>(null)
   const patchNodeRef = useRef<(p: NodePatch) => void>(() => {})
@@ -585,6 +659,84 @@ export default function App() {
   /** the primary node first, then everything else picked with it */
   const selection = useMemo(() => (sel ? [sel, ...extra] : []), [sel, extra])
   const artboard = boards.find(b => b.id === scene) ?? null
+
+  /**
+   * What the right-click menu offers. Design mode is about the object, motion
+   * mode is about its timing, and the two share ordering and deletion because
+   * those mean the same thing in both.
+   */
+  const menuItems: Item[] = useMemo(() => {
+    const one = sel
+    const many = selection.length
+    const node = found?.node ?? null
+    const has = many > 0
+    const label = many > 1 ? `${many} nodes` : one?.id ?? ''
+
+    if (!has) {
+      return [
+        { label: 'Paste', keys: '⌘V', disabled: !clipboard.has(), run: () => pasteRef.current() },
+        { label: 'Select all in scene', keys: '⌘A', run: () => selectAllRef.current() },
+        { sep: true },
+        { label: 'Add scene after this', run: () => createScene(scene ?? undefined) },
+        {
+          label: 'Delete scene', danger: true, disabled: !scene,
+          run: () => { if (scene) apply(st => deleteScene(st, scene)) },
+        },
+      ]
+    }
+
+    const shared: Item[] = [
+      { sep: true },
+      { label: 'Bring to front', keys: '⇧⌘]', run: () => reorderRef.current('front') },
+      { label: 'Bring forward', keys: '⌘]', run: () => reorderRef.current('up') },
+      { label: 'Send backward', keys: '⌘[', run: () => reorderRef.current('down') },
+      { label: 'Send to back', keys: '⇧⌘[', run: () => reorderRef.current('back') },
+      { sep: true },
+      { label: `Delete ${label}`, keys: '⌫', danger: true, run: () => removeRef.current() },
+    ]
+
+    if (mode === 'motion') {
+      return [
+        {
+          label: 'Copy motion', keys: '⌥⌘C', disabled: many !== 1,
+          run: copyMotionFrom,
+        },
+        {
+          label: many > 1 ? `Paste motion onto ${many}` : 'Paste motion', keys: '⌥⌘V',
+          disabled: !motionClip.has(), run: pasteMotionTo,
+        },
+        { label: 'Clear motion', run: clearMotionOn },
+        { sep: true },
+        {
+          label: `Start at playhead  ${motionAt.local.toFixed(2)}s`,
+          run: () => startAtPlayhead(motionAt.local),
+        },
+        ...shared,
+      ]
+    }
+
+    return [
+      {
+        label: 'Edit text', keys: '⏎', disabled: node?.type !== 'text' || many !== 1,
+        run: () => setEditRequest(n => n + 1),
+      },
+      { sep: true },
+      { label: 'Copy', keys: '⌘C', run: () => copyRef.current() },
+      { label: 'Paste', keys: '⌘V', disabled: !clipboard.has(), run: () => pasteRef.current() },
+      { label: 'Duplicate', keys: '⌘D', run: () => duplicateRef.current() },
+      { sep: true },
+      { label: 'Copy styles', keys: '⌥⌘C', disabled: many !== 1, run: copyStyleFrom },
+      {
+        label: many > 1 ? `Paste styles onto ${many}` : 'Paste styles', keys: '⌥⌘V',
+        disabled: !styleClip.has(), run: pasteStyleTo,
+      },
+      ...shared,
+    ]
+  }, [
+    sel, selection.length, found, mode, scene, motionAt.local, apply, createScene,
+    copyMotionFrom, pasteMotionTo, clearMotionOn, startAtPlayhead, copyStyleFrom,
+    pasteStyleTo,
+  ])
   selRef.current = sel
   selectionRef.current = selection
   copyRef.current = copySelection
@@ -592,6 +744,10 @@ export default function App() {
   reorderRef.current = reorderSelection
   selectAllRef.current = selectAll
   nudgeRef.current = nudge
+  copyStyleRef.current = copyStyleFrom
+  pasteStyleRef.current = pasteStyleTo
+  copyMotionRef.current = copyMotionFrom
+  pasteMotionRef.current = pasteMotionTo
   nodeRef.current = found?.node ?? null
   patchNodeRef.current = patchNode
   docRef.current = doc
@@ -714,6 +870,10 @@ export default function App() {
         }}
         floating={!panels}
       />
+      {menu && (
+        <ContextMenu x={menu.x} y={menu.y} items={menuItems} onClose={() => setMenu(null)} />
+      )}
+
       {picking && (
         <AssetPicker onClose={() => setPicking(false)}
                      onPick={a => { void insertImage(a.src) }} />
@@ -771,6 +931,8 @@ export default function App() {
         onEditText={text => patchNode({ text }, true)}
         onEditStart={snapshot}
         onEditEnd={commit => { if (!commit) undo.current.pop() }}
+        editRequest={editRequest}
+        onContext={(x, y) => setMenu({ x, y })}
         onSelectTarget={(s, id) => { setSel({ scene: s, id }); setExtra([]); setScene(s) }}
         onShiftTrack={(target, at, done) => motionGesture(target, { at }, done)}
         onMeasure={onMeasure}

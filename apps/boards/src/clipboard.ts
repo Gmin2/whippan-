@@ -87,3 +87,109 @@ export function pasteNodes(
     ids: copies.map(n => n.id),
   }
 }
+
+/**
+ * Styles, copied without geometry.
+ *
+ * Copying a style should not move or resize anything, so this carries only
+ * what a node looks like: its paint, its type and its effects. `null` in a
+ * field means the source had none, which has to be pasted as a removal rather
+ * than skipped, or a glow would be impossible to clear by example.
+ */
+export interface Style {
+  fill?: string | null
+  color?: string | null
+  radius?: number | null
+  stroke?: number | null
+  font?: Node['font'] | null
+  blur?: number | null
+  glow?: Node['glow'] | null
+  gradient?: Node['gradient'] | null
+  goo?: string | null
+  streak?: Node['streak'] | null
+}
+
+const STYLE_FIELDS = [
+  'fill', 'color', 'radius', 'stroke', 'font', 'blur', 'glow', 'gradient',
+  'goo', 'streak',
+] as const
+
+let heldStyle: Style | null = null
+
+export const styleClip = {
+  get(): Style | null { return heldStyle },
+  has(): boolean { return !!heldStyle },
+}
+
+export function copyStyle(doc: Doc, sel: Sel): Style | null {
+  const node = doc.stage.scenes.find(s => s.id === sel.scene)?.nodes.find(n => n.id === sel.id)
+  if (!node) return null
+  const out: Style = {}
+  for (const f of STYLE_FIELDS) {
+    const v = (node as unknown as Record<string, unknown>)[f]
+    ;(out as Record<string, unknown>)[f] = v === undefined ? null : structuredClone(v)
+  }
+  heldStyle = out
+  return out
+}
+
+export function applyStyle(stage: Stage, sels: Sel[], style: Style): Stage {
+  return {
+    ...stage,
+    scenes: stage.scenes.map(s => {
+      const here = sels.filter(p => p.scene === s.id)
+      if (!here.length) return s
+      return {
+        ...s,
+        nodes: s.nodes.map(n => {
+          if (!here.some(p => p.id === n.id)) return n
+          const next: Node = { ...n }
+          for (const f of STYLE_FIELDS) {
+            const v = (style as Record<string, unknown>)[f]
+            const bag = next as unknown as Record<string, unknown>
+            if (v === null || v === undefined) delete bag[f]
+            else bag[f] = structuredClone(v)
+          }
+          return next
+        }),
+      }
+    }),
+  }
+}
+
+/**
+ * Motion, copied without the node.
+ *
+ * This is the smallest useful version of a motion preset: tune one entrance,
+ * then put the same timing on the next four nodes. The tracks arrive retargeted,
+ * replacing whatever the destination had, because the format allows only one
+ * track per node per property and a second one would silently win.
+ */
+let heldMotion: Track[] | null = null
+
+export const motionClip = {
+  get(): Track[] | null { return heldMotion },
+  has(): boolean { return !!heldMotion?.length },
+}
+
+export function copyMotion(doc: Doc, sel: Sel): Track[] | null {
+  const tracks = (doc.anim.tracks ?? []).filter(t => t.target === sel.id)
+  if (!tracks.length) return null
+  heldMotion = structuredClone(tracks)
+  return heldMotion
+}
+
+export function applyMotion(anim: Anim, sels: Sel[], tracks: Track[]): Anim {
+  const targets = new Set(sels.map(s => s.id))
+  const kept = (anim.tracks ?? []).filter(t => !targets.has(t.target as string))
+  const added: Track[] = []
+  for (const id of targets) {
+    for (const t of tracks) added.push({ ...structuredClone(t), target: id })
+  }
+  return { ...anim, tracks: [...kept, ...added] }
+}
+
+export function clearMotion(anim: Anim, sels: Sel[]): Anim {
+  const targets = new Set(sels.map(s => s.id))
+  return { ...anim, tracks: (anim.tracks ?? []).filter(t => !targets.has(t.target as string)) }
+}

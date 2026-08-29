@@ -65,6 +65,10 @@ interface Props {
   onSelectTarget(scene: string, id: string): void
   /** restagger from a strip: move a node's whole track to a new scene-local at */
   onShiftTrack(target: string, at: number, done: boolean): void
+  /** right click, after the node under the cursor has been selected */
+  onContext(x: number, y: number): void
+  /** bumped by the menu's Edit text entry: open the field on the selection */
+  editRequest: number
 }
 
 
@@ -95,7 +99,7 @@ export default function Canvas({
   geo, onDrag, onDragEnd, onMeasure, onSelectScene, activeScene,
   tool, onCreate, onAddScene, onCreatePath, onToolDone, mode, playhead,
   selectedSeam, onSelectSeam, onEditText, onEditStart, onEditEnd,
-  onSelectTarget, onShiftTrack,
+  onSelectTarget, onShiftTrack, onContext, editRequest,
 }: Props) {
   const wrap = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -438,6 +442,16 @@ export default function Canvas({
     { id: string; scene: string; t: number; x: number; y: number } | null
   >(null)
 
+  // the menu asks for the field by bumping a counter, since the selection it
+  // acts on is already the right one
+  const asked = useRef(editRequest)
+  useEffect(() => {
+    if (editRequest === asked.current) return
+    asked.current = editRequest
+    const r = selRect()
+    if (r) startEdit(r.box, selRow)
+  }, [editRequest, selRect, startEdit, selRow])
+
   const local = (clientX: number, clientY: number) => {
     const r = wrap.current!.getBoundingClientRect()
     return { x: clientX - r.left, y: clientY - r.top }
@@ -699,6 +713,21 @@ export default function Canvas({
       }}
       onPointerMove={onMove}
       onPointerUp={onUp}
+      onContextMenu={e => {
+        e.preventDefault()
+        // right-clicking something outside the selection selects it first, so
+        // the menu always acts on what you actually pointed at
+        const hit = pick(e.clientX, e.clientY)
+        const held = hit && (
+          (selected?.id === hit.box.id && selected.scene === hit.box.scene)
+          || others.some(o => o.id === hit.box.id && o.scene === hit.box.scene))
+        if (hit && !held) onSelect(hit.box, hit.row)
+        if (!hit) {
+          const at = locate(e.clientX, e.clientY)
+          if (at?.inside) onSelectScene(boards[at.board].id)
+        }
+        onContext(e.clientX, e.clientY)
+      }}
       onPointerLeave={() => { setHover(null); setGrab(null) }}
       className="relative h-full flex-1 overflow-hidden"
       style={{ background: ground, cursor }}
