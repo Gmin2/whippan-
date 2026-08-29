@@ -259,12 +259,27 @@ export default function Canvas({
   useEffect(() => {
     const el = wrap.current
     if (!el) return
-    const ro = new ResizeObserver(() => {
+    const read = () => {
       const r = el.getBoundingClientRect()
-      setSize({ w: Math.round(r.width), h: Math.round(r.height) })
-    })
+      setSize(prev => {
+        const w = Math.round(r.width)
+        const h = Math.round(r.height)
+        return prev.w === w && prev.h === h ? prev : { w, h }
+      })
+    }
+    // measure up front rather than waiting to be told. a tab that loads in the
+    // background gets no rendering steps at all: no rAF, and no observation
+    // delivered. when it is finally shown the box has not CHANGED, so the
+    // observer has nothing to report and the canvas would sit at its default
+    // 300x150 forever
+    read()
+    const ro = new ResizeObserver(read)
     ro.observe(el)
-    return () => ro.disconnect()
+    document.addEventListener('visibilitychange', read)
+    return () => {
+      ro.disconnect()
+      document.removeEventListener('visibilitychange', read)
+    }
   }, [])
 
   useEffect(() => {
