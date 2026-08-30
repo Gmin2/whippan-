@@ -50,7 +50,10 @@ export function patchTrack(anim: Anim, target: string, patch: TrackPatch): Anim 
     edit(() => true, t => {
       if (patch.at !== undefined) {
         if (patch.at === 0) delete t.at
-        else t.at = Math.round(patch.at * 1000) / 1000
+        // four places, not three: a frame at 30fps is 1/30 = 0.0333..., so
+        // three places cannot express one. rounding to 3dp turned a snapped
+        // 31/30 into 30.99 frames and quietly undid every frame snap upstream
+        else t.at = Math.round(patch.at * 1e4) / 1e4
       }
       if (patch.loop !== undefined) {
         if (patch.loop) t.loop = true
