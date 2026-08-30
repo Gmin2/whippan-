@@ -28,6 +28,8 @@ import {
 } from './clipboard'
 import ContextMenu from './components/ContextMenu'
 import AIBar from './components/AIBar'
+import BlockPicker from './components/BlockPicker'
+import { blockByKey, filmAccent } from './blocks'
 import { askImage, askMotion, askVector, capabilities, motionContext } from './ai'
 import type { AiKind, Capability, MotionProposal } from './ai'
 import { AI_TOOLS } from './components/ToolRail'
@@ -65,6 +67,8 @@ export default function App() {
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [saveError, setSaveError] = useState<string | null>(null)
+  /** the block library, opened from the insert tool */
+  const [blocks, setBlocks] = useState(false)
   /** which prompt bar is open, if any */
   const [ai, setAi] = useState<AiKind | null>(null)
   const [caps, setCaps] = useState<Capability[]>([])
@@ -451,6 +455,27 @@ export default function App() {
     apply(st => addNode(st, sceneId, node))
     setSel({ scene: sceneId, id: node.id })
     setScene(sceneId)
+  }, [apply])
+
+  /**
+   * Placing a block. It arrives as a group plus its members, so the whole thing
+   * is one selectable object and one track can animate it.
+   */
+  const insertBlock = useCallback((key: string, opts: Record<string, unknown>) => {
+    const current = docRef.current
+    const target = sceneRef.current ?? current?.stage.scenes[0]?.id
+    const def = blockByKey(key)
+    if (!current || !target || !def) return
+    const [w, h] = current.stage.size
+    const made = def.make(
+      { stage: current.stage, accent: filmAccent(current.stage), x: w / 2, y: h / 2 },
+      opts,
+    )
+    apply(st => made.reduce((acc, n) => addNode(acc, target, n), st))
+    const group = made.find(n => n.type === 'group')
+    if (group) { setSel({ scene: target, id: group.id }); setExtra([]); setInside(null) }
+    setScene(target)
+    setBlocks(false)
   }, [apply])
 
   const insertImage = useCallback(async (src: string) => {
@@ -1068,6 +1093,7 @@ export default function App() {
       <ToolRail
         tool={tool}
         onTool={t => {
+          if (t === 'add') { setBlocks(true); return }
           if (t === 'image') { setPicking(true); return }
           if (t === 'shader') { setEffects(true); return }
           if (t in AI_TOOLS) {
@@ -1084,6 +1110,14 @@ export default function App() {
       />
       {menu && (
         <ContextMenu x={menu.x} y={menu.y} items={menuItems} onClose={() => setMenu(null)} />
+      )}
+
+      {blocks && doc && (
+        <BlockPicker
+          accent={filmAccent(doc.stage)}
+          onInsert={insertBlock}
+          onClose={() => setBlocks(false)}
+        />
       )}
 
       {picking && (
