@@ -9,7 +9,7 @@ import EffectPicker from './components/EffectPicker'
 import ExportDialog from './components/ExportDialog'
 import Timeline from './components/Timeline'
 import { boot, ensureImage, loadDoc, saveDoc } from './engine'
-import type { Anim, Doc, Entry, Stage } from './engine/types'
+import type { Anim, Doc, Entry, Node, Stage } from './engine/types'
 import { artboards, findNode, tree } from './doc'
 import { groupBox } from './measure'
 import { patchTrack, tracksFor } from './tracks'
@@ -29,8 +29,10 @@ import {
 import ContextMenu from './components/ContextMenu'
 import AIBar from './components/AIBar'
 import BlockPicker from './components/BlockPicker'
-import { blockByKey, filmAccent } from './blocks'
-import { askImage, askMotion, askVector, capabilities, motionContext } from './ai'
+import { BLOCKS, blockByKey, filmAccent } from './blocks'
+import { checkDensity, checkFit } from './fit'
+import type { Fit } from './fit'
+import { askImage, askMotion, askScreen, askVector, capabilities, motionContext } from './ai'
 import type { AiKind, Capability, MotionProposal } from './ai'
 import { AI_TOOLS } from './components/ToolRail'
 import type { Item } from './components/ContextMenu'
@@ -75,6 +77,9 @@ export default function App() {
   const [aiBusy, setAiBusy] = useState(false)
   const [aiError, setAiError] = useState<string | null>(null)
   const [proposal, setProposal] = useState<MotionProposal | null>(null)
+  /** a composed screen waiting on a decision, with its fit budget already run */
+  const [screen, setScreen] = useState<
+    { note: string; nodes: Node[]; bg?: string; fit: Fit[] } | null>(null)
   /** the group you have stepped inside; its members then select directly */
   const [inside, setInside] = useState<string | null>(null)
   /** bumped to ask the canvas to open its text field on the selection */
@@ -636,6 +641,39 @@ export default function App() {
     setAiBusy(true)
     setAiError(null)
     try {
+      if (kind === 'screen') {
+        const target = sceneRef.current ?? current.stage.scenes[0]?.id
+        if (!target) throw new Error('no scene to compose into')
+        const accent = filmAccent(current.stage)
+        const out = await askScreen({
+          prompt, model,
+          size: current.stage.size,
+          accent,
+          blocks: BLOCKS.map(b => ({
+            key: b.key, name: b.name, blurb: b.blurb, slots: b.slots.map(s => s.key),
+          })),
+        })
+        if (!out.place.length) throw new Error('the model placed nothing it could build')
+        // materialise through the library, so the geometry is the corpus's and
+        // not the model's, then run the budget on what will actually land
+        let stage = current.stage
+        const nodes: Node[] = []
+        for (const p of out.place) {
+          const def = blockByKey(p.block)
+          if (!def) continue
+          const made = def.make({ stage, accent, x: p.x, y: p.y }, p.opts ?? {})
+          nodes.push(...made)
+          // each block must see the ids the last one took
+          stage = { ...stage, scenes: stage.scenes.map(sc =>
+            sc.id === target ? { ...sc, nodes: [...sc.nodes, ...made] } : sc) }
+        }
+        const density = checkDensity(nodes)
+        setScreen({
+          note: out.note, nodes, bg: out.bg,
+          fit: [...checkFit(nodes, current.stage.size), ...(density ? [density] : [])],
+        })
+        return
+      }
       if (kind === 'motion') {
         const picked = selectionRef.current
         const sceneId = picked[0]?.scene ?? sceneRef.current
@@ -679,6 +717,23 @@ export default function App() {
       setAiBusy(false)
     }
   }, [apply, ck])
+
+  /** accept a composed screen: its blocks land in the scene you were looking at */
+  const acceptScreen = useCallback(() => {
+    const target = selRef.current?.scene ?? sceneRef.current ?? docRef.current?.stage.scenes[0]?.id
+    if (!screen || !target) return
+    apply(st => {
+      let next = screen.nodes.reduce((acc, n) => addNode(acc, target, n), st)
+      if (screen.bg) {
+        next = { ...next, scenes: next.scenes.map(s => (s.id === target ? { ...s, bg: screen.bg } : s)) }
+      }
+      return next
+    })
+    const group = screen.nodes.find(n => n.type === 'group')
+    if (group) { setSel({ scene: target, id: group.id }); setExtra([]) }
+    setScreen(null)
+    setAi(null)
+  }, [screen, apply])
 
   /** accept a motion proposal: its tracks replace what those nodes had */
   const acceptProposal = useCallback(() => {
@@ -1147,10 +1202,13 @@ export default function App() {
             busy={aiBusy}
             error={aiError}
             proposal={ai === 'motion' ? proposal : null}
+            screen={ai === 'screen' ? screen : null}
+            onAcceptScreen={acceptScreen}
+            onDiscardScreen={() => setScreen(null)}
             onRun={(prompt, model, extra) => void runAi(ai, prompt, model, extra)}
             onAccept={acceptProposal}
             onDiscard={() => setProposal(null)}
-            onClose={() => { setAi(null); setProposal(null); setAiError(null) }}
+            onClose={() => { setAi(null); setProposal(null); setScreen(null); setAiError(null) }}
           />
         )}
         <Canvas

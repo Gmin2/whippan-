@@ -1,5 +1,6 @@
 import type {
-  Capability, ImageRequest, MotionProposal, MotionRequest, VectorRequest,
+  Capability, ImageRequest, MotionProposal, MotionRequest, ScreenProposal,
+  ScreenRequest, VectorRequest,
 } from './types.js'
 
 /**
@@ -24,6 +25,16 @@ export function capabilities(): Capability[] {
   return [
     {
       kind: 'motion',
+      provider: 'Anthropic',
+      ready: !!key('ANTHROPIC_API_KEY'),
+      reason: key('ANTHROPIC_API_KEY') ? undefined : 'set ANTHROPIC_API_KEY on the server',
+      models: [
+        { id: 'claude-sonnet-5', label: 'Claude Sonnet 5', note: 'fast enough to iterate' },
+        { id: 'claude-opus-5', label: 'Claude Opus 5', note: 'better taste, slower' },
+      ],
+    },
+    {
+      kind: 'screen',
       provider: 'Anthropic',
       ready: !!key('ANTHROPIC_API_KEY'),
       reason: key('ANTHROPIC_API_KEY') ? undefined : 'set ANTHROPIC_API_KEY on the server',
@@ -150,6 +161,87 @@ function parseJsonObject(text: string): Record<string, unknown> {
 }
 
 /** a data url, so the caller can drop it straight into an image node */
+/**
+ * The contract for composing a screen.
+ *
+ * The model chooses WHICH blocks and WHERE. It never sets a font size, a radius
+ * or a padding, because the block library already holds the ratios measured off
+ * the 31 films. That is the whole design: the model cannot emit bad geometry
+ * because it is not allowed to express geometry.
+ */
+const SCREEN_CONTRACT = `You compose a screen for a product launch video by placing BLOCKS.
+
+You never write font sizes, radii, padding or colours. The block library holds
+those, measured off 31 real launch films. You choose which blocks, where they
+sit, and what words go in them.
+
+Reply with ONLY a JSON object, no prose and no code fence:
+{
+  "note": "<one short line on what you made>",
+  "bg": "<#rrggbb, optional>",
+  "place": [ { "block": "<key>", "x": <px>, "y": <px>, "opts": { ... } } ]
+}
+
+What the corpus does, and you should too:
+- A launch video shows the PRODUCT'S OWN UI: an editor, a terminal, a browser,
+  a dashboard. Not a marketing page. There are no testimonials, pricing tables,
+  logo walls or feature grids anywhere in the corpus.
+- 12.7% of all nodes sit exactly on the canvas centre line. Centre things.
+- Margins are generous: keep content inside the middle 80% horizontally and the
+  middle 70% vertically. These are posters with a UI in the middle.
+- ONE THOUGHT PER SCENE. Three sentences is two scenes. Two to four blocks is a
+  screen; eight is a mess.
+- One accent. About one text node in five carries it, no more.
+- Copy is short and concrete. No taglines that could belong to any product.
+
+Counters, rolling numbers and alternating headlines are the "swap-slot" block,
+never one line of text you intend to animate.`
+
+export async function runScreen(req: ScreenRequest): Promise<ScreenProposal> {
+  const auth = need('ANTHROPIC_API_KEY')
+  const model = req.model || 'claude-sonnet-5'
+  const [w, h] = req.size
+
+  const brief = [
+    `Canvas ${w} x ${h}. Centre is ${Math.round(w / 2)}, ${Math.round(h / 2)}.`,
+    `The film's accent is ${req.accent}; a block with a role of "accent" takes it.`,
+    `Blocks you may place:\n${req.blocks
+      .map(b => `  ${b.key} - ${b.blurb}\n    opts: ${b.slots.join(', ')}`)
+      .join('\n')}`,
+    `What the director asked for: ${req.prompt}`,
+  ].join('\n\n')
+
+  const res = await fetch(ANTHROPIC, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': auth,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 2000,
+      system: SCREEN_CONTRACT,
+      messages: [{ role: 'user', content: brief }],
+    }),
+  })
+  if (!res.ok) throw new Error(`anthropic ${res.status}: ${(await res.text()).slice(0, 300)}`)
+
+  const body = await res.json() as { content?: { type: string; text?: string }[] }
+  const text = (body.content ?? []).filter(c => c.type === 'text').map(c => c.text).join('')
+  const parsed = parseJsonObject(text)
+  const known = new Set(req.blocks.map(b => b.key))
+  const place = Array.isArray(parsed.place) ? parsed.place as ScreenProposal['place'] : []
+
+  return {
+    note: typeof parsed.note === 'string' ? parsed.note : 'proposed screen',
+    bg: typeof parsed.bg === 'string' ? parsed.bg : undefined,
+    // a block the client cannot materialise would silently vanish, so drop it
+    // here where it can be counted rather than there where it cannot
+    place: place.filter(p => p && known.has(p.block)),
+  }
+}
+
 export async function runImage(req: ImageRequest): Promise<{ dataUrl: string; mime: string }> {
   const auth = need('GEMINI_API_KEY')
   const model = req.model || 'gemini-3.1-flash-image'

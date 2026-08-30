@@ -1,5 +1,5 @@
 /** the three things the prompt bar can be asked to make */
-export type AiKind = 'motion' | 'image' | 'vector'
+export type AiKind = 'motion' | 'image' | 'vector' | 'screen'
 
 export interface ModelOption {
   id: string
@@ -39,6 +39,24 @@ export interface ImageRequest {
   model?: string
   /** width:height, passed through to the provider */
   aspect?: string
+}
+
+export interface ScreenRequest {
+  prompt: string
+  model?: string
+  /** canvas size, so the model can reason about the centre line and margins */
+  size: [number, number]
+  /** the film's one hue, taken from what it already uses */
+  accent: string
+  /** the block names and slots the client can actually materialise */
+  blocks: { key: string; name: string; blurb: string; slots: string[] }[]
+}
+
+export interface ScreenProposal {
+  note: string
+  bg?: string
+  /** block placements, not nodes; the block library owns the geometry */
+  place: { block: string; x: number; y: number; opts: Record<string, unknown> }[]
 }
 
 export interface VectorRequest {

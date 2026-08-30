@@ -6,7 +6,7 @@ import type { Node, Scene, Track } from './engine/types'
  */
 const API = import.meta.env.VITE_API_BASE ?? ''
 
-export type AiKind = 'motion' | 'image' | 'vector'
+export type AiKind = 'motion' | 'image' | 'vector' | 'screen'
 
 export interface ModelOption {
   id: string
@@ -58,6 +58,13 @@ export function motionContext(scene: Scene, nodes: Node[], tracks: Track[], inde
   }
 }
 
+export interface ScreenProposal {
+  note: string
+  bg?: string
+  place: { block: string; x: number; y: number; opts: Record<string, unknown> }[]
+}
+
+export const askScreen = (body: unknown) => post<ScreenProposal>('screen', body)
 export const askMotion = (body: unknown) => post<MotionProposal>('motion', body)
 export const askImage = (body: unknown) => post<{ dataUrl: string; mime: string }>('image', body)
 export const askVector = (body: unknown) => post<{ svg: string }>('vector', body)

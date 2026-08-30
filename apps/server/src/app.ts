@@ -5,7 +5,9 @@ import type { Config } from './config.js'
 import type { DocStore } from './store/types.js'
 import { SLUG, validateDoc } from './validate.js'
 import { ExportQueue } from './export/queue.js'
-import { capabilities, isMissingKey, runImage, runMotion, runVector } from './ai/providers.js'
+import {
+  capabilities, isMissingKey, runImage, runMotion, runScreen, runVector,
+} from './ai/providers.js'
 import { createReadStream } from 'node:fs'
 import { Readable } from 'node:stream'
 
@@ -108,6 +110,16 @@ export function createApp(store: DocStore, config: Config, queue?: ExportQueue) 
           nodes: nodes as { id: string; type: string }[],
           scene: body.scene as { id: string; dur: number; index: number; total: number },
           tracks: Array.isArray(body.tracks) ? body.tracks : [],
+        }))
+      }
+      if (kind === 'screen') {
+        const blocks = Array.isArray(body.blocks) ? body.blocks : []
+        if (!blocks.length) return c.json({ error: 'no block library supplied' }, 400)
+        return c.json(await runScreen({
+          prompt, model,
+          size: body.size as [number, number],
+          accent: typeof body.accent === 'string' ? body.accent : '#ff5c1a',
+          blocks: blocks as { key: string; name: string; blurb: string; slots: string[] }[],
         }))
       }
       if (kind === 'image') {

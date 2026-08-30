@@ -35,6 +35,11 @@ const LABEL_MIN = 215
 /** below this even one bar per row is too short to aim at */
 const BARS_MIN = 118
 const SUMMARY_H = 15
+/** room the "even 0.06s" caption needs, so it can flip sides near the edge */
+const CAP_W = 58
+/** the stagger the 29 measured launch films sit inside, quoted, never enforced */
+const HOUSE_LO = 0.04
+const HOUSE_HI = 0.08
 
 type Mode = 'full' | 'bars' | 'summary'
 
@@ -99,6 +104,10 @@ export default function StaggerStrip({
   lanes, dur, playhead, width, selected, onSelect, onShift, fps, collapsed, onCollapse,
 }: Props) {
   const [drag, setDrag] = useState<Drag | null>(null)
+  /** pointer is over the strip, which is what offers the even ladder */
+  const [hint, setHint] = useState(false)
+  /** pointer is on the even ladder itself, so it can outshout the real one */
+  const [aim, setAim] = useState(false)
   /**
    * The live gesture, held in a ref as well as in state. `onShift` is a side
    * effect and must not be called from inside a setState updater, where React
@@ -147,6 +156,50 @@ export default function StaggerStrip({
     const hi = Math.max(...vs)
     return { lo, hi, even: hi - lo < 0.008 }
   }, [gaps])
+
+  /**
+   * The ladder this scene would have with an even stagger: the first and last
+   * entries stay, everything between them is respaced. The two ends fix the
+   * gap, so the even shape has no free parameter — which is why it can be
+   * drawn ahead of time and simply taken, rather than dialled in.
+   */
+  const straight = useMemo(() => {
+    if (rows.length < 3 || !beat || beat.even) return null
+    const first = rows[0].entry
+    const step = (rows[rows.length - 1].entry - first) / (rows.length - 1)
+    if (step <= 0) return null
+    const grid = fps ?? FPS
+    // the two ends are held out of the loop rather than filtered afterwards,
+    // so no rounding can nudge them. what moves is `at`, snapped to the frame
+    // grid the way a drag snaps it, and the row's entry follows it
+    const entries = rows.map(r => r.entry)
+    const moves: { target: string; at: number }[] = []
+    for (let i = 1; i < rows.length - 1; i++) {
+      const r = rows[i]
+      const want = r.at + (first + step * i - r.entry)
+      const at = round4(Math.max(0, Math.round(want * grid) / grid))
+      // the document keeps `at` to the millisecond, so a move it could not
+      // record is not a move. that is also what retires the offer: once every
+      // row is as close to even as the frame grid allows, there is nothing
+      // left to hand over and the ladder stops being drawn
+      if (Math.abs(at - r.at) < 0.001) continue
+      entries[i] = round4(r.entry + (at - r.at))
+      moves.push({ target: r.target, at })
+    }
+    return moves.length ? { gap: step, entries, moves } : null
+  }, [rows, beat, fps])
+
+  /**
+   * One press is one undo: the parent snapshots on the first `onShift` of a
+   * gesture and closes it on `done`, so every row goes out in one run with the
+   * flag on the last. Read straight from the memo — never from inside a
+   * setState updater, which is free to run twice.
+   */
+  const straighten = useCallback(() => {
+    if (!straight) return
+    straight.moves.forEach((m, i) => onShift(m.target, m.at, i === straight.moves.length - 1))
+    setAim(false)
+  }, [straight, onShift])
 
   const trackW = Math.max(
     24,
@@ -209,15 +262,17 @@ export default function StaggerStrip({
     setDrag({ target: r.target, startX: e.clientX, startAt: r.at, at: r.at })
   }, [onSelect, ordered])
 
-  // the narrowest mode has no room for the words, only for the numbers
+  // the narrowest mode has no room for the words, only for the numbers. the
+  // word is what degrades: the number is the thing worth reading, so it stays
+  // at every width
   const tight = mode === 'summary'
-  const sp = tight ? '' : ' '
+  const lead = mode === 'full' ? 'stagger ' : tight ? 'Δ' : 'Δ '
   const headRight = drag
     ? `${drag.at.toFixed(2)}s`
     : beat
       ? beat.even
-        ? `Δ${sp}${beat.lo.toFixed(2)}s`
-        : `Δ${sp}${beat.lo.toFixed(2)}–${beat.hi.toFixed(2)}s`
+        ? `${lead}${beat.lo.toFixed(2)}s`
+        : `${lead}${beat.lo.toFixed(2)}–${beat.hi.toFixed(2)}s`
       : null
 
   const head = (
@@ -253,7 +308,10 @@ export default function StaggerStrip({
         <span
           className="ml-auto shrink-0 font-mono text-[9px] tabular-nums"
           style={{ color: drag ? ACCENT : undefined }}
-          title={drag ? 'entry while dragging' : 'gap between consecutive entries'}
+          title={drag
+            ? 'entry while dragging'
+            : 'stagger: the gap between one node entering and the next'
+              + `  ·  the house style is ${HOUSE_LO.toFixed(2)}–${HOUSE_HI.toFixed(2)}s`}
         >
           {headRight}
         </span>
@@ -310,14 +368,41 @@ export default function StaggerStrip({
   }
 
   const labels = mode === 'full'
+  const dot = (t: number) => clamp(t * pps, 0.5, trackW - 0.5)
   const ladder = ordered
-    .map((r, i) => `${clamp(r.entry * pps, 0.5, trackW - 0.5)},${i * ROW_H + ROW_H / 2}`)
+    .map((r, i) => `${dot(r.entry)},${i * ROW_H + ROW_H / 2}`)
     .join(' ')
+
+  /**
+   * The offer: the even ladder drawn where it would land, captioned with the
+   * gap it would produce. Hidden until the pointer is over the strip, so an
+   * untouched wall of strips looks exactly as it did.
+   */
+  const offer = straight && !drag
+    ? (() => {
+      const mid = Math.floor((straight.entries.length - 1) / 2)
+      const x = dot(straight.entries[mid])
+      const flip = x + CAP_W > trackW
+      const off = straight.gap < HOUSE_LO - 1e-6 || straight.gap > HOUSE_HI + 1e-6
+      return {
+        pts: straight.entries.map((e, i) => `${dot(e)},${i * ROW_H + ROW_H / 2}`).join(' '),
+        x, flip,
+        y: mid * ROW_H + ROW_H / 2,
+        label: `even ${straight.gap.toFixed(2)}s`,
+        tip: `even the stagger to ${straight.gap.toFixed(2)}s`
+          + (off ? `  ·  the house style is ${HOUSE_LO.toFixed(2)}–${HOUSE_HI.toFixed(2)}s` : ''),
+      }
+    })()
+    : null
 
   return (
     <div className="select-none border-t border-hair bg-panel" style={{ width }}>
       {head}
-      <div className="relative px-[5px]">
+      <div
+        className="relative px-[5px]"
+        onPointerEnter={() => setHint(true)}
+        onPointerLeave={() => { setHint(false); setAim(false) }}
+      >
         {/* the ladder joins entries in order; a kink is an uneven stagger */}
         <svg
           className="pointer-events-none absolute"
@@ -326,7 +411,28 @@ export default function StaggerStrip({
           height={ordered.length * ROW_H}
           aria-hidden
         >
-          <polyline points={ladder} fill="none" stroke="rgba(0,0,0,0.14)" strokeWidth="1" />
+          <polyline points={ladder} fill="none" strokeWidth="1"
+                    stroke={aim ? 'rgba(0,0,0,0.07)' : 'rgba(0,0,0,0.14)'} />
+          {/* the even ladder takes the pointer from down here, under the rows,
+              so a bar always wins where the two overlap and no one straightens
+              a scene while reaching for a drag */}
+          {offer && (
+            <g
+              className="cursor-pointer"
+              style={{ pointerEvents: hint ? undefined : 'none' }}
+              onPointerEnter={() => setAim(true)}
+              onPointerLeave={() => setAim(false)}
+              onPointerDown={e => { e.preventDefault(); e.stopPropagation(); straighten() }}
+            >
+              <title>{offer.tip}</title>
+              {/* a fat invisible stroke, because a 1px dashed line is not a target */}
+              <polyline points={offer.pts} fill="none" stroke="rgba(0,0,0,0)" strokeWidth="11"
+                        style={{ pointerEvents: 'stroke' }} />
+              <rect x={offer.flip ? offer.x - 6 - CAP_W : offer.x + 6} y={offer.y - 6}
+                    width={CAP_W} height={12} fill="rgba(0,0,0,0)"
+                    style={{ pointerEvents: 'all' }} />
+            </g>
+          )}
         </svg>
 
         {ordered.map(r => {
@@ -390,6 +496,54 @@ export default function StaggerStrip({
             </div>
           )
         })}
+
+        {/* the straight ladder, offered on top of the bars so it can be taken
+            by pointing at it. one press, and the kink is gone */}
+        {offer && (
+          <svg
+            className="absolute z-10"
+            style={{
+              left: PAD + (labels ? GUTTER : 0),
+              top: 0,
+              opacity: hint ? 1 : 0,
+              pointerEvents: hint ? undefined : 'none',
+              transition: 'opacity 120ms ease',
+            }}
+            width={trackW}
+            height={ordered.length * ROW_H}
+          >
+            <polyline points={offer.pts} fill="none" stroke={ACCENT} strokeWidth="1"
+                      strokeDasharray="3 3" opacity={aim ? 1 : 0.6}
+                      className="pointer-events-none" />
+            <g
+              className="cursor-pointer"
+              onPointerEnter={() => setAim(true)}
+              onPointerLeave={() => setAim(false)}
+              onPointerDown={e => { e.preventDefault(); e.stopPropagation(); straighten() }}
+            >
+              <title>{offer.tip}</title>
+              {/* a fat invisible stroke, because a 1px dashed line is not a target */}
+              <polyline points={offer.pts} fill="none" stroke="rgba(0,0,0,0)" strokeWidth="11"
+                        style={{ pointerEvents: 'stroke' }} />
+              <rect x={offer.flip ? offer.x - 6 - CAP_W : offer.x + 6} y={offer.y - 6}
+                    width={CAP_W} height={12} fill="rgba(0,0,0,0)" />
+              <text
+                x={offer.flip ? offer.x - 6 : offer.x + 6}
+                y={offer.y + 3}
+                textAnchor={offer.flip ? 'end' : 'start'}
+                className="pointer-events-none font-mono tabular-nums"
+                fontSize="9"
+                fill={ACCENT}
+                fillOpacity={aim ? 1 : 0.75}
+                stroke="#f2f2f2"
+                strokeWidth="3"
+                paintOrder="stroke"
+              >
+                {offer.label}
+              </text>
+            </g>
+          </svg>
+        )}
 
         {playhead !== null && (
           <span

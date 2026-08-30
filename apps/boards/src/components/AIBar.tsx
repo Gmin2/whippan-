@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ImageSparkle, PenSparkle, Sparkle } from '../icons'
 import type { AiKind, Capability, MotionProposal } from '../ai'
+import type { Fit } from '../fit'
 
 interface Props {
   kind: AiKind
@@ -11,6 +12,10 @@ interface Props {
   error: string | null
   /** the motion proposal waiting on a decision, if there is one */
   proposal: MotionProposal | null
+  /** a composed screen waiting on a decision, with its fit budget already run */
+  screen: { note: string; nodes: { id: string; type: string }[]; fit: Fit[] } | null
+  onAcceptScreen(): void
+  onDiscardScreen(): void
   onRun(prompt: string, model: string, extra: Record<string, unknown>): void
   onAccept(): void
   onDiscard(): void
@@ -20,18 +25,21 @@ interface Props {
 const ASPECTS = ['1:1', '16:9', '4:3', '9:16'] as const
 
 const TITLE: Record<AiKind, string> = {
+  screen: 'Create screen',
   motion: 'Create motion',
   image: 'Create image',
   vector: 'Create SVG',
 }
 
 const PLACEHOLDER: Record<AiKind, string> = {
+  screen: 'the editor mid-keystroke, with a run button',
   motion: 'make these land harder, 60ms apart',
   image: 'a dark product shot, soft rim light',
   vector: 'Moon icon in outline style',
 }
 
 const ICON: Record<AiKind, React.ReactNode> = {
+  screen: <Sparkle size={13} />,
   motion: <Sparkle size={13} />,
   image: <ImageSparkle size={14} />,
   vector: <PenSparkle size={14} />,
@@ -49,7 +57,8 @@ const ICON: Record<AiKind, React.ReactNode> = {
  * model you stop trusting.
  */
 export default function AIBar({
-  kind, caps, subject, busy, error, proposal, onRun, onAccept, onDiscard, onClose,
+  kind, caps, subject, busy, error, proposal, screen, onRun, onAccept, onDiscard,
+  onAcceptScreen, onDiscardScreen, onClose,
 }: Props) {
   const cap = useMemo(() => caps.find(c => c.kind === kind), [caps, kind])
   const [prompt, setPrompt] = useState('')
@@ -93,8 +102,46 @@ export default function AIBar({
                              disabled:opacity-40">✕</button>
         </div>
 
-        {/* the proposal replaces the prompt while it is waiting to be judged */}
-        {proposal ? (
+        {/* a proposal replaces the prompt while it is waiting to be judged */}
+        {screen ? (
+          <div className="px-3 py-2.5">
+            <p className="mb-2">{screen.note}</p>
+            <div className="max-h-[150px] overflow-auto rounded-[6px] bg-black/[0.04] p-2">
+              {screen.nodes.filter(n => n.type === 'group').map(n => (
+                <p key={n.id} className="font-mono text-[10px] leading-relaxed text-dim">
+                  {n.id}
+                </p>
+              ))}
+            </div>
+            {/* the fit budget, run before you are asked to judge it */}
+            {screen.fit.length > 0 && (
+              <div className="mt-2 space-y-0.5">
+                {screen.fit.slice(0, 5).map((f, i) => (
+                  <p key={i} className="leading-relaxed text-[10px]"
+                     style={{ color: f.level === 'warn' ? '#8a5d12' : 'rgba(0,0,0,0.45)' }}>
+                    {f.node ? `${f.node}: ` : ''}{f.text}
+                  </p>
+                ))}
+              </div>
+            )}
+            <div className="mt-2.5 flex items-center gap-2">
+              <p className="text-[10px] text-faint">
+                {screen.nodes.filter(n => n.type === 'group').length} blocks
+                {screen.fit.some(f => f.level === 'warn')
+                  ? ' · the budget flagged something'
+                  : ' · inside the fit budget'}
+              </p>
+              <div className="ml-auto flex gap-1.5">
+                <button onClick={onDiscardScreen}
+                        className="inset-control h-[28px] px-3 transition-colors
+                                   hover:bg-black/[0.03]">Discard</button>
+                <button onClick={onAcceptScreen}
+                        className="h-[28px] rounded-[6px] bg-[#5e92f4] px-3 text-white
+                                   transition-colors hover:bg-[#4d82e8]">Place</button>
+              </div>
+            </div>
+          </div>
+        ) : proposal ? (
           <div className="px-3 py-2.5">
             <p className="mb-2">{proposal.note}</p>
             <pre className="max-h-[190px] overflow-auto rounded-[6px] bg-black/[0.04] p-2
