@@ -92,3 +92,35 @@ export function checkDensity(nodes: Node[]): Fit | null {
     ? { level: 'note', node: '', text: 'three sentences is two scenes; one thought per scene' }
     : null
 }
+
+/**
+ * The scene budget, also §6.
+ *
+ * A film is not a pile of screens. These are the shape rules: how many beats a
+ * launch video runs to, and how long each one is allowed to sit there.
+ */
+export function checkFilm(scenes: { id: string; dur: number }[]): Fit[] {
+  const out: Fit[] = []
+  const total = scenes.reduce((a, s) => a + s.dur, 0)
+  if (scenes.length < 5) {
+    out.push({ level: 'note', node: '', text: `${scenes.length} scenes; a launch video runs to 5-9` })
+  } else if (scenes.length > 9) {
+    out.push({ level: 'warn', node: '', text: `${scenes.length} scenes; past 9 the film stops being a film` })
+  }
+  for (const s of scenes) {
+    // punctuation beats are allowed to be short; a content scene is not
+    if (s.dur > 3.5) {
+      out.push({ level: 'warn', node: s.id, text: `${s.dur}s; content scenes dwell 1.5-3.5s` })
+    } else if (s.dur < 0.5) {
+      out.push({ level: 'warn', node: s.id, text: `${s.dur}s is shorter than a punctuation beat` })
+    }
+  }
+  const last = scenes[scenes.length - 1]
+  if (last && last.dur < 2) {
+    out.push({ level: 'note', node: last.id, text: 'the end card wants at least 2s' })
+  }
+  if (total < 12 || total > 30) {
+    out.push({ level: 'note', node: '', text: `${total.toFixed(1)}s total; the references run 15-25s` })
+  }
+  return out
+}

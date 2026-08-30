@@ -1,6 +1,6 @@
 import type {
-  Capability, ImageRequest, MotionProposal, MotionRequest, ScreenProposal,
-  ScreenRequest, VectorRequest,
+  Capability, FilmProposal, FilmRequest, ImageRequest, MotionProposal, MotionRequest,
+  ScreenProposal, ScreenRequest, VectorRequest,
 } from './types.js'
 
 /**
@@ -31,6 +31,16 @@ export function capabilities(): Capability[] {
       models: [
         { id: 'claude-sonnet-5', label: 'Claude Sonnet 5', note: 'fast enough to iterate' },
         { id: 'claude-opus-5', label: 'Claude Opus 5', note: 'better taste, slower' },
+      ],
+    },
+    {
+      kind: 'film',
+      provider: 'Anthropic',
+      ready: !!key('ANTHROPIC_API_KEY'),
+      reason: key('ANTHROPIC_API_KEY') ? undefined : 'set ANTHROPIC_API_KEY on the server',
+      models: [
+        { id: 'claude-opus-5', label: 'Claude Opus 5', note: 'a whole film is worth the wait' },
+        { id: 'claude-sonnet-5', label: 'Claude Sonnet 5', note: 'faster first draft' },
       ],
     },
     {
@@ -239,6 +249,109 @@ export async function runScreen(req: ScreenRequest): Promise<ScreenProposal> {
     // a block the client cannot materialise would silently vanish, so drop it
     // here where it can be counted rather than there where it cannot
     place: place.filter(p => p && known.has(p.block)),
+  }
+}
+
+/**
+ * A whole film in one pass.
+ *
+ * This is the claim the two-layer format exists to make. The model writes a
+ * sequence of beats, each one a set of blocks with an entrance, plus the cut
+ * between them. It still never expresses geometry or easing curves: blocks own
+ * the layout and the named entrances own the timing, both measured off the same
+ * 31 films. What is left for the model is the thing it is actually good at,
+ * which is deciding what the film says and in what order.
+ */
+const FILM_CONTRACT = `You write a product launch film as a sequence of scenes.
+
+You never write font sizes, radii, colours, easing curves or keyframes. Blocks
+own the layout and named entrances own the timing, both measured off 31 real
+launch films. You choose the beats, the words, the blocks, and the cuts.
+
+Reply with ONLY a JSON object, no prose and no code fence:
+{
+  "note": "<one short line on the film>",
+  "scenes": [
+    {
+      "id": "s1",
+      "dur": <seconds>,
+      "bg": "<#rrggbb>",
+      "note": "<one line describing the beat, for the storyboard card>",
+      "transition": "<how this scene ARRIVES; omit on the first>",
+      "place": [ { "block": "<key>", "x": <px>, "y": <px>, "opts": {...},
+                   "enter": "<preset>", "at": <scene-local seconds> } ]
+    }
+  ]
+}
+
+The shape of a launch film, from the corpus:
+- 5 to 9 scenes. Content beats dwell 1.5-3.5s, punctuation beats 0.5-1.5s, and
+  the end card gets at least 2s. The whole thing runs 15-25s.
+- ONE THOUGHT PER SCENE. Two to four blocks. Three sentences is two scenes.
+- It opens on the product doing something, not on a title card.
+- It shows the PRODUCT'S OWN UI: an editor, a terminal, a browser, a dashboard.
+  There are no testimonials, pricing tables or logo walls anywhere in the corpus.
+- The last scene is the end card: a wordmark, optionally a tagline under it and
+  a pill. This is the most standardised scene in the corpus.
+- Cuts punctuate, morphs narrate. Most seams are a plain cut.
+- Stagger siblings 40-80ms apart with "at" so a group of lines reads as one
+  gesture rather than a slab.
+- Copy is short and concrete. No tagline that could belong to any product.`
+
+export async function runFilm(req: FilmRequest): Promise<FilmProposal> {
+  const auth = need('ANTHROPIC_API_KEY')
+  const model = req.model || 'claude-opus-5'
+  const [w, h] = req.size
+
+  const brief = [
+    `Canvas ${w} x ${h}. Centre is ${Math.round(w / 2)}, ${Math.round(h / 2)}.`,
+    `The film's accent is ${req.accent}.`,
+    `Blocks you may place:\n${req.blocks
+      .map(b => `  ${b.key} - ${b.blurb}\n    opts: ${b.slots.join(', ')}`)
+      .join('\n')}`,
+    `Entrances: ${req.enters.join(', ')}`,
+    `Transitions: ${req.transitions.join(', ')}`,
+    `What the director asked for: ${req.prompt}`,
+  ].join('\n\n')
+
+  const res = await fetch(ANTHROPIC, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': auth,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 8000,
+      system: FILM_CONTRACT,
+      messages: [{ role: 'user', content: brief }],
+    }),
+  })
+  if (!res.ok) throw new Error(`anthropic ${res.status}: ${(await res.text()).slice(0, 300)}`)
+
+  const body = await res.json() as { content?: { type: string; text?: string }[] }
+  const text = (body.content ?? []).filter(c => c.type === 'text').map(c => c.text).join('')
+  const parsed = parseJsonObject(text)
+  const known = new Set(req.blocks.map(b => b.key))
+  const enters = new Set(req.enters)
+  const raw = Array.isArray(parsed.scenes) ? parsed.scenes as FilmProposal['scenes'] : []
+
+  return {
+    note: typeof parsed.note === 'string' ? parsed.note : 'proposed film',
+    scenes: raw
+      .filter(sc => sc && Array.isArray(sc.place))
+      .map((sc, i) => ({
+        ...sc,
+        id: typeof sc.id === 'string' && sc.id ? sc.id : `s${i + 1}`,
+        dur: Number.isFinite(sc.dur) ? Number(sc.dur) : 2.4,
+        // an unknown block or entrance would vanish silently at materialise
+        // time; dropping them here means the count is honest in the proposal
+        place: sc.place
+          .filter(p => p && known.has(p.block))
+          .map(p => ({ ...p, enter: p.enter && enters.has(p.enter) ? p.enter : undefined })),
+      }))
+      .filter(sc => sc.place.length),
   }
 }
 

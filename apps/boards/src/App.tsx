@@ -8,6 +8,8 @@ import AssetPicker from './components/AssetPicker'
 import EffectPicker from './components/EffectPicker'
 import ExportDialog from './components/ExportDialog'
 import Timeline from './components/Timeline'
+import { ENTERS } from './components/MotionInspector'
+import { KINDS } from './transitions'
 import { boot, ensureImage, loadDoc, saveDoc } from './engine'
 import type { Anim, Doc, Entry, Node, Stage } from './engine/types'
 import { artboards, findNode, tree } from './doc'
@@ -30,9 +32,11 @@ import ContextMenu from './components/ContextMenu'
 import AIBar from './components/AIBar'
 import BlockPicker from './components/BlockPicker'
 import { BLOCKS, blockByKey, filmAccent } from './blocks'
-import { checkDensity, checkFit } from './fit'
+import { checkDensity, checkFilm, checkFit } from './fit'
 import type { Fit } from './fit'
-import { askImage, askMotion, askScreen, askVector, capabilities, motionContext } from './ai'
+import {
+  askFilm, askImage, askMotion, askScreen, askVector, capabilities, motionContext,
+} from './ai'
 import type { AiKind, Capability, MotionProposal } from './ai'
 import { AI_TOOLS } from './components/ToolRail'
 import type { Item } from './components/ContextMenu'
@@ -77,6 +81,10 @@ export default function App() {
   const [aiBusy, setAiBusy] = useState(false)
   const [aiError, setAiError] = useState<string | null>(null)
   const [proposal, setProposal] = useState<MotionProposal | null>(null)
+  /** a whole composed film waiting on a decision */
+  const [film2, setFilm2] = useState<
+    { note: string; scenes: { id: string; dur: number; bg?: string; note?: string;
+      transition?: string; nodes: Node[]; tracks: unknown[] }[]; fit: Fit[] } | null>(null)
   /** a composed screen waiting on a decision, with its fit budget already run */
   const [screen, setScreen] = useState<
     { note: string; nodes: Node[]; bg?: string; fit: Fit[] } | null>(null)
@@ -641,6 +649,52 @@ export default function App() {
     setAiBusy(true)
     setAiError(null)
     try {
+      if (kind === 'film') {
+        const accent = filmAccent(current.stage)
+        const out = await askFilm({
+          prompt, model,
+          size: current.stage.size,
+          accent,
+          blocks: BLOCKS.map(b => ({
+            key: b.key, name: b.name, blurb: b.blurb, slots: b.slots.map(s => s.key),
+          })),
+          enters: ENTERS,
+          transitions: KINDS.map(k => k.key),
+        })
+        if (!out.scenes.length) throw new Error('the model composed nothing it could build')
+
+        // materialise every beat through the same library the picker uses, so a
+        // generated film and a hand-placed one are the same document
+        let stage = current.stage
+        const built = out.scenes.map(sc => {
+          const nodes: Node[] = []
+          const tracks: unknown[] = []
+          for (const p of sc.place) {
+            const def = blockByKey(p.block)
+            if (!def) continue
+            const made = def.make({ stage, accent, x: p.x, y: p.y }, p.opts ?? {})
+            nodes.push(...made)
+            const group = made.find(n => n.type === 'group')
+            // one track on the group animates the whole block, which is the
+            // reason groups exist
+            if (group && p.enter) {
+              tracks.push({ target: group.id, at: Number(p.at ?? 0), enter: p.enter })
+            }
+            // a throwaway stage, only so the next block's freshId sees the ids
+            // this one just took. it never reaches the document
+            stage = { ...stage, scenes: [...stage.scenes, { id: `~taken${nodes.length}`, nodes: made }] }
+          }
+          return { ...sc, nodes, tracks }
+        })
+
+        const fit = [
+          ...checkFilm(built.map(s => ({ id: s.id, dur: s.dur }))),
+          ...built.flatMap(s => checkFit(s.nodes, current.stage.size)
+            .map(f => ({ ...f, node: `${s.id}/${f.node}` }))),
+        ]
+        setFilm2({ note: out.note, scenes: built, fit })
+        return
+      }
       if (kind === 'screen') {
         const target = sceneRef.current ?? current.stage.scenes[0]?.id
         if (!target) throw new Error('no scene to compose into')
@@ -717,6 +771,38 @@ export default function App() {
       setAiBusy(false)
     }
   }, [apply, ck])
+
+  /**
+   * Accept a whole film. This replaces the document's scenes outright, which is
+   * why it is one undoable step and why the proposal is shown first.
+   */
+  const acceptFilm = useCallback(() => {
+    if (!film2) return
+    snapshot()
+    setDoc(prev => {
+      if (!prev) return prev
+      const scenes = film2.scenes.map((sc, i) => ({
+        id: sc.id,
+        dur: sc.dur,
+        bg: sc.bg ?? '#ffffff',
+        note: sc.note ?? '',
+        nodes: sc.nodes,
+        ...(i > 0 && sc.transition ? { transition: { kind: sc.transition } } : {}),
+      }))
+      const tracks = film2.scenes.flatMap(s => s.tracks)
+      return {
+        ...prev,
+        stage: { ...prev.stage, scenes } as Stage,
+        anim: { ...prev.anim, tracks: tracks as Anim['tracks'] },
+      }
+    })
+    setSel(null); setExtra([]); setSelBox(null)
+    setScene(film2.scenes[0]?.id ?? null)
+    setRev(r => r + 1)
+    setDirty(true)
+    setFilm2(null)
+    setAi(null)
+  }, [film2, snapshot])
 
   /** accept a composed screen: its blocks land in the scene you were looking at */
   const acceptScreen = useCallback(() => {
@@ -1202,13 +1288,19 @@ export default function App() {
             busy={aiBusy}
             error={aiError}
             proposal={ai === 'motion' ? proposal : null}
-            screen={ai === 'screen' ? screen : null}
-            onAcceptScreen={acceptScreen}
-            onDiscardScreen={() => setScreen(null)}
+            screen={ai === 'screen' ? screen : ai === 'film' && film2
+              ? { note: film2.note,
+                  nodes: film2.scenes.map(s => ({ id: `${s.id} · ${s.dur}s · ${s.nodes.filter(n=>n.type==='group').length} blocks`, type: 'group' })),
+                  fit: film2.fit }
+              : null}
+            onAcceptScreen={ai === 'film' ? acceptFilm : acceptScreen}
+            onDiscardScreen={() => { setScreen(null); setFilm2(null) }}
             onRun={(prompt, model, extra) => void runAi(ai, prompt, model, extra)}
             onAccept={acceptProposal}
             onDiscard={() => setProposal(null)}
-            onClose={() => { setAi(null); setProposal(null); setScreen(null); setAiError(null) }}
+            onClose={() => {
+              setAi(null); setProposal(null); setScreen(null); setFilm2(null); setAiError(null)
+            }}
           />
         )}
         <Canvas

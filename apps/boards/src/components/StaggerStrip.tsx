@@ -413,26 +413,6 @@ export default function StaggerStrip({
         >
           <polyline points={ladder} fill="none" strokeWidth="1"
                     stroke={aim ? 'rgba(0,0,0,0.07)' : 'rgba(0,0,0,0.14)'} />
-          {/* the even ladder takes the pointer from down here, under the rows,
-              so a bar always wins where the two overlap and no one straightens
-              a scene while reaching for a drag */}
-          {offer && (
-            <g
-              className="cursor-pointer"
-              style={{ pointerEvents: hint ? undefined : 'none' }}
-              onPointerEnter={() => setAim(true)}
-              onPointerLeave={() => setAim(false)}
-              onPointerDown={e => { e.preventDefault(); e.stopPropagation(); straighten() }}
-            >
-              <title>{offer.tip}</title>
-              {/* a fat invisible stroke, because a 1px dashed line is not a target */}
-              <polyline points={offer.pts} fill="none" stroke="rgba(0,0,0,0)" strokeWidth="11"
-                        style={{ pointerEvents: 'stroke' }} />
-              <rect x={offer.flip ? offer.x - 6 - CAP_W : offer.x + 6} y={offer.y - 6}
-                    width={CAP_W} height={12} fill="rgba(0,0,0,0)"
-                    style={{ pointerEvents: 'all' }} />
-            </g>
-          )}
         </svg>
 
         {ordered.map(r => {
@@ -497,51 +477,55 @@ export default function StaggerStrip({
           )
         })}
 
-        {/* the straight ladder, offered on top of the bars so it can be taken
-            by pointing at it. one press, and the kink is gone */}
+        {/* the even ladder, drawn over the bars so it reads as the one straight
+            line this scene could have, and pressable because that is the whole
+            offer: point at the shape you want and take it */}
         {offer && (
           <svg
-            className="absolute z-10"
+            className="pointer-events-none absolute z-10"
             style={{
               left: PAD + (labels ? GUTTER : 0),
               top: 0,
               opacity: hint ? 1 : 0,
-              pointerEvents: hint ? undefined : 'none',
               transition: 'opacity 120ms ease',
             }}
             width={trackW}
             height={ordered.length * ROW_H}
           >
             <polyline points={offer.pts} fill="none" stroke={ACCENT} strokeWidth="1"
-                      strokeDasharray="3 3" opacity={aim ? 1 : 0.6}
-                      className="pointer-events-none" />
-            <g
-              className="cursor-pointer"
-              onPointerEnter={() => setAim(true)}
-              onPointerLeave={() => setAim(false)}
-              onPointerDown={e => { e.preventDefault(); e.stopPropagation(); straighten() }}
-            >
-              <title>{offer.tip}</title>
-              {/* a fat invisible stroke, because a 1px dashed line is not a target */}
-              <polyline points={offer.pts} fill="none" stroke="rgba(0,0,0,0)" strokeWidth="11"
-                        style={{ pointerEvents: 'stroke' }} />
-              <rect x={offer.flip ? offer.x - 6 - CAP_W : offer.x + 6} y={offer.y - 6}
-                    width={CAP_W} height={12} fill="rgba(0,0,0,0)" />
-              <text
-                x={offer.flip ? offer.x - 6 : offer.x + 6}
-                y={offer.y + 3}
-                textAnchor={offer.flip ? 'end' : 'start'}
-                className="pointer-events-none font-mono tabular-nums"
-                fontSize="9"
-                fill={ACCENT}
-                fillOpacity={aim ? 1 : 0.75}
-                stroke="#f2f2f2"
-                strokeWidth="3"
-                paintOrder="stroke"
+                      strokeDasharray="3 3" opacity={aim ? 1 : 0.6} />
+            {/* withheld by not being drawn: a child naming its own
+                pointer-events is hit-testable whatever the svg says */}
+            {hint && (
+              <g
+                className="cursor-pointer"
+                onPointerEnter={() => setAim(true)}
+                onPointerLeave={() => setAim(false)}
+                onPointerDown={e => { e.preventDefault(); e.stopPropagation(); straighten() }}
               >
-                {offer.label}
-              </text>
-            </g>
+                <title>{offer.tip}</title>
+                {/* a wide invisible stroke: a 1px dashed line is not a target */}
+                <polyline points={offer.pts} fill="none" stroke="rgba(0,0,0,0)" strokeWidth="9"
+                          style={{ pointerEvents: 'stroke' }} />
+                <rect x={offer.flip ? offer.x - 6 - CAP_W : offer.x + 6} y={offer.y - 6}
+                      width={CAP_W} height={12} fill="rgba(0,0,0,0)"
+                      style={{ pointerEvents: 'all' }} />
+              </g>
+            )}
+            <text
+              x={offer.flip ? offer.x - 6 : offer.x + 6}
+              y={offer.y + 3}
+              textAnchor={offer.flip ? 'end' : 'start'}
+              className="font-mono tabular-nums"
+              fontSize="9"
+              fill={ACCENT}
+              fillOpacity={aim ? 1 : 0.75}
+              stroke="#f2f2f2"
+              strokeWidth="3"
+              paintOrder="stroke"
+            >
+              {offer.label}
+            </text>
           </svg>
         )}
 

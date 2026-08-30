@@ -25,6 +25,7 @@ interface Props {
 const ASPECTS = ['1:1', '16:9', '4:3', '9:16'] as const
 
 const TITLE: Record<AiKind, string> = {
+  film: 'Create film',
   screen: 'Create screen',
   motion: 'Create motion',
   image: 'Create image',
@@ -32,6 +33,7 @@ const TITLE: Record<AiKind, string> = {
 }
 
 const PLACEHOLDER: Record<AiKind, string> = {
+  film: 'a 20s launch film for a json motion format',
   screen: 'the editor mid-keystroke, with a run button',
   motion: 'make these land harder, 60ms apart',
   image: 'a dark product shot, soft rim light',
@@ -39,6 +41,7 @@ const PLACEHOLDER: Record<AiKind, string> = {
 }
 
 const ICON: Record<AiKind, React.ReactNode> = {
+  film: <Sparkle size={13} />,
   screen: <Sparkle size={13} />,
   motion: <Sparkle size={13} />,
   image: <ImageSparkle size={14} />,

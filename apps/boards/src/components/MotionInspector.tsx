@@ -40,7 +40,8 @@ interface Props {
   onPatch(patch: TrackPatch): void
 }
 
-const ENTERS = ['pop', 'rise-fade', 'drop', 'slide-left', 'slide-right', 'spring-in', 'fade']
+/** the entrance presets the engine expands into real keys at load */
+export const ENTERS = ['pop', 'rise-fade', 'drop', 'slide-left', 'slide-right', 'spring-in', 'fade']
 const UNITS = ['word', 'glyph', 'type', 'scramble']
 
 interface Meta {

@@ -5,11 +5,11 @@ import {
 
 export type Tool = 'select' | 'hand' | 'frame' | 'rect' | 'pen' | 'text' | 'add'
   | 'image' | 'transform' | 'shader'
-  | 'ai-screen' | 'ai-motion' | 'ai-image' | 'ai-vector'
+  | 'ai-film' | 'ai-screen' | 'ai-motion' | 'ai-image' | 'ai-vector'
 
 /** the tools that open the prompt bar rather than changing what a drag does */
 export const AI_TOOLS = {
-  'ai-screen': 'screen', 'ai-motion': 'motion',
+  'ai-film': 'film', 'ai-screen': 'screen', 'ai-motion': 'motion',
   'ai-image': 'image', 'ai-vector': 'vector',
 } as const
 
@@ -40,6 +40,7 @@ const GROUPS: { tool: Tool; icon: React.ReactNode; title: string }[][] = [
     { tool: 'shader', icon: <Gem size={15} />, title: 'shader' },
   ],
   [
+    { tool: 'ai-film', icon: <Frame size={14} />, title: 'create film' },
     { tool: 'ai-screen', icon: <SquarePlus size={14} />, title: 'create screen' },
     { tool: 'ai-motion', icon: <Sparkle size={14} />, title: 'create motion' },
     { tool: 'ai-image', icon: <ImageSparkle size={15} />, title: 'create image' },

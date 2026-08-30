@@ -1,5 +1,5 @@
 /** the three things the prompt bar can be asked to make */
-export type AiKind = 'motion' | 'image' | 'vector' | 'screen'
+export type AiKind = 'motion' | 'image' | 'vector' | 'screen' | 'film'
 
 export interface ModelOption {
   id: string
@@ -57,6 +57,25 @@ export interface ScreenProposal {
   bg?: string
   /** block placements, not nodes; the block library owns the geometry */
   place: { block: string; x: number; y: number; opts: Record<string, unknown> }[]
+}
+
+export interface FilmRequest extends ScreenRequest {
+  /** the entrance presets the engine can expand, so the model names one */
+  enters: string[]
+  /** the ways one scene can become the next */
+  transitions: string[]
+}
+
+export interface FilmProposal {
+  note: string
+  scenes: {
+    id: string
+    dur: number
+    bg?: string
+    note?: string
+    transition?: string
+    place: { block: string; x: number; y: number; opts: Record<string, unknown>; enter?: string; at?: number }[]
+  }[]
 }
 
 export interface VectorRequest {
