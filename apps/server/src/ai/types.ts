@@ -27,11 +27,20 @@ export interface MotionRequest {
   tracks: unknown[]
 }
 
+/** what the contract check found, so the UI can say it rather than swallow it */
+export interface Problem {
+  rule: string
+  detail: string
+  fixed: boolean
+}
+
 export interface MotionProposal {
   /** replacement tracks, one per node per property, ready to merge */
   tracks: Record<string, unknown>[]
   /** one line on what it did, shown above the accept button */
   note: string
+  /** contract violations, repaired where that was provably safe */
+  problems?: Problem[]
 }
 
 export interface ImageRequest {
@@ -54,6 +63,7 @@ export interface ScreenRequest {
 
 export interface ScreenProposal {
   note: string
+  problems?: Problem[]
   bg?: string
   /** block placements, not nodes; the block library owns the geometry */
   place: { block: string; x: number; y: number; opts: Record<string, unknown> }[]
@@ -68,6 +78,7 @@ export interface FilmRequest extends ScreenRequest {
 
 export interface FilmProposal {
   note: string
+  problems?: Problem[]
   scenes: {
     id: string
     dur: number

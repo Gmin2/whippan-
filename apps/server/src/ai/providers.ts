@@ -1,3 +1,5 @@
+import { motionTool, screenTool, filmTool, type Tool } from './schema.js'
+import { checkTracks, checkScenes, type Track } from './validate.js'
 import type {
   Capability, FilmProposal, FilmRequest, ImageRequest, MotionProposal, MotionRequest,
   ScreenProposal, ScreenRequest, VectorRequest,
@@ -130,6 +132,37 @@ export async function runMotion(req: MotionRequest): Promise<MotionProposal> {
     `What the director asked for: ${req.prompt}`,
   ].join('\n\n')
 
+  const parsed = await callTool(auth, model, CONTRACT, brief, motionTool(req), 2000)
+  const raw = Array.isArray(parsed.tracks) ? parsed.tracks as Record<string, unknown>[] : []
+  const allowed = new Set(req.nodes.map(n => n.id))
+
+  // a track aimed at a node that was not in the selection would animate
+  // something the director never pointed at
+  const aimed = raw.filter(t => typeof t.target === 'string' && allowed.has(t.target as string))
+  // the schema cannot say "one track per node per property"; this can
+  const { tracks, problems } = checkTracks(aimed as Track[], {
+    size: undefined, dur: req.scene.dur,
+  })
+
+  return {
+    note: typeof parsed.note === 'string' ? parsed.note : 'proposed motion',
+    tracks: tracks as Record<string, unknown>[],
+    problems: problems.length ? problems : undefined,
+  }
+}
+
+/**
+ * Ask for one tool call and take its input as the answer.
+ *
+ * `tool_choice` makes the shape non-optional, which removes the two failure
+ * modes prose prompting cannot: a reply wrapped in a sentence, and an enum
+ * value the library cannot materialise. Kimi K3 speaks the same Messages API,
+ * so this covers both models. If a deployment's model returns prose anyway we
+ * still scrape it, rather than failing a request we could have honoured.
+ */
+async function callTool(
+  auth: string, model: string, system: string, brief: string, tool: Tool, maxTokens: number,
+): Promise<Record<string, unknown>> {
   const res = await fetch(ANTHROPIC, {
     method: 'POST',
     headers: {
@@ -139,25 +172,22 @@ export async function runMotion(req: MotionRequest): Promise<MotionProposal> {
     },
     body: JSON.stringify({
       model,
-      max_tokens: 2000,
-      system: CONTRACT,
+      max_tokens: maxTokens,
+      system,
       messages: [{ role: 'user', content: brief }],
+      tools: [tool],
+      tool_choice: { type: 'tool', name: tool.name },
     }),
   })
   if (!res.ok) throw new Error(`anthropic ${res.status}: ${(await res.text()).slice(0, 300)}`)
 
-  const body = await res.json() as { content?: { type: string; text?: string }[] }
-  const text = (body.content ?? []).filter(c => c.type === 'text').map(c => c.text).join('')
-  const parsed = parseJsonObject(text)
-  const tracks = Array.isArray(parsed.tracks) ? parsed.tracks as Record<string, unknown>[] : []
-  const allowed = new Set(req.nodes.map(n => n.id))
-
-  return {
-    note: typeof parsed.note === 'string' ? parsed.note : 'proposed motion',
-    // a track aimed at a node that was not in the selection would animate
-    // something the director never pointed at
-    tracks: tracks.filter(t => typeof t.target === 'string' && allowed.has(t.target as string)),
+  const body = await res.json() as {
+    content?: { type: string; text?: string; name?: string; input?: unknown }[]
   }
+  const call = (body.content ?? []).find(c => c.type === 'tool_use' && c.name === tool.name)
+  if (call?.input) return call.input as Record<string, unknown>
+  const text = (body.content ?? []).filter(c => c.type === 'text').map(c => c.text).join('')
+  return parseJsonObject(text)
 }
 
 /** models like to wrap json in a fence or a sentence however firmly you ask */
@@ -221,25 +251,7 @@ export async function runScreen(req: ScreenRequest): Promise<ScreenProposal> {
     `What the director asked for: ${req.prompt}`,
   ].join('\n\n')
 
-  const res = await fetch(ANTHROPIC, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': auth,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 2000,
-      system: SCREEN_CONTRACT,
-      messages: [{ role: 'user', content: brief }],
-    }),
-  })
-  if (!res.ok) throw new Error(`anthropic ${res.status}: ${(await res.text()).slice(0, 300)}`)
-
-  const body = await res.json() as { content?: { type: string; text?: string }[] }
-  const text = (body.content ?? []).filter(c => c.type === 'text').map(c => c.text).join('')
-  const parsed = parseJsonObject(text)
+  const parsed = await callTool(auth, model, SCREEN_CONTRACT, brief, screenTool(req), 2000)
   const known = new Set(req.blocks.map(b => b.key))
   const place = Array.isArray(parsed.place) ? parsed.place as ScreenProposal['place'] : []
 
@@ -321,32 +333,12 @@ export async function runFilm(req: FilmRequest): Promise<FilmProposal> {
     `What the director asked for: ${req.prompt}`,
   ].join('\n\n')
 
-  const res = await fetch(ANTHROPIC, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': auth,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 8000,
-      system: FILM_CONTRACT,
-      messages: [{ role: 'user', content: brief }],
-    }),
-  })
-  if (!res.ok) throw new Error(`anthropic ${res.status}: ${(await res.text()).slice(0, 300)}`)
-
-  const body = await res.json() as { content?: { type: string; text?: string }[] }
-  const text = (body.content ?? []).filter(c => c.type === 'text').map(c => c.text).join('')
-  const parsed = parseJsonObject(text)
+  const parsed = await callTool(auth, model, FILM_CONTRACT, brief, filmTool(req), 8000)
   const known = new Set(req.blocks.map(b => b.key))
   const enters = new Set(req.enters)
   const raw = Array.isArray(parsed.scenes) ? parsed.scenes as FilmProposal['scenes'] : []
 
-  return {
-    note: typeof parsed.note === 'string' ? parsed.note : 'proposed film',
-    scenes: raw
+  const scenes = raw
       .filter(sc => sc && Array.isArray(sc.place))
       .map((sc, i) => ({
         ...sc,
@@ -358,7 +350,15 @@ export async function runFilm(req: FilmRequest): Promise<FilmProposal> {
           .filter(p => p && known.has(p.block))
           .map(p => ({ ...p, enter: p.enter && enters.has(p.enter) ? p.enter : undefined })),
       }))
-      .filter(sc => sc.place.length),
+      .filter(sc => sc.place.length)
+
+  // two scenes sharing an id would put one track in both places
+  const problems = checkScenes(scenes)
+
+  return {
+    note: typeof parsed.note === 'string' ? parsed.note : 'proposed film',
+    scenes,
+    problems: problems.length ? problems : undefined,
   }
 }
 
