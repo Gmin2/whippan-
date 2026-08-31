@@ -1,5 +1,9 @@
 # baseline
 
+> **2026-08-31, after the loaded hold.** mean energy ratio **0.384 -> 0.452**,
+> 26 of 28 films improved, timing unchanged (+0.199 -> +0.201), mae +0.71.
+> `terminal` came off 0.00. See the bottom of this file for what it cost.
+
 Recorded 2026-08-30, before any conformance work. This is the mark to beat;
 `out/conform/` is gitignored, so the numbers live here to be compared against.
 
@@ -60,3 +64,32 @@ systemic is wrong with those two, not a matter of degree.
 
 Change something, re-run `conform/conform.py`, and compare. The absolute values
 do not mean much on their own; the movement does.
+
+
+## after the loaded hold (2026-08-31)
+
+`scripts/loaded-hold.py` added a 1 px/frame drift, clamped to a zoom headroom,
+to 257 scenes that had no camera of their own. Measured against this baseline:
+
+```
+mean energy ratio  0.384 -> 0.452   (+0.068)
+mean timing        +0.199 -> +0.201  (+0.002)
+mean mae            36.63 -> 37.34   (+0.71)
+films improved on energy: 26 of 28
+```
+
+Biggest movers: `base-2` 0.54 -> 0.96, `claude` 0.74 -> 1.06, `x-anim` 0.99 ->
+1.13, `terminal` **0.00 -> 0.13** (it had been rendering a still frame),
+`cuttlery` 0.47 -> 0.60, `rezonant` 0.29 -> 0.41, `replit` 0.17 -> 0.29.
+
+**What it cost.** mae rose 2% on average, worst on `motion-main` (+5.4),
+`claude` (+3.4) and `replit` (+2.4). Moving the camera necessarily moves every
+pixel away from where the reference has it, so some appearance error is the
+price of the motion. Timing was unaffected, which is the important part: the
+drift adds energy without disturbing what was already correct.
+
+**Known overshoot.** Four films now sit at or above parity — `x-anim` 1.13,
+`claude` 1.06, `base-2` 0.96 — meaning they move MORE than their reference. The
+tool skips scenes that already own a camera, but not scenes that are already
+moving enough by other means. Making it mass-aware is the obvious next
+refinement and should be measured the same way.
