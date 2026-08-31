@@ -1,6 +1,7 @@
 import { betterAuth } from 'better-auth'
 import { organization } from 'better-auth/plugins'
 import type { Pool } from 'pg'
+import { seedWorkspace } from './starter.js'
 
 /**
  * Accounts.
@@ -43,12 +44,18 @@ export function makeAuth(pool: Pool, opts: {
       cookieCache: { enabled: true, maxAge: 60 * 5 },
     },
     advanced: {
-      // the editor and the api are different origins until they share a
-      // hostname, so the session cookie has to be allowed cross-site
-      defaultCookieAttributes: {
-        sameSite: opts.trustedOrigins.length ? 'none' : 'lax',
-        secure: process.env.NODE_ENV === 'production',
-      },
+      /**
+       * SameSite=None is only legal with Secure, and Secure needs https. Asking
+       * for None over plain http gets the cookie silently dropped by the
+       * browser, which looks exactly like a broken sign-in.
+       *
+       * In development it is not needed anyway: SameSite is about the SITE, and
+       * :8902 and :8903 are both localhost, so Lax already travels between them.
+       */
+      defaultCookieAttributes: (() => {
+        const secure = process.env.NODE_ENV === 'production'
+        return { sameSite: secure ? 'none' as const : 'lax' as const, secure }
+      })(),
     },
     databaseHooks: {
       user: {
@@ -66,6 +73,8 @@ export function makeAuth(pool: Pool, opts: {
               `insert into member (id, "organizationId", "userId", role, "createdAt")
                     values ($1, $2, $3, 'owner', now())`,
               [crypto.randomUUID(), id, user.id])
+            // and something to open, or the editor greets them with nothing
+            await seedWorkspace(pool, id)
           },
         },
       },

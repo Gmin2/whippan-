@@ -31,10 +31,23 @@ export function createApp(
 
   app.use('*', logger())
   if (config.corsOrigins.length) {
+    /**
+     * The editor is a different origin from the api until they share a
+     * hostname, and a session cookie has to survive that.
+     *
+     * A browser refuses to send credentials to a wildcard origin, so `*` is
+     * echoed back as the caller's own origin rather than passed through. That
+     * is only safe because it is paired with an explicit allowlist in
+     * production: `CORS_ORIGINS` has no default there, so a misconfigured
+     * deploy serves nothing rather than serving everyone.
+     */
+    const wildcard = config.corsOrigins.includes('*')
     app.use('/api/*', cors({
-      origin: config.corsOrigins.includes('*') ? '*' : config.corsOrigins,
+      origin: origin => (wildcard ? origin : config.corsOrigins.includes(origin) ? origin : null),
       allowMethods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
       allowHeaders: ['content-type'],
+      // without this the session cookie is never sent, and every call is a 401
+      credentials: true,
     }))
   }
 
@@ -46,14 +59,36 @@ export function createApp(
     app.on(['GET', 'POST'], '/api/auth/*', c => auth.handler(c.req.raw))
 
     /**
-     * Every /api call carries the caller's workspace, or none.
+     * Public on purpose: the editor calls this before anyone is signed in, to
+     * tell "signed out" apart from "this deployment has no accounts", and to
+     * learn which social providers are actually configured.
+     */
+    app.get('/api/me', async c => {
+      const session = await auth.api.getSession({ headers: c.req.raw.headers })
+      const workspace = session
+        ? session.session.activeOrganizationId ?? (await workspaceOf?.(session.user.id)) ?? null
+        : null
+      return c.json({
+        user: session
+          ? { id: session.user.id, email: session.user.email, name: session.user.name,
+              image: session.user.image }
+          : null,
+        workspace,
+        providers: config.auth
+          ? [config.auth.google && 'google', config.auth.github && 'github'].filter(Boolean)
+          : [],
+      })
+    })
+
+    /**
+     * Every other /api call carries the caller's workspace, or none.
      *
      * Resolving it here rather than per route means a route can never forget:
      * a handler asks for its store and gets one scoped to whoever is asking,
      * or a 401 before it runs.
      */
     app.use('/api/*', async (c, next) => {
-      if (c.req.path.startsWith('/api/auth/')) return next()
+      if (c.req.path.startsWith('/api/auth/') || c.req.path === '/api/me') return next()
       const session = await auth.api.getSession({ headers: c.req.raw.headers })
       if (!session) return c.json({ error: 'sign in required' }, 401)
       const workspace = session.session.activeOrganizationId
@@ -64,16 +99,6 @@ export function createApp(
       await next()
     })
 
-    app.get('/api/me', async c => {
-      const session = await auth.api.getSession({ headers: c.req.raw.headers })
-      return c.json({
-        user: session
-          ? { id: session.user.id, email: session.user.email, name: session.user.name,
-              image: session.user.image }
-          : null,
-        workspace: c.get('workspace'),
-      })
-    })
   }
 
   app.get('/api/films', async c => {

@@ -6,6 +6,7 @@ import wasmUrl from '@whippan/engine-web/pkg/whippan_engine_bg.wasm?url'
 import { paintFrame } from '@whippan/engine-web/painter'
 import type { Anim, Asset, Doc, Entry, Stage } from './types'
 import { hitTest, measure } from '../measure'
+import { API, api } from '../api'
 
 export interface Engine {
   CK: CanvasKit
@@ -17,19 +18,19 @@ export interface Engine {
  * deployed behind one host; VITE_API_BASE points it elsewhere for a split
  * deployment or a remote backend during development.
  */
-const API = import.meta.env.VITE_API_BASE ?? ''
+
 
 let booted: Promise<Engine> | null = null
 
 export function boot(): Promise<Engine> {
   if (booted) return booted
-  booted = (async () => {
+  const attempt = (async () => {
     const [CK, , inter, mono, registry] = await Promise.all([
       window.CanvasKitInit({ locateFile: f => '/canvaskit/' + f }),
       init(wasmUrl),
       fetch('/fonts/Inter-Variable.ttf').then(r => r.arrayBuffer()),
       fetch('/fonts/JetBrainsMono-Regular.ttf').then(r => r.arrayBuffer()),
-      fetch(`${API}/api/films`).then(r => {
+      api(`/api/films`).then(r => {
         if (!r.ok) throw new Error(`registry unavailable (${r.status})`)
         return r.json() as Promise<Entry[]>
       }),
@@ -40,7 +41,15 @@ export function boot(): Promise<Engine> {
     register_font('mono', new Uint8Array(mono))
     return { CK, registry }
   })()
-  return booted
+  /**
+   * The engine itself is loaded once, but a FAILED boot must not be cached.
+   * The usual cause is a 401 for the registry before anyone has signed in, and
+   * caching that rejection means the retry after signing in never makes a
+   * request at all: it just replays the old error.
+   */
+  attempt.catch(() => { if (booted === attempt) booted = null })
+  booted = attempt
+  return attempt
 }
 
 function imageSources(stage: Stage): string[] {
@@ -65,7 +74,7 @@ export function loadDoc(entry: Entry): Promise<Doc> {
   const job = (async (): Promise<Doc> => {
     // documents come from the api, not from static files: that is what lets
     // the editor behave the same locally and deployed
-    const res = await fetch(`${API}/api/films/${encodeURIComponent(entry.slug)}`)
+    const res = await api(`/api/films/${encodeURIComponent(entry.slug)}`)
     if (!res.ok) throw new Error(`could not load ${entry.slug} (${res.status})`)
     const { stage, anim } = await res.json() as { stage: Stage; anim: Anim }
     const { CK } = await boot()
@@ -217,7 +226,7 @@ if (import.meta.env.DEV) {
 
 /** the images a document can reference */
 export async function listAssets(): Promise<Asset[]> {
-  const res = await fetch(`${API}/api/assets`)
+  const res = await api(`/api/assets`)
   if (!res.ok) throw new Error(`assets unavailable (${res.status})`)
   return res.json() as Promise<Asset[]>
 }
@@ -233,7 +242,7 @@ export async function ensureImage(CK: CanvasKit, doc: Doc, src: string): Promise
 export async function saveDoc(
   slug: string, stage: Stage, anim: Anim,
 ): Promise<void> {
-  const res = await fetch(`${API}/api/films/${encodeURIComponent(slug)}`, {
+  const res = await api(`/api/films/${encodeURIComponent(slug)}`, {
     method: 'PUT',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ stage, anim }),
@@ -267,7 +276,7 @@ export async function startExport(
   slug: string, stage: Stage, anim: Anim,
   opts: { fps?: number; supersample?: 1 | 2 } = {},
 ): Promise<ExportJob> {
-  const res = await fetch(`${API}/api/films/${encodeURIComponent(slug)}/export`, {
+  const res = await api(`/api/films/${encodeURIComponent(slug)}/export`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ stage, anim, ...opts }),
@@ -278,13 +287,13 @@ export async function startExport(
 }
 
 export async function pollExport(id: string): Promise<ExportJob> {
-  const res = await fetch(`${API}/api/exports/${encodeURIComponent(id)}`)
+  const res = await api(`/api/exports/${encodeURIComponent(id)}`)
   if (!res.ok) throw new Error(`job ${id} is gone`)
   return res.json() as Promise<ExportJob>
 }
 
 export async function cancelExport(id: string): Promise<void> {
-  await fetch(`${API}/api/exports/${encodeURIComponent(id)}`, { method: 'DELETE' })
+  await api(`/api/exports/${encodeURIComponent(id)}`, { method: 'DELETE' })
 }
 
 export const exportFileUrl = (id: string) => `${API}/api/exports/${id}/file`

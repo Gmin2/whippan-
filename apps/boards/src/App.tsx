@@ -11,6 +11,9 @@ import Timeline from './components/Timeline'
 import { ENTERS } from './components/MotionInspector'
 import { KINDS } from './transitions'
 import { boot, ensureImage, loadDoc, saveDoc } from './engine'
+import { session, signOut } from './api'
+import type { Me } from './api'
+import SignIn from './components/SignIn'
 import type { Anim, Doc, Entry, Node, Stage } from './engine/types'
 import { artboards, findNode, tree } from './doc'
 import { groupBox } from './measure'
@@ -47,6 +50,14 @@ import type { NodeBox } from './measure'
 const DEFAULT_FILM = 'whippan'
 
 export default function App() {
+  /**
+   * Who is signed in. `undefined` while we are still asking, `null` when this
+   * deployment has no accounts at all, which is how local development runs.
+   */
+  const [who, setWho] = useState<Me | null | undefined>(undefined)
+  const askWho = useCallback(() => { session().then(setWho).catch(() => setWho(null)) }, [])
+  useEffect(() => { askWho() }, [askWho])
+
   const [ck, setCk] = useState<CanvasKit | null>(null)
   const [registry, setRegistry] = useState<Entry[]>([])
   const [film, setFilm] = useState(
@@ -110,7 +121,12 @@ export default function App() {
   const redo = useRef<{ stage: Stage; anim: Anim }[]>([])
   const dragging = useRef(false)
 
+  // wait for the gate: booting the engine and asking for the registry before we
+  // know who is asking gets a 401 that surfaces as "registry unavailable"
   useEffect(() => {
+    if (who === undefined || (who && !who.user)) return
+    // signing in re-runs this; whatever failed while signed out is not news
+    setError(null)
     boot().then(({ CK, registry: reg }) => {
       setCk(CK)
       setRegistry(reg)
@@ -120,7 +136,7 @@ export default function App() {
       // the loader caches by slug, so edit on a copy and leave the cache clean
       return loadDoc(entry).then(d => setDoc({ ...d, stage: structuredClone(d.stage) }))
     }).catch(e => setError(String(e)))
-  }, [film])
+  }, [film, who])
 
   // switching film clears everything that belonged to the old document
   const pickFilm = useCallback((slug: string) => {
@@ -1174,8 +1190,19 @@ export default function App() {
   }, [])
   const onMeasure = useCallback((box: NodeBox | null) => setSelBox(box), [])
 
+  // the gate comes first, ahead of both the engine and any error. booting
+  // canvaskit for someone about to see a sign-in form wastes a second and a
+  // download, and a stale 401 from a previous session must never be able to
+  // hide the form that would fix it
+  if (who === undefined) {
+    return <div className="grid h-full place-items-center text-dim">…</div>
+  }
+  if (who && !who.user) {
+    return <SignIn providers={who.providers} onDone={askWho} />
+  }
   if (error)
     return <div className="grid h-full place-items-center text-dim">{error}</div>
+
   if (!ck || !doc)
     return <div className="grid h-full place-items-center text-dim">booting engine</div>
 
@@ -1230,6 +1257,9 @@ export default function App() {
         saving={saving}
         saveError={saveError}
         onSave={save}
+        account={who?.user
+          ? { email: who.user.email, onSignOut: () => { void signOut().then(askWho) } }
+          : undefined}
       />}
       <ToolRail
         tool={tool}

@@ -7,6 +7,8 @@ interface Props {
   registry: Entry[]
   current: string
   onPick(slug: string): void
+  /** who is signed in, when this deployment has accounts */
+  account?: { email: string; onSignOut(): void }
 }
 
 const GROUPS: { key: string; label: string }[] = [
@@ -16,7 +18,7 @@ const GROUPS: { key: string; label: string }[] = [
 ]
 
 /** the file name is the document switcher: 37 films live in one registry */
-export default function FilmMenu({ registry, current, onPick }: Props) {
+export default function FilmMenu({ registry, current, onPick, account }: Props) {
   const btn = useRef<HTMLButtonElement>(null)
   const [open, setOpen] = useState(false)
   const [at, setAt] = useState({ x: 0, y: 0 })
@@ -72,6 +74,19 @@ export default function FilmMenu({ registry, current, onPick }: Props) {
               </div>
             )
           })}
+
+          {account && (
+            <div className="mt-1 border-t border-hair pt-1">
+              <p className="truncate px-3 pb-1 pt-1 text-[10px] text-faint">{account.email}</p>
+              <button
+                onClick={() => { setOpen(false); account.onSignOut() }}
+                className="flex h-[26px] w-full items-center px-3 text-left text-dim
+                           hover:bg-black/[0.035] hover:text-ink"
+              >
+                Sign out
+              </button>
+            </div>
+          )}
         </div>,
         document.body,
       )}

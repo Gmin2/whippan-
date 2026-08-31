@@ -43,6 +43,8 @@ interface Props {
   saving: 'idle' | 'saving' | 'saved' | 'error'
   saveError: string | null
   onSave(): void
+  /** who is signed in, when this deployment has accounts */
+  account?: { email: string; onSignOut(): void }
 }
 
 function kindIcon(kind: string) {
@@ -102,7 +104,7 @@ export default function LeftPanel({
   registry, film, onPickFilm,
   pages, activePage, tree, selected, others, activeScene, onReorder,
   onSelectNode, onSelectScene, onRename, onHidePanels, onAddScene, onExport,
-  mode, onMode, dirty, saving, saveError, onSave,
+  mode, onMode, dirty, saving, saveError, onSave, account,
 }: Props) {
   const [open, setOpen] = useState<Record<string, boolean>>({})
   const [editing, setEditing] = useState<string | null>(null)
@@ -189,7 +191,7 @@ export default function LeftPanel({
             <span className="absolute bottom-0 right-0 h-2 w-2 rounded-[2px] bg-black/30" />
           </span>
         </span>
-        <FilmMenu registry={registry} current={film} onPick={onPickFilm} />
+        <FilmMenu registry={registry} current={film} onPick={onPickFilm} account={account} />
         <button
           onClick={onSave}
           title={saveError ?? (dirty ? 'unsaved changes — ⌘S' : 'saved')}

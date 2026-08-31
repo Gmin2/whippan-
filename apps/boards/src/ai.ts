@@ -1,10 +1,11 @@
 import type { Node, Scene, Track } from './engine/types'
+import { api } from './api'
 
 /**
  * The prompt bar's client. Every call goes to our own server, which holds the
  * provider keys; nothing here knows an API key exists.
  */
-const API = import.meta.env.VITE_API_BASE ?? ''
+
 
 export type AiKind = 'motion' | 'image' | 'vector' | 'screen' | 'film'
 
@@ -28,7 +29,7 @@ export interface MotionProposal {
 }
 
 async function post<T>(kind: AiKind, body: unknown): Promise<T> {
-  const res = await fetch(`${API}/api/ai/${kind}`, {
+  const res = await api(`/api/ai/${kind}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
@@ -39,7 +40,7 @@ async function post<T>(kind: AiKind, body: unknown): Promise<T> {
 }
 
 export async function capabilities(): Promise<Capability[]> {
-  const res = await fetch(`${API}/api/ai`)
+  const res = await api(`/api/ai`)
   if (!res.ok) throw new Error(`ai ${res.status}`)
   return await res.json() as Capability[]
 }
