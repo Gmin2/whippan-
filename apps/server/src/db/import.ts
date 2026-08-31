@@ -12,7 +12,10 @@ import { DEFAULT_WORKSPACE } from '../store/pg.js'
  * Postgres. Idempotent: running it twice updates rather than duplicates, so it
  * is safe to re-run after editing a doc on disk.
  *
- *   npx tsx src/db/import.ts
+ *   npm run seed              -> the default workspace
+ *   npm run seed -- alice      -> that workspace's slug, for local development
+ *                                 with accounts on, where the default one has
+ *                                 no members and is therefore invisible
  */
 interface Entry { slug: string; title?: string; group?: string }
 
@@ -26,6 +29,15 @@ async function main() {
 
   const ran = await migrate(pool)
   if (ran.length) console.log('applied:', ran.join(', '))
+
+  const target = process.argv[2]
+  let workspace = DEFAULT_WORKSPACE
+  if (target) {
+    const { rows } = await pool.query<{ id: string }>(
+      'select id from organization where slug = $1', [target])
+    if (!rows[0]) throw new Error(`no workspace with slug "${target}"`)
+    workspace = rows[0].id
+  }
 
   const index = JSON.parse(
     await readFile(join(config.docsDir, 'examples', 'index.json'), 'utf8')) as Entry[]
@@ -46,7 +58,7 @@ async function main() {
                   anim = excluded.anim,
                   updated_at = now()`,
       [
-        DEFAULT_WORKSPACE, entry.slug, entry.title ?? entry.slug,
+        workspace, entry.slug, entry.title ?? entry.slug,
         isGroup(entry.group) ? entry.group : 'films',
         JSON.stringify(doc.stage), JSON.stringify(doc.anim),
       ],
@@ -54,7 +66,7 @@ async function main() {
     ok++
   }
 
-  console.log(`imported ${ok} films`)
+  console.log(`imported ${ok} films into ${target ?? 'the default workspace'}`)
   if (missing.length) console.log(`no files for: ${missing.join(', ')}`)
   await closeDb()
 }

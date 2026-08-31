@@ -26,6 +26,14 @@ export interface Config {
   docsDir: string
   /** when set, films come from postgres and docsDir is only used by the importer */
   databaseUrl: string | null
+  /** accounts are off until a session secret is set */
+  auth: {
+    secret: string
+    baseURL: string
+    trustedOrigins: string[]
+    google?: { clientId: string; clientSecret: string }
+    github?: { clientId: string; clientSecret: string }
+  } | null
   /** allowed browser origins; '*' in development, an explicit list in production */
   corsOrigins: string[]
   env: 'development' | 'production'
@@ -40,6 +48,7 @@ export function loadConfig(): Config {
     port: Number(process.env.PORT ?? 8903),
     docsDir: process.env.DOCS_DIR ?? repoDocs,
     databaseUrl: process.env.DATABASE_URL?.trim() || null,
+    auth: authConfig(env),
     corsOrigins: (process.env.CORS_ORIGINS ?? (env === 'production' ? '' : '*'))
       .split(',').map(s => s.trim()).filter(Boolean),
     env,
@@ -53,5 +62,31 @@ export function loadConfig(): Config {
       timeoutMs: Number(process.env.EXPORT_TIMEOUT_MS ?? 10 * 60_000),
       retentionMs: Number(process.env.EXPORT_RETENTION_MS ?? 6 * 60 * 60_000),
     },
+  }
+}
+
+
+/**
+ * Accounts turn on when there is a secret to sign sessions with, and not
+ * before. A half-configured auth is worse than none: it would let people sign
+ * up into sessions that stop verifying the moment the process restarts.
+ */
+function authConfig(env: string): Config['auth'] {
+  const secret = process.env.BETTER_AUTH_SECRET?.trim()
+  if (!secret) return null
+  if (env === 'production' && secret.length < 32) {
+    throw new Error('BETTER_AUTH_SECRET must be at least 32 characters in production')
+  }
+  const pair = (a?: string, b?: string) =>
+    a?.trim() && b?.trim() ? { clientId: a.trim(), clientSecret: b.trim() } : undefined
+  return {
+    secret,
+    baseURL: process.env.BETTER_AUTH_URL?.trim()
+      || `http://localhost:${process.env.PORT ?? 8903}`,
+    // the editor's origins, which are allowed to hold a session cookie
+    trustedOrigins: (process.env.AUTH_TRUSTED_ORIGINS ?? '')
+      .split(',').map(s => s.trim()).filter(Boolean),
+    google: pair(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET),
+    github: pair(process.env.GITHUB_CLIENT_ID, process.env.GITHUB_CLIENT_SECRET),
   }
 }

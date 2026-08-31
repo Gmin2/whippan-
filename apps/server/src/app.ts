@@ -3,6 +3,7 @@ import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import type { Config } from './config.js'
 import type { DocStore } from './store/types.js'
+import type { Auth } from './auth.js'
 import { SLUG, validateDoc } from './validate.js'
 import { ExportQueue } from './export/queue.js'
 import {
@@ -15,8 +16,18 @@ import { Readable } from 'node:stream'
  * The film API. Deliberately storage-agnostic: it is handed a DocStore and
  * never learns whether that is a filesystem, object storage or a database.
  */
-export function createApp(store: DocStore, config: Config, queue?: ExportQueue) {
-  const app = new Hono()
+/**
+ * A store for one workspace. With accounts this is a new PgStore per request,
+ * which is free: it holds a pool reference and an id. Without accounts, and in
+ * local development, it is the same store every time.
+ */
+export type StoreFor = (workspace: string | null) => DocStore
+
+export function createApp(
+  storeFor: StoreFor, config: Config, queue?: ExportQueue,
+  auth?: Auth, workspaceOf?: (userId: string) => Promise<string | null>,
+) {
+  const app = new Hono<{ Variables: { workspace: string | null } }>()
 
   app.use('*', logger())
   if (config.corsOrigins.length) {
@@ -30,9 +41,44 @@ export function createApp(store: DocStore, config: Config, queue?: ExportQueue) 
   // liveness for a load balancer or orchestrator
   app.get('/healthz', c => c.json({ ok: true, env: config.env }))
 
+  if (auth) {
+    // sign in, sign up, oauth callbacks, sign out
+    app.on(['GET', 'POST'], '/api/auth/*', c => auth.handler(c.req.raw))
+
+    /**
+     * Every /api call carries the caller's workspace, or none.
+     *
+     * Resolving it here rather than per route means a route can never forget:
+     * a handler asks for its store and gets one scoped to whoever is asking,
+     * or a 401 before it runs.
+     */
+    app.use('/api/*', async (c, next) => {
+      if (c.req.path.startsWith('/api/auth/')) return next()
+      const session = await auth.api.getSession({ headers: c.req.raw.headers })
+      if (!session) return c.json({ error: 'sign in required' }, 401)
+      const workspace = session.session.activeOrganizationId
+        ?? (await workspaceOf?.(session.user.id))
+        ?? null
+      if (!workspace) return c.json({ error: 'no workspace' }, 403)
+      c.set('workspace', workspace)
+      await next()
+    })
+
+    app.get('/api/me', async c => {
+      const session = await auth.api.getSession({ headers: c.req.raw.headers })
+      return c.json({
+        user: session
+          ? { id: session.user.id, email: session.user.email, name: session.user.name,
+              image: session.user.image }
+          : null,
+        workspace: c.get('workspace'),
+      })
+    })
+  }
+
   app.get('/api/films', async c => {
     try {
-      return c.json(await store.list())
+      return c.json(await storeFor(c.get('workspace')).list())
     } catch (e) {
       return c.json({ error: `registry unavailable: ${String(e)}` }, 503)
     }
@@ -40,7 +86,7 @@ export function createApp(store: DocStore, config: Config, queue?: ExportQueue) 
 
   app.get('/api/assets', async c => {
     try {
-      return c.json(await store.assets())
+      return c.json(await storeFor(c.get('workspace')).assets())
     } catch (e) {
       return c.json({ error: String(e) }, 503)
     }
@@ -49,14 +95,23 @@ export function createApp(store: DocStore, config: Config, queue?: ExportQueue) 
   app.get('/api/films/:slug', async c => {
     const slug = c.req.param('slug')
     if (!SLUG.test(slug)) return c.json({ error: 'bad slug' }, 400)
-    const doc = await store.get(slug)
+    const doc = await storeFor(c.get('workspace')).get(slug)
     return doc ? c.json(doc) : c.json({ error: 'not found' }, 404)
   })
 
+  /**
+   * PUT creates or replaces, which is what PUT means.
+   *
+   * It used to refuse a slug it had not seen, because the library was fixed and
+   * a save could only ever overwrite. With accounts, a workspace starts empty
+   * and the first save of a new film has to be able to land.
+   *
+   * A slug is only ever resolved inside the caller's own workspace, so this
+   * cannot reach across to somebody else's film of the same name.
+   */
   app.put('/api/films/:slug', async c => {
     const slug = c.req.param('slug')
     if (!SLUG.test(slug)) return c.json({ error: 'bad slug' }, 400)
-    if (!(await store.has(slug))) return c.json({ error: 'not found' }, 404)
 
     let body: unknown
     try {
@@ -69,8 +124,10 @@ export function createApp(store: DocStore, config: Config, queue?: ExportQueue) 
     if ('error' in checked) return c.json(checked, 422)
 
     try {
+      const store = storeFor(c.get('workspace'))
+      const existed = await store.has(slug)
       await store.put(slug, checked)
-      return c.json({ ok: true, slug })
+      return c.json({ ok: true, slug, created: !existed }, existed ? 200 : 201)
     } catch (e) {
       return c.json({ error: String(e) }, 500)
     }
