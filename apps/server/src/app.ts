@@ -4,6 +4,8 @@ import { logger } from 'hono/logger'
 import type { Config } from './config.js'
 import type { DocStore } from './store/types.js'
 import type { Auth } from './auth.js'
+import type { BlobStore } from './blob/types.js'
+import { ASSETS, EXPORTS } from './blob/types.js'
 import { SLUG, validateDoc } from './validate.js'
 import { ExportQueue } from './export/queue.js'
 import {
@@ -26,6 +28,7 @@ export type StoreFor = (workspace: string | null) => DocStore
 export function createApp(
   storeFor: StoreFor, config: Config, queue?: ExportQueue,
   auth?: Auth, workspaceOf?: (userId: string) => Promise<string | null>,
+  blobs?: { assets: BlobStore; exports: BlobStore },
 ) {
   const app = new Hono<{ Variables: { workspace: string | null } }>()
 
@@ -236,6 +239,39 @@ export function createApp(
     }
   })
 
+  /**
+   * Serving a local blob.
+   *
+   * Only exists for the filesystem store: with Azure the browser is handed a
+   * SAS url and never comes back through us.
+   *
+   * Registered AFTER the auth gate on purpose. Hono runs middleware in
+   * registration order, so a route declared above the gate is never gated at
+   * all; this one was, and served any workspace's exports to anybody who could
+   * guess a key.
+   */
+  if (blobs && !config.storage.connection) {
+    app.get('/api/blob/:container/*', async c => {
+      const container = c.req.param('container')
+      if (container !== ASSETS && container !== EXPORTS) return c.json({ error: 'no' }, 404)
+      const key = c.req.path.split(`/api/blob/${container}/`)[1] ?? ''
+      // fail closed. an unauthenticated caller has no workspace, and a key
+      // outside the caller's own prefix is somebody else's file: both are a
+      // 404 rather than a read. ordering alone must never be the only guard
+      const workspace = c.get('workspace')
+      if (!workspace || !key.startsWith(`${workspace}/`)) return c.json({ error: 'not found' }, 404)
+      const store = container === ASSETS ? blobs.assets : blobs.exports
+      const body = await store.get(decodeURIComponent(key))
+      if (!body) return c.json({ error: 'not found' }, 404)
+      return new Response(Readable.toWeb(body) as ReadableStream, {
+        headers: {
+          'content-type': container === EXPORTS ? 'video/mp4' : 'application/octet-stream',
+          'cache-control': 'private, max-age=300',
+        },
+      })
+    })
+  }
+
   if (queue) {
     app.post('/api/films/:slug/export', async c => {
       const slug = c.req.param('slug')
@@ -260,7 +296,7 @@ export function createApp(
       const job = queue.enqueue(slug, checked.stage, checked.anim, {
         fps: Number.isFinite(rate) && rate >= 1 && rate <= 120 ? rate : undefined,
         supersample: supersample === 2 ? 2 : 1,
-      })
+      }, c.get('workspace') ?? undefined)
       return c.json(queue.get(job.id), 202)
     })
 
@@ -283,6 +319,11 @@ export function createApp(
       if (job.status !== 'done') {
         return c.json({ error: `job is ${job.status}` }, 409)
       }
+      // with blob storage the browser fetches the file directly from a
+      // short-lived url and never streams through us
+      const key = queue.keyOf(id)
+      if (key && blobs) return c.redirect(await blobs.exports.url(key, 600), 302)
+
       const path = queue.fileOf(id)
       if (!path) return c.json({ error: 'artifact swept' }, 410)
 

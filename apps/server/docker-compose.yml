@@ -15,5 +15,15 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+  # microsoft's own azure storage emulator. the blob and queue code we ship runs
+  # against this locally, so the azure implementation is exercised for real
+  # rather than written blind and first tried in production.
+  blob:
+    image: mcr.microsoft.com/azure-storage/azurite
+    command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --skipApiVersionCheck
+    ports: ['10000:10000', '10001:10001']
+    volumes: ['whippan-blob:/data']
+
 volumes:
   whippan-pg:
+  whippan-blob:

@@ -10,6 +10,8 @@ export interface ExportOptions {
 export interface Job {
   id: string
   slug: string
+  /** whose render this is; keys are workspace-scoped so tenants cannot collide */
+  workspace?: string
   status: JobStatus
   options: Required<ExportOptions>
   queuedAt: number

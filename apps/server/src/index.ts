@@ -9,6 +9,10 @@ import { makeAuth, workspaceResolver } from './auth.js'
 import type { Auth } from './auth.js'
 import type { StoreFor } from './app.js'
 import { ExportQueue } from './export/queue.js'
+import { FsBlobStore } from './blob/fs.js'
+import { AzureBlobStore } from './blob/azure.js'
+import { ASSETS, EXPORTS } from './blob/types.js'
+import type { BlobStore } from './blob/types.js'
 
 const config = loadConfig()
 
@@ -34,9 +38,19 @@ if (config.databaseUrl) {
   const fs = new FsStore(config.docsDir)
   storeFor = () => fs
 }
-const queue = new ExportQueue(config.export)
+// files: azure blob when configured, a directory otherwise. the api never
+// learns which, so the local mode is a real development mode and not a stub
+const blobs = (container: string): BlobStore =>
+  config.storage.connection
+    ? new AzureBlobStore(config.storage.connection, container)
+    : new FsBlobStore(config.storage.dir, container)
+const assets = blobs(ASSETS)
+const exports_ = blobs(EXPORTS)
+console.log(`files: ${assets.description.replace(/\/assets$/, '')}`)
+
+const queue = new ExportQueue(config.export, exports_)
 queue.start()
-const app = createApp(storeFor, config, queue, auth, workspaceOf)
+const app = createApp(storeFor, config, queue, auth, workspaceOf, { assets, exports: exports_ })
 
 // say up front whether exporting will actually work, rather than failing on
 // the first request

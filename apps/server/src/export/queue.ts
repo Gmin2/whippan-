@@ -5,7 +5,10 @@ import { constants } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { randomUUID } from 'node:crypto'
+import { createReadStream } from 'node:fs'
 import type { Job, JobStatus, JobView, ExportOptions } from './types.js'
+import type { BlobStore } from '../blob/types.js'
+import { exportKey } from '../blob/types.js'
 
 export interface RunnerConfig {
   /** the compiled native renderer */
@@ -34,7 +37,26 @@ export class ExportQueue {
   private files = new Map<string, string>()
   private sweeper?: ReturnType<typeof setInterval>
 
-  constructor(private readonly config: RunnerConfig) {}
+  /**
+   * The finished mp4 goes to blob storage rather than staying on this box.
+   *
+   * Without it the file only exists on the instance that rendered it, which is
+   * fine on one machine and wrong the moment there are two, or one that scales
+   * to zero. `blobs` stays optional so a local run with no storage configured
+   * still works off disk.
+   */
+  constructor(
+    private readonly config: RunnerConfig,
+    private readonly blobs?: BlobStore,
+  ) {}
+
+  /** where a finished render lives in blob storage, once it is uploaded */
+  private keys = new Map<string, string>()
+
+  keyOf(id: string): string | null {
+    const j = this.jobs.get(id)
+    return j?.status === 'done' ? this.keys.get(id) ?? null : null
+  }
 
   /** fail fast and legibly if the toolchain is not actually present */
   async preflight(): Promise<{ ok: boolean; reason?: string }> {
@@ -95,11 +117,14 @@ export class ExportQueue {
     }
   }
 
-  enqueue(slug: string, stage: unknown, anim: unknown, opts: ExportOptions): Job {
+  enqueue(
+    slug: string, stage: unknown, anim: unknown, opts: ExportOptions, workspace?: string,
+  ): Job {
     const id = randomUUID()
     const job: Job = {
       id,
       slug,
+      workspace,
       status: 'queued',
       options: {
         fps: opts.fps ?? 30,
@@ -256,9 +281,17 @@ export class ExportQueue {
           await discard()
           this.finish(job, 'failed', 'the renderer exited cleanly but wrote no file')
         } else {
-          this.files.set(job.id, outPath)
           job.bytes = info.size
           job.frames = job.totalFrames
+          if (this.blobs) {
+            // the local copy is a staging file; the durable one is the blob
+            const key = exportKey(job.workspace ?? 'default', job.id)
+            await this.blobs.put(key, createReadStream(outPath), 'video/mp4')
+            this.keys.set(job.id, key)
+            await discard()
+          } else {
+            this.files.set(job.id, outPath)
+          }
           this.finish(job, 'done')
         }
       } else {

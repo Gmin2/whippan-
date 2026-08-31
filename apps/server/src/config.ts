@@ -26,6 +26,8 @@ export interface Config {
   docsDir: string
   /** when set, films come from postgres and docsDir is only used by the importer */
   databaseUrl: string | null
+  /** azure blob when there is a connection string, a directory otherwise */
+  storage: { connection: string | null; dir: string }
   /** accounts are off until a session secret is set */
   auth: {
     secret: string
@@ -48,6 +50,10 @@ export function loadConfig(): Config {
     port: Number(process.env.PORT ?? 8903),
     docsDir: process.env.DOCS_DIR ?? repoDocs,
     databaseUrl: process.env.DATABASE_URL?.trim() || null,
+    storage: {
+      connection: process.env.STORAGE_CONNECTION?.trim() || null,
+      dir: process.env.STORAGE_DIR ?? `${repoRoot}out/blob`,
+    },
     auth: authConfig(env),
     corsOrigins: (process.env.CORS_ORIGINS ?? (env === 'production' ? '' : '*'))
       .split(',').map(s => s.trim()).filter(Boolean),

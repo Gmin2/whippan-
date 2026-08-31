@@ -13,7 +13,9 @@ try {
   const ran = await migrate(pool)
   console.log(ran.length ? `applied: ${ran.join(', ')}` : 'up to date')
 } catch (e) {
-  console.error(e instanceof Error ? e.message : e)
+  // not e.message: a failed connection surfaces as an AggregateError whose own
+  // message is empty, which printed nothing at all and looked like a hang
+  console.error(e)
   process.exitCode = 1
 } finally {
   await closeDb()
