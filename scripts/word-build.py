@@ -65,7 +65,8 @@ def promote(slug, mode, dest):
                 del keys['y']          # rise owns the vertical now
             t.pop('enter', None)
         done += 1
-    json.dump(anim, open(dest, 'w'))
+    # one space, matching how the anim docs are already written
+    open(dest, 'w').write(json.dumps(anim, indent=1) + '\n')
     return done
 
 if __name__ == '__main__':

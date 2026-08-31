@@ -93,3 +93,30 @@ drift adds energy without disturbing what was already correct.
 tool skips scenes that already own a camera, but not scenes that are already
 moving enough by other means. Making it mass-aware is the obvious next
 refinement and should be measured the same way.
+
+## 2026-09-01 — scoring per scene
+
+The film mean was flattering. Scored scene by scene, **229 of 281 scenes (81%)
+sit outside 0.7-1.4 energy**: 178 under-move, 51 over-move, 52 are right. A
+mean over a whole film lets those cancel — `claude` read 1.06, which looks like
+parity, while one scene ran at 2.76 and another at 0.46.
+
+**Scenes outside the band is now the headline number.** It cannot be gamed by
+compensating errors the way the mean can.
+
+Two things came straight out of it:
+
+- **Earned stillness.** `loaded-hold.py` said in its own docstring that it made
+  no attempt to find scenes a film deliberately holds. 33 such scenes had been
+  given a drift, worst of them `state-slim` s28a (we rendered 14.30 against a
+  reference of 0.093). `scripts/prune-still.py` takes the hold back off any
+  scene whose reference energy is under a quarter of its film's mean. mae fell
+  on 6 films and rose on none; 5 scenes came back into band. Small, but it stops
+  us moving where the reference is deliberately still.
+- **The wildest ratios are not motion errors.** After pruning, `state-slim` s28a
+  still reads 150x and `ravie` s11 reads 35x, but their mae is 217 and 212 of
+  255 — our render bears no resemblance to the reference in those frames. That
+  is scene ALIGNMENT drift, not motion authoring: our scene durations walk out
+  of sync and the comparison lines up the wrong footage. The same signature
+  explains the high-mae films (`lucia` 118, `skale` 118). Fix alignment before
+  reading any energy number on those scenes.
