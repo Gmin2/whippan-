@@ -1,0 +1,19 @@
+# local postgres for development. production uses azure database for postgres,
+# so nothing here ships; it exists so `docker compose up -d` is the whole setup.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: whippan
+      POSTGRES_PASSWORD: whippan
+      POSTGRES_DB: whippan
+    # 5433 so it never fights a postgres already running on the host
+    ports: ['5433:5432']
+    volumes: ['whippan-pg:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U whippan']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  whippan-pg:

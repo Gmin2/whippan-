@@ -1,21 +1,26 @@
 import { serve } from '@hono/node-server'
-import { fileURLToPath } from 'node:url'
 import { createApp } from './app.js'
 import { loadConfig } from './config.js'
 import { FsStore } from './store/fs.js'
+import { PgStore } from './store/pg.js'
+import { db } from './db/pool.js'
+import { migrate } from './db/migrate.js'
+import type { DocStore } from './store/types.js'
 import { ExportQueue } from './export/queue.js'
 
-// a .env beside the service, if there is one. real environment always wins, so
-// a container that sets its own variables is unaffected. without this the
-// documented .env.example would be a file nothing reads
-try {
-  process.loadEnvFile(fileURLToPath(new URL('../.env', import.meta.url)))
-} catch {
-  // no .env is the normal case in production
-}
-
 const config = loadConfig()
-const store = new FsStore(config.docsDir)
+
+// postgres when there is a DATABASE_URL, the filesystem otherwise. DocStore is
+// the whole seam, so nothing downstream of here knows which one it got
+let store: DocStore
+if (config.databaseUrl) {
+  const pool = db(config.databaseUrl)
+  const ran = await migrate(pool)
+  if (ran.length) console.log(`migrations applied: ${ran.join(', ')}`)
+  store = new PgStore(pool)
+} else {
+  store = new FsStore(config.docsDir)
+}
 const queue = new ExportQueue(config.export)
 queue.start()
 const app = createApp(store, config, queue)

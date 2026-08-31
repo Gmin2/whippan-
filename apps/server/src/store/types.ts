@@ -26,6 +26,8 @@ export interface Asset {
 }
 
 export interface DocStore {
+  /** where films actually live, for the startup line and nothing else */
+  readonly description: string
   /** the registry every client reads to know what exists */
   list(): Promise<FilmEntry[]>
   get(slug: string): Promise<FilmDoc | null>

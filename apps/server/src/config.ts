@@ -1,5 +1,14 @@
 import { fileURLToPath } from 'node:url'
 
+// a .env beside the service, if there is one. real environment always wins, so
+// a container that sets its own variables is unaffected. loaded here rather
+// than in the server entry point so scripts and migrations get it too
+try {
+  process.loadEnvFile(fileURLToPath(new URL('../.env', import.meta.url)))
+} catch {
+  // no .env is the normal case in production
+}
+
 /** everything the service needs, read once from the environment */
 export interface Config {
   port: number
@@ -15,6 +24,8 @@ export interface Config {
   }
   /** where films are stored; a repo checkout locally, a volume in a container */
   docsDir: string
+  /** when set, films come from postgres and docsDir is only used by the importer */
+  databaseUrl: string | null
   /** allowed browser origins; '*' in development, an explicit list in production */
   corsOrigins: string[]
   env: 'development' | 'production'
@@ -28,6 +39,7 @@ export function loadConfig(): Config {
   return {
     port: Number(process.env.PORT ?? 8903),
     docsDir: process.env.DOCS_DIR ?? repoDocs,
+    databaseUrl: process.env.DATABASE_URL?.trim() || null,
     corsOrigins: (process.env.CORS_ORIGINS ?? (env === 'production' ? '' : '*'))
       .split(',').map(s => s.trim()).filter(Boolean),
     env,
