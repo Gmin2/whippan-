@@ -37,9 +37,9 @@ Ranked by film count x runtime covered.
 | device | films | what it is | engine |
 | --- | --- | --- | --- |
 | `loaded hold` | 24 | every hold drifts 0.3-3 px/frame; nothing is ever locked | already expressible |
-| `word build` | 23 | line assembles token by token, accent cools to ink | already expressible (`reveal`) |
+| `word build` | 23 | line assembles token by token, accent cools to ink | expressible (`reveal`); applied to 70 headlines 2026-08-31 |
 | `camera as edit` | 20 | crash-zoom, push, whip-pan replace cuts | **built but undocumented** |
-| `blur resolve` | 18 | arrives in place, heavily blurred, racks to sharp | **blocked: rect only** |
+| `blur resolve` | 18 | arrives in place, heavily blurred, racks to sharp | expressible; tried and measured no effect, see below |
 | `typewriter` | 17 | chars at keystroke times, two-speed, live caret | already expressible |
 | `cursor grammar` | 16 | bell velocity, long park, click = a state change | already expressible |
 | `arrival cascade` | 15 | UI materialises whole, 2-4f offsets, one ~14f envelope | awkward: one track per node |
@@ -74,6 +74,38 @@ Slow push ~10% over 30 frames.
 **blur resolve** — whole panels rack over 25-35 frames, single objects over
 ~7, glyphs over 2-3. The element is at its final position from frame one and
 only its focus changes.
+
+> **Measured 2026-08-31 and not shipped.** A blur rack added to all 58
+> entrances of `rezonant` moved nothing: mae 17.38 → 17.37 of 255, energy
+> 0.407 → 0.403, timing +0.218 → +0.219. Dead frames rose 21 → 52, which is
+> the tell — blur *smooths* detail, so it lowers frame-to-frame difference
+> during the very frames it covers. Two readings, both worth keeping: the
+> racks are short against a 1204-frame film and vanish at the 160×90
+> measuring grid, and our corpus authors entrances as raw opacity keys
+> (`enter` presets appear in 4 of 5962 tracks), so the device was *added to*
+> a positional entrance rather than *replacing* it, which is not what the
+> references do. Do not re-attempt without first making a film whose
+> entrances are focus-only, and judge it by eye, not by conform.
+
+**word build** — applied 2026-08-31 to the 70 headlines across 16 films that
+were large enough and long enough to read as one and still only faded in.
+Coverage went from 11% of text nodes to 14%. Thresholds were learned from the
+248 nodes we already revealed this way rather than chosen: 40px @1920 and 3
+words sits between the revealed median (66px, 3 words) and the plain one
+(30px, 1 word).
+
+> **conform cannot see this and that is expected.** Across 13 scored films
+> energy, timing and mae all held to within hundredths. Only 32 of 1666 frames
+> of `state-slim` differ from before, by at most 7.7 of 255. The reason is
+> structural: the biggest promoted headline anywhere is 12% of the frame and a
+> build lasts ~15 frames, so a mean over the whole film cannot move. Restricting
+> the mean to the first 18 frames of each scene does not rescue it either.
+>
+> This is the general shape of it. **conform measures devices that are on
+> screen continuously.** The loaded hold moved 0.384 to 0.452 because it
+> touches every pixel of every frame. Entrance craft is invisible to it. Both
+> kinds are worth shipping; only one kind is worth measuring this way, and a
+> null result on an entrance device is not evidence against the device.
 
 **typewriter** — **3 frames per character (100ms)**. Two-speed is real: rush the
 sentence at 2-3 chars/frame, slow the payoff word to 1 char per 1-3 frames.

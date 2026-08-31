@@ -34,7 +34,36 @@ export const PX_PER_FRAME = 1
 /** a little zoom so the drift never slides the canvas edge into shot */
 export const HEADROOM = 0.08
 
+/**
+ * Measured: whole panels rack over 25-35 frames, single objects over ~7,
+ * glyphs over 2-3. The element is at its final position from frame one and
+ * only its focus changes.
+ */
+export const RACK = { panel: 30, object: 7, glyph: 3 }
+
+/**
+ * Which text is a headline, learned from the 248 nodes we already reveal this
+ * way: they sit at a median 66px and 3 words against 30px and 1 word for plain
+ * text, so the line falls between. Stagger is our own median and matches the
+ * 3 frames per word the teardowns measured.
+ */
+export const WORD = { minPx: 40, minWords: 3, stagger: 0.09, dur: 0.3, rise: 20 }
+
 export const DEVICES: Device[] = [
+  {
+    key: 'blur-resolve',
+    name: 'Blur resolve',
+    blurb: 'arrives already in place, heavily blurred, and racks to sharp.',
+    films: 18,
+    owns: ['blur'],
+  },
+  {
+    key: 'word-build',
+    name: 'Word build',
+    blurb: 'a headline arrives a word at a time, about three frames apart.',
+    films: 23,
+    owns: ['reveal'],
+  },
   {
     key: 'loaded-hold',
     name: 'Loaded hold',
@@ -89,6 +118,83 @@ export function loadedHold(
 }
 
 /**
+ * Bring a node into focus rather than into position.
+ *
+ * The reference set's second most common device, and it was unreachable until
+ * `blur` was made to work on every node kind: for a long time only rects could
+ * defocus, so no word, icon or screenshot could use it.
+ *
+ * It composes with an entrance rather than replacing one. `enter` presets write
+ * `opacity`, `y` and `scale`; this writes only `blur`, so the two coexist and
+ * the node fades, rises AND sharpens the way the references do. Returns null
+ * when something already owns the node's blur.
+ *
+ * Kept but NOT applied by `applyDevices`. Measured on all 58 entrances of
+ * `rezonant`: mae 17.38 to 17.37 of 255, energy 0.407 to 0.403, timing flat.
+ * Blur smooths detail, so it lowers frame-to-frame difference over the very
+ * frames it covers. See MOTION.md before wiring it back in.
+ */
+export function blurResolve(
+  node: { id: string; type: string; w?: number; h?: number; font?: { size?: number } },
+  stage: Stage, at: number, existing: Track[],
+): Track | null {
+  if (existing.some(t => t.target === node.id && 'blur' in (t.keys ?? {}))) return null
+
+  const [W, H] = stage.size
+  const k = W / 1920
+  // how long the rack runs, and how far out of focus it starts, both scale with
+  // how much of the frame the thing occupies
+  const area = (node.w ?? (node.font?.size ?? 48) * 6) * (node.h ?? (node.font?.size ?? 48) * 1.4)
+  const share = area / (W * H)
+  const frames = share > 0.15 ? RACK.panel : share > 0.02 ? RACK.object : RACK.glyph
+  const sigma = Math.round((share > 0.15 ? 18 : share > 0.02 ? 10 : 5) * k)
+  const fps = stage.fps ?? 30
+
+  return {
+    target: node.id,
+    at: round(at),
+    keys: {
+      blur: [
+        { t: 0, v: sigma },
+        { t: round(frames / fps), v: 0, ease: 'outCubic' },
+      ],
+    },
+  }
+}
+
+/**
+ * Build a headline one word at a time.
+ *
+ * 23 of 29 torn-down films do this and only 11% of our text nodes did. The
+ * engine multiplies node opacity by the reveal's per-word opacity, so this
+ * composes with an existing fade rather than replacing it.
+ *
+ * Returns null unless the node is large enough and long enough to read as a
+ * headline, and null if anything already reveals it: the format keeps only
+ * the last reveal on a node, so a second one would silently drop the first
+ * track's other motion with it.
+ */
+export function wordBuild(
+  node: { id: string; type: string; text?: string; font?: { size?: number } },
+  stage: Stage, track: Track, existing: Track[],
+): Track | null {
+  if (typeof node.text !== 'string') return null
+  if (existing.some(t => t.target === node.id && t.reveal)) return null
+
+  const k = stage.size[0] / 1920
+  if ((node.font?.size ?? 0) / k < WORD.minPx) return null
+  if (node.text.trim().split(/\s+/).length < WORD.minWords) return null
+
+  track.reveal = {
+    unit: 'word',
+    stagger: WORD.stagger,
+    dur: WORD.dur,
+    rise: Math.round(WORD.rise * k),
+  }
+  return track
+}
+
+/**
  * Apply every device to a document's tracks, refusing collisions.
  *
  * A device that would write a property another track already owns is dropped
@@ -100,6 +206,12 @@ export function applyDevices(stage: Stage, tracks: Track[]): Track[] {
   stage.scenes.forEach((scene, i) => {
     const hold = loadedHold(stage, scene, i, out)
     if (hold) out.push(hold)
+    // a headline that fades in should build instead
+    for (const node of scene.nodes) {
+      if (node.type === 'group') continue
+      const enters = out.find(t => t.target === node.id && (t.enter || t.keys?.opacity))
+      if (enters) wordBuild(node, stage, enters, out)
+    }
   })
   return out
 }
