@@ -1957,6 +1957,12 @@ fn render_scene(
             let dx = px - node.x;
             let dy = py - node.y;
             let scale = node_prop(node, "scale", 1.0, t) * sb.scale * gx.scale;
+            // blur used to be read inside the rect arm alone, so no text, icon
+            // or screenshot could ever defocus. 18 of the 29 reference films
+            // resolve elements from blur to sharp, and it is the second most
+            // common energy device in the set, so it belongs to every node kind
+            let blurv = node_prop(node, "blur", node.blur.unwrap_or(0.0), t);
+            let body_blur = (blurv > 0.0).then_some(blurv);
             match node.kind.as_str() {
                 "text" => {
                     if let Some(src) = morphs.get(&node.id) {
@@ -1994,7 +2000,7 @@ fn render_scene(
                                         h: None,
                                         radius: None,
                                         d: Some(word.path.clone()),
-                                        blur: None,
+                                        blur: body_blur,
                                         grad: None,
                                         src: None,
                                         goo: None,
@@ -2094,7 +2100,7 @@ fn render_scene(
                                     h: None,
                                     radius: None,
                                     d: Some(glyph.path.clone()),
-                                    blur: None,
+                                    blur: body_blur,
                                     grad: None,
                                     src: None,
                                     goo: None,
@@ -2140,7 +2146,7 @@ fn render_scene(
                                     h: Some(ch),
                                     radius: Some(1.0),
                                     d: None,
-                                    blur: None,
+                                    blur: body_blur,
                                     grad: None,
                                     src: None,
                                     goo: None,
@@ -2181,7 +2187,7 @@ fn render_scene(
                                         h: None,
                                         radius: None,
                                         d: Some(glyph.path.clone()),
-                                        blur: None,
+                                        blur: body_blur,
                                         grad: None,
                                         src: None,
                                         goo: None,
@@ -2209,7 +2215,7 @@ fn render_scene(
                                         h: None,
                                         radius: None,
                                         d: Some(pool_glyphs[pick].path.clone()),
-                                        blur: None,
+                                        blur: body_blur,
                                         grad: None,
                                         src: None,
                                         goo: None,
@@ -2271,7 +2277,7 @@ fn render_scene(
                                     h: None,
                                     radius: None,
                                     d: Some(glyph.path.clone()),
-                                    blur: None,
+                                    blur: body_blur,
                                     grad: None,
                                     src: None,
                                     goo: None,
@@ -2294,7 +2300,7 @@ fn render_scene(
                                 h: None,
                                 radius: None,
                                 d: Some(word.path.clone()),
-                                blur: None,
+                                blur: body_blur,
                                 grad: None,
                                 src: None,
                                 goo: None,
@@ -2413,7 +2419,6 @@ fn render_scene(
                         .gradient
                         .as_ref()
                         .map(|g| grad_for(g, gw.unwrap_or(0.0), gh.unwrap_or(0.0)));
-                    let blurv = node_prop(node, "blur", node.blur.unwrap_or(0.0), t);
                     cmds.push(DrawCmd {
                         op: "rect".into(),
                         x: gx,
@@ -2486,7 +2491,7 @@ fn render_scene(
                         h: None,
                         radius: None,
                         d,
-                        blur: None,
+                        blur: body_blur,
                         grad: None,
                         src: None,
                         goo: node.goo.clone(),
@@ -2512,7 +2517,7 @@ fn render_scene(
                         h: node.h,
                         radius: node.radius,
                         d: None,
-                        blur: None,
+                        blur: body_blur,
                         grad: None,
                         src,
                         goo: node.goo.clone(),
@@ -2534,7 +2539,7 @@ fn render_scene(
                         h: node.h,
                         radius: node.radius,
                         d: None,
-                        blur: None,
+                        blur: body_blur,
                         grad: None,
                         src: node.src.clone(),
                         goo: node.goo.clone(),
@@ -2918,6 +2923,40 @@ mod tests {
         let sp: Vec<f32> = serde_json::from_str(
             &ease_curve("{\"spring\":[6.0,1.0]}", 64).unwrap()).unwrap();
         assert!(sp.iter().any(|v| *v > 1.0), "a spring should pass 1 on the way");
+    }
+
+    #[test]
+    fn blur_reaches_every_node_kind_not_just_rects() {
+        load_font();
+        // the reference films resolve text and icons from blur to sharp; for a
+        // long time only rects could defocus and the device was unreachable
+        let stage = r##"{"fps":30,"size":[1000,600],"scenes":[{"id":"s1","dur":1.0,
+            "nodes":[
+              {"id":"t","type":"text","x":500,"y":200,"text":"sharp",
+               "font":{"size":48},"color":"#111111"},
+              {"id":"p","type":"path","x":200,"y":400,"d":"M0,0L40,0L40,40Z",
+               "fill":"#111111"},
+              {"id":"r","type":"rect","x":800,"y":400,"w":80,"h":80,"fill":"#111111"}]}]}"##;
+        let anim = r##"{"tracks":[
+            {"target":"t","keys":{"blur":[{"t":0,"v":9.0}]}},
+            {"target":"p","keys":{"blur":[{"t":0,"v":7.0}]}},
+            {"target":"r","keys":{"blur":[{"t":0,"v":5.0}]}}]}"##;
+
+        let cmds: Vec<Value> =
+            serde_json::from_str(&render_frame(stage, anim, 0.0)).unwrap();
+        let blurred = |id: &str| -> Option<f64> {
+            cmds.iter()
+                .filter(|c| c["id"] == id)
+                .find_map(|c| c["blur"].as_f64())
+        };
+        assert_eq!(blurred("r"), Some(5.0), "rects always blurred");
+        assert_eq!(blurred("p"), Some(7.0), "a path must be able to defocus");
+        assert_eq!(blurred("t"), Some(9.0), "text must be able to defocus");
+
+        // and a node with no blur must not gain one
+        let none: Vec<Value> = serde_json::from_str(
+            &render_frame(stage, r##"{"tracks":[]}"##, 0.0)).unwrap();
+        assert!(none.iter().all(|c| c["blur"].is_null()), "no blur unless asked");
     }
 
     #[test]

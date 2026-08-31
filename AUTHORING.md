@@ -257,6 +257,44 @@ working exactly as they do for a loose node.
    member of a group that is itself in a group only inherits from its own
    group. keep containers one level deep.
 
+### camera
+
+`cam_x`, `cam_y`, `cam_zoom` target a **scene id**, not a node. That matters
+twice over: the camera composes with every node track (contract rule 3 cannot
+bite), and it covers 100% of the scene's frames for one track.
+
+There are four **named presets**, and they are the tuned versions of moves
+measured off the reference films. Prefer them to hand-written `cam_*` keys.
+
+```json
+{"target": "s3", "at": 0.5,
+ "cam": {"preset": "crash-zoom", "z": 3.1, "anchor": [960, 655], "dur": 0.7}}
+```
+
+| preset | what it does | fields |
+| --- | --- | --- |
+| `crash-zoom` | accelerate in, long decelerating settle | `z`, `anchor`, `dur` |
+| `zoom-promote` | dive hard and stay full-bleed | `z`, `anchor`, `dur` |
+| `whip-pan` | fast lateral move with a decel tail | `dx`, `dy`, `dur` |
+| `snap` | 1-frame reframe, no travel | `z`, `dx`, `dy` |
+
+`z` defaults to 2.5, `dur` to 0.9. `anchor` is the point in document
+coordinates the zoom converges on; without it the zoom is about the canvas
+centre.
+
+**Camera motion blur is automatic.** The renderer samples the camera one frame
+back, derives a screen-space velocity, and wraps fast moves in a directional
+blur layer. Whip-pans streak and crash-zooms smear without being asked. Do not
+hand-author a blur to fake it.
+
+Measured from the references, for calibration: a crash zoom runs 1.55x-2.4x
+with peak velocity at 20-24% of the move and a settle three to four times the
+length of the attack; a whip-pan is 3-6 frames of pure lateral blur; a slow push
+is about 10% over 30 frames.
+
+**A scene with no camera move is a scene that holds still**, and 24 of the 29
+reference films never hold still. See MOTION.md.
+
 ## 5. taste (what the 29 references actually do)
 
 timing bands, measured:
