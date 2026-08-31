@@ -36,6 +36,7 @@ import AIBar from './components/AIBar'
 import BlockPicker from './components/BlockPicker'
 import { BLOCKS, blockByKey, filmAccent } from './blocks'
 import { checkDensity, checkFilm, checkFit } from './fit'
+import { applyDevices } from './devices'
 import type { Fit } from './fit'
 import {
   askFilm, askImage, askMotion, askScreen, askVector, capabilities, motionContext,
@@ -330,8 +331,13 @@ export default function App() {
     v: 'select', h: 'hand', f: 'frame', r: 'rect', p: 'pen', t: 'text', s: 'shader',
   }
 
-  // ask the server what it actually has keys for, once
-  useEffect(() => { capabilities().then(setCaps).catch(() => setCaps([])) }, [])
+  // ask the server what it actually has keys for. re-asked when the session
+  // changes: on first mount nobody is signed in yet, that call is a 401, and
+  // without this the prompt bar says "not configured" for the whole session
+  useEffect(() => {
+    if (who === undefined || (who && !who.user)) return
+    capabilities().then(setCaps).catch(() => setCaps([]))
+  }, [who])
 
   useEffect(() => {
     if (!dirty) return
@@ -805,12 +811,12 @@ export default function App() {
         nodes: sc.nodes,
         ...(i > 0 && sc.transition ? { transition: { kind: sc.transition } } : {}),
       }))
-      const tracks = film2.scenes.flatMap(s => s.tracks)
-      return {
-        ...prev,
-        stage: { ...prev.stage, scenes } as Stage,
-        anim: { ...prev.anim, tracks: tracks as Anim['tracks'] },
-      }
+      const stage = { ...prev.stage, scenes } as Stage
+      // the loaded hold is applied by the library, not asked of the model.
+      // it lifted the corpus from 0.384 to 0.452 energy and no prompt should
+      // have to remember it; see devices.ts
+      const tracks = applyDevices(stage, film2.scenes.flatMap(s => s.tracks) as Anim['tracks'])
+      return { ...prev, stage, anim: { ...prev.anim, tracks } }
     })
     setSel(null); setExtra([]); setSelBox(null)
     setScene(film2.scenes[0]?.id ?? null)

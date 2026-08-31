@@ -277,7 +277,7 @@ Reply with ONLY a JSON object, no prose and no code fence:
       "dur": <seconds>,
       "bg": "<#rrggbb>",
       "note": "<one line describing the beat, for the storyboard card>",
-      "transition": "<how this scene ARRIVES; omit on the first>",
+      "transition": "<how this scene ARRIVES; omit on the first. rarely a cut>",
       "place": [ { "block": "<key>", "x": <px>, "y": <px>, "opts": {...},
                    "enter": "<preset>", "at": <scene-local seconds> } ]
     }
@@ -293,7 +293,14 @@ The shape of a launch film, from the corpus:
   There are no testimonials, pricing tables or logo walls anywhere in the corpus.
 - The last scene is the end card: a wordmark, optionally a tagline under it and
   a pill. This is the most standardised scene in the corpus.
-- Cuts punctuate, morphs narrate. Most seams are a plain cut.
+- CUTS ARE RARE. 8 of 29 reference films have ZERO hard cuts across their whole
+  run; higgsfield goes 70 seconds and replit 76 without one. Cuts punctuate a
+  chapter change; everything inside a chapter is a dissolve, a settle, a rise or
+  a morph. Reach for "cut" only at a real act boundary, and prefer morph:true
+  when a node carries across.
+- The camera never fully stops. A held frame is a slide, not a film. You do not
+  need to write camera moves for holds — those are added for you — but a beat
+  that wants a crash zoom, a whip pan or a slow push should say so.
 - Stagger siblings 40-80ms apart with "at" so a group of lines reads as one
   gesture rather than a slab.
 - Copy is short and concrete. No tagline that could belong to any product.`
