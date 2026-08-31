@@ -46,7 +46,8 @@ export interface Note {
  * 0.45 mass per second. Everything under 0.15 renders close to still.
  */
 const MOVING = 0.15
-const LIVELY = 0.45
+/** a scene at or above this already carries itself and wants no help */
+export const LIVELY = 0.45
 
 export function checkCamera(doc: Doc): Note[] {
   const out: Note[] = []

@@ -177,11 +177,19 @@ def run(slug, adir, stride=1, force=False, keep=6):
         lo, hi = lo // stride, hi // stride
         if hi - lo < 3:
             continue
+        ro, rr = float(eo[lo:hi].mean()), float(er[lo:hi].mean())
         scenes.append({
             "id": sid,
             "mae": round(float(per_frame[lo:hi].mean()), 2),
             "timing": round(pearson(eo[lo:max(lo + 1, hi - 1)], er[lo:max(lo + 1, hi - 1)]), 3),
+            "energy_ratio": round(ro / rr, 2) if rr else 0.0,
         })
+
+    # a film mean can sit at parity while its scenes are wrong in both
+    # directions and cancel: `claude` read 1.06 overall while one scene ran at
+    # 2.76 and another at 0.46. Carry the spread so that cannot hide.
+    off = [sc["energy_ratio"] for sc in scenes
+           if sc["energy_ratio"] and not 0.7 <= sc["energy_ratio"] <= 1.4]
 
     worst_idx = np.argsort(-per_frame)[:keep]
     shots = (work / "worst")
@@ -205,6 +213,7 @@ def run(slug, adir, stride=1, force=False, keep=6):
         "timing_at_best_lag": round(lag_r, 3),
         "appearance_mae": round(mae, 2),
         "energy_ratio": round(ratio, 3),
+        "scenes_off_energy": len(off),
         "our_energy": round(float(eo.mean()), 3),
         "ref_energy": round(float(er.mean()), 3),
         "scenes": scenes,
@@ -261,14 +270,20 @@ def main():
 
     ok = [r for r in results if "error" not in r]
     if ok:
-        print(f"\n{'film':<16}{'timing':>8}{'lag':>6}{'mae':>8}{'energy':>9}  scenes worth opening")
+        print(f"\n{'film':<16}{'timing':>8}{'lag':>6}{'mae':>8}{'energy':>9}{'off':>5}"
+              f"  scenes worth opening")
         for r in sorted(ok, key=lambda r: r["timing"]):
             weak = [s["id"] for s in r["scenes"] if s["timing"] < 0.2][:4]
             print(f"{r['slug']:<16}{r['timing']:>+8.3f}{r['best_lag']:>6}{r['appearance_mae']:>8.2f}"
-                  f"{r['energy_ratio']:>9.2f}  {' '.join(weak)}")
+                  f"{r['energy_ratio']:>9.2f}{r['scenes_off_energy']:>5}  {' '.join(weak)}")
+        nsc = sum(len(r["scenes"]) for r in ok)
+        noff = sum(r["scenes_off_energy"] for r in ok)
         print(f"\nmean timing {np.mean([r['timing'] for r in ok]):+.3f}   "
               f"mean mae {np.mean([r['appearance_mae'] for r in ok]):.2f}   "
               f"over {len(ok)} films")
+        # the honest headline: a film mean can sit at parity while its scenes
+        # cancel each other out, so count the scenes that are actually wrong
+        print(f"scenes outside 0.7-1.4 energy: {noff} of {nsc} ({100*noff/nsc:.0f}%)")
     print(f"\nreport: {OUT / 'report.html'}")
 
 
@@ -281,7 +296,13 @@ def report(results):
         shots = "".join(
             f'<a href="{r["slug"]}/{w["heatmap"]}" title="frame {w["frame"]} · {w["t"]}s · mae {w["mae"]}">'
             f'<img src="{r["slug"]}/{w["heatmap"]}"></a>' for w in r["worst"])
-        bad = "".join(f'<span class="{"bad" if s["timing"] < 0.2 else ""}">{s["id"]}</span>' for s in r["scenes"])
+        def chip(sc):
+            off = not 0.7 <= sc["energy_ratio"] <= 1.4
+            cls = "bad" if sc["timing"] < 0.2 or off else ""
+            tail = "" if not off else f' {sc["energy_ratio"]}'
+            return (f'<span class="{cls}" title="energy {sc["energy_ratio"]} '
+                    f'mae {sc["mae"]} timing {sc["timing"]:+.2f}">{sc["id"]}{tail}</span>')
+        bad = "".join(chip(sc) for sc in r["scenes"])
         rows.append(
             f"<tr><td><b>{r['slug']}</b><div class=sc>{bad}</div></td>"
             f"<td class=n>{r['timing']:+.3f}</td><td class=n>{r['best_lag']}</td>"

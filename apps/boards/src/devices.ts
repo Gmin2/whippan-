@@ -1,4 +1,5 @@
 import type { Scene, Stage, Track } from './engine/types'
+import { LIVELY, motionMass } from './grammar'
 
 /**
  * The motion vocabulary, as things you can apply.
@@ -81,16 +82,21 @@ export const DEVICES: Device[] = [
  * having rendered a still frame against a moving reference.
  *
  * Returns null when the scene already carries a camera, or already moves
- * enough on its own — four films overshot their reference when this was
- * applied blindly, which is its own kind of wrong.
+ * enough on its own: `mass` is the scene's motion mass from `grammar.ts`, and
+ * the LIVELY line is the same one `checkCamera` uses to decide a scene needs
+ * a camera at all. The two now agree.
  */
 export function loadedHold(
-  stage: Stage, scene: Scene, index: number, existing: Track[],
+  stage: Stage, scene: Scene, index: number, existing: Track[], mass: number,
 ): Track | null {
   const owned = existing.some(
     t => t.target === scene.id
       && (t.cam || Object.keys(t.keys ?? {}).some(k => k.startsWith('cam_'))))
   if (owned) return null
+  // a scene that already carries itself does not want a push. applying this
+  // blind took `x-anim` to 1.13 and `claude` to 1.06 against their references,
+  // which is as wrong as sitting still
+  if (mass >= LIVELY) return null
 
   const dur = scene.dur ?? 3
   const fps = stage.fps ?? 30
@@ -203,8 +209,10 @@ export function wordBuild(
  */
 export function applyDevices(stage: Stage, tracks: Track[]): Track[] {
   const out = [...tracks]
+  const mass = new Map(
+    motionMass({ stage, anim: { tracks: out } }).map(m => [m.scene, m.mass]))
   stage.scenes.forEach((scene, i) => {
-    const hold = loadedHold(stage, scene, i, out)
+    const hold = loadedHold(stage, scene, i, out, mass.get(scene.id) ?? 0)
     if (hold) out.push(hold)
     // a headline that fades in should build instead
     for (const node of scene.nodes) {
