@@ -1,8 +1,18 @@
 import { serve } from '@hono/node-server'
+import { fileURLToPath } from 'node:url'
 import { createApp } from './app.js'
 import { loadConfig } from './config.js'
 import { FsStore } from './store/fs.js'
 import { ExportQueue } from './export/queue.js'
+
+// a .env beside the service, if there is one. real environment always wins, so
+// a container that sets its own variables is unaffected. without this the
+// documented .env.example would be a file nothing reads
+try {
+  process.loadEnvFile(fileURLToPath(new URL('../.env', import.meta.url)))
+} catch {
+  // no .env is the normal case in production
+}
 
 const config = loadConfig()
 const store = new FsStore(config.docsDir)
