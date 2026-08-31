@@ -35,6 +35,7 @@ import ContextMenu from './components/ContextMenu'
 import AIBar from './components/AIBar'
 import BlockPicker from './components/BlockPicker'
 import { BLOCKS, blockByKey, filmAccent } from './blocks'
+import { scoreScreen, failing, type Check } from './screen'
 import { checkDensity, checkFilm, checkFit } from './fit'
 import { applyDevices } from './devices'
 import type { Fit } from './fit'
@@ -99,7 +100,7 @@ export default function App() {
       transition?: string; nodes: Node[]; tracks: unknown[] }[]; fit: Fit[] } | null>(null)
   /** a composed screen waiting on a decision, with its fit budget already run */
   const [screen, setScreen] = useState<
-    { note: string; nodes: Node[]; bg?: string; fit: Fit[] } | null>(null)
+    { note: string; nodes: Node[]; bg?: string; fit: Fit[]; checks?: Check[] } | null>(null)
   /** the group you have stepped inside; its members then select directly */
   const [inside, setInside] = useState<string | null>(null)
   /** bumped to ask the canvas to open its text field on the selection */
@@ -730,23 +731,59 @@ export default function App() {
           })),
         })
         if (!out.place.length) throw new Error('the model placed nothing it could build')
+
         // materialise through the library, so the geometry is the corpus's and
-        // not the model's, then run the budget on what will actually land
-        let stage = current.stage
-        const nodes: Node[] = []
-        for (const p of out.place) {
-          const def = blockByKey(p.block)
-          if (!def) continue
-          const made = def.make({ stage, accent, x: p.x, y: p.y }, p.opts ?? {})
-          nodes.push(...made)
-          // each block must see the ids the last one took
-          stage = { ...stage, scenes: stage.scenes.map(sc =>
-            sc.id === target ? { ...sc, nodes: [...sc.nodes, ...made] } : sc) }
+        // not the model's, then score what will actually land
+        const build = (place: typeof out.place) => {
+          let stage = current.stage
+          const nodes: Node[] = []
+          for (const p of place) {
+            const def = blockByKey(p.block)
+            if (!def) continue
+            const made = def.make({ stage, accent, x: p.x, y: p.y }, p.opts ?? {})
+            nodes.push(...made)
+            // each block must see the ids the last one took
+            stage = { ...stage, scenes: stage.scenes.map(sc =>
+              sc.id === target ? { ...sc, nodes: [...sc.nodes, ...made] } : sc) }
+          }
+          return nodes
         }
-        const density = checkDensity(nodes)
+
+        let best = { out, nodes: build(out.place) }
+        let checks = scoreScreen(best.nodes, current.stage.size)
+        // One correction, not a re-roll: the model is told which measured
+        // checks it failed and what the corpus does instead. A second pass
+        // only replaces the first if it actually scores better, so a retry
+        // can never make the screen worse than the one we already had.
+        if (failing(checks)) {
+          const notes = checks.filter(c => c.score < 0.6)
+            .map(c => `- ${c.key}: ${c.detail}`).join('\n')
+          try {
+            const again = await askScreen({
+              prompt, model, size: current.stage.size, accent,
+              blocks: BLOCKS.map(b => ({
+                key: b.key, name: b.name, blurb: b.blurb, slots: b.slots.map(s => s.key),
+              })),
+              feedback: notes,
+            })
+            if (again.place.length) {
+              const retry = build(again.place)
+              const rc = scoreScreen(retry, current.stage.size)
+              if (failing(rc) < failing(checks)) {
+                best = { out: again, nodes: retry }
+                checks = rc
+              }
+            }
+          } catch {
+            // a failed retry is not a failed compose; keep what we have
+          }
+        }
+
+        const density = checkDensity(best.nodes)
         setScreen({
-          note: out.note, nodes, bg: out.bg,
-          fit: [...checkFit(nodes, current.stage.size), ...(density ? [density] : [])],
+          note: best.out.note, nodes: best.nodes, bg: best.out.bg,
+          checks,
+          fit: [...checkFit(best.nodes, current.stage.size), ...(density ? [density] : [])],
         })
         return
       }

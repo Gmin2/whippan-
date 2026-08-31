@@ -217,6 +217,9 @@ export function createApp(
           size: body.size as [number, number],
           accent: typeof body.accent === 'string' ? body.accent : '#ff5c1a',
           blocks: blocks as { key: string; name: string; blurb: string; slots: string[] }[],
+          // the client scores its own materialised proposal and sends back
+          // what failed, so a retry is corrected rather than re-rolled
+          feedback: typeof body.feedback === 'string' ? body.feedback : undefined,
         }))
       }
       if (kind === 'image') {

@@ -59,6 +59,12 @@ export interface ScreenRequest {
   accent: string
   /** the block names and slots the client can actually materialise */
   blocks: { key: string; name: string; blurb: string; slots: string[] }[]
+  /**
+   * What was wrong with the last attempt, measured not guessed. The client
+   * materialises a proposal and scores it against the corpus before showing
+   * it, so a second pass is told exactly which checks it failed.
+   */
+  feedback?: string
 }
 
 export interface ScreenProposal {

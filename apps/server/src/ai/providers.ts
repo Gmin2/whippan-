@@ -249,7 +249,11 @@ export async function runScreen(req: ScreenRequest): Promise<ScreenProposal> {
       .map(b => `  ${b.key} - ${b.blurb}\n    opts: ${b.slots.join(', ')}`)
       .join('\n')}`,
     `What the director asked for: ${req.prompt}`,
-  ].join('\n\n')
+    // a second pass is told what was measured, not asked to guess again
+    req.feedback
+      ? `Your last attempt was measured against the corpus and failed these checks. Fix them:\n${req.feedback}`
+      : '',
+  ].filter(Boolean).join('\n\n')
 
   const parsed = await callTool(auth, model, SCREEN_CONTRACT, brief, screenTool(req), 2000)
   const known = new Set(req.blocks.map(b => b.key))

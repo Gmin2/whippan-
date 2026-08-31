@@ -13,7 +13,13 @@ interface Props {
   /** the motion proposal waiting on a decision, if there is one */
   proposal: MotionProposal | null
   /** a composed screen waiting on a decision, with its fit budget already run */
-  screen: { note: string; nodes: { id: string; type: string }[]; fit: Fit[] } | null
+  screen: {
+    note: string
+    nodes: { id: string; type: string }[]
+    fit: Fit[]
+    /** how the composed screen scored against the corpus, if it was scored */
+    checks?: { key: string; score: number; detail: string }[]
+  } | null
   onAcceptScreen(): void
   onDiscardScreen(): void
   onRun(prompt: string, model: string, extra: Record<string, unknown>): void
@@ -127,12 +133,30 @@ export default function AIBar({
                 ))}
               </div>
             )}
+            {/* what it measured against the corpus, worst first, so the
+                number you are judging is visible rather than implied */}
+            {screen.checks && screen.checks.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {[...screen.checks].sort((a, b) => a.score - b.score).map(c => (
+                  <span key={c.key} title={c.detail}
+                        className="rounded-[4px] px-1.5 py-0.5 font-mono text-[9px]"
+                        style={{
+                          background: c.score < 0.6 ? 'rgba(138,93,18,0.12)' : 'rgba(0,0,0,0.05)',
+                          color: c.score < 0.6 ? '#8a5d12' : 'rgba(0,0,0,0.45)',
+                        }}>
+                    {c.key} {c.score.toFixed(2)}
+                  </span>
+                ))}
+              </div>
+            )}
             <div className="mt-2.5 flex items-center gap-2">
               <p className="text-[10px] text-faint">
                 {screen.nodes.filter(n => n.type === 'group').length} blocks
-                {screen.fit.some(f => f.level === 'warn')
-                  ? ' · the budget flagged something'
-                  : ' · inside the fit budget'}
+                {screen.checks?.some(c => c.score < 0.6)
+                  ? ` · ${screen.checks.filter(c => c.score < 0.6).length} checks below the corpus`
+                  : screen.fit.some(f => f.level === 'warn')
+                    ? ' · the budget flagged something'
+                    : ' · inside the fit budget'}
               </p>
               <div className="ml-auto flex gap-1.5">
                 <button onClick={onDiscardScreen}
