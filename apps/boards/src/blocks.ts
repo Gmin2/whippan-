@@ -143,7 +143,27 @@ function onDark(paper?: string): boolean {
 const inkOn = (paper?: string) => (onDark(paper) ? '#fcfcfc' : INK)
 const dimOn = (paper?: string) => (onDark(paper) ? '#c9c9c9' : GREY)
 
-const labelFor = (role: Role) => (role === 'tint' ? INK : PAPER)
+/**
+ * Ink for a label sitting ON a filled shape.
+ *
+ * Chosen by the fill's LUMINANCE, not by the role name. Returning white for
+ * anything called "accent" put white type on a lime pill at about 1.4:1 — a
+ * light accent is exactly as common as a dark one, and the role name says
+ * nothing about which you have.
+ */
+const labelFor = (role: Role, accent: string) => {
+  const fill = role === 'accent' ? accent : role === 'ink' ? INK : TINT
+  const m = /^#([0-9a-f]{6})$/i.exec(fill)
+  if (!m) return PAPER
+  const n = parseInt(m[1], 16)
+  const lin = (c: number) => {
+    const x = c / 255
+    return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4
+  }
+  const L = 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255)
+  // the crossover where white and near-black give equal contrast
+  return L > 0.18 ? INK : PAPER
+}
 
 
 /**
@@ -236,7 +256,7 @@ export const BLOCKS: Block[] = [
         } as Node,
         {
           id: t, type: 'text', x: round(x), y: round(y), text,
-          color: labelFor(role), font: { family: 'inter', weight: WEIGHT.strong, size: fs },
+          color: labelFor(role, ctx.accent), font: { family: 'inter', weight: WEIGHT.strong, size: fs },
           group: g,
         },
       ]
@@ -347,7 +367,7 @@ export const BLOCKS: Block[] = [
         },
         {
           id: t, type: 'text', x: round(x), y: round(y), text: str(o, 'glyph', 'a'),
-          color: labelFor(role),
+          color: labelFor(role, ctx.accent),
           // the inner mark occupies the middle 40-50% of the tile
           font: { family: 'inter', weight: WEIGHT.strong, size: round(s * 0.45) }, group: g,
         },
@@ -439,7 +459,7 @@ export const BLOCKS: Block[] = [
         },
         {
           id: brand, type: 'text', x: round(x - w / 2 + fs * 4), y: round(y - h / 2 + barH / 2),
-          text: str(o, 'title', 'whippan'), color: labelFor(role),
+          text: str(o, 'title', 'whippan'), color: labelFor(role, ctx.accent),
           font: { family: 'inter', weight: WEIGHT.strong, size: fs }, group: g,
         },
       ]

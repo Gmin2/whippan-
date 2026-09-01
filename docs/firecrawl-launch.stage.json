@@ -9,7 +9,7 @@
    "id": "s1",
    "dur": 1.6,
    "bg": "#f9f9f9",
-   "note": "A near-still browser view opens on the problem: pages are built for people.",
+   "note": "Near-still opener on Firecrawl actively turning a live page into usable context.",
    "nodes": [
     {
      "id": "shot_s1",
@@ -32,17 +32,17 @@
      "id": "pill1",
      "type": "group",
      "x": 960,
-     "y": 920
+     "y": 900
     },
     {
      "id": "pill2",
      "type": "rect",
      "x": 960,
-     "y": 920,
-     "w": 421,
+     "y": 900,
+     "w": 338,
      "h": 47,
      "radius": 24,
-     "fill": "#161616",
+     "fill": "#fa5d19",
      "group": "pill1",
      "states": {
       "pressed": {
@@ -54,9 +54,9 @@
      "id": "pill3",
      "type": "text",
      "x": 960,
-     "y": 920,
-     "text": "Written for people. Not models.",
-     "color": "#ffffff",
+     "y": 900,
+     "text": "Extracting live web data",
+     "color": "#161616",
      "font": {
       "family": "inter",
       "weight": 600,
@@ -71,9 +71,9 @@
   },
   {
    "id": "s2",
-   "dur": 0.6,
+   "dur": 0.65,
    "bg": "#f9f9f9",
-   "note": "Search finds the right pages in a fast product beat.",
+   "note": "First burst beat: search the live web.",
    "nodes": [
     {
      "id": "shot_s2",
@@ -96,13 +96,13 @@
      "id": "pill4",
      "type": "group",
      "x": 960,
-     "y": 920
+     "y": 904
     },
     {
      "id": "pill5",
      "type": "rect",
      "x": 960,
-     "y": 920,
+     "y": 904,
      "w": 155,
      "h": 56,
      "radius": 28,
@@ -118,9 +118,9 @@
      "id": "pill6",
      "type": "text",
      "x": 960,
-     "y": 920,
+     "y": 904,
      "text": "Search",
-     "color": "#ffffff",
+     "color": "#161616",
      "font": {
       "family": "inter",
       "weight": 600,
@@ -130,14 +130,14 @@
     }
    ],
    "transition": {
-    "kind": "zoom"
+    "kind": "push"
    }
   },
   {
    "id": "s3",
-   "dur": 0.6,
+   "dur": 0.65,
    "bg": "#f9f9f9",
-   "note": "Scrape turns a page into clean content.",
+   "note": "Second burst beat: scrape a page cleanly.",
    "nodes": [
     {
      "id": "shot_s3",
@@ -160,13 +160,13 @@
      "id": "pill7",
      "type": "group",
      "x": 960,
-     "y": 920
+     "y": 904
     },
     {
      "id": "pill8",
      "type": "rect",
      "x": 960,
-     "y": 920,
+     "y": 904,
      "w": 155,
      "h": 56,
      "radius": 28,
@@ -182,9 +182,9 @@
      "id": "pill9",
      "type": "text",
      "x": 960,
-     "y": 920,
+     "y": 904,
      "text": "Scrape",
-     "color": "#ffffff",
+     "color": "#161616",
      "font": {
       "family": "inter",
       "weight": 600,
@@ -199,9 +199,9 @@
   },
   {
    "id": "s4",
-   "dur": 0.6,
+   "dur": 0.65,
    "bg": "#f9f9f9",
-   "note": "Map reveals the structure of a site.",
+   "note": "Third burst beat: map a site.",
    "nodes": [
     {
      "id": "shot_s4",
@@ -224,13 +224,13 @@
      "id": "pill10",
      "type": "group",
      "x": 960,
-     "y": 920
+     "y": 904
     },
     {
      "id": "pill11",
      "type": "rect",
      "x": 960,
-     "y": 920,
+     "y": 904,
      "w": 115,
      "h": 56,
      "radius": 28,
@@ -246,9 +246,9 @@
      "id": "pill12",
      "type": "text",
      "x": 960,
-     "y": 920,
+     "y": 904,
      "text": "Map",
-     "color": "#ffffff",
+     "color": "#161616",
      "font": {
       "family": "inter",
       "weight": 600,
@@ -263,9 +263,9 @@
   },
   {
    "id": "s5",
-   "dur": 0.7,
+   "dur": 0.65,
    "bg": "#f9f9f9",
-   "note": "Crawl gathers the useful web at scale.",
+   "note": "Fourth burst beat: crawl at scale.",
    "nodes": [
     {
      "id": "shot_s5",
@@ -288,13 +288,13 @@
      "id": "pill13",
      "type": "group",
      "x": 960,
-     "y": 920
+     "y": 904
     },
     {
      "id": "pill14",
      "type": "rect",
      "x": 960,
-     "y": 920,
+     "y": 904,
      "w": 142,
      "h": 56,
      "radius": 28,
@@ -310,9 +310,9 @@
      "id": "pill15",
      "type": "text",
      "x": 960,
-     "y": 920,
+     "y": 904,
      "text": "Crawl",
-     "color": "#ffffff",
+     "color": "#161616",
      "font": {
       "family": "inter",
       "weight": 600,
@@ -329,14 +329,14 @@
    "id": "s6",
    "dur": 2.8,
    "bg": "#f9f9f9",
-   "note": "The burst settles as one page becomes structured agent-ready context.",
+   "note": "The pace settles on the problem: pages are made for people, not models.",
    "nodes": [
     {
      "id": "shot_s6",
      "type": "image",
      "src": "/assets/firecrawl/output.png",
      "x": 960,
-     "y": 520,
+     "y": 540,
      "w": 1498,
      "h": 629,
      "radius": 14,
@@ -346,154 +346,20 @@
      "id": "surface21",
      "type": "group",
      "x": 960,
-     "y": 520
-    },
-    {
-     "id": "stack1",
-     "type": "group",
-     "x": 960,
-     "y": 915
-    },
-    {
-     "id": "stack2",
-     "type": "text",
-     "x": 960,
-     "y": 915,
-     "text": "url  \u00b7  markdown  \u00b7  json  \u00b7  screenshot",
-     "color": "#161616",
-     "font": {
-      "family": "inter",
-      "weight": 400,
-      "size": 26
-     },
-     "group": "stack1"
-    }
-   ],
-   "transition": {
-    "kind": "settle"
-   }
-  },
-  {
-   "id": "s7",
-   "dur": 2.5,
-   "bg": "#262626",
-   "note": "A dark turn frames Firecrawl as the infrastructure between agents and the web.",
-   "nodes": [
-    {
-     "id": "shot_s7",
-     "type": "image",
-     "src": "/assets/firecrawl/output.png",
-     "x": 960,
-     "y": 400,
-     "w": 1267,
-     "h": 532,
-     "radius": 14
-    },
-    {
-     "id": "titlesub1",
-     "type": "group",
-     "x": 960,
-     "y": 756
-    },
-    {
-     "id": "titlesub2",
-     "type": "text",
-     "x": 960,
-     "y": 715,
-     "text": "Find. Read. Act.",
-     "color": "#fcfcfc",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 62
-     },
-     "group": "titlesub1"
-    },
-    {
-     "id": "titlesub3",
-     "type": "text",
-     "x": 960,
-     "y": 797,
-     "text": "The infrastructure layer for the live web.",
-     "color": "#c9c9c9",
-     "font": {
-      "family": "inter",
-      "weight": 400,
-      "size": 31
-     },
-     "group": "titlesub1"
-    },
-    {
-     "id": "mark1",
-     "type": "group",
-     "x": 946,
-     "y": 859
-    },
-    {
-     "id": "mark2",
-     "type": "rect",
-     "x": 740,
-     "y": 859,
-     "w": 26,
-     "h": 26,
-     "radius": 13,
-     "fill": "#fa5d19",
-     "group": "mark1"
-    },
-    {
-     "id": "mark3",
-     "type": "text",
-     "x": 973,
-     "y": 859,
-     "text": "Agent-ready context at scale",
-     "color": "#fcfcfc",
-     "font": {
-      "family": "inter",
-      "weight": 500,
-      "size": 26
-     },
-     "group": "mark1"
-    }
-   ],
-   "transition": {
-    "kind": "dip"
-   }
-  },
-  {
-   "id": "s8",
-   "dur": 2.5,
-   "bg": "#f9f9f9",
-   "note": "The API appears in its own interface with its concrete promise.",
-   "nodes": [
-    {
-     "id": "shot_s8",
-     "type": "image",
-     "src": "/assets/firecrawl/output.png",
-     "x": 960,
-     "y": 520,
-     "w": 1498,
-     "h": 629,
-     "radius": 14,
-     "group": "surface25"
-    },
-    {
-     "id": "surface25",
-     "type": "group",
-     "x": 960,
-     "y": 520
+     "y": 540
     },
     {
      "id": "pill16",
      "type": "group",
      "x": 960,
-     "y": 915
+     "y": 900
     },
     {
      "id": "pill17",
      "type": "rect",
      "x": 960,
-     "y": 915,
-     "w": 873,
+     "y": 900,
+     "w": 281,
      "h": 47,
      "radius": 24,
      "fill": "#161616",
@@ -508,8 +374,8 @@
      "id": "pill18",
      "type": "text",
      "x": 960,
-     "y": 915,
-     "text": "The context API to search, scrape, and interact with the web at scale.",
+     "y": 900,
+     "text": "Not made for models",
      "color": "#ffffff",
      "font": {
       "family": "inter",
@@ -520,92 +386,113 @@
     }
    ],
    "transition": {
+    "kind": "settle"
+   }
+  },
+  {
+   "id": "s7",
+   "dur": 3,
+   "bg": "#f9f9f9",
+   "note": "Firecrawl appears as the layer that makes the web usable by agents.",
+   "nodes": [
+    {
+     "id": "shot_s7",
+     "type": "image",
+     "src": "/assets/firecrawl/output.png",
+     "x": 960,
+     "y": 540,
+     "w": 1498,
+     "h": 629,
+     "radius": 14,
+     "group": "surface25"
+    },
+    {
+     "id": "surface25",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "titlesub1",
+     "type": "group",
+     "x": 960,
+     "y": 918
+    },
+    {
+     "id": "titlesub2",
+     "type": "text",
+     "x": 960,
+     "y": 898,
+     "text": "Power AI agents with clean web data",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 700,
+      "size": 30
+     },
+     "group": "titlesub1"
+    },
+    {
+     "id": "titlesub3",
+     "type": "text",
+     "x": 960,
+     "y": 938,
+     "text": "Search, scrape, and interact with the web at scale.",
+     "color": "#8a8a8a",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 15
+     },
+     "group": "titlesub1"
+    }
+   ],
+   "transition": {
     "kind": "dissolve"
    }
   },
   {
-   "id": "s9",
-   "dur": 2.4,
+   "id": "s8",
+   "dur": 2.8,
    "bg": "#f9f9f9",
-   "note": "The scale proof lands in a sparse metrics beat.",
+   "note": "A clean result view shows the four useful forms returned for every page.",
    "nodes": [
     {
-     "id": "shot_s9",
+     "id": "shot_s8",
      "type": "image",
-     "src": "/assets/firecrawl/product.png",
+     "src": "/assets/firecrawl/output.png",
      "x": 960,
-     "y": 400,
-     "w": 1267,
-     "h": 532,
-     "radius": 14
+     "y": 540,
+     "w": 1498,
+     "h": 629,
+     "radius": 14,
+     "group": "surface29"
     },
     {
-     "id": "stat1",
+     "id": "surface29",
      "type": "group",
      "x": 960,
-     "y": 924
+     "y": 540
     },
     {
-     "id": "stat2",
-     "type": "text",
+     "id": "stack1",
+     "type": "group",
      "x": 960,
-     "y": 880,
-     "text": "TRUSTED BY",
-     "color": "#8a8a8a",
-     "font": {
-      "family": "inter",
-      "weight": 400,
-      "size": 44
-     },
-     "group": "stat1"
+     "y": 895
     },
     {
-     "id": "stat3",
+     "id": "stack2",
      "type": "text",
      "x": 960,
-     "y": 968,
-     "text": "150,000+ companies",
+     "y": 895,
+     "text": "url  \u00b7  markdown  \u00b7  json  \u00b7  screenshot",
      "color": "#161616",
      "font": {
       "family": "inter",
-      "weight": 700,
-      "size": 85
-     },
-     "group": "stat1"
-    },
-    {
-     "id": "stat4",
-     "type": "group",
-     "x": 960,
-     "y": 724
-    },
-    {
-     "id": "stat5",
-     "type": "text",
-     "x": 960,
-     "y": 680,
-     "text": "GITHUB",
-     "color": "#8a8a8a",
-     "font": {
-      "family": "inter",
       "weight": 400,
-      "size": 44
+      "size": 26
      },
-     "group": "stat4"
-    },
-    {
-     "id": "stat6",
-     "type": "text",
-     "x": 960,
-     "y": 768,
-     "text": "175.2K stars",
-     "color": "#161616",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 85
-     },
-     "group": "stat4"
+     "group": "stack1"
     }
    ],
    "transition": {
@@ -613,155 +500,42 @@
    }
   },
   {
-   "id": "s10",
-   "dur": 2.2,
+   "id": "s9",
+   "dur": 2.6,
    "bg": "#f9f9f9",
-   "note": "Open source is stated plainly as a product advantage.",
+   "note": "The product operates across the live web at scale.",
    "nodes": [
     {
-     "id": "shot_s10",
+     "id": "shot_s9",
      "type": "image",
      "src": "/assets/firecrawl/product.png",
      "x": 960,
-     "y": 400,
-     "w": 1267,
-     "h": 532,
-     "radius": 14
+     "y": 540,
+     "w": 1498,
+     "h": 629,
+     "radius": 14,
+     "group": "surface33"
     },
     {
-     "id": "tile1",
+     "id": "surface33",
      "type": "group",
      "x": 960,
-     "y": 715
-    },
-    {
-     "id": "tile2",
-     "type": "rect",
-     "x": 960,
-     "y": 715,
-     "w": 44,
-     "h": 44,
-     "radius": 11,
-     "fill": "#fa5d19",
-     "group": "tile1"
-    },
-    {
-     "id": "tile3",
-     "type": "text",
-     "x": 960,
-     "y": 715,
-     "text": "</>",
-     "color": "#ffffff",
-     "font": {
-      "family": "inter",
-      "weight": 600,
-      "size": 20
-     },
-     "group": "tile1"
-    },
-    {
-     "id": "titlesub4",
-     "type": "group",
-     "x": 960,
-     "y": 829
-    },
-    {
-     "id": "titlesub5",
-     "type": "text",
-     "x": 960,
-     "y": 795,
-     "text": "Open source.",
-     "color": "#161616",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 52
-     },
-     "group": "titlesub4"
-    },
-    {
-     "id": "titlesub6",
-     "type": "text",
-     "x": 960,
-     "y": 864,
-     "text": "Build on it. Inspect it. Ship it.",
-     "color": "#8a8a8a",
-     "font": {
-      "family": "inter",
-      "weight": 400,
-      "size": 26
-     },
-     "group": "titlesub4"
-    }
-   ],
-   "transition": {
-    "kind": "settle"
-   }
-  },
-  {
-   "id": "s11",
-   "dur": 2.7,
-   "bg": "#f9f9f9",
-   "note": "The core headline holds as the final product promise before the sign-off.",
-   "nodes": [
-    {
-     "id": "shot_s11",
-     "type": "image",
-     "src": "/assets/firecrawl/home.png",
-     "x": 960,
-     "y": 400,
-     "w": 1267,
-     "h": 532,
-     "radius": 14
-    },
-    {
-     "id": "titlesub7",
-     "type": "group",
-     "x": 960,
-     "y": 756
-    },
-    {
-     "id": "titlesub8",
-     "type": "text",
-     "x": 960,
-     "y": 715,
-     "text": "Power AI agents with clean web data",
-     "color": "#161616",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 62
-     },
-     "group": "titlesub7"
-    },
-    {
-     "id": "titlesub9",
-     "type": "text",
-     "x": 960,
-     "y": 797,
-     "text": "Turn any page into something an agent can actually use.",
-     "color": "#8a8a8a",
-     "font": {
-      "family": "inter",
-      "weight": 400,
-      "size": 31
-     },
-     "group": "titlesub7"
+     "y": 540
     },
     {
      "id": "pill19",
      "type": "group",
      "x": 960,
-     "y": 869
+     "y": 900
     },
     {
      "id": "pill20",
      "type": "rect",
      "x": 960,
-     "y": 869,
-     "w": 264,
-     "h": 56,
-     "radius": 28,
+     "y": 900,
+     "w": 315,
+     "h": 47,
+     "radius": 24,
      "fill": "#fa5d19",
      "group": "pill19",
      "states": {
@@ -774,13 +548,13 @@
      "id": "pill21",
      "type": "text",
      "x": 960,
-     "y": 869,
-     "text": "Start for free",
-     "color": "#ffffff",
+     "y": 900,
+     "text": "Clean context at scale",
+     "color": "#161616",
      "font": {
       "family": "inter",
       "weight": 600,
-      "size": 26
+      "size": 22
      },
      "group": "pill19"
     }
@@ -790,90 +564,138 @@
    }
   },
   {
-   "id": "s12",
-   "dur": 3.2,
-   "bg": "#262626",
-   "note": "A standard Firecrawl end card closes with the URL and CTA.",
+   "id": "s10",
+   "dur": 2.5,
+   "bg": "#f9f9f9",
+   "note": "A dashboard beat grounds adoption in a concrete company count.",
    "nodes": [
     {
-     "id": "tile4",
+     "id": "shot_s10",
+     "type": "image",
+     "src": "/assets/firecrawl/product.png",
+     "x": 960,
+     "y": 540,
+     "w": 1498,
+     "h": 629,
+     "radius": 14,
+     "group": "surface37"
+    },
+    {
+     "id": "surface37",
      "type": "group",
      "x": 960,
-     "y": 330
+     "y": 540
     },
     {
-     "id": "tile5",
-     "type": "rect",
-     "x": 960,
-     "y": 330,
-     "w": 62,
-     "h": 62,
-     "radius": 16,
-     "fill": "#fa5d19",
-     "group": "tile4"
-    },
-    {
-     "id": "tile6",
-     "type": "text",
-     "x": 960,
-     "y": 330,
-     "text": "F",
-     "color": "#ffffff",
-     "font": {
-      "family": "inter",
-      "weight": 600,
-      "size": 28
-     },
-     "group": "tile4"
-    },
-    {
-     "id": "titlesub10",
+     "id": "stat1",
      "type": "group",
      "x": 960,
-     "y": 616
+     "y": 921
     },
     {
-     "id": "titlesub11",
+     "id": "stat2",
      "type": "text",
      "x": 960,
-     "y": 560,
-     "text": "Firecrawl",
-     "color": "#fcfcfc",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 84
-     },
-     "group": "titlesub10"
-    },
-    {
-     "id": "titlesub12",
-     "type": "text",
-     "x": 960,
-     "y": 672,
-     "text": "firecrawl.dev",
-     "color": "#c9c9c9",
+     "y": 895,
+     "text": "TRUSTED BY",
+     "color": "#8a8a8a",
      "font": {
       "family": "inter",
       "weight": 400,
-      "size": 42
+      "size": 26
      },
-     "group": "titlesub10"
+     "group": "stat1"
+    },
+    {
+     "id": "stat3",
+     "type": "text",
+     "x": 960,
+     "y": 947,
+     "text": "150,000+ companies",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 700,
+      "size": 50
+     },
+     "group": "stat1"
+    }
+   ],
+   "transition": {
+    "kind": "settle"
+   }
+  },
+  {
+   "id": "s11",
+   "dur": 2.6,
+   "bg": "#f9f9f9",
+   "note": "The GitHub view lands the open-source proof point.",
+   "nodes": [
+    {
+     "id": "shot_s11",
+     "type": "image",
+     "src": "/assets/firecrawl/home.png",
+     "x": 960,
+     "y": 540,
+     "w": 1498,
+     "h": 629,
+     "radius": 14,
+     "group": "surface41"
+    },
+    {
+     "id": "surface41",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "stat4",
+     "type": "group",
+     "x": 960,
+     "y": 929
+    },
+    {
+     "id": "stat5",
+     "type": "text",
+     "x": 960,
+     "y": 903,
+     "text": "OPEN SOURCE",
+     "color": "#8a8a8a",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 26
+     },
+     "group": "stat4"
+    },
+    {
+     "id": "stat6",
+     "type": "text",
+     "x": 960,
+     "y": 955,
+     "text": "175.2K stars on GitHub",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 700,
+      "size": 50
+     },
+     "group": "stat4"
     },
     {
      "id": "pill22",
      "type": "group",
      "x": 960,
-     "y": 790
+     "y": 1034
     },
     {
      "id": "pill23",
      "type": "rect",
      "x": 960,
-     "y": 790,
-     "w": 264,
-     "h": 56,
-     "radius": 28,
+     "y": 1034,
+     "w": 234,
+     "h": 43,
+     "radius": 22,
      "fill": "#fa5d19",
      "group": "pill22",
      "states": {
@@ -886,19 +708,131 @@
      "id": "pill24",
      "type": "text",
      "x": 960,
-     "y": 790,
-     "text": "Start for free",
-     "color": "#ffffff",
+     "y": 1034,
+     "text": "Built in the open",
+     "color": "#161616",
      "font": {
       "family": "inter",
       "weight": 600,
-      "size": 26
+      "size": 20
      },
      "group": "pill22"
     }
    ],
    "transition": {
-    "kind": "dip"
+    "kind": "dissolve"
+   }
+  },
+  {
+   "id": "s12",
+   "dur": 3.2,
+   "bg": "#f9f9f9",
+   "note": "Standard end card with wordmark, destination, and free-start CTA.",
+   "nodes": [
+    {
+     "id": "tile1",
+     "type": "group",
+     "x": 960,
+     "y": 330
+    },
+    {
+     "id": "tile2",
+     "type": "rect",
+     "x": 960,
+     "y": 330,
+     "w": 44,
+     "h": 44,
+     "radius": 11,
+     "fill": "#fa5d19",
+     "group": "tile1"
+    },
+    {
+     "id": "tile3",
+     "type": "text",
+     "x": 960,
+     "y": 330,
+     "text": "F",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 600,
+      "size": 20
+     },
+     "group": "tile1"
+    },
+    {
+     "id": "titlesub4",
+     "type": "group",
+     "x": 960,
+     "y": 595
+    },
+    {
+     "id": "titlesub5",
+     "type": "text",
+     "x": 960,
+     "y": 560,
+     "text": "Firecrawl",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 700,
+      "size": 52
+     },
+     "group": "titlesub4"
+    },
+    {
+     "id": "titlesub6",
+     "type": "text",
+     "x": 960,
+     "y": 629,
+     "text": "firecrawl.dev",
+     "color": "#8a8a8a",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 26
+     },
+     "group": "titlesub4"
+    },
+    {
+     "id": "pill25",
+     "type": "group",
+     "x": 960,
+     "y": 790
+    },
+    {
+     "id": "pill26",
+     "type": "rect",
+     "x": 960,
+     "y": 790,
+     "w": 264,
+     "h": 56,
+     "radius": 28,
+     "fill": "#fa5d19",
+     "group": "pill25",
+     "states": {
+      "pressed": {
+       "scale": 0.92
+      }
+     }
+    },
+    {
+     "id": "pill27",
+     "type": "text",
+     "x": 960,
+     "y": 790,
+     "text": "Start for free",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 600,
+      "size": 26
+     },
+     "group": "pill25"
+    }
+   ],
+   "transition": {
+    "kind": "settle"
    }
   }
  ]

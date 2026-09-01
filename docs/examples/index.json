@@ -454,5 +454,17 @@
   "group": "films",
   "stage": "/docs/firecrawl-launch.stage.json",
   "anim": "/docs/firecrawl-launch.anim.json"
+ },
+ {
+  "slug": "voice-launch",
+  "title": "Voice agent \u2014 launch",
+  "dur": 24.0,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "films",
+  "stage": "/docs/voice-launch.stage.json",
+  "anim": "/docs/voice-launch.anim.json"
  }
 ]

@@ -7,9 +7,9 @@
  "scenes": [
   {
    "id": "s1",
-   "dur": 2,
+   "dur": 2.1,
    "bg": "#eef1fb",
-   "note": "Inside Solder, an unfinished hardware brief exposes the old bottleneck.",
+   "note": "The real prompt is entered into Solder.",
    "nodes": [
     {
      "id": "shot_s1",
@@ -39,10 +39,10 @@
      "type": "rect",
      "x": 960,
      "y": 900,
-     "w": 410,
+     "w": 269,
      "h": 47,
      "radius": 24,
-     "fill": "#161616",
+     "fill": "#ddfb5c",
      "group": "pill1",
      "states": {
       "pressed": {
@@ -55,8 +55,8 @@
      "type": "text",
      "x": 960,
      "y": 900,
-     "text": "One idea. Too many datasheets.",
-     "color": "#ffffff",
+     "text": "Generate prototype",
+     "color": "#161616",
      "font": {
       "family": "inter",
       "weight": 600,
@@ -71,9 +71,9 @@
   },
   {
    "id": "s2",
-   "dur": 2.8,
+   "dur": 1.7,
    "bg": "#eef1fb",
-   "note": "The complete desk weather station prompt is entered into Solder.",
+   "note": "Solder begins composing from the catalog.",
    "nodes": [
     {
      "id": "shot_s2",
@@ -93,88 +93,38 @@
      "y": 540
     },
     {
-     "id": "stack1",
+     "id": "titlesub1",
      "type": "group",
      "x": 960,
-     "y": 945
+     "y": 923
     },
     {
-     "id": "stack2",
+     "id": "titlesub2",
      "type": "text",
      "x": 960,
-     "y": 898,
-     "text": "a desk weather station with an esp32,",
+     "y": 900,
+     "text": "Picks real parts.",
      "color": "#161616",
      "font": {
       "family": "inter",
-      "weight": 400,
-      "size": 30
+      "weight": 700,
+      "size": 34
      },
-     "group": "stack1"
+     "group": "titlesub1"
     },
     {
-     "id": "stack3",
+     "id": "titlesub3",
      "type": "text",
      "x": 960,
      "y": 945,
-     "text": "a temperature and humidity sensor,",
-     "color": "#161616",
+     "text": "Then wires them into a netlist.",
+     "color": "#8a8a8a",
      "font": {
       "family": "inter",
       "weight": 400,
-      "size": 30
+      "size": 17
      },
-     "group": "stack1"
-    },
-    {
-     "id": "stack4",
-     "type": "text",
-     "x": 960,
-     "y": 992,
-     "text": "and an oled display, powered by a battery",
-     "color": "#161616",
-     "font": {
-      "family": "inter",
-      "weight": 400,
-      "size": 30
-     },
-     "group": "stack1"
-    },
-    {
-     "id": "pill4",
-     "type": "group",
-     "x": 960,
-     "y": 1059
-    },
-    {
-     "id": "pill5",
-     "type": "rect",
-     "x": 960,
-     "y": 1059,
-     "w": 223,
-     "h": 47,
-     "radius": 24,
-     "fill": "#ddfb5c",
-     "group": "pill4",
-     "states": {
-      "pressed": {
-       "scale": 0.92
-      }
-     }
-    },
-    {
-     "id": "pill6",
-     "type": "text",
-     "x": 960,
-     "y": 1059,
-     "text": "Generate build",
-     "color": "#ffffff",
-     "font": {
-      "family": "inter",
-      "weight": 600,
-      "size": 22
-     },
-     "group": "pill4"
+     "group": "titlesub1"
     }
    ],
    "transition": {
@@ -183,505 +133,14 @@
   },
   {
    "id": "s3",
-   "dur": 1.3,
-   "bg": "#0a0a0a",
-   "note": "The sentence enters Solder's three-stage hardware pipeline.",
+   "dur": 1.8,
+   "bg": "#eef1fb",
+   "note": "Datasheet-grounded part selection fills the design.",
    "nodes": [
     {
      "id": "shot_s3",
      "type": "image",
      "src": "/assets/solder26/typed.png",
-     "x": 960,
-     "y": 400,
-     "w": 1267,
-     "h": 532,
-     "radius": 14
-    },
-    {
-     "id": "swap1",
-     "type": "group",
-     "x": 960,
-     "y": 751
-    },
-    {
-     "id": "swap2",
-     "type": "text",
-     "x": 960,
-     "y": 751,
-     "text": "CATALOG 01 COMPOSE",
-     "color": "#fcfcfc",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 40
-     },
-     "group": "swap1"
-    },
-    {
-     "id": "swap3",
-     "type": "text",
-     "x": 960,
-     "y": 751,
-     "text": "VALIDATOR 02 CHECK",
-     "color": "#fcfcfc",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 40
-     },
-     "keys": {
-      "opacity": [
-       {
-        "t": 0,
-        "v": 0
-       }
-      ]
-     },
-     "group": "swap1"
-    },
-    {
-     "id": "swap4",
-     "type": "text",
-     "x": 960,
-     "y": 751,
-     "text": "BLUEPRINT 03 BUILD",
-     "color": "#fcfcfc",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 40
-     },
-     "keys": {
-      "opacity": [
-       {
-        "t": 0,
-        "v": 0
-       }
-      ]
-     },
-     "group": "swap1"
-    },
-    {
-     "id": "pill7",
-     "type": "group",
-     "x": 960,
-     "y": 680
-    },
-    {
-     "id": "pill8",
-     "type": "rect",
-     "x": 960,
-     "y": 680,
-     "w": 245,
-     "h": 43,
-     "radius": 22,
-     "fill": "#ddfb5c",
-     "group": "pill7",
-     "states": {
-      "pressed": {
-       "scale": 0.92
-      }
-     }
-    },
-    {
-     "id": "pill9",
-     "type": "text",
-     "x": 960,
-     "y": 680,
-     "text": "Prompt \u2192 prototype",
-     "color": "#ffffff",
-     "font": {
-      "family": "inter",
-      "weight": 600,
-      "size": 20
-     },
-     "group": "pill7"
-    }
-   ],
-   "transition": {
-    "kind": "dip"
-   }
-  },
-  {
-   "id": "s4",
-   "dur": 2.4,
-   "bg": "#eef1fb",
-   "note": "Compose chooses catalog parts and turns them into a grounded netlist.",
-   "nodes": [
-    {
-     "id": "shot_s4",
-     "type": "image",
-     "src": "/assets/solder26/wiring.png",
-     "x": 960,
-     "y": 400,
-     "w": 1267,
-     "h": 532,
-     "radius": 14
-    },
-    {
-     "id": "pill10",
-     "type": "group",
-     "x": 960,
-     "y": 715
-    },
-    {
-     "id": "pill11",
-     "type": "rect",
-     "x": 960,
-     "y": 715,
-     "w": 282,
-     "h": 43,
-     "radius": 22,
-     "fill": "#ddfb5c",
-     "group": "pill10",
-     "states": {
-      "pressed": {
-       "scale": 0.92
-      }
-     }
-    },
-    {
-     "id": "pill12",
-     "type": "text",
-     "x": 960,
-     "y": 715,
-     "text": "CATALOG 01 COMPOSE",
-     "color": "#ffffff",
-     "font": {
-      "family": "inter",
-      "weight": 600,
-      "size": 20
-     },
-     "group": "pill10"
-    },
-    {
-     "id": "titlesub1",
-     "type": "group",
-     "x": 960,
-     "y": 905
-    },
-    {
-     "id": "titlesub2",
-     "type": "text",
-     "x": 960,
-     "y": 885,
-     "text": "Real parts. Real pins.",
-     "color": "#161616",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 30
-     },
-     "group": "titlesub1"
-    },
-    {
-     "id": "titlesub3",
-     "type": "text",
-     "x": 960,
-     "y": 925,
-     "text": "picks real parts, then wires them into a netlist.",
-     "color": "#8a8a8a",
-     "font": {
-      "family": "inter",
-      "weight": 400,
-      "size": 15
-     },
-     "group": "titlesub1"
-    }
-   ],
-   "transition": {
-    "kind": "rise"
-   }
-  },
-  {
-   "id": "s5",
-   "dur": 2.5,
-   "bg": "#eef1fb",
-   "note": "The validator walks every connection against physical limits.",
-   "nodes": [
-    {
-     "id": "shot_s5",
-     "type": "image",
-     "src": "/assets/solder26/wiring.png",
-     "x": 960,
-     "y": 400,
-     "w": 1267,
-     "h": 532,
-     "radius": 14
-    },
-    {
-     "id": "pill13",
-     "type": "group",
-     "x": 960,
-     "y": 715
-    },
-    {
-     "id": "pill14",
-     "type": "rect",
-     "x": 960,
-     "y": 715,
-     "w": 282,
-     "h": 43,
-     "radius": 22,
-     "fill": "#ddfb5c",
-     "group": "pill13",
-     "states": {
-      "pressed": {
-       "scale": 0.92
-      }
-     }
-    },
-    {
-     "id": "pill15",
-     "type": "text",
-     "x": 960,
-     "y": 715,
-     "text": "VALIDATOR 02 CHECK",
-     "color": "#ffffff",
-     "font": {
-      "family": "inter",
-      "weight": 600,
-      "size": 20
-     },
-     "group": "pill13"
-    },
-    {
-     "id": "titlesub4",
-     "type": "group",
-     "x": 960,
-     "y": 903
-    },
-    {
-     "id": "titlesub5",
-     "type": "text",
-     "x": 960,
-     "y": 885,
-     "text": "Every net, checked against physics.",
-     "color": "#161616",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 26
-     },
-     "group": "titlesub4"
-    },
-    {
-     "id": "titlesub6",
-     "type": "text",
-     "x": 960,
-     "y": 920,
-     "text": "Pin counts, logic levels and current draw come from the datasheet, never invented.",
-     "color": "#8a8a8a",
-     "font": {
-      "family": "inter",
-      "weight": 400,
-      "size": 13
-     },
-     "group": "titlesub4"
-    }
-   ],
-   "transition": {
-    "kind": "dissolve"
-   }
-  },
-  {
-   "id": "s6",
-   "dur": 1.4,
-   "bg": "#0a0a0a",
-   "note": "A dangerous voltage mismatch fails fast and is repaired.",
-   "nodes": [
-    {
-     "id": "shot_s6",
-     "type": "image",
-     "src": "/assets/solder26/diagram.png",
-     "x": 960,
-     "y": 400,
-     "w": 1267,
-     "h": 532,
-     "radius": 14
-    },
-    {
-     "id": "stat1",
-     "type": "group",
-     "x": 960,
-     "y": 795
-    },
-    {
-     "id": "stat2",
-     "type": "text",
-     "x": 960,
-     "y": 751,
-     "text": "5V RAIL \u2192 3V3 TOLERANT PIN",
-     "color": "#c9c9c9",
-     "font": {
-      "family": "inter",
-      "weight": 400,
-      "size": 44
-     },
-     "group": "stat1"
-    },
-    {
-     "id": "stat3",
-     "type": "text",
-     "x": 960,
-     "y": 839,
-     "text": "FAIL",
-     "color": "#fcfcfc",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 85
-     },
-     "group": "stat1"
-    },
-    {
-     "id": "swap5",
-     "type": "group",
-     "x": 960,
-     "y": 680
-    },
-    {
-     "id": "swap6",
-     "type": "text",
-     "x": 960,
-     "y": 680,
-     "text": "goes back to the model",
-     "color": "#fcfcfc",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 26
-     },
-     "group": "swap5"
-    },
-    {
-     "id": "swap7",
-     "type": "text",
-     "x": 960,
-     "y": 680,
-     "text": "comes out repaired",
-     "color": "#fcfcfc",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 26
-     },
-     "keys": {
-      "opacity": [
-       {
-        "t": 0,
-        "v": 0
-       }
-      ]
-     },
-     "group": "swap5"
-    }
-   ],
-   "transition": {
-    "kind": "zoom"
-   }
-  },
-  {
-   "id": "s7",
-   "dur": 2.4,
-   "bg": "#eef1fb",
-   "note": "Blueprint organizes the approved design into a build sequence.",
-   "nodes": [
-    {
-     "id": "shot_s7",
-     "type": "image",
-     "src": "/assets/solder26/diagram.png",
-     "x": 960,
-     "y": 400,
-     "w": 1267,
-     "h": 532,
-     "radius": 14
-    },
-    {
-     "id": "pill16",
-     "type": "group",
-     "x": 960,
-     "y": 715
-    },
-    {
-     "id": "pill17",
-     "type": "rect",
-     "x": 960,
-     "y": 715,
-     "w": 282,
-     "h": 43,
-     "radius": 22,
-     "fill": "#ddfb5c",
-     "group": "pill16",
-     "states": {
-      "pressed": {
-       "scale": 0.92
-      }
-     }
-    },
-    {
-     "id": "pill18",
-     "type": "text",
-     "x": 960,
-     "y": 715,
-     "text": "BLUEPRINT 03 BUILD",
-     "color": "#ffffff",
-     "font": {
-      "family": "inter",
-      "weight": 600,
-      "size": 20
-     },
-     "group": "pill16"
-    },
-    {
-     "id": "titlesub7",
-     "type": "group",
-     "x": 960,
-     "y": 903
-    },
-    {
-     "id": "titlesub8",
-     "type": "text",
-     "x": 960,
-     "y": 885,
-     "text": "Ready for the bench.",
-     "color": "#161616",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 26
-     },
-     "group": "titlesub7"
-    },
-    {
-     "id": "titlesub9",
-     "type": "text",
-     "x": 960,
-     "y": 920,
-     "text": "the wiring, the parts list with prices, and the build laid out step by step.",
-     "color": "#8a8a8a",
-     "font": {
-      "family": "inter",
-      "weight": 400,
-      "size": 13
-     },
-     "group": "titlesub7"
-    }
-   ],
-   "transition": {
-    "kind": "settle"
-   }
-  },
-  {
-   "id": "s8",
-   "dur": 2.7,
-   "bg": "#eef1fb",
-   "note": "The generated project opens with concrete parts, nets, diagram, and steps.",
-   "nodes": [
-    {
-     "id": "shot_s8",
-     "type": "image",
-     "src": "/assets/solder26/parts.png",
      "x": 960,
      "y": 540,
      "w": 1498,
@@ -696,106 +155,38 @@
      "y": 540
     },
     {
-     "id": "stat4",
+     "id": "stack1",
      "type": "group",
-     "x": 640,
-     "y": 921
+     "x": 960,
+     "y": 923
     },
     {
-     "id": "stat5",
+     "id": "stack2",
      "type": "text",
-     "x": 640,
-     "y": 895,
-     "text": "CATALOG",
-     "color": "#8a8a8a",
+     "x": 960,
+     "y": 903,
+     "text": "Pin counts. Logic levels. Current draw.",
+     "color": "#161616",
      "font": {
       "family": "inter",
       "weight": 400,
       "size": 26
      },
-     "group": "stat4"
+     "group": "stack1"
     },
     {
-     "id": "stat6",
+     "id": "stack3",
      "type": "text",
-     "x": 640,
-     "y": 947,
-     "text": "7 parts",
+     "x": 960,
+     "y": 943,
+     "text": "From the datasheet, never invented.",
      "color": "#161616",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 50
-     },
-     "group": "stat4"
-    },
-    {
-     "id": "stat7",
-     "type": "group",
-     "x": 960,
-     "y": 1048
-    },
-    {
-     "id": "stat8",
-     "type": "text",
-     "x": 960,
-     "y": 1022,
-     "text": "NETLIST",
-     "color": "#8a8a8a",
      "font": {
       "family": "inter",
       "weight": 400,
       "size": 26
      },
-     "group": "stat7"
-    },
-    {
-     "id": "stat9",
-     "type": "text",
-     "x": 960,
-     "y": 1074,
-     "text": "8 nets",
-     "color": "#161616",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 50
-     },
-     "group": "stat7"
-    },
-    {
-     "id": "stat10",
-     "type": "group",
-     "x": 1280,
-     "y": 1175
-    },
-    {
-     "id": "stat11",
-     "type": "text",
-     "x": 1280,
-     "y": 1149,
-     "text": "BLUEPRINT",
-     "color": "#8a8a8a",
-     "font": {
-      "family": "inter",
-      "weight": 400,
-      "size": 26
-     },
-     "group": "stat10"
-    },
-    {
-     "id": "stat12",
-     "type": "text",
-     "x": 1280,
-     "y": 1201,
-     "text": "diagram + steps",
-     "color": "#161616",
-     "font": {
-      "family": "inter",
-      "weight": 700,
-      "size": 50
-     },
-     "group": "stat10"
+     "group": "stack1"
     }
    ],
    "transition": {
@@ -803,71 +194,168 @@
    }
   },
   {
-   "id": "s9",
-   "dur": 2.3,
+   "id": "s4",
+   "dur": 1.8,
    "bg": "#eef1fb",
-   "note": "The full promise lands after the finished build is visible.",
+   "note": "The generated netlist connects the selected parts.",
    "nodes": [
     {
-     "id": "shot_s9",
+     "id": "shot_s4",
      "type": "image",
-     "src": "/assets/solder26/steps.png",
+     "src": "/assets/solder26/wiring.png",
      "x": 960,
-     "y": 400,
-     "w": 1267,
-     "h": 532,
-     "radius": 14
+     "y": 540,
+     "w": 1498,
+     "h": 629,
+     "radius": 14,
+     "group": "surface13"
     },
     {
-     "id": "titlesub10",
+     "id": "surface13",
      "type": "group",
      "x": 960,
-     "y": 820
+     "y": 540
     },
     {
-     "id": "titlesub11",
+     "id": "titlesub4",
+     "type": "group",
+     "x": 960,
+     "y": 932
+    },
+    {
+     "id": "titlesub5",
      "type": "text",
      "x": 960,
-     "y": 779,
-     "text": "Prompt to prototype.",
+     "y": 905,
+     "text": "8 nets",
      "color": "#161616",
      "font": {
       "family": "inter",
       "weight": 700,
-      "size": 62
+      "size": 40
      },
-     "group": "titlesub10"
+     "group": "titlesub4"
     },
     {
-     "id": "titlesub12",
+     "id": "titlesub6",
      "type": "text",
      "x": 960,
-     "y": 861,
-     "text": "In about a minute.",
+     "y": 958,
+     "text": "Every connection accounted for.",
      "color": "#8a8a8a",
      "font": {
       "family": "inter",
       "weight": 400,
-      "size": 31
+      "size": 20
      },
-     "group": "titlesub10"
+     "group": "titlesub4"
+    }
+   ],
+   "transition": {
+    "kind": "push"
+   }
+  },
+  {
+   "id": "s5",
+   "dur": 1.7,
+   "bg": "#eef1fb",
+   "note": "The validator walks every net against physics.",
+   "nodes": [
+    {
+     "id": "shot_s5",
+     "type": "image",
+     "src": "/assets/solder26/wiring.png",
+     "x": 960,
+     "y": 540,
+     "w": 1498,
+     "h": 629,
+     "radius": 14,
+     "group": "surface17"
     },
     {
-     "id": "pill19",
+     "id": "surface17",
      "type": "group",
      "x": 960,
-     "y": 690
+     "y": 540
     },
     {
-     "id": "pill20",
+     "id": "titlesub7",
+     "type": "group",
+     "x": 960,
+     "y": 923
+    },
+    {
+     "id": "titlesub8",
+     "type": "text",
+     "x": 960,
+     "y": 900,
+     "text": "Every net, checked.",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 700,
+      "size": 34
+     },
+     "group": "titlesub7"
+    },
+    {
+     "id": "titlesub9",
+     "type": "text",
+     "x": 960,
+     "y": 945,
+     "text": "Against physics before you see it.",
+     "color": "#8a8a8a",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 17
+     },
+     "group": "titlesub7"
+    }
+   ],
+   "transition": {
+    "kind": "settle"
+   }
+  },
+  {
+   "id": "s6",
+   "dur": 1.8,
+   "bg": "#eef1fb",
+   "note": "An unsafe voltage mismatch is caught in the interface.",
+   "nodes": [
+    {
+     "id": "shot_s6",
+     "type": "image",
+     "src": "/assets/solder26/wiring.png",
+     "x": 960,
+     "y": 540,
+     "w": 1498,
+     "h": 629,
+     "radius": 14,
+     "group": "surface21"
+    },
+    {
+     "id": "surface21",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "pill4",
+     "type": "group",
+     "x": 960,
+     "y": 905
+    },
+    {
+     "id": "pill5",
      "type": "rect",
      "x": 960,
-     "y": 690,
-     "w": 315,
-     "h": 47,
-     "radius": 24,
+     "y": 905,
+     "w": 137,
+     "h": 56,
+     "radius": 28,
      "fill": "#ddfb5c",
-     "group": "pill19",
+     "group": "pill4",
      "states": {
       "pressed": {
        "scale": 0.92
@@ -875,18 +363,268 @@
      }
     },
     {
-     "id": "pill21",
+     "id": "pill6",
      "type": "text",
      "x": 960,
-     "y": 690,
-     "text": "A build you can follow",
-     "color": "#ffffff",
+     "y": 905,
+     "text": "FAIL",
+     "color": "#161616",
      "font": {
       "family": "inter",
       "weight": 600,
+      "size": 26
+     },
+     "group": "pill4"
+    },
+    {
+     "id": "mark1",
+     "type": "group",
+     "x": 948,
+     "y": 970
+    },
+    {
+     "id": "mark2",
+     "type": "rect",
+     "x": 809,
+     "y": 970,
+     "w": 22,
+     "h": 22,
+     "radius": 11,
+     "fill": "#161616",
+     "group": "mark1"
+    },
+    {
+     "id": "mark3",
+     "type": "text",
+     "x": 971,
+     "y": 970,
+     "text": "Sent back to the model",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 500,
       "size": 22
      },
-     "group": "pill19"
+     "group": "mark1"
+    }
+   ],
+   "transition": {
+    "kind": "dissolve"
+   }
+  },
+  {
+   "id": "s7",
+   "dur": 1.7,
+   "bg": "#eef1fb",
+   "note": "The failed connection returns repaired.",
+   "nodes": [
+    {
+     "id": "shot_s7",
+     "type": "image",
+     "src": "/assets/solder26/diagram.png",
+     "x": 960,
+     "y": 540,
+     "w": 1498,
+     "h": 629,
+     "radius": 14,
+     "group": "surface25"
+    },
+    {
+     "id": "surface25",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "pill7",
+     "type": "group",
+     "x": 960,
+     "y": 905
+    },
+    {
+     "id": "pill8",
+     "type": "rect",
+     "x": 960,
+     "y": 905,
+     "w": 137,
+     "h": 56,
+     "radius": 28,
+     "fill": "#ddfb5c",
+     "group": "pill7",
+     "states": {
+      "pressed": {
+       "scale": 0.92
+      }
+     }
+    },
+    {
+     "id": "pill9",
+     "type": "text",
+     "x": 960,
+     "y": 905,
+     "text": "PASS",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 600,
+      "size": 26
+     },
+     "group": "pill7"
+    },
+    {
+     "id": "mark4",
+     "type": "group",
+     "x": 948,
+     "y": 970
+    },
+    {
+     "id": "mark5",
+     "type": "rect",
+     "x": 792,
+     "y": 970,
+     "w": 22,
+     "h": 22,
+     "radius": 11,
+     "fill": "#161616",
+     "group": "mark4"
+    },
+    {
+     "id": "mark6",
+     "type": "text",
+     "x": 971,
+     "y": 970,
+     "text": "Safe logic level restored",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 500,
+      "size": 22
+     },
+     "group": "mark4"
+    }
+   ],
+   "transition": {
+    "kind": "settle"
+   }
+  },
+  {
+   "id": "s8",
+   "dur": 1.8,
+   "bg": "#eef1fb",
+   "note": "The validated design becomes a blueprint.",
+   "nodes": [
+    {
+     "id": "shot_s8",
+     "type": "image",
+     "src": "/assets/solder26/diagram.png",
+     "x": 960,
+     "y": 540,
+     "w": 1498,
+     "h": 629,
+     "radius": 14,
+     "group": "surface29"
+    },
+    {
+     "id": "surface29",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "stack4",
+     "type": "group",
+     "x": 960,
+     "y": 926
+    },
+    {
+     "id": "stack5",
+     "type": "text",
+     "x": 960,
+     "y": 903,
+     "text": "Wiring. Parts and prices.",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 30
+     },
+     "group": "stack4"
+    },
+    {
+     "id": "stack6",
+     "type": "text",
+     "x": 960,
+     "y": 950,
+     "text": "The build, step by step.",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 30
+     },
+     "group": "stack4"
+    }
+   ],
+   "transition": {
+    "kind": "rise"
+   }
+  },
+  {
+   "id": "s9",
+   "dur": 1.7,
+   "bg": "#eef1fb",
+   "note": "The parts list resolves to seven purchasable items.",
+   "nodes": [
+    {
+     "id": "shot_s9",
+     "type": "image",
+     "src": "/assets/solder26/parts.png",
+     "x": 960,
+     "y": 540,
+     "w": 1498,
+     "h": 629,
+     "radius": 14,
+     "group": "surface33"
+    },
+    {
+     "id": "surface33",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "stat1",
+     "type": "group",
+     "x": 960,
+     "y": 934
+    },
+    {
+     "id": "stat2",
+     "type": "text",
+     "x": 960,
+     "y": 900,
+     "text": "READY TO SOURCE",
+     "color": "#8a8a8a",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 34
+     },
+     "group": "stat1"
+    },
+    {
+     "id": "stat3",
+     "type": "text",
+     "x": 960,
+     "y": 968,
+     "text": "7 parts",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 700,
+      "size": 66
+     },
+     "group": "stat1"
     }
    ],
    "transition": {
@@ -895,68 +633,106 @@
   },
   {
    "id": "s10",
-   "dur": 2.5,
-   "bg": "#0a0a0a",
-   "note": "Solder signs off with its wordmark, concrete promise, and URL.",
+   "dur": 1.8,
+   "bg": "#eef1fb",
+   "note": "An exploded diagram makes the assembly legible.",
    "nodes": [
     {
      "id": "shot_s10",
      "type": "image",
-     "src": "/assets/solder26/diagram.png",
+     "src": "/assets/solder26/steps.png",
      "x": 960,
-     "y": 400,
-     "w": 1267,
-     "h": 532,
-     "radius": 14
+     "y": 540,
+     "w": 1498,
+     "h": 629,
+     "radius": 14,
+     "group": "surface37"
     },
     {
-     "id": "tile1",
+     "id": "surface37",
      "type": "group",
      "x": 960,
-     "y": 715
+     "y": 540
     },
     {
-     "id": "tile2",
-     "type": "rect",
+     "id": "titlesub10",
+     "type": "group",
      "x": 960,
-     "y": 715,
-     "w": 44,
-     "h": 44,
-     "radius": 11,
-     "fill": "#ddfb5c",
-     "group": "tile1"
+     "y": 923
     },
     {
-     "id": "tile3",
+     "id": "titlesub11",
      "type": "text",
      "x": 960,
-     "y": 715,
-     "text": "S",
-     "color": "#ffffff",
+     "y": 900,
+     "text": "See how it fits.",
+     "color": "#161616",
      "font": {
       "family": "inter",
-      "weight": 600,
-      "size": 20
+      "weight": 700,
+      "size": 34
      },
-     "group": "tile1"
+     "group": "titlesub10"
+    },
+    {
+     "id": "titlesub12",
+     "type": "text",
+     "x": 960,
+     "y": 945,
+     "text": "Before anything reaches your desk.",
+     "color": "#8a8a8a",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 17
+     },
+     "group": "titlesub10"
+    }
+   ],
+   "transition": {
+    "kind": "dissolve"
+   }
+  },
+  {
+   "id": "s11",
+   "dur": 1.8,
+   "bg": "#eef1fb",
+   "note": "Guided steps turn the validated blueprint into a physical build.",
+   "nodes": [
+    {
+     "id": "shot_s11",
+     "type": "image",
+     "src": "/assets/solder26/diagram.png",
+     "x": 960,
+     "y": 540,
+     "w": 1498,
+     "h": 629,
+     "radius": 14,
+     "group": "surface41"
+    },
+    {
+     "id": "surface41",
+     "type": "group",
+     "x": 960,
+     "y": 540
     },
     {
      "id": "titlesub13",
      "type": "group",
      "x": 960,
-     "y": 843
+     "y": 923
     },
     {
      "id": "titlesub14",
      "type": "text",
      "x": 960,
-     "y": 802,
-     "text": "Solder",
-     "color": "#fcfcfc",
+     "y": 900,
+     "text": "Follow the build.",
+     "color": "#161616",
      "font": {
       "family": "inter",
       "weight": 700,
-      "size": 62
+      "size": 34
      },
      "group": "titlesub13"
     },
@@ -964,32 +740,108 @@
      "id": "titlesub15",
      "type": "text",
      "x": 960,
-     "y": 884,
-     "text": "Describe it. Build it.",
-     "color": "#c9c9c9",
+     "y": 945,
+     "text": "From first wire to working prototype.",
+     "color": "#8a8a8a",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 17
+     },
+     "group": "titlesub13"
+    }
+   ],
+   "transition": {
+    "kind": "push"
+   }
+  },
+  {
+   "id": "s12",
+   "dur": 2.5,
+   "bg": "#eef1fb",
+   "note": "Solder closes on its concrete promise and URL.",
+   "nodes": [
+    {
+     "id": "tile1",
+     "type": "group",
+     "x": 960,
+     "y": 360
+    },
+    {
+     "id": "tile2",
+     "type": "rect",
+     "x": 960,
+     "y": 360,
+     "w": 52,
+     "h": 52,
+     "radius": 13,
+     "fill": "#ddfb5c",
+     "group": "tile1"
+    },
+    {
+     "id": "tile3",
+     "type": "text",
+     "x": 960,
+     "y": 360,
+     "text": "S",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 600,
+      "size": 23
+     },
+     "group": "tile1"
+    },
+    {
+     "id": "titlesub16",
+     "type": "group",
+     "x": 960,
+     "y": 606
+    },
+    {
+     "id": "titlesub17",
+     "type": "text",
+     "x": 960,
+     "y": 565,
+     "text": "Solder",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 700,
+      "size": 62
+     },
+     "group": "titlesub16"
+    },
+    {
+     "id": "titlesub18",
+     "type": "text",
+     "x": 960,
+     "y": 647,
+     "text": "Prompt to prototype. In about a minute.",
+     "color": "#8a8a8a",
      "font": {
       "family": "inter",
       "weight": 400,
       "size": 31
      },
-     "group": "titlesub13"
+     "group": "titlesub16"
     },
     {
-     "id": "pill22",
+     "id": "pill10",
      "type": "group",
      "x": 960,
-     "y": 951
+     "y": 735
     },
     {
-     "id": "pill23",
+     "id": "pill11",
      "type": "rect",
      "x": 960,
-     "y": 951,
-     "w": 175,
-     "h": 47,
-     "radius": 24,
-     "fill": "#ddfb5c",
-     "group": "pill22",
+     "y": 735,
+     "w": 206,
+     "h": 56,
+     "radius": 28,
+     "fill": "#161616",
+     "group": "pill10",
      "states": {
       "pressed": {
        "scale": 0.92
@@ -997,22 +849,22 @@
      }
     },
     {
-     "id": "pill24",
+     "id": "pill12",
      "type": "text",
      "x": 960,
-     "y": 951,
+     "y": 735,
      "text": "solder.dev",
      "color": "#ffffff",
      "font": {
       "family": "inter",
       "weight": 600,
-      "size": 22
+      "size": 26
      },
-     "group": "pill22"
+     "group": "pill10"
     }
    ],
    "transition": {
-    "kind": "dip"
+    "kind": "settle"
    }
   }
  ]
