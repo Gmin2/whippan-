@@ -146,15 +146,43 @@ const dimOn = (paper?: string) => (onDark(paper) ? '#c9c9c9' : GREY)
 const labelFor = (role: Role) => (role === 'tint' ? INK : PAPER)
 
 
-/** mix a hex toward white (k>0) or black (k<0), for building a lit ramp */
+/**
+ * Lighten (k>0) or darken (k<0) a hex while HOLDING ITS HUE.
+ *
+ * Mixing toward white and black in RGB is the obvious way and it is wrong:
+ * the channels move at different rates, so the hue drifts. A lit field and
+ * its subject built from one colour came out in two different 20-degree
+ * buckets and the `one hue` check flagged them, correctly. So: convert to
+ * HSL, move only L, convert back. Saturation eases off near white the way
+ * a real highlight does, rather than staying at full and going neon.
+ */
 function shade(hex: string, k: number): string {
   const m = /^#([0-9a-f]{6})$/i.exec(hex)
   if (!m) return hex
   const n = parseInt(m[1], 16)
-  const mix = (c: number) =>
-    Math.round(k >= 0 ? c + (255 - c) * k : c * (1 + k))
-      .toString(16).padStart(2, '0')
-  return '#' + mix((n >> 16) & 255) + mix((n >> 8) & 255) + mix(n & 255)
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(v => v / 255)
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b)
+  const l = (mx + mn) / 2
+  const d = mx - mn
+  const sat = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1))
+  let h = 0
+  if (d !== 0) {
+    h = mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4
+    h *= 60
+  }
+  const l2 = Math.min(1, Math.max(0, k >= 0 ? l + (1 - l) * k : l * (1 + k)))
+  // a highlight desaturates as it approaches white; a shadow keeps its colour
+  const s2 = k > 0 ? sat * (1 - k * 0.55) : sat
+  const c = (1 - Math.abs(2 * l2 - 1)) * s2
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1))
+  const mm = l2 - c / 2
+  const seg = Math.floor(h / 60) % 6
+  const rgb = [
+    [c, x, 0], [x, c, 0], [0, c, x], [0, x, c], [x, 0, c], [c, 0, x],
+  ][seg] ?? [0, 0, 0]
+  return '#' + rgb
+    .map(v => Math.round((v + mm) * 255).toString(16).padStart(2, '0'))
+    .join('')
 }
 
 /**
