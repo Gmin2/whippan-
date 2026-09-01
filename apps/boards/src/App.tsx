@@ -695,10 +695,12 @@ export default function App() {
         const built = out.scenes.map(sc => {
           const nodes: Node[] = []
           const tracks: unknown[] = []
+          // ink follows the paper this beat will actually sit on
+          const sceneBg = sc.bg ?? current.stage.bg
           for (const p of sc.place) {
             const def = blockByKey(p.block)
             if (!def) continue
-            const made = def.make({ stage, accent, x: p.x, y: p.y }, p.opts ?? {})
+            const made = def.make({ stage, accent, paper: sceneBg, x: p.x, y: p.y }, p.opts ?? {})
             nodes.push(...made)
             const group = made.find(n => n.type === 'group')
             // one track on the group animates the whole block, which is the
@@ -742,11 +744,14 @@ export default function App() {
         // not the model's, then score what will actually land
         const build = (place: typeof out.place) => {
           let stage = current.stage
+          const sceneBg = out.bg
+            ?? current.stage.scenes.find(sc => sc.id === target)?.bg
+            ?? current.stage.bg
           const nodes: Node[] = []
           for (const p of place) {
             const def = blockByKey(p.block)
             if (!def) continue
-            const made = def.make({ stage, accent, x: p.x, y: p.y }, p.opts ?? {})
+            const made = def.make({ stage, accent, paper: sceneBg, x: p.x, y: p.y }, p.opts ?? {})
             nodes.push(...made)
             // each block must see the ids the last one took
             stage = { ...stage, scenes: stage.scenes.map(sc =>

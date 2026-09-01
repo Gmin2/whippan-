@@ -62,7 +62,21 @@ const median = (a: number[]) => {
   return s[Math.floor(s.length / 2)]
 }
 
-export function scoreScreen(nodes: Node[], size: [number, number]): Check[] {
+/** WCAG relative luminance, so contrast is measured not eyeballed */
+function luminance(c: string): number {
+  const [r, g, b] = rgb(c).map(v => {
+    const x = v / 255
+    return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4
+  })
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
+const contrastRatio = (a: string, b: string) => {
+  const [x, y] = [luminance(a), luminance(b)].sort((m, n) => n - m)
+  return (x + 0.05) / (y + 0.05)
+}
+
+export function scoreScreen(nodes: Node[], size: [number, number], bg?: string): Check[] {
   const [W, H] = size
   const kk = W / 1920
   const out: Check[] = []
@@ -86,21 +100,27 @@ export function scoreScreen(nodes: Node[], size: [number, number]): Check[] {
   const composed = groups.length > 0
   const units = composed ? groups : marks
   const bar = composed ? 0.5 : CORPUS.centreShare
-  const xs = new Map<number, number>()
-  for (const n of units) {
-    const x = Math.round(n.x ?? 0)
-    xs.set(x, (xs.get(x) ?? 0) + 1)
+  // a column or a row: three stat blocks side by side share a y, not an x,
+  // and the corpus is full of both
+  const sharedOn = (axis: 'x' | 'y') => {
+    const m = new Map<number, number>()
+    for (const n of units) {
+      const v = Math.round(n[axis] ?? 0)
+      m.set(v, (m.get(v) ?? 0) + 1)
+    }
+    // one unit is not an alignment, however small the scene
+    return Math.max(0, ...[...m.values()].filter(v => v > 1))
   }
-  // one unit is not an alignment, however small the scene
-  const aligned = Math.max(0, ...[...xs.values()].filter(v => v > 1))
+  const aligned = Math.max(sharedOn('x'), sharedOn('y'))
+  const axis = sharedOn('y') > sharedOn('x') ? 'y' : 'x'
   const share = units.length ? aligned / units.length : 0
   const centred = units.filter(n => Math.abs((n.x ?? 0) - W / 2) < 1).length
   out.push({
     key: 'alignment',
     // a lone block cannot align with anything, so it is not penalised
     score: units.length < 2 ? 1 : Math.min(1, share / bar),
-    detail: `${aligned} of ${units.length} ${groups.length ? 'blocks' : 'marks'} share an x`
-          + (centred ? `, ${centred} on the centre line` : ''),
+    detail: `${aligned} of ${units.length} ${groups.length ? 'blocks' : 'marks'} share ${
+      axis === 'y' ? 'a y' : 'an x'}` + (centred ? `, ${centred} on the centre line` : ''),
   })
 
   // Text over a panel is the corpus pattern; text from one block landing on
@@ -131,6 +151,81 @@ export function scoreScreen(nodes: Node[], size: [number, number]): Check[] {
       }
     }
   }
+  // Text on a background it cannot be read against is the one defect that
+  // makes a frame worthless, and nothing else here catches it: a generated
+  // film put its own wordmark in #55586b on #000000, a ratio of 1.9.
+  /**
+   * What a given text node actually sits on.
+   *
+   * The scene background is not it. A film sets "your next adventure" in
+   * #ffffff on a page of #eeebe4, and it reads perfectly because the words are
+   * on a dark card. Comparing every node to the page flagged a fifth of the
+   * corpus as unreadable when almost none of it is. So: the topmost opaque
+   * rect that contains the node, else a full-bleed rect, else the scene bg.
+   */
+  const behind = (n: Node): string | null => {
+    const under = nodes.filter(r =>
+      r.type === 'rect' && hex(r.fill) && (r.opacity ?? 1) > 0.9 &&
+      Math.abs((n.x ?? 0) - (r.x ?? 0)) <= (r.w ?? 0) / 2 &&
+      Math.abs((n.y ?? 0) - (r.y ?? 0)) <= (r.h ?? 0) / 2)
+    // last drawn wins, and the smallest of those is the nearest surface
+    if (under.length) {
+      const top = under.reduce((a, r) =>
+        (r.w ?? 0) * (r.h ?? 0) <= (a.w ?? 0) * (a.h ?? 0) ? r : a)
+      return hex(top.fill)
+    }
+    return hex(bg)
+  }
+
+  if (hex(bg)) {
+    const paper = hex(bg)!
+    // Weighted by ink area, not by node count. A film put its 84px wordmark in
+    // #161616 on #0a0a0a, a ratio of 1.06, and a per-node count scored that
+    // 0.75 because three small readable labels outvoted it. The headline IS
+    // the frame.
+    const BAR = Number(globalThis.process?.env?.WHIPPAN_CONTRAST_BAR) || 3
+    const lit = texts.filter(n => (n.keys?.opacity?.[0]?.v ?? n.opacity ?? 1) > 0.5)
+    const dark = lit.filter(n => {
+      const c = hex(n.color)
+      const under = behind(n) ?? paper
+      return c && contrastRatio(c, under) < BAR
+    })
+    // and the largest type on the frame is the message: if THAT cannot be
+    // read the frame is dead however much small readable copy surrounds it.
+    // A 39-character subtitle out-areas a six-letter wordmark twice its size,
+    // which let an unreadable "Solder" through at 0.64.
+    const biggest = Math.max(0, ...lit.map(n => n.font?.size ?? 0))
+    const headlineLost = dark.some(n => (n.font?.size ?? 0) >= biggest)
+    // Only the largest type is scored. Muted low-contrast text is a real
+    // corpus pattern — four films keep persistent chrome at 55-70% toward the
+    // background — so penalising every dim node flagged 19% of the corpus even
+    // at a 2.5 bar. What is never deliberate is a headline you cannot read.
+    out.push({
+      key: 'contrast',
+      score: headlineLost ? 0 : 1,
+      detail: headlineLost
+        ? `the largest type (${biggest}px) is under ${BAR}:1 on ${paper}`
+        : dark.length
+          ? `readable headline, ${dark.length} dim nodes below it`
+          : `all text reads on ${paper}`,
+    })
+  }
+
+  // A caption laid over a product screenshot competes with whatever the shot
+  // already says. The corpus puts the caption in the margin instead.
+  const shots = nodes.filter(n => n.type === 'image' && (n.w ?? 0) > W * 0.4)
+  if (shots.length) {
+    const over = texts.filter(t => shots.some(im =>
+      Math.abs((t.x ?? 0) - (im.x ?? 0)) < (im.w ?? 0) / 2 &&
+      Math.abs((t.y ?? 0) - (im.y ?? 0)) < (im.h ?? 0) / 2))
+    out.push({
+      key: 'caption clear',
+      score: !texts.length ? 1 : Math.max(0, 1 - over.length / texts.length),
+      detail: over.length ? `${over.length} text nodes sit over the product shot`
+                          : 'captions clear of the shot',
+    })
+  }
+
   out.push({
     key: 'collision',
     // two blocks' text on top of each other is never right, so this falls

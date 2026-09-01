@@ -16,7 +16,8 @@ import { readFileSync, readdirSync } from 'node:fs'
 // runnable from the repo root or from apps/boards
 const DOCS = process.cwd().endsWith('apps/boards') ? '../../docs' : 'docs'
 
-const keys = ['alignment', 'collision', 'type scale', 'achromatic', 'one hue', 'ink', 'radius', 'margin']
+const keys = ['alignment', 'collision', 'contrast', 'caption clear',
+  'type scale', 'achromatic', 'one hue', 'ink', 'radius', 'margin']
 const acc = new Map<string, number[]>(keys.map(k => [k, []]))
 let scenes = 0, clean = 0
 
@@ -25,8 +26,8 @@ for (const f of readdirSync(DOCS).filter(n => n.endsWith('.stage.json'))) {
   for (const sc of stage.scenes) {
     if (!sc.nodes?.length) continue
     scenes++
-    const checks = scoreScreen(sc.nodes, stage.size)
-    for (const c of checks) acc.get(c.key)!.push(c.score)
+    const checks = scoreScreen(sc.nodes, stage.size, sc.bg ?? stage.bg)
+    for (const c of checks) acc.get(c.key)?.push(c.score)
     if (!failing(checks)) clean++
   }
 }
@@ -35,6 +36,7 @@ console.log(`the corpus: ${scenes} scenes\n`)
 console.log('check         median   below 0.6')
 for (const k of keys) {
   const a = acc.get(k)!
+  if (!a.length) { console.log(`${k.padEnd(14)}   n/a`); continue }
   console.log(`${k.padEnd(14)}${med([...a]).toFixed(2).padStart(5)}   ` +
               `${((a.filter(v => v < 0.6).length / a.length) * 100).toFixed(0)}%`)
 }

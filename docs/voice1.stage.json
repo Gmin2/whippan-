@@ -1,0 +1,2234 @@
+{
+ "size": [
+  1920,
+  1080
+ ],
+ "fps": 30,
+ "scenes": [
+  {
+   "id": "s1",
+   "dur": 2.3,
+   "bg": "#f6f8fc",
+   "note": "An old call-tree builder grows into a brittle maze.",
+   "nodes": [
+    {
+     "id": "surface1",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "surface2",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 1094,
+     "h": 648,
+     "radius": 18,
+     "fill": "#ffffff",
+     "group": "surface1"
+    },
+    {
+     "id": "surface3",
+     "type": "rect",
+     "x": 960,
+     "y": 265,
+     "w": 1094,
+     "h": 97,
+     "radius": 11,
+     "fill": "#161616",
+     "group": "surface1"
+    },
+    {
+     "id": "surface4",
+     "type": "text",
+     "x": 493,
+     "y": 265,
+     "text": "Phone agent • Call flow",
+     "color": "#ffffff",
+     "font": {
+      "family": "inter",
+      "weight": 600,
+      "size": 20
+     },
+     "group": "surface1"
+    },
+    {
+     "id": "stack1",
+     "type": "group",
+     "x": 960,
+     "y": 515
+    },
+    {
+     "id": "stack2",
+     "type": "text",
+     "x": 960,
+     "y": 468,
+     "text": "IF caller says billing → node 14",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 30
+     },
+     "group": "stack1"
+    },
+    {
+     "id": "stack3",
+     "type": "text",
+     "x": 960,
+     "y": 515,
+     "text": "ELSE retry prompt → node 6",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 30
+     },
+     "group": "stack1"
+    },
+    {
+     "id": "stack4",
+     "type": "text",
+     "x": 960,
+     "y": 562,
+     "text": "TIMEOUT → transfer queue",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 30
+     },
+     "group": "stack1"
+    },
+    {
+     "id": "pill1",
+     "type": "group",
+     "x": 960,
+     "y": 760
+    },
+    {
+     "id": "pill2",
+     "type": "rect",
+     "x": 960,
+     "y": 760,
+     "w": 335,
+     "h": 47,
+     "radius": 24,
+     "fill": "#2f7df0",
+     "group": "pill1",
+     "states": {
+      "pressed": {
+       "scale": 0.92
+      }
+     }
+    },
+    {
+     "id": "pill3",
+     "type": "text",
+     "x": 960,
+     "y": 760,
+     "text": "37 scripts • 18 branches",
+     "color": "#ffffff",
+     "font": {
+      "family": "inter",
+      "weight": 600,
+      "size": 22
+     },
+     "group": "pill1"
+    }
+   ],
+   "transition": {
+    "kind": "fade"
+   }
+  },
+  {
+   "id": "s2",
+   "dur": 1.2,
+   "bg": "#05060a",
+   "note": "The old machinery drops away; the voice takes the frame.",
+   "nodes": [
+    {
+     "id": "field1",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "field2",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "gradient": {
+      "kind": "radial",
+      "radius": 0.85,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#05224b"
+       },
+       {
+        "at": 0.55,
+        "color": "#020c1b"
+       },
+       {
+        "at": 1,
+        "color": "#05060a"
+       }
+      ]
+     },
+     "group": "field1"
+    },
+    {
+     "id": "field3",
+     "type": "particles",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "fill": "#ccdaef",
+     "particles": {
+      "count": 260,
+      "size": 3,
+      "speed": 14,
+      "depth": 0.8,
+      "twinkle": true
+     },
+     "group": "field1"
+    },
+    {
+     "id": "subject1",
+     "type": "group",
+     "x": 960,
+     "y": 520
+    },
+    {
+     "id": "subject2",
+     "type": "rect",
+     "x": 960,
+     "y": 520,
+     "w": 798,
+     "h": 798,
+     "radius": 399,
+     "gradient": {
+      "kind": "radial",
+      "radius": 0.5,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 1,
+        "color": "#05060a"
+       }
+      ]
+     },
+     "opacity": 0.45,
+     "blur": 68,
+     "group": "subject1"
+    },
+    {
+     "id": "subject3",
+     "type": "rect",
+     "x": 960,
+     "y": 520,
+     "w": 307,
+     "h": 307,
+     "radius": 154,
+     "gradient": {
+      "kind": "radial",
+      "cx": 0.36,
+      "cy": 0.28,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#cfddf0"
+       },
+       {
+        "at": 0.38,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 0.75,
+        "color": "#072d66"
+       },
+       {
+        "at": 1,
+        "color": "#020e20"
+       }
+      ]
+     },
+     "noise": {
+      "kind": "turbulence",
+      "freq": 0.014,
+      "octaves": 4,
+      "opacity": 0.5,
+      "blend": "overlay"
+     },
+     "glow": {
+      "sigma": 86,
+      "opacity": 0.6,
+      "color": "#2f7df0"
+     },
+     "group": "subject1"
+    },
+    {
+     "id": "subject4",
+     "type": "rect",
+     "x": 960,
+     "y": 520,
+     "w": 307,
+     "h": 307,
+     "radius": 154,
+     "stroke": 1.2,
+     "stroke_color": "#d5e0f1",
+     "opacity": 0.45,
+     "group": "subject1"
+    },
+    {
+     "id": "subject5",
+     "type": "text",
+     "x": 960,
+     "y": 735,
+     "text": "A voice is the product.",
+     "color": "#fcfcfc",
+     "font": {
+      "family": "inter",
+      "weight": 500,
+      "size": 48
+     },
+     "group": "subject1"
+    },
+    {
+     "id": "subject6",
+     "type": "text",
+     "x": 960,
+     "y": 790,
+     "text": "Not the call tree.",
+     "color": "#c9c9c9",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 25
+     },
+     "group": "subject1"
+    }
+   ],
+   "transition": {
+    "kind": "dip"
+   }
+  },
+  {
+   "id": "s3",
+   "dur": 2.5,
+   "bg": "#f6f8fc",
+   "note": "One sentence replaces the scripts and branches.",
+   "nodes": [
+    {
+     "id": "surface5",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "surface6",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 1094,
+     "h": 648,
+     "radius": 18,
+     "fill": "#ffffff",
+     "group": "surface5"
+    },
+    {
+     "id": "surface7",
+     "type": "rect",
+     "x": 960,
+     "y": 265,
+     "w": 1094,
+     "h": 97,
+     "radius": 11,
+     "fill": "#161616",
+     "group": "surface5"
+    },
+    {
+     "id": "surface8",
+     "type": "text",
+     "x": 493,
+     "y": 265,
+     "text": "Describe your agent",
+     "color": "#ffffff",
+     "font": {
+      "family": "inter",
+      "weight": 600,
+      "size": 20
+     },
+     "group": "surface5"
+    },
+    {
+     "id": "stack5",
+     "type": "group",
+     "x": 960,
+     "y": 515
+    },
+    {
+     "id": "stack6",
+     "type": "text",
+     "x": 960,
+     "y": 490,
+     "text": "A calm clinic receptionist who",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 34
+     },
+     "group": "stack5"
+    },
+    {
+     "id": "stack7",
+     "type": "text",
+     "x": 960,
+     "y": 540,
+     "text": "books visits and answers insurance questions.",
+     "color": "#161616",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 34
+     },
+     "group": "stack5"
+    },
+    {
+     "id": "pill4",
+     "type": "group",
+     "x": 960,
+     "y": 735
+    },
+    {
+     "id": "pill5",
+     "type": "rect",
+     "x": 960,
+     "y": 735,
+     "w": 189,
+     "h": 47,
+     "radius": 24,
+     "fill": "#2f7df0",
+     "group": "pill4",
+     "states": {
+      "pressed": {
+       "scale": 0.92
+      }
+     }
+    },
+    {
+     "id": "pill6",
+     "type": "text",
+     "x": 960,
+     "y": 735,
+     "text": "Build agent",
+     "color": "#ffffff",
+     "font": {
+      "family": "inter",
+      "weight": 600,
+      "size": 22
+     },
+     "group": "pill4"
+    }
+   ],
+   "transition": {
+    "kind": "rise"
+   }
+  },
+  {
+   "id": "s4",
+   "dur": 2.1,
+   "bg": "#05060a",
+   "note": "The description resolves into a cast of named voices.",
+   "nodes": [
+    {
+     "id": "field4",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "field5",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "gradient": {
+      "kind": "radial",
+      "radius": 0.85,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#05224b"
+       },
+       {
+        "at": 0.55,
+        "color": "#020c1b"
+       },
+       {
+        "at": 1,
+        "color": "#05060a"
+       }
+      ]
+     },
+     "group": "field4"
+    },
+    {
+     "id": "field6",
+     "type": "particles",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "fill": "#ccdaef",
+     "particles": {
+      "count": 260,
+      "size": 3,
+      "speed": 14,
+      "depth": 0.8,
+      "twinkle": true
+     },
+     "group": "field4"
+    },
+    {
+     "id": "glass1",
+     "type": "group",
+     "x": 960,
+     "y": 350
+    },
+    {
+     "id": "glass2",
+     "type": "rect",
+     "x": 960,
+     "y": 350,
+     "w": 495,
+     "h": 78,
+     "radius": 39,
+     "fill": "#031630",
+     "opacity": 0.72,
+     "stroke": 1,
+     "stroke_color": "#84ade9",
+     "group": "glass1"
+    },
+    {
+     "id": "glass3",
+     "type": "rect",
+     "x": 772,
+     "y": 350,
+     "w": 41,
+     "h": 41,
+     "radius": 21,
+     "gradient": {
+      "kind": "radial",
+      "cx": 0.35,
+      "cy": 0.3,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#cfddf0"
+       },
+       {
+        "at": 0.38,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 0.75,
+        "color": "#072d66"
+       },
+       {
+        "at": 1,
+        "color": "#020e20"
+       }
+      ]
+     },
+     "glow": {
+      "sigma": 23,
+      "opacity": 0.7,
+      "color": "#2f7df0"
+     },
+     "group": "glass1"
+    },
+    {
+     "id": "glass4",
+     "type": "text",
+     "x": 979,
+     "y": 350,
+     "text": "Mira — warm, measured",
+     "color": "#fcfcfc",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 30
+     },
+     "group": "glass1"
+    },
+    {
+     "id": "glass5",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "glass6",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 511,
+     "h": 78,
+     "radius": 39,
+     "fill": "#031630",
+     "opacity": 0.72,
+     "stroke": 1,
+     "stroke_color": "#84ade9",
+     "group": "glass5"
+    },
+    {
+     "id": "glass7",
+     "type": "rect",
+     "x": 764,
+     "y": 540,
+     "w": 41,
+     "h": 41,
+     "radius": 21,
+     "gradient": {
+      "kind": "radial",
+      "cx": 0.35,
+      "cy": 0.3,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#cfddf0"
+       },
+       {
+        "at": 0.38,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 0.75,
+        "color": "#072d66"
+       },
+       {
+        "at": 1,
+        "color": "#020e20"
+       }
+      ]
+     },
+     "glow": {
+      "sigma": 23,
+      "opacity": 0.7,
+      "color": "#2f7df0"
+     },
+     "group": "glass5"
+    },
+    {
+     "id": "glass8",
+     "type": "text",
+     "x": 979,
+     "y": 540,
+     "text": "Atlas — clear, assured",
+     "color": "#fcfcfc",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 30
+     },
+     "group": "glass5"
+    },
+    {
+     "id": "glass9",
+     "type": "group",
+     "x": 960,
+     "y": 730
+    },
+    {
+     "id": "glass10",
+     "type": "rect",
+     "x": 960,
+     "y": 730,
+     "w": 480,
+     "h": 78,
+     "radius": 39,
+     "fill": "#031630",
+     "opacity": 0.72,
+     "stroke": 1,
+     "stroke_color": "#84ade9",
+     "group": "glass9"
+    },
+    {
+     "id": "glass11",
+     "type": "rect",
+     "x": 780,
+     "y": 730,
+     "w": 41,
+     "h": 41,
+     "radius": 21,
+     "gradient": {
+      "kind": "radial",
+      "cx": 0.35,
+      "cy": 0.3,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#cfddf0"
+       },
+       {
+        "at": 0.38,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 0.75,
+        "color": "#072d66"
+       },
+       {
+        "at": 1,
+        "color": "#020e20"
+       }
+      ]
+     },
+     "glow": {
+      "sigma": 23,
+      "opacity": 0.7,
+      "color": "#2f7df0"
+     },
+     "group": "glass9"
+    },
+    {
+     "id": "glass12",
+     "type": "text",
+     "x": 980,
+     "y": 730,
+     "text": "June — bright, quick",
+     "color": "#fcfcfc",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 30
+     },
+     "group": "glass9"
+    }
+   ],
+   "transition": {
+    "kind": "dissolve"
+   }
+  },
+  {
+   "id": "s5",
+   "dur": 2,
+   "bg": "#05060a",
+   "note": "Mira arrives as a distinct, calm character.",
+   "nodes": [
+    {
+     "id": "field7",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "field8",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "gradient": {
+      "kind": "radial",
+      "radius": 0.85,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#05224b"
+       },
+       {
+        "at": 0.55,
+        "color": "#020c1b"
+       },
+       {
+        "at": 1,
+        "color": "#05060a"
+       }
+      ]
+     },
+     "group": "field7"
+    },
+    {
+     "id": "field9",
+     "type": "particles",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "fill": "#ccdaef",
+     "particles": {
+      "count": 260,
+      "size": 3,
+      "speed": 14,
+      "depth": 0.8,
+      "twinkle": true
+     },
+     "group": "field7"
+    },
+    {
+     "id": "subject7",
+     "type": "group",
+     "x": 960,
+     "y": 510
+    },
+    {
+     "id": "subject8",
+     "type": "rect",
+     "x": 960,
+     "y": 510,
+     "w": 842,
+     "h": 842,
+     "radius": 421,
+     "gradient": {
+      "kind": "radial",
+      "radius": 0.5,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 1,
+        "color": "#05060a"
+       }
+      ]
+     },
+     "opacity": 0.45,
+     "blur": 71,
+     "group": "subject7"
+    },
+    {
+     "id": "subject9",
+     "type": "rect",
+     "x": 960,
+     "y": 510,
+     "w": 324,
+     "h": 324,
+     "radius": 162,
+     "gradient": {
+      "kind": "radial",
+      "cx": 0.36,
+      "cy": 0.28,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#cfddf0"
+       },
+       {
+        "at": 0.38,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 0.75,
+        "color": "#072d66"
+       },
+       {
+        "at": 1,
+        "color": "#020e20"
+       }
+      ]
+     },
+     "noise": {
+      "kind": "turbulence",
+      "freq": 0.014,
+      "octaves": 4,
+      "opacity": 0.5,
+      "blend": "overlay"
+     },
+     "glow": {
+      "sigma": 91,
+      "opacity": 0.6,
+      "color": "#2f7df0"
+     },
+     "group": "subject7"
+    },
+    {
+     "id": "subject10",
+     "type": "rect",
+     "x": 960,
+     "y": 510,
+     "w": 324,
+     "h": 324,
+     "radius": 162,
+     "stroke": 1.2,
+     "stroke_color": "#d5e0f1",
+     "opacity": 0.45,
+     "group": "subject7"
+    },
+    {
+     "id": "subject11",
+     "type": "text",
+     "x": 960,
+     "y": 737,
+     "text": "Mira",
+     "color": "#fcfcfc",
+     "font": {
+      "family": "inter",
+      "weight": 500,
+      "size": 50
+     },
+     "group": "subject7"
+    },
+    {
+     "id": "subject12",
+     "type": "text",
+     "x": 960,
+     "y": 794,
+     "text": "Warm. Patient. Never rushed.",
+     "color": "#c9c9c9",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 26
+     },
+     "group": "subject7"
+    },
+    {
+     "id": "pill7",
+     "type": "group",
+     "x": 960,
+     "y": 820
+    },
+    {
+     "id": "pill8",
+     "type": "rect",
+     "x": 960,
+     "y": 820,
+     "w": 246,
+     "h": 47,
+     "radius": 24,
+     "fill": "#2f7df0",
+     "group": "pill7",
+     "states": {
+      "pressed": {
+       "scale": 0.92
+      }
+     }
+    },
+    {
+     "id": "pill9",
+     "type": "text",
+     "x": 960,
+     "y": 820,
+     "text": "Clinic reception",
+     "color": "#ffffff",
+     "font": {
+      "family": "inter",
+      "weight": 600,
+      "size": 22
+     },
+     "group": "pill7"
+    }
+   ],
+   "transition": {
+    "kind": "settle"
+   }
+  },
+  {
+   "id": "s6",
+   "dur": 2,
+   "bg": "#05060a",
+   "note": "Atlas carries the same agent with a firmer presence.",
+   "nodes": [
+    {
+     "id": "field10",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "field11",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "gradient": {
+      "kind": "radial",
+      "radius": 0.85,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#05224b"
+       },
+       {
+        "at": 0.55,
+        "color": "#020c1b"
+       },
+       {
+        "at": 1,
+        "color": "#05060a"
+       }
+      ]
+     },
+     "group": "field10"
+    },
+    {
+     "id": "field12",
+     "type": "particles",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "fill": "#ccdaef",
+     "particles": {
+      "count": 260,
+      "size": 3,
+      "speed": 14,
+      "depth": 0.8,
+      "twinkle": true
+     },
+     "group": "field10"
+    },
+    {
+     "id": "subject13",
+     "type": "group",
+     "x": 960,
+     "y": 510
+    },
+    {
+     "id": "subject14",
+     "type": "rect",
+     "x": 960,
+     "y": 510,
+     "w": 842,
+     "h": 842,
+     "radius": 421,
+     "gradient": {
+      "kind": "radial",
+      "radius": 0.5,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 1,
+        "color": "#05060a"
+       }
+      ]
+     },
+     "opacity": 0.45,
+     "blur": 71,
+     "group": "subject13"
+    },
+    {
+     "id": "subject15",
+     "type": "rect",
+     "x": 960,
+     "y": 510,
+     "w": 324,
+     "h": 324,
+     "radius": 162,
+     "gradient": {
+      "kind": "radial",
+      "cx": 0.36,
+      "cy": 0.28,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#cfddf0"
+       },
+       {
+        "at": 0.38,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 0.75,
+        "color": "#072d66"
+       },
+       {
+        "at": 1,
+        "color": "#020e20"
+       }
+      ]
+     },
+     "noise": {
+      "kind": "turbulence",
+      "freq": 0.014,
+      "octaves": 4,
+      "opacity": 0.5,
+      "blend": "overlay"
+     },
+     "glow": {
+      "sigma": 91,
+      "opacity": 0.6,
+      "color": "#2f7df0"
+     },
+     "group": "subject13"
+    },
+    {
+     "id": "subject16",
+     "type": "rect",
+     "x": 960,
+     "y": 510,
+     "w": 324,
+     "h": 324,
+     "radius": 162,
+     "stroke": 1.2,
+     "stroke_color": "#d5e0f1",
+     "opacity": 0.45,
+     "group": "subject13"
+    },
+    {
+     "id": "subject17",
+     "type": "text",
+     "x": 960,
+     "y": 737,
+     "text": "Atlas",
+     "color": "#fcfcfc",
+     "font": {
+      "family": "inter",
+      "weight": 500,
+      "size": 50
+     },
+     "group": "subject13"
+    },
+    {
+     "id": "subject18",
+     "type": "text",
+     "x": 960,
+     "y": 794,
+     "text": "Direct. Grounded. In command.",
+     "color": "#c9c9c9",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 26
+     },
+     "group": "subject13"
+    },
+    {
+     "id": "pill10",
+     "type": "group",
+     "x": 960,
+     "y": 820
+    },
+    {
+     "id": "pill11",
+     "type": "rect",
+     "x": 960,
+     "y": 820,
+     "w": 212,
+     "h": 47,
+     "radius": 24,
+     "fill": "#2f7df0",
+     "group": "pill10",
+     "states": {
+      "pressed": {
+       "scale": 0.92
+      }
+     }
+    },
+    {
+     "id": "pill12",
+     "type": "text",
+     "x": 960,
+     "y": 820,
+     "text": "Dispatch desk",
+     "color": "#ffffff",
+     "font": {
+      "family": "inter",
+      "weight": 600,
+      "size": 22
+     },
+     "group": "pill10"
+    }
+   ],
+   "transition": {
+    "kind": "dissolve"
+   }
+  },
+  {
+   "id": "s7",
+   "dur": 2,
+   "bg": "#05060a",
+   "note": "June completes the cast with a faster, brighter cadence.",
+   "nodes": [
+    {
+     "id": "field13",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "field14",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "gradient": {
+      "kind": "radial",
+      "radius": 0.85,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#05224b"
+       },
+       {
+        "at": 0.55,
+        "color": "#020c1b"
+       },
+       {
+        "at": 1,
+        "color": "#05060a"
+       }
+      ]
+     },
+     "group": "field13"
+    },
+    {
+     "id": "field15",
+     "type": "particles",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "fill": "#ccdaef",
+     "particles": {
+      "count": 260,
+      "size": 3,
+      "speed": 14,
+      "depth": 0.8,
+      "twinkle": true
+     },
+     "group": "field13"
+    },
+    {
+     "id": "subject19",
+     "type": "group",
+     "x": 960,
+     "y": 510
+    },
+    {
+     "id": "subject20",
+     "type": "rect",
+     "x": 960,
+     "y": 510,
+     "w": 842,
+     "h": 842,
+     "radius": 421,
+     "gradient": {
+      "kind": "radial",
+      "radius": 0.5,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 1,
+        "color": "#05060a"
+       }
+      ]
+     },
+     "opacity": 0.45,
+     "blur": 71,
+     "group": "subject19"
+    },
+    {
+     "id": "subject21",
+     "type": "rect",
+     "x": 960,
+     "y": 510,
+     "w": 324,
+     "h": 324,
+     "radius": 162,
+     "gradient": {
+      "kind": "radial",
+      "cx": 0.36,
+      "cy": 0.28,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#cfddf0"
+       },
+       {
+        "at": 0.38,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 0.75,
+        "color": "#072d66"
+       },
+       {
+        "at": 1,
+        "color": "#020e20"
+       }
+      ]
+     },
+     "noise": {
+      "kind": "turbulence",
+      "freq": 0.014,
+      "octaves": 4,
+      "opacity": 0.5,
+      "blend": "overlay"
+     },
+     "glow": {
+      "sigma": 91,
+      "opacity": 0.6,
+      "color": "#2f7df0"
+     },
+     "group": "subject19"
+    },
+    {
+     "id": "subject22",
+     "type": "rect",
+     "x": 960,
+     "y": 510,
+     "w": 324,
+     "h": 324,
+     "radius": 162,
+     "stroke": 1.2,
+     "stroke_color": "#d5e0f1",
+     "opacity": 0.45,
+     "group": "subject19"
+    },
+    {
+     "id": "subject23",
+     "type": "text",
+     "x": 960,
+     "y": 737,
+     "text": "June",
+     "color": "#fcfcfc",
+     "font": {
+      "family": "inter",
+      "weight": 500,
+      "size": 50
+     },
+     "group": "subject19"
+    },
+    {
+     "id": "subject24",
+     "type": "text",
+     "x": 960,
+     "y": 794,
+     "text": "Bright. Nimble. Ready now.",
+     "color": "#c9c9c9",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 26
+     },
+     "group": "subject19"
+    },
+    {
+     "id": "pill13",
+     "type": "group",
+     "x": 960,
+     "y": 820
+    },
+    {
+     "id": "pill14",
+     "type": "rect",
+     "x": 960,
+     "y": 820,
+     "w": 212,
+     "h": 47,
+     "radius": 24,
+     "fill": "#2f7df0",
+     "group": "pill13",
+     "states": {
+      "pressed": {
+       "scale": 0.92
+      }
+     }
+    },
+    {
+     "id": "pill15",
+     "type": "text",
+     "x": 960,
+     "y": 820,
+     "text": "Customer care",
+     "color": "#ffffff",
+     "font": {
+      "family": "inter",
+      "weight": 600,
+      "size": 22
+     },
+     "group": "pill13"
+    }
+   ],
+   "transition": {
+    "kind": "dissolve"
+   }
+  },
+  {
+   "id": "s8",
+   "dur": 2.9,
+   "bg": "#05060a",
+   "note": "Mira speaks live while the waveform answers in real time.",
+   "nodes": [
+    {
+     "id": "field16",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "field17",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "gradient": {
+      "kind": "radial",
+      "radius": 0.85,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#05224b"
+       },
+       {
+        "at": 0.55,
+        "color": "#020c1b"
+       },
+       {
+        "at": 1,
+        "color": "#05060a"
+       }
+      ]
+     },
+     "group": "field16"
+    },
+    {
+     "id": "field18",
+     "type": "particles",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "fill": "#ccdaef",
+     "particles": {
+      "count": 260,
+      "size": 3,
+      "speed": 14,
+      "depth": 0.8,
+      "twinkle": true
+     },
+     "group": "field16"
+    },
+    {
+     "id": "subject25",
+     "type": "group",
+     "x": 960,
+     "y": 430
+    },
+    {
+     "id": "subject26",
+     "type": "rect",
+     "x": 960,
+     "y": 430,
+     "w": 751,
+     "h": 751,
+     "radius": 376,
+     "gradient": {
+      "kind": "radial",
+      "radius": 0.5,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 1,
+        "color": "#05060a"
+       }
+      ]
+     },
+     "opacity": 0.45,
+     "blur": 64,
+     "group": "subject25"
+    },
+    {
+     "id": "subject27",
+     "type": "rect",
+     "x": 960,
+     "y": 430,
+     "w": 289,
+     "h": 289,
+     "radius": 145,
+     "gradient": {
+      "kind": "radial",
+      "cx": 0.36,
+      "cy": 0.28,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#cfddf0"
+       },
+       {
+        "at": 0.38,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 0.75,
+        "color": "#072d66"
+       },
+       {
+        "at": 1,
+        "color": "#020e20"
+       }
+      ]
+     },
+     "noise": {
+      "kind": "turbulence",
+      "freq": 0.014,
+      "octaves": 4,
+      "opacity": 0.5,
+      "blend": "overlay"
+     },
+     "glow": {
+      "sigma": 81,
+      "opacity": 0.6,
+      "color": "#2f7df0"
+     },
+     "group": "subject25"
+    },
+    {
+     "id": "subject28",
+     "type": "rect",
+     "x": 960,
+     "y": 430,
+     "w": 289,
+     "h": 289,
+     "radius": 145,
+     "stroke": 1.2,
+     "stroke_color": "#d5e0f1",
+     "opacity": 0.45,
+     "group": "subject25"
+    },
+    {
+     "id": "subject29",
+     "type": "text",
+     "x": 960,
+     "y": 632,
+     "text": "Mira, live",
+     "color": "#fcfcfc",
+     "font": {
+      "family": "inter",
+      "weight": 500,
+      "size": 45
+     },
+     "group": "subject25"
+    },
+    {
+     "id": "subject30",
+     "type": "text",
+     "x": 960,
+     "y": 684,
+     "text": "“I can help find a time that works.”",
+     "color": "#c9c9c9",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 23
+     },
+     "group": "subject25"
+    },
+    {
+     "id": "meter1",
+     "type": "group",
+     "x": 960,
+     "y": 745
+    },
+    {
+     "id": "meter2",
+     "type": "bars",
+     "x": 770,
+     "y": 745,
+     "w": 306,
+     "h": 51,
+     "fill": "#2f7df0",
+     "bars": {
+      "count": 52,
+      "gap": 0.5,
+      "speed": 1.3,
+      "taper": true
+     },
+     "group": "meter1"
+    },
+    {
+     "id": "meter3",
+     "type": "text",
+     "x": 1064,
+     "y": 745,
+     "text": "Speaking now",
+     "color": "#fcfcfc",
+     "font": {
+      "family": "inter",
+      "weight": 500,
+      "size": 34
+     },
+     "group": "meter1"
+    }
+   ],
+   "transition": {
+    "kind": "zoom"
+   }
+  },
+  {
+   "id": "s9",
+   "dur": 2.2,
+   "bg": "#05060a",
+   "note": "A caller’s intent is understood without traversing a tree.",
+   "nodes": [
+    {
+     "id": "field19",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "field20",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "gradient": {
+      "kind": "radial",
+      "radius": 0.85,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#05224b"
+       },
+       {
+        "at": 0.55,
+        "color": "#020c1b"
+       },
+       {
+        "at": 1,
+        "color": "#05060a"
+       }
+      ]
+     },
+     "group": "field19"
+    },
+    {
+     "id": "field21",
+     "type": "particles",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "fill": "#ccdaef",
+     "particles": {
+      "count": 260,
+      "size": 3,
+      "speed": 14,
+      "depth": 0.8,
+      "twinkle": true
+     },
+     "group": "field19"
+    },
+    {
+     "id": "subject31",
+     "type": "group",
+     "x": 960,
+     "y": 500
+    },
+    {
+     "id": "subject32",
+     "type": "rect",
+     "x": 960,
+     "y": 500,
+     "w": 707,
+     "h": 707,
+     "radius": 354,
+     "gradient": {
+      "kind": "radial",
+      "radius": 0.5,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 1,
+        "color": "#05060a"
+       }
+      ]
+     },
+     "opacity": 0.45,
+     "blur": 60,
+     "group": "subject31"
+    },
+    {
+     "id": "subject33",
+     "type": "rect",
+     "x": 960,
+     "y": 500,
+     "w": 272,
+     "h": 272,
+     "radius": 136,
+     "gradient": {
+      "kind": "radial",
+      "cx": 0.36,
+      "cy": 0.28,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#cfddf0"
+       },
+       {
+        "at": 0.38,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 0.75,
+        "color": "#072d66"
+       },
+       {
+        "at": 1,
+        "color": "#020e20"
+       }
+      ]
+     },
+     "noise": {
+      "kind": "turbulence",
+      "freq": 0.014,
+      "octaves": 4,
+      "opacity": 0.5,
+      "blend": "overlay"
+     },
+     "glow": {
+      "sigma": 76,
+      "opacity": 0.6,
+      "color": "#2f7df0"
+     },
+     "group": "subject31"
+    },
+    {
+     "id": "subject34",
+     "type": "rect",
+     "x": 960,
+     "y": 500,
+     "w": 272,
+     "h": 272,
+     "radius": 136,
+     "stroke": 1.2,
+     "stroke_color": "#d5e0f1",
+     "opacity": 0.45,
+     "group": "subject31"
+    },
+    {
+     "id": "subject35",
+     "type": "text",
+     "x": 960,
+     "y": 690,
+     "text": "“I need to move my appointment.”",
+     "color": "#fcfcfc",
+     "font": {
+      "family": "inter",
+      "weight": 500,
+      "size": 42
+     },
+     "group": "subject31"
+    },
+    {
+     "id": "subject36",
+     "type": "text",
+     "x": 960,
+     "y": 739,
+     "text": "Intent found: reschedule visit",
+     "color": "#c9c9c9",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 22
+     },
+     "group": "subject31"
+    },
+    {
+     "id": "mark1",
+     "type": "group",
+     "x": 946,
+     "y": 790
+    },
+    {
+     "id": "mark2",
+     "type": "rect",
+     "x": 848,
+     "y": 790,
+     "w": 26,
+     "h": 26,
+     "radius": 13,
+     "fill": "#2f7df0",
+     "group": "mark1"
+    },
+    {
+     "id": "mark3",
+     "type": "text",
+     "x": 973,
+     "y": 790,
+     "text": "Routing live",
+     "color": "#fcfcfc",
+     "font": {
+      "family": "inter",
+      "weight": 500,
+      "size": 26
+     },
+     "group": "mark1"
+    }
+   ],
+   "transition": {
+    "kind": "push"
+   }
+  },
+  {
+   "id": "s10",
+   "dur": 2.3,
+   "bg": "#05060a",
+   "note": "The agent hands the call to the exact skill it needs.",
+   "nodes": [
+    {
+     "id": "field22",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "field23",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "gradient": {
+      "kind": "radial",
+      "radius": 0.85,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#05224b"
+       },
+       {
+        "at": 0.55,
+        "color": "#020c1b"
+       },
+       {
+        "at": 1,
+        "color": "#05060a"
+       }
+      ]
+     },
+     "group": "field22"
+    },
+    {
+     "id": "field24",
+     "type": "particles",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "fill": "#ccdaef",
+     "particles": {
+      "count": 260,
+      "size": 3,
+      "speed": 14,
+      "depth": 0.8,
+      "twinkle": true
+     },
+     "group": "field22"
+    },
+    {
+     "id": "glass13",
+     "type": "group",
+     "x": 960,
+     "y": 390
+    },
+    {
+     "id": "glass14",
+     "type": "rect",
+     "x": 960,
+     "y": 390,
+     "w": 323,
+     "h": 78,
+     "radius": 39,
+     "fill": "#031630",
+     "opacity": 0.72,
+     "stroke": 1,
+     "stroke_color": "#84ade9",
+     "group": "glass13"
+    },
+    {
+     "id": "glass15",
+     "type": "rect",
+     "x": 858,
+     "y": 390,
+     "w": 41,
+     "h": 41,
+     "radius": 21,
+     "gradient": {
+      "kind": "radial",
+      "cx": 0.35,
+      "cy": 0.3,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#cfddf0"
+       },
+       {
+        "at": 0.38,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 0.75,
+        "color": "#072d66"
+       },
+       {
+        "at": 1,
+        "color": "#020e20"
+       }
+      ]
+     },
+     "glow": {
+      "sigma": 23,
+      "opacity": 0.7,
+      "color": "#2f7df0"
+     },
+     "group": "glass13"
+    },
+    {
+     "id": "glass16",
+     "type": "text",
+     "x": 979,
+     "y": 390,
+     "text": "Scheduling",
+     "color": "#fcfcfc",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 30
+     },
+     "group": "glass13"
+    },
+    {
+     "id": "glass17",
+     "type": "group",
+     "x": 960,
+     "y": 555
+    },
+    {
+     "id": "glass18",
+     "type": "rect",
+     "x": 960,
+     "y": 555,
+     "w": 684,
+     "h": 88,
+     "radius": 44,
+     "fill": "#031630",
+     "opacity": 0.72,
+     "stroke": 1,
+     "stroke_color": "#84ade9",
+     "group": "glass17"
+    },
+    {
+     "id": "glass19",
+     "type": "rect",
+     "x": 685,
+     "y": 555,
+     "w": 46,
+     "h": 46,
+     "radius": 23,
+     "gradient": {
+      "kind": "radial",
+      "cx": 0.35,
+      "cy": 0.3,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#cfddf0"
+       },
+       {
+        "at": 0.38,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 0.75,
+        "color": "#072d66"
+       },
+       {
+        "at": 1,
+        "color": "#020e20"
+       }
+      ]
+     },
+     "glow": {
+      "sigma": 26,
+      "opacity": 0.7,
+      "color": "#2f7df0"
+     },
+     "group": "glass17"
+    },
+    {
+     "id": "glass20",
+     "type": "text",
+     "x": 982,
+     "y": 555,
+     "text": "Reschedule visit → connected",
+     "color": "#fcfcfc",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 34
+     },
+     "group": "glass17"
+    },
+    {
+     "id": "glass21",
+     "type": "group",
+     "x": 960,
+     "y": 720
+    },
+    {
+     "id": "glass22",
+     "type": "rect",
+     "x": 960,
+     "y": 720,
+     "w": 463,
+     "h": 78,
+     "radius": 39,
+     "fill": "#031630",
+     "opacity": 0.72,
+     "stroke": 1,
+     "stroke_color": "#84ade9",
+     "group": "glass21"
+    },
+    {
+     "id": "glass23",
+     "type": "rect",
+     "x": 788,
+     "y": 720,
+     "w": 41,
+     "h": 41,
+     "radius": 21,
+     "gradient": {
+      "kind": "radial",
+      "cx": 0.35,
+      "cy": 0.3,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#cfddf0"
+       },
+       {
+        "at": 0.38,
+        "color": "#2f7df0"
+       },
+       {
+        "at": 0.75,
+        "color": "#072d66"
+       },
+       {
+        "at": 1,
+        "color": "#020e20"
+       }
+      ]
+     },
+     "glow": {
+      "sigma": 23,
+      "opacity": 0.7,
+      "color": "#2f7df0"
+     },
+     "group": "glass21"
+    },
+    {
+     "id": "glass24",
+     "type": "text",
+     "x": 979,
+     "y": 720,
+     "text": "Insurance questions",
+     "color": "#fcfcfc",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 30
+     },
+     "group": "glass21"
+    }
+   ],
+   "transition": {
+    "kind": "settle"
+   }
+  },
+  {
+   "id": "s11",
+   "dur": 2.5,
+   "bg": "#05060a",
+   "note": "The wordmark signs off beside the living voice.",
+   "nodes": [
+    {
+     "id": "field25",
+     "type": "group",
+     "x": 960,
+     "y": 540
+    },
+    {
+     "id": "field26",
+     "type": "rect",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "gradient": {
+      "kind": "radial",
+      "radius": 0.85,
+      "stops": [
+       {
+        "at": 0,
+        "color": "#05224b"
+       },
+       {
+        "at": 0.55,
+        "color": "#020c1b"
+       },
+       {
+        "at": 1,
+        "color": "#05060a"
+       }
+      ]
+     },
+     "group": "field25"
+    },
+    {
+     "id": "field27",
+     "type": "particles",
+     "x": 960,
+     "y": 540,
+     "w": 1920,
+     "h": 1080,
+     "fill": "#ccdaef",
+     "particles": {
+      "count": 260,
+      "size": 3,
+      "speed": 14,
+      "depth": 0.8,
+      "twinkle": true
+     },
+     "group": "field25"
+    },
+    {
+     "id": "tile1",
+     "type": "group",
+     "x": 960,
+     "y": 350
+    },
+    {
+     "id": "tile2",
+     "type": "rect",
+     "x": 960,
+     "y": 350,
+     "w": 52,
+     "h": 52,
+     "radius": 13,
+     "fill": "#2f7df0",
+     "group": "tile1"
+    },
+    {
+     "id": "tile3",
+     "type": "text",
+     "x": 960,
+     "y": 350,
+     "text": "V",
+     "color": "#ffffff",
+     "font": {
+      "family": "inter",
+      "weight": 600,
+      "size": 23
+     },
+     "group": "tile1"
+    },
+    {
+     "id": "titlesub1",
+     "type": "group",
+     "x": 960,
+     "y": 626
+    },
+    {
+     "id": "titlesub2",
+     "type": "text",
+     "x": 960,
+     "y": 585,
+     "text": "Voxline",
+     "color": "#fcfcfc",
+     "font": {
+      "family": "inter",
+      "weight": 700,
+      "size": 62
+     },
+     "group": "titlesub1"
+    },
+    {
+     "id": "titlesub3",
+     "type": "text",
+     "x": 960,
+     "y": 667,
+     "text": "Describe the agent. Choose its voice. Ship the call.",
+     "color": "#c9c9c9",
+     "font": {
+      "family": "inter",
+      "weight": 400,
+      "size": 31
+     },
+     "group": "titlesub1"
+    },
+    {
+     "id": "pill16",
+     "type": "group",
+     "x": 960,
+     "y": 810
+    },
+    {
+     "id": "pill17",
+     "type": "rect",
+     "x": 960,
+     "y": 810,
+     "w": 372,
+     "h": 56,
+     "radius": 28,
+     "fill": "#2f7df0",
+     "group": "pill16",
+     "states": {
+      "pressed": {
+       "scale": 0.92
+      }
+     }
+    },
+    {
+     "id": "pill18",
+     "type": "text",
+     "x": 960,
+     "y": 810,
+     "text": "Build your phone agent",
+     "color": "#ffffff",
+     "font": {
+      "family": "inter",
+      "weight": 600,
+      "size": 26
+     },
+     "group": "pill16"
+    }
+   ],
+   "transition": {
+    "kind": "dissolve"
+   }
+  }
+ ]
+}

@@ -32,7 +32,7 @@ const MOONSHOT = process.env.MOONSHOT_BASE_URL ?? 'https://api.moonshot.ai/anthr
  */
 const MODEL_IDS = {
   gpt: process.env.OPENAI_MODEL ?? 'gpt-5.6-sol',
-  kimi: process.env.MOONSHOT_MODEL ?? 'kimi-k3',
+  kimi: process.env.MOONSHOT_MODEL ?? 'kimi-k2.6',
 }
 const QUIVER = process.env.QUIVERAI_BASE_URL ?? 'https://api.quiver.ai/v1/svgs/generations'
 const GEMINI = process.env.GEMINI_BASE_URL
@@ -43,6 +43,8 @@ const key = (name: string) => process.env[name]?.trim() || null
 // the quiver key has been written both ways in practice; accept either rather
 // than have the capability report itself not ready next to a key that is set
 const quiverKey = () => key('QUIVERAI_API_KEY') ?? key('QUIVER_API_KEY')
+// likewise Kimi: the vendor is Moonshot but the key is usually written KIMI_
+const moonshotKey = () => key('MOONSHOT_API_KEY') ?? key('KIMI_API_KEY')
 
 export function capabilities(): Capability[] {
   return [
@@ -92,17 +94,26 @@ function need(name: string): string {
  * say to migrate by swapping base_url and key alone. OpenAI is the one that
  * genuinely needed a second implementation.
  */
-type Wire = { proto: 'anthropic' | 'openai'; url: string; keyName: string }
+type Wire = {
+  proto: 'anthropic' | 'openai'
+  url: string
+  keyName: string
+  /** resolves the key, since some providers are written under several names */
+  auth: () => string | null
+}
 
 export function wireFor(model: string): Wire {
   const m = model.toLowerCase()
   if (m.startsWith('kimi') || m.startsWith('moonshot')) {
-    return { proto: 'anthropic', url: MOONSHOT, keyName: 'MOONSHOT_API_KEY' }
+    return { proto: 'anthropic', url: MOONSHOT, keyName: 'KIMI_API_KEY', auth: moonshotKey }
   }
   if (m.startsWith('gpt') || /^o\d/.test(m)) {
-    return { proto: 'openai', url: OPENAI, keyName: 'OPENAI_API_KEY' }
+    return { proto: 'openai', url: OPENAI, keyName: 'OPENAI_API_KEY', auth: () => key('OPENAI_API_KEY') }
   }
-  return { proto: 'anthropic', url: ANTHROPIC, keyName: 'ANTHROPIC_API_KEY' }
+  return {
+    proto: 'anthropic', url: ANTHROPIC, keyName: 'ANTHROPIC_API_KEY',
+    auth: () => key('ANTHROPIC_API_KEY'),
+  }
 }
 
 /** every model the deployment has a key for, best first */
@@ -117,14 +128,14 @@ function textModels(): ModelOption[] {
   if (key('OPENAI_API_KEY')) {
     out.push({ id: MODEL_IDS.gpt, label: 'GPT-5.6 Sol', note: 'strong on layout', provider: 'OpenAI' })
   }
-  if (key('MOONSHOT_API_KEY')) {
-    out.push({ id: MODEL_IDS.kimi, label: 'Kimi K3', note: 'cheapest per film', provider: 'Moonshot' })
+  if (moonshotKey()) {
+    out.push({ id: MODEL_IDS.kimi, label: 'Kimi K2.6', note: 'cheapest per film', provider: 'Moonshot' })
   }
   return out
 }
 
 const textReady = () =>
-  !!(key('ANTHROPIC_API_KEY') || key('OPENAI_API_KEY') || key('MOONSHOT_API_KEY'))
+  !!(key('ANTHROPIC_API_KEY') || key('OPENAI_API_KEY') || moonshotKey())
 
 /** the first model we have a key for, used when the caller names none */
 function defaultModel(): string {
@@ -137,7 +148,7 @@ const providerLabel = () => {
   const names: string[] = []
   if (key('ANTHROPIC_API_KEY')) names.push('Anthropic')
   if (key('OPENAI_API_KEY')) names.push('OpenAI')
-  if (key('MOONSHOT_API_KEY')) names.push('Moonshot')
+  if (moonshotKey()) names.push('Moonshot')
   return names.join(' / ') || 'Anthropic'
 }
 
@@ -219,7 +230,8 @@ async function callTool(
   model: string, system: string, brief: string, tool: Tool, maxTokens: number,
 ): Promise<Record<string, unknown>> {
   const wire = wireFor(model)
-  const auth = need(wire.keyName)
+  const auth = wire.auth()
+  if (!auth) throw new Missing(`${wire.keyName} is not set on the server`)
   return wire.proto === 'openai'
     ? callOpenAi(wire.url, auth, model, system, brief, tool, maxTokens)
     : callAnthropic(wire.url, auth, model, system, brief, tool, maxTokens)
@@ -348,6 +360,13 @@ What the corpus does, and you should too:
   a dashboard. Not a marketing page. There are no testimonials, pricing tables,
   logo walls or feature grids anywhere in the corpus.
 - 12.7% of all nodes sit exactly on the canvas centre line. Centre things.
+- BLOCKS ON ONE SCREEN SHARE AN X. Give at least half of them the same x, and
+  usually that x is the centre. There is no column grid in the corpus, just a
+  centre line and one or two column anchors per scene. Blocks at 640, 900 and
+  1180 read as scattered even when each one is fine.
+- Text colour comes from the block and follows the background, so pick "bg"
+  deliberately: a dark bg gets light type automatically. Do not mix a dark bg
+  into a light film without a reason.
 - Margins are generous: keep content inside the middle 80% horizontally and the
   middle 70% vertically. These are posters with a UI in the middle.
 - ONE THOUGHT PER SCENE. Three sentences is two scenes. Two to four blocks is a
@@ -356,7 +375,27 @@ What the corpus does, and you should too:
 - Copy is short and concrete. No taglines that could belong to any product.
 
 Counters, rolling numbers and alternating headlines are the "swap-slot" block,
-never one line of text you intend to animate.`
+never one line of text you intend to animate.
+
+TWO REGISTERS. Pick one per scene and do not mix them.
+
+PRODUCT — the default, and what most beats want. The product's own UI on
+light paper, composed from pill, title-sub, line-stack, label-value,
+icon-tile, glyph-label, swap-slot, surface. Everything above applies.
+
+LIT — a dark scene about ONE glowing thing. Use it when the subject has no
+UI to show: a voice, an agent, a model, a capability, an identity. Never for
+a feature list or a screenshot beat.
+- "lit-field" goes FIRST in "place" and covers the frame. Every lit scene
+  needs exactly one; without it the scene is black paper, not lit space.
+- "bg" must be near black. "#05060a" is the one the field falls to.
+- ONE hue for the whole scene: pass the SAME hex to every block's "hue".
+  Two hues in a lit scene reads as two scenes.
+- "lit-subject" is the thing the beat is about. At most one. Give it a
+  "title" only when the name matters.
+- "glass-panel" stacks into a list, one per row, all sharing an x.
+- "meter" is a live waveform: voice, listening, level. Not decoration.
+`
 
 export async function runScreen(req: ScreenRequest): Promise<ScreenProposal> {
   const model = req.model || defaultModel()
@@ -366,7 +405,9 @@ export async function runScreen(req: ScreenRequest): Promise<ScreenProposal> {
     `Canvas ${w} x ${h}. Centre is ${Math.round(w / 2)}, ${Math.round(h / 2)}.`,
     `The film's accent is ${req.accent}; a block with a role of "accent" takes it.`,
     `Blocks you may place:\n${req.blocks
-      .map(b => `  ${b.key} - ${b.blurb}\n    opts: ${b.slots.join(', ')}`)
+      // slots carry their kind now; join(', ') on the objects printed
+      // "[object Object]" and the model was guessing names off the blurb
+      .map(b => `  ${b.key} - ${b.blurb}\n    opts: ${b.slots.map(sl => `${sl.key} (${sl.kind})`).join(', ')}`)
       .join('\n')}`,
     `What the director asked for: ${req.prompt}`,
     // a second pass is told what was measured, not asked to guess again
@@ -424,7 +465,21 @@ The shape of a launch film, from the corpus:
 - 5 to 9 scenes. Content beats dwell 1.5-3.5s, punctuation beats 0.5-1.5s, and
   the end card gets at least 2s. The whole thing runs 15-25s.
 - ONE THOUGHT PER SCENE. Two to four blocks. Three sentences is two scenes.
+- BLOCKS IN ONE SCENE SHARE AN X. Give at least half of them the same x, and
+  usually that x is the centre. There is no column grid in the corpus, just a
+  centre line and one or two column anchors per scene.
+- Text colour comes from the block and follows the background, so pick "bg"
+  deliberately. Keep one paper for the film and change it only to mark a turn.
 - It opens on the product doing something, not on a title card.
+- TWO REGISTERS, one per scene, never mixed. PRODUCT is the default: the
+  product's own UI on light paper. LIT is a dark scene about one glowing
+  thing, for a subject with no UI to show — a voice, an agent, a model, an
+  identity. A film may use both, but a lit run should be a run, not one
+  stray dark beat.
+- In a LIT scene: "lit-field" goes FIRST in "place" and covers the frame,
+  "bg" is near black ("#05060a"), and the SAME hue hex goes to every
+  block's "hue" slot. At most one "lit-subject". "glass-panel" stacks into
+  a list sharing an x. "meter" is a live waveform, not decoration.
 - It shows the PRODUCT'S OWN UI: an editor, a terminal, a browser, a dashboard.
   There are no testimonials, pricing tables or logo walls anywhere in the corpus.
 - The last scene is the end card: a wordmark, optionally a tagline under it and
@@ -449,7 +504,9 @@ export async function runFilm(req: FilmRequest): Promise<FilmProposal> {
     `Canvas ${w} x ${h}. Centre is ${Math.round(w / 2)}, ${Math.round(h / 2)}.`,
     `The film's accent is ${req.accent}.`,
     `Blocks you may place:\n${req.blocks
-      .map(b => `  ${b.key} - ${b.blurb}\n    opts: ${b.slots.join(', ')}`)
+      // slots carry their kind now; join(', ') on the objects printed
+      // "[object Object]" and the model was guessing names off the blurb
+      .map(b => `  ${b.key} - ${b.blurb}\n    opts: ${b.slots.map(sl => `${sl.key} (${sl.kind})`).join(', ')}`)
       .join('\n')}`,
     `Entrances: ${req.enters.join(', ')}`,
     `Transitions: ${req.transitions.join(', ')}`,

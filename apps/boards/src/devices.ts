@@ -200,6 +200,40 @@ export function wordBuild(
   return track
 }
 
+/** what a device changed, so a caller can say it rather than swallow it */
+export interface Note {
+  rule: string
+  detail: string
+  fixed: boolean
+}
+
+/** two frames at 30fps: enough that frame zero has ink, not enough to lose the move */
+export const OPEN_LEAD = 0.06
+
+/**
+ * Stop the film opening on an empty frame.
+ *
+ * Measured: at t=0 a generated film had ink 0.00, a literally blank frame,
+ * because every entrance in the first scene starts at exactly zero with
+ * opacity zero. That is the poster frame, and it was nothing. The corpus
+ * authors around it by putting the first key slightly before zero, so the
+ * film opens on something already arriving.
+ *
+ * Only the first scene, and only tracks that start at or before zero: a beat
+ * deliberately held empty later in the film is an authoring choice.
+ */
+export function openWithInk(tracks: Track[], firstScene: string): Note[] {
+  const notes: Note[] = []
+  for (const t of tracks) {
+    if (t.scene !== firstScene) continue
+    if (!(t.enter || t.keys)) continue
+    if ((t.at ?? 0) > 0) continue
+    t.at = round(-OPEN_LEAD)
+    notes.push({ rule: 'open with ink', detail: String(t.target), fixed: true })
+  }
+  return notes
+}
+
 /**
  * Apply every device to a document's tracks, refusing collisions.
  *
@@ -209,6 +243,9 @@ export function wordBuild(
  */
 export function applyDevices(stage: Stage, tracks: Track[]): Track[] {
   const out = [...tracks]
+  // the poster frame must not be empty
+  const first = stage.scenes[0]?.id
+  if (first) openWithInk(out, first)
   const mass = new Map(
     motionMass({ stage, anim: { tracks: out } }).map(m => [m.scene, m.mass]))
   stage.scenes.forEach((scene, i) => {

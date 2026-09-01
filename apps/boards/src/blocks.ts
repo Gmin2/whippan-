@@ -156,6 +156,16 @@ const labelFor = (role: Role) => (role === 'tint' ? INK : PAPER)
  * HSL, move only L, convert back. Saturation eases off near white the way
  * a real highlight does, rather than staying at full and going neon.
  */
+/**
+ * A hue slot takes a free string, so a model will eventually answer "blue"
+ * or "primary" in it. That reached `shade` as-is and put a colour NAME into
+ * a gradient stop, which paints nothing. Same class as the `tier: "hero"`
+ * that rendered at NaN: coerce at the edge, fall back to the film's accent.
+ */
+export function asHex(v: unknown, fallback: string): string {
+  return typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v) ? v : fallback
+}
+
 function shade(hex: string, k: number): string {
   const m = /^#([0-9a-f]{6})$/i.exec(hex)
   if (!m) return hex
@@ -446,7 +456,7 @@ export const BLOCKS: Block[] = [
     make(ctx, o) {
       const { stage, x, y } = ctx
       const [W, H] = stage.size
-      const hue = str(o, 'hue', '') || ctx.accent
+      const hue = asHex(o.hue, ctx.accent)
       // density rides the tier ladder so it tunes like everything else
       const count = Math.round(40 + Number(o.tier ?? 8) * 22)
       const [g, pool, dust] = ids(stage, 'field', 3)
@@ -485,9 +495,13 @@ export const BLOCKS: Block[] = [
     ],
     make(ctx, o) {
       const { stage, x, y } = ctx
-      const hue = str(o, 'hue', '') || ctx.accent
-      // the sphere is sized off the type ladder so it sits in the same system
-      const d = round(size(stage, Number(o.tier ?? 12), 12) * 2.6)
+      const hue = asHex(o.hue, ctx.accent)
+      // Sized against the FRAME, not the type ladder. A subject is the thing
+      // the beat is about, so it is inherently frame-relative: off the ladder
+      // it came out at ~218px on a 1920 frame and read as a dot rather than a
+      // subject. tier 12 is now about a third of frame height.
+      const tier = Number(o.tier ?? 12)
+      const d = round(stage.size[1] * Math.min(0.46, 0.14 + (Number.isFinite(tier) ? tier : 12) * 0.016))
       const title = str(o, 'title', '')
       const sub = str(o, 'sub', '')
       const [g, halo, orb, rim, tt, ss] = ids(stage, 'subject', 6)
@@ -515,17 +529,20 @@ export const BLOCKS: Block[] = [
         } as Node,
       ]
       if (title) {
-        const fs = size(stage, 6, 6)
+        // the name rides under the sphere and scales with it, so it reads at
+        // the same weight whatever size the subject is
+        const fs = round(d * 0.155)
         out.push({
-          id: tt, type: 'text', x: round(x), y: round(y + d * 0.78), text: title,
+          id: tt, type: 'text', x: round(x), y: round(y + d * 0.70), text: title,
           color: inkOn('#05060a'),
           font: { family: 'inter', weight: WEIGHT.lead, size: fs }, group: g,
         } as Node)
         if (sub) {
           out.push({
-            id: ss, type: 'text', x: round(x), y: round(y + d * 0.78 + fs * 1.05), text: sub,
+            id: ss, type: 'text', x: round(x), y: round(y + d * 0.70 + fs * 1.15), text: sub,
+            // #c9c9c9 on near-black, the corpus secondary tier for dark paper
             color: dimOn('#05060a'),
-            font: { family: 'inter', weight: WEIGHT.body, size: round(fs * 0.5) }, group: g,
+            font: { family: 'inter', weight: WEIGHT.body, size: round(fs * 0.52) }, group: g,
           } as Node)
         }
       }
@@ -543,12 +560,22 @@ export const BLOCKS: Block[] = [
     ],
     make(ctx, o) {
       const { stage, x, y } = ctx
-      const hue = str(o, 'hue', '') || ctx.accent
+      const hue = asHex(o.hue, ctx.accent)
       const fs = size(stage, Number(o.tier ?? 4), 4)
       const h = round(fs * 2.6)
-      const w = round(h * 6.4)
+      const label = str(o, 'title', 'Call Router')
       const [g, card, dot, tt] = ids(stage, 'glass', 4)
-      const padL = round(h * 0.72)
+      // Text is CENTRE anchored by the engine. Positioning it as if it were
+      // left anchored ran every long label back underneath the dot. So: lay
+      // the row out left to right, then place the text centre at the middle
+      // of the space it actually occupies, and size the card to fit.
+      const padL = round(h * 0.5)
+      const dotD = round(h * 0.52)
+      const gap = round(fs * 0.7)
+      const textW = advance(label, fs)
+      const w = round(padL + dotD + gap + textW + padL * 1.6)
+      const dotX = round(x - w / 2 + padL + dotD / 2)
+      const textX = round(dotX + dotD / 2 + gap + textW / 2)
       return [
         container(g, x, y),
         {
@@ -557,14 +584,14 @@ export const BLOCKS: Block[] = [
           stroke: 1, stroke_color: shade(hue, 0.35), group: g,
         } as Node,
         {
-          id: dot, type: 'rect', x: round(x - w / 2 + padL), y: round(y),
-          w: round(h * 0.52), h: round(h * 0.52), radius: round(h * 0.26),
+          id: dot, type: 'rect', x: dotX, y: round(y),
+          w: dotD, h: dotD, radius: round(dotD / 2),
           gradient: { kind: 'radial', cx: 0.35, cy: 0.3, stops: litStops(hue) },
           glow: { sigma: round(h * 0.3), opacity: 0.7, color: hue }, group: g,
         } as Node,
         {
-          id: tt, type: 'text', x: round(x - w / 2 + padL * 2.1 + fs * 2.2), y: round(y),
-          text: str(o, 'title', 'Call Router'), color: inkOn('#05060a'),
+          id: tt, type: 'text', x: textX, y: round(y),
+          text: label, color: inkOn('#05060a'),
           font: { family: 'inter', weight: WEIGHT.body, size: fs }, group: g,
         } as Node,
       ]
@@ -581,7 +608,7 @@ export const BLOCKS: Block[] = [
     ],
     make(ctx, o) {
       const { stage, x, y } = ctx
-      const hue = str(o, 'hue', '') || ctx.accent
+      const hue = asHex(o.hue, ctx.accent)
       const fs = size(stage, Number(o.tier ?? 6), 6)
       const w = round(fs * 9)
       const h = round(fs * 1.5)
