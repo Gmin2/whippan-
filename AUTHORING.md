@@ -177,8 +177,9 @@ per chapter, never decoration.
 - `state` flips the target to a named state at `at`.
 
 keyable properties: `x` `y` (offsets — see contract), `w` `h` (absolute),
-`scale` `rot` `opacity` `glow_sigma` `glow_opacity` (absolute), and
-`blur` (rects only).
+`scale` `rot` `opacity` `glow_sigma` `glow_opacity` (absolute),
+`tracking` (text only: px added to every letter gap, negative tightens —
+the line re-centres as it re-spaces), and `blur` (rects only).
 
 easing per key (eases INTO that key): `"outCubic"`, `"inCubic"`,
 `"inOutCubic"`, `"spring"`, a cubic bezier `[0.22, 1, 0.36, 1]`, or a

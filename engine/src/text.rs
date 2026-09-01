@@ -138,6 +138,51 @@ fn shape_word(face: &Face, outline_face: &ttf_parser::Face, word: &str, scale: f
 
 /// shape one line of text into positioned words with outline paths.
 /// cached: shaping runs once per (family, text, size, weight), not per frame.
+/// Re-space a shaped line, adding `px` to every glyph advance.
+///
+/// Applied to the shaped line rather than at each draw site: word and glyph
+/// offsets are consumed in five different places (plain, reveal, word build,
+/// typewriter, scramble) and a per-site fix would have to be right in all of
+/// them. Rewriting the geometry once means every one of them keeps working,
+/// and `width` stays honest so centring still centres.
+///
+/// Negative values tighten. The line grows by `(glyphs - 1) * px`, not by
+/// `glyphs * px`, because tracking is the gap BETWEEN letters.
+pub fn track_line(line: &ShapedLine, px: f32) -> ShapedLine {
+    if px == 0.0 {
+        return line.clone();
+    }
+    let mut seen = 0usize;
+    let words = line
+        .words
+        .iter()
+        .map(|w| {
+            let shifted = ShapedWord {
+                text: w.text.clone(),
+                x: w.x + seen as f32 * px,
+                width: w.width + w.glyphs.len().saturating_sub(1) as f32 * px,
+                path: w.path.clone(),
+                glyphs: w
+                    .glyphs
+                    .iter()
+                    .enumerate()
+                    .map(|(j, g)| ShapedGlyph {
+                        x: g.x + j as f32 * px,
+                        path: g.path.clone(),
+                    })
+                    .collect(),
+            };
+            seen += w.glyphs.len();
+            shifted
+        })
+        .collect();
+    ShapedLine {
+        width: line.width + (seen.saturating_sub(1)) as f32 * px,
+        baseline_shift: line.baseline_shift,
+        words,
+    }
+}
+
 pub fn shape_line(text: &str, size: f32, weight: f32, family: &str) -> Option<ShapedLine> {
     let key = format!("{family}|{text}|{size}|{weight}");
     let cache = CACHE.get_or_init(|| Mutex::new(HashMap::new()));

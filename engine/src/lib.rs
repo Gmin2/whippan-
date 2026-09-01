@@ -2133,6 +2133,16 @@ fn render_scene(
                         Some(l) => l,
                         None => continue,
                     };
+                    // letter-spacing, keyable. re-spacing the shaped line here
+                    // means every downstream site (plain, reveal, word build,
+                    // typewriter, scramble) reads the tracked geometry, and
+                    // `width` stays honest so the line still centres.
+                    let tracking = node_prop(node, "tracking", 0.0, t);
+                    let line = if tracking != 0.0 {
+                        text::track_line(&line, tracking)
+                    } else {
+                        line
+                    };
                     let ink = node.color.clone().unwrap_or_else(|| "#000000".into());
                     let left = node.x + dx - line.width / 2.0;
                     let baseline = node.y + dy + line.baseline_shift;
@@ -3776,6 +3786,38 @@ mod tests {
             assert_eq!(g["color"], "#e8671f", "scale glyphs keep accent");
         }
         assert_eq!(settled[0]["color"], "#161616");
+    }
+
+    #[test]
+    fn tracking_respaces_a_line_and_keeps_its_width_honest() {
+        load_font();
+        let plain = text::shape_line("Voice Agent Builder", 58.0, 500.0, "inter").unwrap();
+        let glyphs: usize = plain.words.iter().map(|w| w.glyphs.len()).sum();
+
+        let wide = text::track_line(&plain, 6.0);
+        // the line grows by the gaps BETWEEN letters, not by one per letter
+        let want = plain.width + (glyphs - 1) as f32 * 6.0;
+        assert!((wide.width - want).abs() < 0.01, "width {} want {want}", wide.width);
+
+        // the gap between two words grows by exactly one tracking step, the
+        // same as any letter gap — a word boundary is not a special case
+        let gap = |l: &text::ShapedLine, i: usize| {
+            l.words[i + 1].x - (l.words[i].x + l.words[i].width)
+        };
+        for i in 0..plain.words.len() - 1 {
+            let grew = gap(&wide, i) - gap(&plain, i);
+            assert!((grew - 6.0).abs() < 0.01,
+                    "word gap {i} grew by {grew}, should be one step");
+        }
+
+        // and it is symmetric: tightening is the same operation negated
+        let tight = text::track_line(&plain, -3.0);
+        for i in 0..plain.words.len() - 1 {
+            let shrank = gap(&plain, i) - gap(&tight, i);
+            assert!((shrank - 3.0).abs() < 0.01,
+                    "word gap {i} shrank by {shrank}, should be one step");
+        }
+        assert!(text::track_line(&plain, 0.0).width == plain.width, "zero is a no-op");
     }
 
     #[test]
