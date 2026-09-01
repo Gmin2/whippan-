@@ -73,6 +73,16 @@ positions. a text node is one line; multi-line copy = one node per line.
 optional on rect:
 - `gradient`: `{"angle": 90, "stops": [{"at": 0, "color": "#401eb1"},
   {"at": 1, "color": "#3f1ead"}]}` — linear, angle in degrees.
+  radial instead with `{"kind": "radial", "cx": 0.5, "cy": 0.5,
+  "radius": 1, "stops": [...]}`. `cx`/`cy` place the centre as a fraction
+  of the box, `radius` scales the reach against its half-diagonal. this is
+  what a vignette, a light pool and a lit sphere are each made of — offset
+  the centre to put the highlight off-axis.
+- `stroke`: a hairline RIM drawn on top of the fill, with `stroke_color`
+  (defaults to the fill). a rect with a stroke and NO fill or gradient is
+  an outline only and paints no body — that is how you get orbit rings and
+  hairline dividers. with a fill you get the glass-card pair: translucent
+  body plus lit edge.
 - `glow`: `{"sigma": 34, "opacity": 0.9, "color": "#a32a32", "dx": 0,
   "dy": 0}` — a blurred echo behind the body. color defaults to the fill
   (or mid gradient stop). use for lit pills, status dots, rim glows.

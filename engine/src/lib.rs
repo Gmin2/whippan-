@@ -121,6 +121,12 @@ pub struct Node {
     pub d: Option<String>,
     #[serde(default)]
     pub stroke: Option<f32>,
+    /// rect nodes: `stroke` is a RIM drawn on top of the fill rather than
+    /// instead of it, because a lit card is a translucent body plus a hairline
+    /// edge and there was previously no way to say that. `stroke_color`
+    /// defaults to the fill.
+    #[serde(default)]
+    pub stroke_color: Option<String>,
     /// liquid path morphing: scene-local keyframes of whole `d` shapes.
     /// paths are resampled to fixed point loops and lerped, so any icon
     /// can flow into any other (authored with absolute M/L/C/Q/Z only)
@@ -572,17 +578,42 @@ fn d_glow_opacity() -> f32 {
     0.85
 }
 
-/// linear gradient fill. angle in degrees: 0 = left to right, 90 = top to
-/// bottom. the engine projects the node's box onto the angle and hands the
-/// painter finished line endpoints.
+/// gradient fill, linear or radial.
+///
+/// linear: angle in degrees, 0 = left to right, 90 = top to bottom. the engine
+/// projects the node's box onto the angle and hands the painter finished line
+/// endpoints.
+///
+/// radial: `{"kind": "radial", "stops": [...]}`. `cx`/`cy` place the centre as
+/// a fraction of the box (0.5, 0.5 is the middle) and `radius` scales the
+/// reach against the box's half-diagonal. This is what a vignette, a light
+/// pool and a lit sphere are all made of, and there was no way to say any of
+/// them before.
 #[derive(Deserialize, Clone)]
 pub struct Gradient {
     #[serde(default = "d_angle")]
     pub angle: f32,
+    #[serde(default = "d_kind")]
+    pub kind: String,
+    #[serde(default = "d_half")]
+    pub cx: f32,
+    #[serde(default = "d_half")]
+    pub cy: f32,
+    #[serde(default = "d_one")]
+    pub radius: f32,
     pub stops: Vec<Stop>,
 }
 fn d_angle() -> f32 {
     90.0
+}
+fn d_kind() -> String {
+    "linear".into()
+}
+fn d_half() -> f32 {
+    0.5
+}
+fn d_one() -> f32 {
+    1.0
 }
 
 #[derive(Deserialize, Clone)]
@@ -597,6 +628,9 @@ pub struct Grad {
     pub y0: f32,
     pub x1: f32,
     pub y1: f32,
+    /// set for a radial: x0/y0 is then the centre and this is its reach
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub radius: Option<f32>,
     pub stops: Vec<(f32, String)>,
 }
 
@@ -825,6 +859,22 @@ pub struct DrawCmd {
 /// gradient line for a node's box at the given angle, endpoints relative to
 /// the node origin
 fn grad_for(g: &Gradient, w: f32, h: f32) -> Grad {
+    let stops: Vec<(f32, String)> = g.stops.iter().map(|s| (s.at, s.color.clone())).collect();
+    if g.kind == "radial" {
+        // centre as a fraction of the box, reach against its half-diagonal, so
+        // a radial reads the same on a square tile and a wide banner
+        let cx = (g.cx - 0.5) * w;
+        let cy = (g.cy - 0.5) * h;
+        let half = (w * w + h * h).sqrt() / 2.0;
+        return Grad {
+            x0: cx,
+            y0: cy,
+            x1: cx,
+            y1: cy,
+            radius: Some((g.radius * half).max(0.01)),
+            stops,
+        };
+    }
     let a = g.angle.to_radians();
     let (dx, dy) = (a.cos(), a.sin());
     let r = (w * dx.abs() + h * dy.abs()) / 2.0;
@@ -833,7 +883,8 @@ fn grad_for(g: &Gradient, w: f32, h: f32) -> Grad {
         y0: -r * dy,
         x1: r * dx,
         y1: r * dy,
-        stops: g.stops.iter().map(|s| (s.at, s.color.clone())).collect(),
+        radius: None,
+        stops,
     }
 }
 
@@ -2419,6 +2470,13 @@ fn render_scene(
                         .gradient
                         .as_ref()
                         .map(|g| grad_for(g, gw.unwrap_or(0.0), gh.unwrap_or(0.0)));
+                    // fill defaults to black, so a rect that names no fill but
+                    // does name a stroke is an OUTLINE and must not paint a
+                    // body: rings and rims over a lit background were being
+                    // filled with black and swallowing whatever sat behind them
+                    let outline_only =
+                        node.fill.is_none() && node.gradient.is_none() && node.stroke.is_some();
+                    if !outline_only {
                     cmds.push(DrawCmd {
                         op: "rect".into(),
                         x: gx,
@@ -2433,11 +2491,36 @@ fn render_scene(
                         goo: node.goo.clone(),
                         rot,
                         stroke: None,
-                        color: fill,
+                        color: fill.clone(),
                         opacity,
                         scale,
                         ..Default::default()
                     });
+                    }
+                    // the rim rides ON TOP of the body, not instead of it: a
+                    // glass card is a translucent fill and a hairline edge, and
+                    // stroking in place of the fill would lose the card
+                    if let Some(sw) = node.stroke.filter(|w| *w > 0.0) {
+                        cmds.push(DrawCmd {
+                            op: "rect".into(),
+                            x: gx,
+                            y: gy,
+                            w: gw,
+                            h: gh,
+                            radius: gr,
+                            d: None,
+                            blur: None,
+                            grad: None,
+                            src: None,
+                            goo: None,
+                            rot,
+                            stroke: Some(sw),
+                            color: node.stroke_color.clone().unwrap_or(fill),
+                            opacity,
+                            scale,
+                            ..Default::default()
+                        });
+                    }
                 }
                 "cursor" => {
                     let s = node.w.unwrap_or(26.0) / 13.2;
@@ -3608,6 +3691,38 @@ mod tests {
             assert_eq!(g["color"], "#e8671f", "scale glyphs keep accent");
         }
         assert_eq!(settled[0]["color"], "#161616");
+    }
+
+    #[test]
+    fn a_radial_gradient_centres_on_the_box_and_reaches_its_half_diagonal() {
+        // the vignette / light pool / lit sphere primitive: without this the
+        // only fill available was flat or a straight line, which is why every
+        // dark scene we made read as paper rather than lit space
+        let stage = r##"{"fps":30,"size":[1000,600],"scenes":[{"id":"s","dur":1,"nodes":[
+            {"id":"pool","type":"rect","x":500,"y":300,"w":400,"h":300,
+             "gradient":{"kind":"radial","stops":[
+               {"at":0,"color":"#ffffff"},{"at":1,"color":"#000000"}]}},
+            {"id":"line","type":"rect","x":500,"y":300,"w":400,"h":300,
+             "gradient":{"angle":0,"stops":[
+               {"at":0,"color":"#ffffff"},{"at":1,"color":"#000000"}]}}]}]}"##;
+        load_font();
+        let raw = render_frame(stage, "", 0.0);
+        let cmds: Vec<Value> = serde_json::from_str(&raw)
+            .unwrap_or_else(|e| panic!("render_frame said: {raw} ({e})"));
+
+        let pool = cmds.iter().find(|c| c["id"] == "pool").expect("the radial rect");
+        let g = &pool["grad"];
+        // centred in its own box, and reaching the half diagonal
+        assert_eq!(g["x0"].as_f64().unwrap(), 0.0);
+        assert_eq!(g["y0"].as_f64().unwrap(), 0.0);
+        let want = ((400.0f64 * 400.0 + 300.0 * 300.0).sqrt()) / 2.0;
+        assert!((g["radius"].as_f64().unwrap() - want).abs() < 0.01,
+                "radius {:?} should be the half diagonal {want}", g["radius"]);
+
+        // a linear one is untouched and carries no radius at all
+        let line = cmds.iter().find(|c| c["id"] == "line").expect("the linear rect");
+        assert!(line["grad"]["radius"].is_null(), "a linear gradient has no radius");
+        assert_eq!(line["grad"]["x0"].as_f64().unwrap(), -200.0);
     }
 
     #[test]

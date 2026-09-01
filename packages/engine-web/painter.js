@@ -10,9 +10,15 @@ function drawOne(CK, skc, paint, c, images) {
       sc[3] *= c.opacity;
       return sc;
     });
-    shader = CK.Shader.MakeLinearGradient(
-      [c.grad.x0, c.grad.y0], [c.grad.x1, c.grad.y1],
-      colors, c.grad.stops.map(([at]) => at), CK.TileMode.Clamp);
+    const at = c.grad.stops.map(([a]) => a);
+    // a radial carries its reach; x0/y0 is then the centre
+    shader = c.grad.radius
+      ? CK.Shader.MakeRadialGradient(
+          [c.grad.x0, c.grad.y0], c.grad.radius,
+          colors, at, CK.TileMode.Clamp)
+      : CK.Shader.MakeLinearGradient(
+          [c.grad.x0, c.grad.y0], [c.grad.x1, c.grad.y1],
+          colors, at, CK.TileMode.Clamp);
     paint.setShader(shader);
   } else {
     const col = CK.parseColorString(c.color);

@@ -37,14 +37,26 @@ mod app {
                 .map(|(_, hex)| hex_color(hex, c.opacity))
                 .collect();
             let pos: Vec<f32> = g.stops.iter().map(|(at, _)| *at).collect();
-            paint.set_shader(Shader::linear_gradient(
-                (Point::new(g.x0, g.y0), Point::new(g.x1, g.y1)),
-                colors.as_slice(),
-                Some(pos.as_slice()),
-                TileMode::Clamp,
-                None,
-                None,
-            ));
+            // a radial carries its reach; x0/y0 is then the centre
+            paint.set_shader(match g.radius {
+                Some(r) => Shader::radial_gradient(
+                    Point::new(g.x0, g.y0),
+                    r,
+                    colors.as_slice(),
+                    Some(pos.as_slice()),
+                    TileMode::Clamp,
+                    None,
+                    None,
+                ),
+                None => Shader::linear_gradient(
+                    (Point::new(g.x0, g.y0), Point::new(g.x1, g.y1)),
+                    colors.as_slice(),
+                    Some(pos.as_slice()),
+                    TileMode::Clamp,
+                    None,
+                    None,
+                ),
+            });
         } else {
             paint.set_color(hex_color(&c.color, c.opacity));
         }
