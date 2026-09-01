@@ -430,5 +430,29 @@
    1080
   ],
   "group": "primitives"
+ },
+ {
+  "slug": "solder-launch",
+  "title": "Solder \u2014 launch",
+  "dur": 22.3,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "films",
+  "stage": "/docs/solder-launch.stage.json",
+  "anim": "/docs/solder-launch.anim.json"
+ },
+ {
+  "slug": "firecrawl-launch",
+  "title": "Firecrawl \u2014 launch",
+  "dur": 22.4,
+  "size": [
+   1920,
+   1080
+  ],
+  "group": "films",
+  "stage": "/docs/firecrawl-launch.stage.json",
+  "anim": "/docs/firecrawl-launch.anim.json"
  }
 ]
