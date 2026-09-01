@@ -41,6 +41,12 @@ export interface Ctx {
   stage: Stage
   /** the film's one hue; about one text node in five carries it */
   accent: string
+  /**
+   * The scene background. Blocks used to set ink unconditionally, which put
+   * `#161616` on a `#0a0a0a` scene at a contrast ratio of 1.06 in a real
+   * generated film. Ink follows the paper.
+   */
+  paper?: string
   /** where the block is dropped, in document units */
   x: number
   y: number
@@ -83,7 +89,14 @@ const round = (n: number) => Math.round(n)
  * approximation the inspector wraps with. A pill built from it is within a few
  * px, and it is a resizable rect afterwards.
  */
-const advance = (text: string, fontSize: number) => text.length * fontSize * 0.52
+const advance = (text: string, fontSize: number) => {
+  // Caps are materially wider than the 0.52 mixed-case mean, and launch films
+  // set pill labels in caps constantly. A generated film ran "CATALOG 01" past
+  // the end of its own pill because one coefficient covered both.
+  const caps = text.replace(/[^A-Za-z]/g, '')
+  const upper = caps ? caps.replace(/[^A-Z]/g, '').length / caps.length : 0
+  return text.length * fontSize * (0.52 + 0.11 * upper)
+}
 
 const str = (o: Record<string, unknown>, key: string, fallback: string) =>
   typeof o[key] === 'string' && (o[key] as string).length ? (o[key] as string) : fallback
@@ -114,7 +127,47 @@ const container = (id: string, x: number, y: number): Node =>
 const fillFor = (role: Role, accent: string) =>
   role === 'accent' ? accent : role === 'ink' ? INK : TINT
 
+/** true when the scene sits on dark paper, by WCAG relative luminance */
+function onDark(paper?: string): boolean {
+  if (!paper || !/^#[0-9a-f]{6}$/i.test(paper)) return false
+  const [r, g, b] = [1, 3, 5].map(i => parseInt(paper.slice(i, i + 2), 16) / 255)
+    .map(x => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4))
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.2
+}
+
+/**
+ * Ink and secondary text for a given paper, taken from the corpus rather than
+ * inverted arithmetically: dark scenes set text in #ffffff / #fcfcfc with the
+ * same #8a8a8a secondary tier, light scenes in #161616.
+ */
+const inkOn = (paper?: string) => (onDark(paper) ? '#fcfcfc' : INK)
+const dimOn = (paper?: string) => (onDark(paper) ? '#c9c9c9' : GREY)
+
 const labelFor = (role: Role) => (role === 'tint' ? INK : PAPER)
+
+
+/** mix a hex toward white (k>0) or black (k<0), for building a lit ramp */
+function shade(hex: string, k: number): string {
+  const m = /^#([0-9a-f]{6})$/i.exec(hex)
+  if (!m) return hex
+  const n = parseInt(m[1], 16)
+  const mix = (c: number) =>
+    Math.round(k >= 0 ? c + (255 - c) * k : c * (1 + k))
+      .toString(16).padStart(2, '0')
+  return '#' + mix((n >> 16) & 255) + mix((n >> 8) & 255) + mix(n & 255)
+}
+
+/**
+ * A lit ramp from one hue: hot core, the hue itself, then a fall to near black.
+ * Four stops rather than two because a two-stop sphere reads as a flat disc
+ * with a gradient on it; the third stop is what gives it a terminator.
+ */
+const litStops = (hue: string) => [
+  { at: 0, color: shade(hue, 0.72) },
+  { at: 0.38, color: hue },
+  { at: 0.75, color: shade(hue, -0.62) },
+  { at: 1, color: shade(hue, -0.88) },
+]
 
 export const BLOCKS: Block[] = [
   {
@@ -170,12 +223,12 @@ export const BLOCKS: Block[] = [
         container(g, x, y + dy / 2),
         {
           id: a, type: 'text', x: round(x), y: round(y), text: str(o, 'title', 'Ship the film'),
-          color: INK, font: { family: 'inter', weight: WEIGHT.hero, size: big }, group: g,
+          color: inkOn(ctx.paper), font: { family: 'inter', weight: WEIGHT.hero, size: big }, group: g,
         },
         {
           id: b, type: 'text', x: round(x), y: round(y + dy),
           text: str(o, 'sub', 'Two JSON files. One render.'),
-          color: GREY, font: { family: 'inter', weight: WEIGHT.body, size: small }, group: g,
+          color: dimOn(ctx.paper), font: { family: 'inter', weight: WEIGHT.body, size: small }, group: g,
         },
       ]
     },
@@ -201,7 +254,7 @@ export const BLOCKS: Block[] = [
         container(g, x, y),
         ...rows.map((text, i) => ({
           id: rest[i], type: 'text', x: round(x), y: round(top + i * dy), text,
-          color: INK, font: { family: 'inter', weight: WEIGHT.body, size: fs }, group: g,
+          color: inkOn(ctx.paper), font: { family: 'inter', weight: WEIGHT.body, size: fs }, group: g,
         } as Node)),
       ]
     },
@@ -225,11 +278,11 @@ export const BLOCKS: Block[] = [
         container(g, x, y + dy / 2),
         {
           id: a, type: 'text', x: round(x), y: round(y), text: str(o, 'label', 'Rendered'),
-          color: GREY, font: { family: 'inter', weight: WEIGHT.body, size: small }, group: g,
+          color: dimOn(ctx.paper), font: { family: 'inter', weight: WEIGHT.body, size: small }, group: g,
         },
         {
           id: b, type: 'text', x: round(x), y: round(y + dy), text: str(o, 'value', '4.2s'),
-          color: INK, font: { family: 'inter', weight: WEIGHT.hero, size: big }, group: g,
+          color: inkOn(ctx.paper), font: { family: 'inter', weight: WEIGHT.hero, size: big }, group: g,
         },
       ]
     },
@@ -290,7 +343,7 @@ export const BLOCKS: Block[] = [
         },
         {
           id: t, type: 'text', x: round(x + fs / 2), y: round(y), text,
-          color: INK, font: { family: 'inter', weight: WEIGHT.lead, size: fs }, group: g,
+          color: inkOn(ctx.paper), font: { family: 'inter', weight: WEIGHT.lead, size: fs }, group: g,
         },
       ]
     },
@@ -312,7 +365,7 @@ export const BLOCKS: Block[] = [
         container(g, x, y),
         ...words.map((text, i) => ({
           id: rest[i], type: 'text', x: round(x), y: round(y), text,
-          color: INK, font: { family: 'inter', weight: WEIGHT.hero, size: fs },
+          color: inkOn(ctx.paper), font: { family: 'inter', weight: WEIGHT.hero, size: fs },
           // only the first is up; the overlay flips the rest
           keys: i === 0 ? undefined : { opacity: [{ t: 0, v: 0 }] },
           group: g,
@@ -352,6 +405,177 @@ export const BLOCKS: Block[] = [
           font: { family: 'inter', weight: WEIGHT.strong, size: fs }, group: g,
         },
       ]
+    },
+  },
+  {
+    key: 'lit-field',
+    name: 'Lit field',
+    blurb: 'the backdrop for a dark scene: a radial pool of light and a drifting speck field.',
+    slots: [
+      { key: 'hue', label: 'light', kind: 'text', def: '' },
+      { key: 'tier', label: 'density', kind: 'tier', def: 8 },
+    ],
+    make(ctx, o) {
+      const { stage, x, y } = ctx
+      const [W, H] = stage.size
+      const hue = str(o, 'hue', '') || ctx.accent
+      // density rides the tier ladder so it tunes like everything else
+      const count = Math.round(40 + Number(o.tier ?? 8) * 22)
+      const [g, pool, dust] = ids(stage, 'field', 3)
+      return [
+        container(g, x, y),
+        {
+          id: pool, type: 'rect', x: round(x), y: round(y), w: W, h: H,
+          gradient: {
+            kind: 'radial', radius: 0.85,
+            stops: [
+              { at: 0, color: shade(hue, -0.72) },
+              { at: 0.55, color: shade(hue, -0.9) },
+              { at: 1, color: '#05060a' },
+            ],
+          },
+          group: g,
+        } as Node,
+        {
+          id: dust, type: 'particles', x: round(x), y: round(y), w: W, h: H,
+          fill: shade(hue, 0.7),
+          particles: { count, size: round(3.4 * k(stage)), speed: 14, depth: 0.8, twinkle: true },
+          group: g,
+        } as Node,
+      ]
+    },
+  },
+  {
+    key: 'lit-subject',
+    name: 'Lit subject',
+    blurb: 'a glowing sphere with a halo, a churned interior and a rim. the thing a dark scene is about.',
+    slots: [
+      { key: 'hue', label: 'colour', kind: 'text', def: '' },
+      { key: 'title', label: 'name', kind: 'text', def: '' },
+      { key: 'sub', label: 'under', kind: 'text', def: '' },
+      { key: 'tier', label: 'size', kind: 'tier', def: 12 },
+    ],
+    make(ctx, o) {
+      const { stage, x, y } = ctx
+      const hue = str(o, 'hue', '') || ctx.accent
+      // the sphere is sized off the type ladder so it sits in the same system
+      const d = round(size(stage, Number(o.tier ?? 12), 12) * 2.6)
+      const title = str(o, 'title', '')
+      const sub = str(o, 'sub', '')
+      const [g, halo, orb, rim, tt, ss] = ids(stage, 'subject', 6)
+      const out: Node[] = [
+        container(g, x, y),
+        {
+          id: halo, type: 'rect', x: round(x), y: round(y), w: round(d * 2.6), h: round(d * 2.6),
+          radius: round(d * 1.3),
+          gradient: { kind: 'radial', radius: 0.5, stops: [
+            { at: 0, color: hue }, { at: 1, color: '#05060a' }] },
+          opacity: 0.45, blur: round(d * 0.22), group: g,
+        } as Node,
+        {
+          id: orb, type: 'rect', x: round(x), y: round(y), w: d, h: d, radius: round(d / 2),
+          // the highlight sits up and to the left, which is where light comes
+          // from in every one of the reference frames
+          gradient: { kind: 'radial', cx: 0.36, cy: 0.28, stops: litStops(hue) },
+          noise: { kind: 'turbulence', freq: 0.014, octaves: 4, opacity: 0.5, blend: 'overlay' },
+          glow: { sigma: round(d * 0.28), opacity: 0.6, color: hue },
+          group: g,
+        } as Node,
+        {
+          id: rim, type: 'rect', x: round(x), y: round(y), w: d, h: d, radius: round(d / 2),
+          stroke: 1.2, stroke_color: shade(hue, 0.75), opacity: 0.45, group: g,
+        } as Node,
+      ]
+      if (title) {
+        const fs = size(stage, 6, 6)
+        out.push({
+          id: tt, type: 'text', x: round(x), y: round(y + d * 0.78), text: title,
+          color: inkOn('#05060a'),
+          font: { family: 'inter', weight: WEIGHT.lead, size: fs }, group: g,
+        } as Node)
+        if (sub) {
+          out.push({
+            id: ss, type: 'text', x: round(x), y: round(y + d * 0.78 + fs * 1.05), text: sub,
+            color: dimOn('#05060a'),
+            font: { family: 'inter', weight: WEIGHT.body, size: round(fs * 0.5) }, group: g,
+          } as Node)
+        }
+      }
+      return out
+    },
+  },
+  {
+    key: 'glass-panel',
+    name: 'Glass panel',
+    blurb: 'a translucent card with a lit edge. the row you stack to make a list.',
+    slots: [
+      { key: 'title', label: 'label', kind: 'text', def: 'Call Router' },
+      { key: 'hue', label: 'dot', kind: 'text', def: '' },
+      { key: 'tier', label: 'size', kind: 'tier', def: 4 },
+    ],
+    make(ctx, o) {
+      const { stage, x, y } = ctx
+      const hue = str(o, 'hue', '') || ctx.accent
+      const fs = size(stage, Number(o.tier ?? 4), 4)
+      const h = round(fs * 2.6)
+      const w = round(h * 6.4)
+      const [g, card, dot, tt] = ids(stage, 'glass', 4)
+      const padL = round(h * 0.72)
+      return [
+        container(g, x, y),
+        {
+          id: card, type: 'rect', x: round(x), y: round(y), w, h, radius: round(h / 2),
+          fill: shade(hue, -0.82), opacity: 0.72,
+          stroke: 1, stroke_color: shade(hue, 0.35), group: g,
+        } as Node,
+        {
+          id: dot, type: 'rect', x: round(x - w / 2 + padL), y: round(y),
+          w: round(h * 0.52), h: round(h * 0.52), radius: round(h * 0.26),
+          gradient: { kind: 'radial', cx: 0.35, cy: 0.3, stops: litStops(hue) },
+          glow: { sigma: round(h * 0.3), opacity: 0.7, color: hue }, group: g,
+        } as Node,
+        {
+          id: tt, type: 'text', x: round(x - w / 2 + padL * 2.1 + fs * 2.2), y: round(y),
+          text: str(o, 'title', 'Call Router'), color: inkOn('#05060a'),
+          font: { family: 'inter', weight: WEIGHT.body, size: fs }, group: g,
+        } as Node,
+      ]
+    },
+  },
+  {
+    key: 'meter',
+    name: 'Meter',
+    blurb: 'a live voice or level waveform, with an optional label beside it.',
+    slots: [
+      { key: 'title', label: 'label', kind: 'text', def: '' },
+      { key: 'hue', label: 'colour', kind: 'text', def: '' },
+      { key: 'tier', label: 'size', kind: 'tier', def: 6 },
+    ],
+    make(ctx, o) {
+      const { stage, x, y } = ctx
+      const hue = str(o, 'hue', '') || ctx.accent
+      const fs = size(stage, Number(o.tier ?? 6), 6)
+      const w = round(fs * 9)
+      const h = round(fs * 1.5)
+      const title = str(o, 'title', '')
+      const [g, bars, tt] = ids(stage, 'meter', 3)
+      // with a label the meter sits to its left, the way a voice chip reads
+      const bx = title ? round(x - w * 0.62) : round(x)
+      const out: Node[] = [
+        container(g, x, y),
+        {
+          id: bars, type: 'bars', x: bx, y: round(y), w, h, fill: hue,
+          bars: { count: 52, gap: 0.5, speed: 1.3, taper: true }, group: g,
+        } as Node,
+      ]
+      if (title) {
+        out.push({
+          id: tt, type: 'text', x: round(x + w * 0.34), y: round(y), text: title,
+          color: inkOn(ctx.paper),
+          font: { family: 'inter', weight: WEIGHT.lead, size: fs }, group: g,
+        } as Node)
+      }
+      return out
     },
   },
 ]

@@ -33,8 +33,52 @@ export interface Glow {
 export interface GradientStop { at: number; color: string }
 
 export interface Gradient {
+  /** linear only; degrees, 0 = left to right */
   angle?: number
+  /** "linear" (default) or "radial" */
+  kind?: string
+  /** radial only: centre as a fraction of the box, reach against its half-diagonal */
+  cx?: number
+  cy?: number
+  radius?: number
   stops: GradientStop[]
+}
+
+/** perlin laid over the body as its own blended layer */
+export interface Noise {
+  kind?: string
+  freq?: number
+  octaves?: number
+  seed?: number
+  opacity?: number
+  blend?: string
+}
+
+/** a generative column meter: voice waveform, level, equaliser */
+export interface Bars {
+  count?: number
+  gap?: number
+  speed?: number
+  floor?: number
+  seed?: number
+  taper?: boolean
+}
+
+/** a drifting field of specks: dust, stars, depth */
+export interface Particles {
+  count?: number
+  size?: number
+  speed?: number
+  seed?: number
+  depth?: number
+  twinkle?: boolean
+}
+
+/** a directional reveal over one node, keyed through its `wipe` property */
+export interface Wipe {
+  dir?: string
+  w?: number
+  h?: number
 }
 
 export interface Streak {
@@ -67,6 +111,15 @@ export interface Node {
   glow?: Glow
   gradient?: Gradient
   stroke?: number
+  /** rect rims: the stroke colour, defaulting to the fill */
+  stroke_color?: string
+  noise?: Noise
+  /** `bars` nodes */
+  bars?: Bars
+  /** `particles` nodes */
+  particles?: Particles
+  wipe?: Wipe
+  opacity?: number
   /** path nodes: svg outline data, local to (x, y) */
   d?: string
   goo?: string
