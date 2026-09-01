@@ -115,6 +115,14 @@ optional on rect:
  "x": 960, "y": 540, "w": 800, "h": 500, "radius": 24}
 ```
 
+optional on any node:
+- `wipe`: `{"dir": "right|left|up|down", "w": .., "h": ..}` — a directional
+  reveal over just this node, keyed through the node's `wipe` property
+  (0 hidden, 1 shown; 1 costs nothing and emits no clip). `dir` is where
+  the edge travels TO, so `right` uncovers from the left. the box defaults
+  to the node's own `w`/`h` and falls back to the whole stage, which is
+  what a text node needs since it carries no box.
+
 **bars** — a generative column meter: voice waveform, level, equaliser
 ```json
 {"id": "wave", "type": "bars", "x": 960, "y": 540, "w": 900, "h": 110,
@@ -191,7 +199,7 @@ per chapter, never decoration.
 keyable properties: `x` `y` (offsets — see contract), `w` `h` (absolute),
 `scale` `rot` `opacity` `glow_sigma` `glow_opacity` (absolute),
 `tracking` (text only: px added to every letter gap, negative tightens —
-the line re-centres as it re-spaces), `amp` (bars only), and `blur`
+the line re-centres as it re-spaces), `amp` (bars only), `wipe` (0-1, see below), and `blur`
 (rects only).
 
 easing per key (eases INTO that key): `"outCubic"`, `"inCubic"`,

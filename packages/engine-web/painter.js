@@ -115,6 +115,18 @@ export function paintFrame(CK, skc, paint, cmds, images) {
       skc.restore();
       continue;
     }
+    // clip/unclip is the scene-level transition clip, wipe/wipe_end is a
+    // node-local reveal. neither was handled here at all, so a clipped
+    // transition rendered in export and not in the editor.
+    if (c.op === 'clip' || c.op === 'wipe') {
+      skc.save();
+      skc.clipRect(CK.XYWHRect(c.x, c.y, c.w || 0, c.h || 0), CK.ClipOp.Intersect, true);
+      continue;
+    }
+    if (c.op === 'unclip' || c.op === 'wipe_end') {
+      skc.restore();
+      continue;
+    }
     if (c.goo) {
       if (gooDone.has(c.goo)) continue;
       gooDone.add(c.goo);

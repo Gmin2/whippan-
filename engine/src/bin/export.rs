@@ -157,6 +157,19 @@ mod app {
                 "unclip" => {
                     canvas.restore();
                 }
+                // a node-local reveal. its own op rather than "clip" so the
+                // camera transform reaches it and the edge travels with the shot
+                "wipe" => {
+                    canvas.save();
+                    canvas.clip_rect(
+                        Rect::from_xywh(c.x, c.y, c.w.unwrap_or(0.0), c.h.unwrap_or(0.0)),
+                        None,
+                        true,
+                    );
+                }
+                "wipe_end" => {
+                    canvas.restore();
+                }
                 "camblur" => {
                     let blur = image_filters::blur(
                         (c.w.unwrap_or(0.0).max(0.01), c.h.unwrap_or(0.0).max(0.01)),

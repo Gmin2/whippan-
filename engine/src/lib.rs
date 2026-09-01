@@ -136,6 +136,9 @@ pub struct Node {
     /// `bars` nodes: how the column heights are shaped. see `Bars`.
     #[serde(default)]
     pub bars: Option<Bars>,
+    /// a directional reveal over this node's own commands. see `Wipe`.
+    #[serde(default)]
+    pub wipe: Option<Wipe>,
     /// liquid path morphing: scene-local keyframes of whole `d` shapes.
     /// paths are resampled to fixed point loops and lerped, so any icon
     /// can flow into any other (authored with absolute M/L/C/Q/Z only)
@@ -656,6 +659,29 @@ fn d_noise_opacity() -> f32 {
 }
 fn d_blend() -> String {
     "overlay".into()
+}
+
+/// A directional reveal, keyed through the node's `wipe` property (0 hidden,
+/// 1 fully shown).
+///
+/// `dir` is where the edge travels TO, so "right" uncovers from the left. The
+/// box defaults to the node's own `w`/`h` and falls back to the whole stage,
+/// which is what a text node wants since it carries no box of its own.
+///
+/// Emitted as its own op rather than the existing scene `clip`, because the
+/// camera transform deliberately skips `clip` — a node wipe has to travel with
+/// the camera or its edge would sit still while the content slid underneath.
+#[derive(Deserialize, Clone)]
+pub struct Wipe {
+    #[serde(default = "d_dir")]
+    pub dir: String,
+    #[serde(default)]
+    pub w: Option<f32>,
+    #[serde(default)]
+    pub h: Option<f32>,
+}
+fn d_dir() -> String {
+    "right".into()
 }
 
 /// A column meter: the voice waveform, the level bar, the equaliser.
@@ -2107,6 +2133,38 @@ fn render_scene(
             // common energy device in the set, so it belongs to every node kind
             let blurv = node_prop(node, "blur", node.blur.unwrap_or(0.0), t);
             let body_blur = (blurv > 0.0).then_some(blurv);
+            // a node-local reveal, wrapped around whatever this node draws.
+            // 1 is fully shown, so a node with no wipe key behaves as before.
+            let wiped = node.wipe.as_ref().and_then(|wp| {
+                let p = node_prop(node, "wipe", 1.0, t).clamp(0.0, 1.0);
+                if p >= 1.0 {
+                    return None;
+                }
+                let bw = wp.w.or(node.w).unwrap_or(cw);
+                let bh = wp.h.or(node.h).unwrap_or(ch);
+                let (nx, ny) = (node.x + dx, node.y + dy);
+                let (l, tp) = (nx - bw / 2.0, ny - bh / 2.0);
+                let (x, y, w, h) = match wp.dir.as_str() {
+                    "left" => (l + bw * (1.0 - p), tp, bw * p, bh),
+                    "down" => (l, tp, bw, bh * p),
+                    "up" => (l, tp + bh * (1.0 - p), bw, bh * p),
+                    _ => (l, tp, bw * p, bh),
+                };
+                Some((x, y, w, h))
+            });
+            if let Some((x, y, w, h)) = wiped {
+                cmds.push(DrawCmd {
+                    op: "wipe".into(),
+                    x,
+                    y,
+                    w: Some(w),
+                    h: Some(h),
+                    color: "#000000".into(),
+                    opacity: 1.0,
+                    scale: 1.0,
+                    ..Default::default()
+                });
+            }
             match node.kind.as_str() {
                 "text" => {
                     if let Some(src) = morphs.get(&node.id) {
@@ -2824,6 +2882,17 @@ fn render_scene(
                     });
                 }
                 _ => {}
+            }
+            if wiped.is_some() {
+                cmds.push(DrawCmd {
+                    op: "wipe_end".into(),
+                    x: 0.0,
+                    y: 0.0,
+                    color: "#000000".into(),
+                    opacity: 1.0,
+                    scale: 1.0,
+                    ..Default::default()
+                });
             }
         }
         if let Some(p) = pending {
@@ -3880,6 +3949,37 @@ mod tests {
             assert_eq!(g["color"], "#e8671f", "scale glyphs keep accent");
         }
         assert_eq!(settled[0]["color"], "#161616");
+    }
+
+    #[test]
+    fn a_wipe_brackets_only_its_own_node_and_travels_with_the_camera() {
+        let stage = r##"{"fps":30,"size":[1000,400],"scenes":[{"id":"s","dur":2,"nodes":[
+            {"id":"a","type":"rect","x":300,"y":200,"w":400,"h":100,"fill":"#7c8cf8",
+             "wipe":{"dir":"right"},"keys":{"wipe":[{"t":0,"v":0.25}]}},
+            {"id":"b","type":"rect","x":800,"y":200,"w":200,"h":100,"fill":"#e05a3a"}]}]}"##;
+        load_font();
+        let cmds: Vec<Value> = serde_json::from_str(&render_frame(stage, "", 0.0)).unwrap();
+
+        let open = cmds.iter().position(|c| c["op"] == "wipe").expect("a wipe opens");
+        let shut = cmds.iter().position(|c| c["op"] == "wipe_end").expect("and closes");
+        assert!(open < shut, "the pair is ordered");
+
+        // it covers its own node and nothing else
+        let inside: Vec<&Value> = cmds[open + 1..shut].iter().collect();
+        assert!(inside.iter().all(|c| c["id"] == "a"), "brackets only its own node");
+        assert!(cmds[shut + 1..].iter().any(|c| c["id"] == "b"), "the next node is outside");
+
+        // a quarter reveal from the left edge of a 400-wide box at x=300
+        let w = &cmds[open];
+        assert!((w["x"].as_f64().unwrap() - 100.0).abs() < 0.01, "starts at the left edge");
+        assert!((w["w"].as_f64().unwrap() - 100.0).abs() < 0.01, "a quarter of the box");
+
+        // a node with no wipe key is untouched: full reveal emits no pair
+        let plain = r##"{"fps":30,"size":[1000,400],"scenes":[{"id":"s","dur":2,"nodes":[
+            {"id":"a","type":"rect","x":300,"y":200,"w":400,"h":100,"fill":"#7c8cf8",
+             "wipe":{"dir":"right"}}]}]}"##;
+        let none: Vec<Value> = serde_json::from_str(&render_frame(plain, "", 0.0)).unwrap();
+        assert!(!none.iter().any(|c| c["op"] == "wipe"), "a full reveal costs nothing");
     }
 
     #[test]
