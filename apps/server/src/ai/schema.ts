@@ -15,7 +15,7 @@
  * A schema cannot express the AUTHORING contract (ids unique per scene, one
  * track per node per property, x/y keys as offsets). That is `validate.ts`.
  */
-import type { FilmRequest, ScreenRequest, MotionRequest } from './types.js'
+import type { BlockSpec, FilmRequest, ScreenRequest, MotionRequest } from './types.js'
 
 export interface Tool {
   name: string
@@ -65,17 +65,51 @@ const track = (targets?: string[]) => ({
   },
 })
 
-const placement = (blocks: string[], enters?: string[]) => ({
-  type: 'object',
-  required: ['block', 'x', 'y'],
-  additionalProperties: false,
-  properties: {
-    block: { ...str, enum: blocks },
-    x: { ...num, description: 'centre of the block, not its left edge' },
-    y: { ...num, description: 'centre of the block, not its top edge' },
-    opts: { type: 'object', description: 'the block slots, by name' },
-    ...(enters ? { enter: { ...str, enum: enters }, at: num } : {}),
-  },
+/** the type a block will actually try to read a slot as */
+function slotSchema(kind: string): Record<string, unknown> {
+  switch (kind) {
+    case 'role':
+      return { ...str, enum: ['accent', 'ink', 'tint'] }
+    case 'tier':
+      // an index into the measured type scale, never a word like "hero"
+      return {
+        type: 'integer',
+        enum: Array.from({ length: 15 }, (_, i) => i),
+        description: '0 smallest to 14 largest, an index into the type scale',
+      }
+    case 'lines':
+      return { type: 'array', items: str }
+    default:
+      return str
+  }
+}
+
+/**
+ * One placement variant per block, so a slot cannot take a value its block
+ * cannot read.
+ *
+ * A single loose `opts: {type:"object"}` was not enough. The first live call
+ * answered `tier: "hero"` and `role: "product"`, which reach `Number('hero')`
+ * and render at NaN. Discriminating on the block key lets each one declare
+ * exactly which slots it has and what each may hold.
+ */
+const placement = (blocks: BlockSpec[], enters?: string[]) => ({
+  anyOf: blocks.map(b => ({
+    type: 'object',
+    required: ['block', 'x', 'y'],
+    additionalProperties: false,
+    properties: {
+      block: { ...str, const: b.key },
+      x: { ...num, description: 'centre of the block, not its left edge' },
+      y: { ...num, description: 'centre of the block, not its top edge' },
+      opts: {
+        type: 'object',
+        additionalProperties: false,
+        properties: Object.fromEntries(b.slots.map(sl => [sl.key, slotSchema(sl.kind)])),
+      },
+      ...(enters ? { enter: { ...str, enum: enters }, at: num } : {}),
+    },
+  })),
 })
 
 export function motionTool(req: MotionRequest): Tool {
@@ -95,7 +129,7 @@ export function motionTool(req: MotionRequest): Tool {
 }
 
 export function screenTool(req: ScreenRequest): Tool {
-  const blocks = req.blocks.map(b => b.key)
+  const blocks = req.blocks
   return {
     name: 'compose_screen',
     description: 'Compose one screen out of blocks. The library owns geometry.',
@@ -113,7 +147,7 @@ export function screenTool(req: ScreenRequest): Tool {
 }
 
 export function filmTool(req: FilmRequest): Tool {
-  const blocks = req.blocks.map(b => b.key)
+  const blocks = req.blocks
   return {
     name: 'compose_film',
     description: 'Compose a film as a sequence of scenes built from blocks.',

@@ -5,6 +5,8 @@ export interface ModelOption {
   id: string
   label: string
   note?: string
+  /** who serves it, since one kind can now offer models from three providers */
+  provider?: string
 }
 
 export interface Capability {
@@ -50,6 +52,20 @@ export interface ImageRequest {
   aspect?: string
 }
 
+export interface SlotSpec {
+  key: string
+  /** text, lines, role or tier: what the block will try to read it as */
+  kind: string
+  def?: unknown
+}
+
+export interface BlockSpec {
+  key: string
+  name: string
+  blurb: string
+  slots: SlotSpec[]
+}
+
 export interface ScreenRequest {
   prompt: string
   model?: string
@@ -57,8 +73,14 @@ export interface ScreenRequest {
   size: [number, number]
   /** the film's one hue, taken from what it already uses */
   accent: string
-  /** the block names and slots the client can actually materialise */
-  blocks: { key: string; name: string; blurb: string; slots: string[] }[]
+  /**
+   * The blocks the client can materialise, with each slot's TYPE.
+   *
+   * Sending slot names alone was not enough: the first live call answered
+   * `tier: "hero"` and `role: "product"`, which reach `Number('hero')` and
+   * render at NaN. The kind is what lets the schema refuse that.
+   */
+  blocks: BlockSpec[]
   /**
    * What was wrong with the last attempt, measured not guessed. The client
    * materialises a proposal and scores it against the corpus before showing

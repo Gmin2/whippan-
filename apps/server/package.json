@@ -11,7 +11,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "migrate": "tsx src/db/cli.ts",
     "seed": "tsx src/db/import.ts",
-    "test": "tsx src/ai/schema.test.mts"
+    "test": "tsx src/ai/schema.test.mts && tsx src/ai/wire.test.mts"
   },
   "dependencies": {
     "@azure/storage-blob": "^12.33.0",

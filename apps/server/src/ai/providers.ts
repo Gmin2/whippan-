@@ -2,7 +2,7 @@ import { motionTool, screenTool, filmTool, type Tool } from './schema.js'
 import { checkTracks, checkScenes, type Track } from './validate.js'
 import type {
   Capability, FilmProposal, FilmRequest, ImageRequest, MotionProposal, MotionRequest,
-  ScreenProposal, ScreenRequest, VectorRequest,
+  ModelOption, ScreenProposal, ScreenRequest, VectorRequest,
 } from './types.js'
 
 /**
@@ -17,44 +17,40 @@ import type {
 
 // overridable so a proxy, a regional endpoint or a test double can stand in
 const ANTHROPIC = process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com/v1/messages'
+// the Responses endpoint, not chat completions: the gpt-5.6 line refuses
+// function tools on /v1/chat/completions unless reasoning is off, and the
+// reasoning is the reason to use it for layout
+const OPENAI = process.env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1/responses'
+const OPENAI_EFFORT = process.env.OPENAI_REASONING_EFFORT ?? 'medium'
+// Moonshot publish an Anthropic-shaped endpoint alongside their OpenAI one, so
+// Kimi costs us a base url rather than a second implementation
+const MOONSHOT = process.env.MOONSHOT_BASE_URL ?? 'https://api.moonshot.ai/anthropic/v1/messages'
+
+/**
+ * Model ids move faster than this file does, so they are overridable. Correct
+ * one with an env var rather than a deploy if a provider renames it.
+ */
+const MODEL_IDS = {
+  gpt: process.env.OPENAI_MODEL ?? 'gpt-5.6-sol',
+  kimi: process.env.MOONSHOT_MODEL ?? 'kimi-k3',
+}
 const QUIVER = process.env.QUIVERAI_BASE_URL ?? 'https://api.quiver.ai/v1/svgs/generations'
 const GEMINI = process.env.GEMINI_BASE_URL
   ?? 'https://generativelanguage.googleapis.com/v1beta/models'
 
 const key = (name: string) => process.env[name]?.trim() || null
 
+// the quiver key has been written both ways in practice; accept either rather
+// than have the capability report itself not ready next to a key that is set
+const quiverKey = () => key('QUIVERAI_API_KEY') ?? key('QUIVER_API_KEY')
+
 export function capabilities(): Capability[] {
   return [
-    {
-      kind: 'motion',
-      provider: 'Anthropic',
-      ready: !!key('ANTHROPIC_API_KEY'),
-      reason: key('ANTHROPIC_API_KEY') ? undefined : 'set ANTHROPIC_API_KEY on the server',
-      models: [
-        { id: 'claude-sonnet-5', label: 'Claude Sonnet 5', note: 'fast enough to iterate' },
-        { id: 'claude-opus-5', label: 'Claude Opus 5', note: 'better taste, slower' },
-      ],
-    },
-    {
-      kind: 'film',
-      provider: 'Anthropic',
-      ready: !!key('ANTHROPIC_API_KEY'),
-      reason: key('ANTHROPIC_API_KEY') ? undefined : 'set ANTHROPIC_API_KEY on the server',
-      models: [
-        { id: 'claude-opus-5', label: 'Claude Opus 5', note: 'a whole film is worth the wait' },
-        { id: 'claude-sonnet-5', label: 'Claude Sonnet 5', note: 'faster first draft' },
-      ],
-    },
-    {
-      kind: 'screen',
-      provider: 'Anthropic',
-      ready: !!key('ANTHROPIC_API_KEY'),
-      reason: key('ANTHROPIC_API_KEY') ? undefined : 'set ANTHROPIC_API_KEY on the server',
-      models: [
-        { id: 'claude-sonnet-5', label: 'Claude Sonnet 5', note: 'fast enough to iterate' },
-        { id: 'claude-opus-5', label: 'Claude Opus 5', note: 'better taste, slower' },
-      ],
-    },
+    // the three text kinds share one model list, since any of them can run on
+    // whichever providers this deployment holds a key for
+    { kind: 'motion', provider: providerLabel(), ready: textReady(), reason: textReason(), models: textModels() },
+    { kind: 'film', provider: providerLabel(), ready: textReady(), reason: textReason(), models: textModels() },
+    { kind: 'screen', provider: providerLabel(), ready: textReady(), reason: textReason(), models: textModels() },
     {
       kind: 'image',
       provider: 'Google',
@@ -69,8 +65,8 @@ export function capabilities(): Capability[] {
     {
       kind: 'vector',
       provider: 'QuiverAI',
-      ready: !!key('QUIVERAI_API_KEY'),
-      reason: key('QUIVERAI_API_KEY') ? undefined : 'set QUIVERAI_API_KEY on the server',
+      ready: !!quiverKey(),
+      reason: quiverKey() ? undefined : 'set QUIVERAI_API_KEY on the server',
       models: [
         { id: 'arrow-1.1', label: 'Arrow 1.1', note: 'general purpose' },
         { id: 'arrow-1.1-max', label: 'Arrow 1.1 Max', note: 'precision, slower' },
@@ -87,6 +83,66 @@ function need(name: string): string {
   if (!v) throw new Missing(`${name} is not set on the server`)
   return v
 }
+
+/**
+ * Which wire a model id speaks, and which key opens it.
+ *
+ * Only two protocols exist here. Anthropic Messages covers Claude and Kimi
+ * both, because Moonshot publish an Anthropic-shaped endpoint and their docs
+ * say to migrate by swapping base_url and key alone. OpenAI is the one that
+ * genuinely needed a second implementation.
+ */
+type Wire = { proto: 'anthropic' | 'openai'; url: string; keyName: string }
+
+export function wireFor(model: string): Wire {
+  const m = model.toLowerCase()
+  if (m.startsWith('kimi') || m.startsWith('moonshot')) {
+    return { proto: 'anthropic', url: MOONSHOT, keyName: 'MOONSHOT_API_KEY' }
+  }
+  if (m.startsWith('gpt') || /^o\d/.test(m)) {
+    return { proto: 'openai', url: OPENAI, keyName: 'OPENAI_API_KEY' }
+  }
+  return { proto: 'anthropic', url: ANTHROPIC, keyName: 'ANTHROPIC_API_KEY' }
+}
+
+/** every model the deployment has a key for, best first */
+function textModels(): ModelOption[] {
+  const out: ModelOption[] = []
+  if (key('ANTHROPIC_API_KEY')) {
+    out.push(
+      { id: 'claude-sonnet-5', label: 'Claude Sonnet 5', note: 'fast enough to iterate', provider: 'Anthropic' },
+      { id: 'claude-opus-5', label: 'Claude Opus 5', note: 'better taste, slower', provider: 'Anthropic' },
+    )
+  }
+  if (key('OPENAI_API_KEY')) {
+    out.push({ id: MODEL_IDS.gpt, label: 'GPT-5.6 Sol', note: 'strong on layout', provider: 'OpenAI' })
+  }
+  if (key('MOONSHOT_API_KEY')) {
+    out.push({ id: MODEL_IDS.kimi, label: 'Kimi K3', note: 'cheapest per film', provider: 'Moonshot' })
+  }
+  return out
+}
+
+const textReady = () =>
+  !!(key('ANTHROPIC_API_KEY') || key('OPENAI_API_KEY') || key('MOONSHOT_API_KEY'))
+
+/** the first model we have a key for, used when the caller names none */
+function defaultModel(): string {
+  const m = textModels()[0]
+  if (!m) throw new Missing('no model key is set on the server')
+  return m.id
+}
+
+const providerLabel = () => {
+  const names: string[] = []
+  if (key('ANTHROPIC_API_KEY')) names.push('Anthropic')
+  if (key('OPENAI_API_KEY')) names.push('OpenAI')
+  if (key('MOONSHOT_API_KEY')) names.push('Moonshot')
+  return names.join(' / ') || 'Anthropic'
+}
+
+const textReason = () =>
+  textReady() ? undefined : 'set ANTHROPIC_API_KEY, OPENAI_API_KEY or MOONSHOT_API_KEY on the server'
 
 /**
  * The contract the model has to write against. This is the same set of rules
@@ -120,8 +176,7 @@ Reply with ONLY a JSON object, no prose and no code fence:
 { "note": "<one short line on what you did>", "tracks": [ ...tracks... ] }`
 
 export async function runMotion(req: MotionRequest): Promise<MotionProposal> {
-  const auth = need('ANTHROPIC_API_KEY')
-  const model = req.model || 'claude-sonnet-5'
+  const model = req.model || defaultModel()
 
   const brief = [
     `Scene "${req.scene.id}", ${req.scene.dur}s long, beat ${req.scene.index + 1} of ${req.scene.total}.`,
@@ -132,7 +187,7 @@ export async function runMotion(req: MotionRequest): Promise<MotionProposal> {
     `What the director asked for: ${req.prompt}`,
   ].join('\n\n')
 
-  const parsed = await callTool(auth, model, CONTRACT, brief, motionTool(req), 2000)
+  const parsed = await callTool(model, CONTRACT, brief, motionTool(req), 2000)
   const raw = Array.isArray(parsed.tracks) ? parsed.tracks as Record<string, unknown>[] : []
   const allowed = new Set(req.nodes.map(n => n.id))
 
@@ -161,9 +216,20 @@ export async function runMotion(req: MotionRequest): Promise<MotionProposal> {
  * still scrape it, rather than failing a request we could have honoured.
  */
 async function callTool(
-  auth: string, model: string, system: string, brief: string, tool: Tool, maxTokens: number,
+  model: string, system: string, brief: string, tool: Tool, maxTokens: number,
 ): Promise<Record<string, unknown>> {
-  const res = await fetch(ANTHROPIC, {
+  const wire = wireFor(model)
+  const auth = need(wire.keyName)
+  return wire.proto === 'openai'
+    ? callOpenAi(wire.url, auth, model, system, brief, tool, maxTokens)
+    : callAnthropic(wire.url, auth, model, system, brief, tool, maxTokens)
+}
+
+async function callAnthropic(
+  url: string, auth: string, model: string,
+  system: string, brief: string, tool: Tool, maxTokens: number,
+): Promise<Record<string, unknown>> {
+  const res = await fetch(url, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
@@ -188,6 +254,61 @@ async function callTool(
   if (call?.input) return call.input as Record<string, unknown>
   const text = (body.content ?? []).filter(c => c.type === 'text').map(c => c.text).join('')
   return parseJsonObject(text)
+}
+
+/**
+ * The same call over the OpenAI Responses API.
+ *
+ * Chat completions was the obvious choice and it does not work: the gpt-5.6
+ * line returns 400 for function tools there unless `reasoning_effort` is
+ * 'none', and reasoning is exactly what we want it spending on layout. Only a
+ * live call surfaced that.
+ *
+ * Deliberately NOT `text.format: json_schema` with strict on. Strict mode
+ * makes every property required and forbids `minItems`, so our schemas would
+ * need a second, provider-specific shape and the two would drift. Function
+ * calling takes the schema we already have, and output is validated after.
+ *
+ * Three shape differences from the Anthropic wire, all of them silent if
+ * wrong: the system prompt is `instructions`, a function tool is flat rather
+ * than nested under `function`, and arguments arrive as a JSON string.
+ */
+async function callOpenAi(
+  url: string, auth: string, model: string,
+  system: string, brief: string, tool: Tool, maxTokens: number,
+): Promise<Record<string, unknown>> {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${auth}` },
+    body: JSON.stringify({
+      model,
+      instructions: system,
+      input: brief,
+      reasoning: { effort: OPENAI_EFFORT },
+      // reasoning tokens come out of this budget too, so leave it room
+      max_output_tokens: maxTokens * 4,
+      tools: [{
+        type: 'function',
+        name: tool.name,
+        description: tool.description,
+        parameters: tool.input_schema,
+      }],
+      tool_choice: { type: 'function', name: tool.name },
+    }),
+  })
+  if (!res.ok) throw new Error(`openai ${res.status}: ${(await res.text()).slice(0, 300)}`)
+
+  const body = await res.json() as {
+    output?: { type?: string; name?: string; arguments?: string;
+               content?: { type?: string; text?: string }[] }[]
+    output_text?: string
+  }
+  const call = (body.output ?? []).find(o => o.type === 'function_call' && o.name === tool.name)
+  // arguments are a JSON string here, not an object as on the Anthropic wire
+  if (call?.arguments) return JSON.parse(call.arguments) as Record<string, unknown>
+  const text = body.output_text
+    ?? (body.output ?? []).flatMap(o => o.content ?? []).map(c => c.text).join('')
+  return parseJsonObject(text ?? '')
 }
 
 /** models like to wrap json in a fence or a sentence however firmly you ask */
@@ -238,8 +359,7 @@ Counters, rolling numbers and alternating headlines are the "swap-slot" block,
 never one line of text you intend to animate.`
 
 export async function runScreen(req: ScreenRequest): Promise<ScreenProposal> {
-  const auth = need('ANTHROPIC_API_KEY')
-  const model = req.model || 'claude-sonnet-5'
+  const model = req.model || defaultModel()
   const [w, h] = req.size
 
   const brief = [
@@ -255,7 +375,7 @@ export async function runScreen(req: ScreenRequest): Promise<ScreenProposal> {
       : '',
   ].filter(Boolean).join('\n\n')
 
-  const parsed = await callTool(auth, model, SCREEN_CONTRACT, brief, screenTool(req), 2000)
+  const parsed = await callTool(model, SCREEN_CONTRACT, brief, screenTool(req), 2000)
   const known = new Set(req.blocks.map(b => b.key))
   const place = Array.isArray(parsed.place) ? parsed.place as ScreenProposal['place'] : []
 
@@ -322,8 +442,7 @@ The shape of a launch film, from the corpus:
 - Copy is short and concrete. No tagline that could belong to any product.`
 
 export async function runFilm(req: FilmRequest): Promise<FilmProposal> {
-  const auth = need('ANTHROPIC_API_KEY')
-  const model = req.model || 'claude-opus-5'
+  const model = req.model || defaultModel()
   const [w, h] = req.size
 
   const brief = [
@@ -337,7 +456,7 @@ export async function runFilm(req: FilmRequest): Promise<FilmProposal> {
     `What the director asked for: ${req.prompt}`,
   ].join('\n\n')
 
-  const parsed = await callTool(auth, model, FILM_CONTRACT, brief, filmTool(req), 8000)
+  const parsed = await callTool(model, FILM_CONTRACT, brief, filmTool(req), 8000)
   const known = new Set(req.blocks.map(b => b.key))
   const enters = new Set(req.enters)
   const raw = Array.isArray(parsed.scenes) ? parsed.scenes as FilmProposal['scenes'] : []
@@ -391,7 +510,8 @@ export async function runImage(req: ImageRequest): Promise<{ dataUrl: string; mi
 }
 
 export async function runVector(req: VectorRequest): Promise<{ svg: string }> {
-  const auth = need('QUIVERAI_API_KEY')
+  const auth = quiverKey()
+  if (!auth) throw new Missing('QUIVERAI_API_KEY is not set on the server')
   const res = await fetch(QUIVER, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${auth}` },

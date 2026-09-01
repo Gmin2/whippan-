@@ -64,8 +64,16 @@ export interface Block {
 
 /** a block's numbers are authored at 1920 wide and scale with the canvas */
 const k = (stage: Stage) => stage.size[0] / 1920
-const size = (stage: Stage, tier: number) =>
-  Math.round(SCALE[Math.max(0, Math.min(SCALE.length - 1, tier))] * k(stage))
+/**
+ * A tier is an index into the measured scale. Anything that is not one falls
+ * back rather than propagating: a live model once answered `tier: "hero"`,
+ * and `Number('hero')` is NaN, which reached the renderer as a NaN font size
+ * and drew nothing at all.
+ */
+const size = (stage: Stage, tier: number, fallback = 4) => {
+  const i = Number.isFinite(tier) ? Math.round(tier) : fallback
+  return Math.round(SCALE[Math.max(0, Math.min(SCALE.length - 1, i))] * k(stage))
+}
 const round = (n: number) => Math.round(n)
 
 /**
@@ -122,7 +130,7 @@ export const BLOCKS: Block[] = [
       const { stage, x, y } = ctx
       const text = str(o, 'text', 'Get started')
       const role = str(o, 'role', 'accent') as Role
-      const fs = size(stage, Number(o.tier ?? 4))
+      const fs = size(stage, Number(o.tier ?? 4), 4)
       // the measured ratios: label 0.468h, side pad 1.37 label-widths, r = h/2
       const h = round(fs / 0.468)
       const w = round(advance(text, fs) + fs * 1.37 * 2)
@@ -154,7 +162,7 @@ export const BLOCKS: Block[] = [
     ],
     make(ctx, o) {
       const { stage, x, y } = ctx
-      const big = size(stage, Number(o.tier ?? 9))
+      const big = size(stage, Number(o.tier ?? 9), 9)
       const small = round(big * 0.5)
       const dy = round(big * 1.33)
       const [g, a, b] = ids(stage, 'titlesub', 3)
@@ -182,7 +190,7 @@ export const BLOCKS: Block[] = [
     ],
     make(ctx, o) {
       const { stage, x, y } = ctx
-      const fs = size(stage, Number(o.tier ?? 4))
+      const fs = size(stage, Number(o.tier ?? 4), 4)
       const rows = lines(o, 'lines', ['First line', 'Second line', 'Third line'])
       // leading tightens as type grows: display sets closer than ui copy does
       const lead = fs >= size(stage, 9) ? 1.27 : fs >= size(stage, 6) ? 1.47 : 1.55
@@ -209,7 +217,7 @@ export const BLOCKS: Block[] = [
     ],
     make(ctx, o) {
       const { stage, x, y } = ctx
-      const small = size(stage, Number(o.tier ?? 1))
+      const small = size(stage, Number(o.tier ?? 1), 1)
       const big = round(small * 1.94)
       const dy = round(small * 2)
       const [g, a, b] = ids(stage, 'stat', 3)
@@ -237,7 +245,7 @@ export const BLOCKS: Block[] = [
     ],
     make(ctx, o) {
       const { stage, x, y } = ctx
-      const s = size(stage, Number(o.tier ?? 11))
+      const s = size(stage, Number(o.tier ?? 11), 11)
       const role = str(o, 'role', 'ink') as Role
       const [g, r, t] = ids(stage, 'tile', 3)
       return [
@@ -266,7 +274,7 @@ export const BLOCKS: Block[] = [
     ],
     make(ctx, o) {
       const { stage, x, y } = ctx
-      const fs = size(stage, Number(o.tier ?? 4))
+      const fs = size(stage, Number(o.tier ?? 4), 4)
       const text = str(o, 'text', 'Ready')
       const role = str(o, 'role', 'accent') as Role
       // dot diameter equals the label size; the gap is 1.1 em
@@ -297,7 +305,7 @@ export const BLOCKS: Block[] = [
     ],
     make(ctx, o) {
       const { stage, x, y } = ctx
-      const fs = size(stage, Number(o.tier ?? 11))
+      const fs = size(stage, Number(o.tier ?? 11), 11)
       const words = lines(o, 'lines', ['imagine', 'building', 'anything'])
       const [g, ...rest] = ids(stage, 'swap', words.length + 1)
       return [

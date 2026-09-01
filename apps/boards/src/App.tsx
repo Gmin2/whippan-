@@ -678,8 +678,11 @@ export default function App() {
           prompt, model,
           size: current.stage.size,
           accent,
+          // slot KINDS, not just names: the schema needs them to refuse a
+          // tier of "hero" or a role of "product"
           blocks: BLOCKS.map(b => ({
-            key: b.key, name: b.name, blurb: b.blurb, slots: b.slots.map(s => s.key),
+            key: b.key, name: b.name, blurb: b.blurb,
+            slots: b.slots.map(s => ({ key: s.key, kind: s.kind, def: s.def })),
           })),
           enters: ENTERS,
           transitions: KINDS.map(k => k.key),
@@ -726,8 +729,11 @@ export default function App() {
           prompt, model,
           size: current.stage.size,
           accent,
+          // slot KINDS, not just names: the schema needs them to refuse a
+          // tier of "hero" or a role of "product"
           blocks: BLOCKS.map(b => ({
-            key: b.key, name: b.name, blurb: b.blurb, slots: b.slots.map(s => s.key),
+            key: b.key, name: b.name, blurb: b.blurb,
+            slots: b.slots.map(s => ({ key: s.key, kind: s.kind, def: s.def })),
           })),
         })
         if (!out.place.length) throw new Error('the model placed nothing it could build')

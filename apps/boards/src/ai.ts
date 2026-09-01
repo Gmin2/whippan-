@@ -13,6 +13,8 @@ export interface ModelOption {
   id: string
   label: string
   note?: string
+  /** who serves it: one kind can offer models from several providers */
+  provider?: string
 }
 
 export interface Capability {

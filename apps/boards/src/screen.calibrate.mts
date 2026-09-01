@@ -13,12 +13,15 @@
 import { scoreScreen, failing, type Check } from './screen.js'
 import { readFileSync, readdirSync } from 'node:fs'
 
-const keys = ['alignment', 'type scale', 'achromatic', 'one hue', 'ink', 'radius', 'margin']
+// runnable from the repo root or from apps/boards
+const DOCS = process.cwd().endsWith('apps/boards') ? '../../docs' : 'docs'
+
+const keys = ['alignment', 'collision', 'type scale', 'achromatic', 'one hue', 'ink', 'radius', 'margin']
 const acc = new Map<string, number[]>(keys.map(k => [k, []]))
 let scenes = 0, clean = 0
 
-for (const f of readdirSync('docs').filter(n => n.endsWith('.stage.json'))) {
-  const stage = JSON.parse(readFileSync(`docs/${f}`, 'utf8'))
+for (const f of readdirSync(DOCS).filter(n => n.endsWith('.stage.json'))) {
+  const stage = JSON.parse(readFileSync(`${DOCS}/${f}`, 'utf8'))
   for (const sc of stage.scenes) {
     if (!sc.nodes?.length) continue
     scenes++

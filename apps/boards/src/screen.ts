@@ -69,25 +69,77 @@ export function scoreScreen(nodes: Node[], size: [number, number]): Check[] {
   const texts = nodes.filter(n => n.type === 'text')
   const rects = nodes.filter(n => n.type === 'rect')
   const marks = nodes.filter(n => n.type !== 'group')
+  // block origins, when the screen was composed from the library
+  const groups = nodes.filter(n => n.type === 'group')
 
   // The strongest positional fact in the corpus, but it is a fact about the
   // corpus, not about every scene: a screenshot beat legitimately centres
-  // nothing. What a scene must not do is align to nothing at all, so score
-  // the largest shared x rather than the centre line alone.
+  // nothing. What a scene must not do is align to nothing at all.
+  //
+  // Measured over BLOCKS, not over every mark. A pill's own rect and label
+  // share an x by construction, so counting marks scored a deliberately
+  // scattered layout at a perfect 1.00. What matters is whether the blocks
+  // line up with each other.
+  // A hand-authored film is a flat node list, so "which marks form one unit"
+  // is unanswerable and the bar has to be the corpus share rather than the
+  // half-of-blocks a composed screen should manage.
+  const composed = groups.length > 0
+  const units = composed ? groups : marks
+  const bar = composed ? 0.5 : CORPUS.centreShare
   const xs = new Map<number, number>()
-  for (const n of marks) {
+  for (const n of units) {
     const x = Math.round(n.x ?? 0)
     xs.set(x, (xs.get(x) ?? 0) + 1)
   }
-  // one mark is not an alignment, however small the scene
+  // one unit is not an alignment, however small the scene
   const aligned = Math.max(0, ...[...xs.values()].filter(v => v > 1))
-  const share = marks.length ? aligned / marks.length : 0
-  const centred = marks.filter(n => Math.abs((n.x ?? 0) - W / 2) < 1).length
+  const share = units.length ? aligned / units.length : 0
+  const centred = units.filter(n => Math.abs((n.x ?? 0) - W / 2) < 1).length
   out.push({
     key: 'alignment',
-    score: Math.min(1, share / CORPUS.centreShare),
-    detail: `${aligned} of ${marks.length} marks share an x`
+    // a lone block cannot align with anything, so it is not penalised
+    score: units.length < 2 ? 1 : Math.min(1, share / bar),
+    detail: `${aligned} of ${units.length} ${groups.length ? 'blocks' : 'marks'} share an x`
           + (centred ? `, ${centred} on the centre line` : ''),
+  })
+
+  // Text over a panel is the corpus pattern; text from one block landing on
+  // text from another never is. This is the check the library cannot satisfy
+  // for us, because it is a property of where the model put things.
+  //
+  // Only counted BETWEEN blocks. A `swap slot` stacks its alternates at one
+  // point on purpose (70 instances across 25 films) and a block that hides
+  // its own members with an opacity key is doing the same, so neither is a
+  // collision.
+  const boxes = texts
+    .filter(n => (n.keys?.opacity?.[0]?.v ?? 1) > 0)
+    .map(n => {
+      const fs = n.font?.size ?? 24
+      return {
+        x: n.x ?? 0, y: n.y ?? 0,
+        w: (n.text?.length ?? 6) * fs * 0.52, h: fs * 1.2,
+        group: n.group ?? n.id,
+      }
+    })
+  let collisions = 0
+  for (let i = 0; i < boxes.length; i++) {
+    for (let j = i + 1; j < boxes.length; j++) {
+      const a = boxes[i], b = boxes[j]
+      if (a.group === b.group) continue
+      if (Math.abs(a.x - b.x) < (a.w + b.w) / 2 && Math.abs(a.y - b.y) < (a.h + b.h) / 2) {
+        collisions++
+      }
+    }
+  }
+  out.push({
+    key: 'collision',
+    // two blocks' text on top of each other is never right, so this falls
+    // away fast rather than averaging out over a busy screen. On a flat
+    // document there are no blocks to be between, so it cannot be judged.
+    score: !composed ? 1 : collisions === 0 ? 1 : collisions === 1 ? 0.4 : 0,
+    detail: !composed ? 'not composed from blocks, so not judged'
+          : collisions ? `${collisions} text pairs collide across blocks`
+                       : 'no text collides across blocks',
   })
 
   // sizes cluster hard rather than spreading smoothly

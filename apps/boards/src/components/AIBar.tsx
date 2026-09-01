@@ -237,7 +237,7 @@ export default function AIBar({
                       </button>
                     ))}
                     <p className="px-2 pb-1 pt-1.5 text-[10px] text-faint">
-                      via {cap?.provider}
+                      via {model_?.provider ?? cap?.provider}
                     </p>
                   </div>
                 )}

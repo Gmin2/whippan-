@@ -11,6 +11,7 @@ import { ExportQueue } from './export/queue.js'
 import {
   capabilities, isMissingKey, runFilm, runImage, runMotion, runScreen, runVector,
 } from './ai/providers.js'
+import type { BlockSpec } from './ai/types.js'
 import { createReadStream } from 'node:fs'
 import { Readable } from 'node:stream'
 
@@ -204,7 +205,7 @@ export function createApp(
           prompt, model,
           size: body.size as [number, number],
           accent: typeof body.accent === 'string' ? body.accent : '#ff5c1a',
-          blocks: blocks as { key: string; name: string; blurb: string; slots: string[] }[],
+          blocks: blocks as BlockSpec[],
           enters: Array.isArray(body.enters) ? body.enters as string[] : [],
           transitions: Array.isArray(body.transitions) ? body.transitions as string[] : [],
         }))
@@ -216,7 +217,7 @@ export function createApp(
           prompt, model,
           size: body.size as [number, number],
           accent: typeof body.accent === 'string' ? body.accent : '#ff5c1a',
-          blocks: blocks as { key: string; name: string; blurb: string; slots: string[] }[],
+          blocks: blocks as BlockSpec[],
           // the client scores its own materialised proposal and sends back
           // what failed, so a retry is corrected rather than re-rolled
           feedback: typeof body.feedback === 'string' ? body.feedback : undefined,
