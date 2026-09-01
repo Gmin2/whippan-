@@ -31,6 +31,8 @@ if (config.databaseUrl) {
   if (config.auth) {
     auth = makeAuth(pool, config.auth)
     workspaceOf = workspaceResolver(pool)
+  } else if (process.env.WHIPPAN_DEV_NO_AUTH === '1') {
+    console.log('auth: OFF by WHIPPAN_DEV_NO_AUTH — every request gets the default workspace')
   } else {
     console.log('auth: off (set BETTER_AUTH_SECRET to enable accounts)')
   }

@@ -78,6 +78,21 @@ export function loadConfig(): Config {
  * up into sessions that stop verifying the moment the process restarts.
  */
 function authConfig(env: string): Config['auth'] {
+  // A development escape hatch, opt-in and never silent. With it set the API
+  // mounts no auth at all, /api/me 404s, and the editor takes that to mean
+  // "this deployment has no accounts" and skips its sign-in gate entirely —
+  // a path that already existed for filesystem mode. Every request then falls
+  // through to the default workspace.
+  //
+  // It throws rather than warns in production, because an auth bypass that
+  // degrades quietly is exactly the kind that reaches a deployment.
+  if (process.env.WHIPPAN_DEV_NO_AUTH === '1') {
+    if (env === 'production') {
+      throw new Error('WHIPPAN_DEV_NO_AUTH cannot be set in production')
+    }
+    return null
+  }
+
   const secret = process.env.BETTER_AUTH_SECRET?.trim()
   if (!secret) return null
   if (env === 'production' && secret.length < 32) {
