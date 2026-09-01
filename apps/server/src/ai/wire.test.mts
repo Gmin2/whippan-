@@ -52,20 +52,24 @@ r = await runMotion(req('kimi-k3') as any)
 console.log(`\nkimi       ${r.note} | tracks ${r.tracks.length}`)
 console.log(`  host         ${new URL(seen.url).host}`)
 
-// openai: arguments arrive as a JSON STRING, system as a message
-globalThis.fetch = capture({ choices: [{ message: { tool_calls: [
-  { function: { name: 'propose_motion', arguments: JSON.stringify({ note: 'openai', tracks: [track] }) } },
-] } }] })
+// openai: the Responses API, where arguments arrive as a JSON STRING, the
+// system prompt is `instructions`, and a function tool is flat
+globalThis.fetch = capture({ output: [
+  { type: 'reasoning', summary: [] },
+  { type: 'function_call', name: 'propose_motion',
+    arguments: JSON.stringify({ note: 'openai', tracks: [track] }) },
+] })
 r = await runMotion(req('gpt-5.6-sol') as any)
 console.log(`\nopenai     ${r.note} | tracks ${r.tracks.length}`)
-console.log(`  host         ${new URL(seen.url).host}`)
-console.log(`  system       ${seen.init.messages?.[0]?.role === 'system' ? 'as a message' : 'MISSING'}`)
+console.log(`  host         ${new URL(seen.url).host}${new URL(seen.url).pathname}`)
+console.log(`  system       ${seen.init.instructions ? 'as instructions' : 'MISSING'}`)
+console.log(`  reasoning    ${JSON.stringify(seen.init.reasoning)}`)
 console.log(`  tool_choice  ${JSON.stringify(seen.init.tool_choice)}`)
-console.log(`  schema       ${seen.init.tools[0].function.parameters.properties.tracks.items.properties.target.enum}`)
+console.log(`  tool shape   ${seen.init.tools[0].name ? 'flat' : 'nested (wrong for responses)'}`)
 
 // openai prose fallback
-globalThis.fetch = capture({ choices: [{ message: {
-  content: '```json\n{"note":"scraped","tracks":[{"target":"a","keys":{"y":[{"t":0,"v":9}]}}]}\n```' } }] })
+globalThis.fetch = capture({ output: [], output_text:
+  '```json\n{"note":"scraped","tracks":[{"target":"a","keys":{"y":[{"t":0,"v":9}]}}]}\n```' })
 r = await runMotion(req('gpt-5.6-sol') as any)
 console.log(`\nopenai prose fallback: ${r.note} | tracks ${r.tracks.length}`)
 
