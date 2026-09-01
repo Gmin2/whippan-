@@ -17,7 +17,7 @@ import json, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SHOTS = ROOT / 'apps/boards/public/assets/solder26'
+SHOTS = ROOT / 'assets'
 
 
 
@@ -60,6 +60,71 @@ def unstack(sc, H):
         boxes[i] = (g, (cur[0] + dy, cur[1] + dy))
         moved += 1
     return moved
+
+
+def snap_centre(sc, W):
+    """Pull a scene onto its centre line when nothing else aligns.
+
+    The corpus has no column grid: a centre line and one or two column anchors
+    per scene, and 12.7% of all nodes sit exactly on W/2. Two blocks at two
+    different x read as scattered, so when fewer than half the blocks share an
+    x, put them all on the centre. A block already sharing an x with another is
+    a column and is left alone.
+    """
+    groups = [n for n in sc['nodes'] if n.get('type') == 'group']
+    if len(groups) < 2:
+        return 0
+    xs = {}
+    for g in groups:
+        xs.setdefault(round(g.get('x', 0)), []).append(g)
+    biggest = max(len(v) for v in xs.values())
+    if biggest >= len(groups) / 2:
+        return 0
+    moved = 0
+    for g in groups:
+        dx = W // 2 - g.get('x', 0)
+        if not dx:
+            continue
+        for n in sc['nodes']:
+            if n.get('group') == g['id'] or n is g:
+                n['x'] = n.get('x', 0) + dx
+        moved += 1
+    return moved
+
+
+def pull_inside(sc, W, H):
+    """Nothing may sit past the frame edge.
+
+    Moves whole blocks. Shifting one member on its own tears the block apart:
+    a GITHUB label stayed put while its 175.2K value slid up over it, and the
+    collision check could not see it because that check only compares ACROSS
+    blocks, which is right — a block is meant to own its own internals.
+    """
+    def span(n):
+        h = n.get('h') or (n.get('font') or {}).get('size', 24) * 1.3
+        return n['y'] - h / 2, n['y'] + h / 2
+
+    groups = [n for n in sc['nodes'] if n.get('type') == 'group']
+    units = [[n for n in sc['nodes'] if n.get('group') == g['id'] or n is g] for g in groups]
+    units += [[n] for n in sc['nodes']
+              if n.get('type') != 'group' and not n.get('group')]
+    fixed = 0
+    for ks in units:
+        ys = [k for k in ks if k.get('y') is not None]
+        if not ys:
+            continue
+        top = min(span(k)[0] for k in ys)
+        bot = max(span(k)[1] for k in ys)
+        dy = 0
+        if top < 0:
+            dy = round(-top + H * 0.03)
+        elif bot > H:
+            dy = -round(bot - H + H * 0.03)
+        if dy:
+            for k in ys:
+                k['y'] += dy
+            fixed += 1
+    return fixed
 
 def over_key(over):
     """the same units, in reading order, without disturbing the caller's list"""
@@ -138,7 +203,7 @@ def main():
             moved = clear_below(sc, W, H, top + h2 // 2)
             sc['nodes'].insert(0, {
                 'id': f'shot_{sc["id"]}', 'type': 'image',
-                'src': f'/assets/solder26/{shot}',
+                'src': f'/assets/{shot}',
                 'x': W // 2, 'y': top, 'w': w2, 'h': h2, 'radius': 14,
             })
             done += 1
@@ -151,7 +216,7 @@ def main():
         moved = clear_below(sc, W, H, surf['y'] + h // 2)
         sc['nodes'].insert(0, {
             'id': f'shot_{sc["id"]}', 'type': 'image',
-            'src': f'/assets/solder26/{shot}',
+            'src': f'/assets/{shot}',
             'x': surf['x'], 'y': surf['y'], 'w': w, 'h': h,
             'radius': 14, 'group': surf['id'],
         })
@@ -161,6 +226,12 @@ def main():
 
     # every scene, not only the ones that took a screenshot
     apart = sum(unstack(sc, H) for sc in stage['scenes'])
+    snapped = sum(snap_centre(sc, W) for sc in stage['scenes'])
+    pulled = sum(pull_inside(sc, W, H) for sc in stage['scenes'])
+    if snapped:
+        print(f'snapped {snapped} blocks to the centre line')
+    if pulled:
+        print(f'pulled {pulled} nodes back inside the frame')
     if apart:
         print(f'pushed {apart} overlapping blocks apart')
     (ROOT / f'docs/{slug}.stage.json').write_text(json.dumps(stage, indent=1) + '\n')
