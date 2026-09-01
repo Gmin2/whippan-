@@ -57,8 +57,27 @@ mod app {
                     None,
                 ),
             });
+        } else if let Some(n) = &c.noise {
+            // perlin, as its own layer. skia builds the same shader on both
+            // painters, so the native render and the browser preview agree.
+            let sh = if n.turbulence {
+                skia_safe::shaders::turbulence((n.freq, n.freq), n.octaves, n.seed, None)
+            } else {
+                skia_safe::shaders::fractal_noise((n.freq, n.freq), n.octaves, n.seed, None)
+            };
+            paint.set_shader(sh);
+            paint.set_alpha_f(c.opacity);
         } else {
             paint.set_color(hex_color(&c.color, c.opacity));
+        }
+        if let Some(b) = &c.blend {
+            paint.set_blend_mode(match b.as_str() {
+                "screen" => skia_safe::BlendMode::Screen,
+                "softLight" => skia_safe::BlendMode::SoftLight,
+                "multiply" => skia_safe::BlendMode::Multiply,
+                "plus" => skia_safe::BlendMode::Plus,
+                _ => skia_safe::BlendMode::Overlay,
+            });
         }
         if let Some(b) = c.blur {
             paint.set_mask_filter(MaskFilter::blur(BlurStyle::Normal, b, true));

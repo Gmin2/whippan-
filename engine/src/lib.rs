@@ -127,6 +127,12 @@ pub struct Node {
     /// defaults to the fill.
     #[serde(default)]
     pub stroke_color: Option<String>,
+    /// perlin noise laid over the body, which is what makes a lit surface look
+    /// like a material rather than a swatch. `kind` is "fractal" (soft cloud)
+    /// or "turbulence" (churned, higher contrast). `freq` is cycles per pixel,
+    /// so 0.004 is broad billows and 0.05 is grain.
+    #[serde(default)]
+    pub noise: Option<Noise>,
     /// liquid path morphing: scene-local keyframes of whole `d` shapes.
     /// paths are resampled to fixed point loops and lerped, so any icon
     /// can flow into any other (authored with absolute M/L/C/Q/Z only)
@@ -617,6 +623,47 @@ fn d_one() -> f32 {
 }
 
 #[derive(Deserialize, Clone)]
+pub struct Noise {
+    #[serde(default = "d_freq")]
+    pub freq: f32,
+    #[serde(default = "d_octaves")]
+    pub octaves: usize,
+    #[serde(default)]
+    pub seed: f32,
+    #[serde(default = "d_noise_kind")]
+    pub kind: String,
+    #[serde(default = "d_noise_opacity")]
+    pub opacity: f32,
+    /// how it sits on the body. "overlay" and "softLight" light a surface
+    /// without flattening it; "screen" only ever adds.
+    #[serde(default = "d_blend")]
+    pub blend: String,
+}
+fn d_freq() -> f32 {
+    0.01
+}
+fn d_octaves() -> usize {
+    4
+}
+fn d_noise_kind() -> String {
+    "fractal".into()
+}
+fn d_noise_opacity() -> f32 {
+    0.5
+}
+fn d_blend() -> String {
+    "overlay".into()
+}
+
+#[derive(Serialize, Clone)]
+pub struct NoiseCmd {
+    pub freq: f32,
+    pub octaves: usize,
+    pub seed: f32,
+    pub turbulence: bool,
+}
+
+#[derive(Deserialize, Clone)]
 pub struct Stop {
     pub at: f32,
     pub color: String,
@@ -843,6 +890,12 @@ pub struct DrawCmd {
     /// stroke width: draw the path as a stroked line instead of a fill
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stroke: Option<f32>,
+    /// a perlin noise shader instead of a flat colour
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub noise: Option<NoiseCmd>,
+    /// porter-duff / separable blend mode name for this command
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blend: Option<String>,
     pub color: String,
     pub opacity: f32,
     pub scale: f32,
@@ -2497,6 +2550,38 @@ fn render_scene(
                         ..Default::default()
                     });
                     }
+                    // Noise rides over the body as its own layer with a blend
+                    // mode, the way a grade does, rather than trying to fold it
+                    // into the fill shader. That keeps the body's gradient
+                    // intact and lets the same material sit on a flat colour.
+                    if let Some(n) = &node.noise {
+                        cmds.push(DrawCmd {
+                            op: "rect".into(),
+                            x: gx,
+                            y: gy,
+                            w: gw,
+                            h: gh,
+                            radius: gr,
+                            d: None,
+                            blur: None,
+                            grad: None,
+                            src: None,
+                            goo: None,
+                            rot,
+                            stroke: None,
+                            noise: Some(NoiseCmd {
+                                freq: n.freq.max(1e-5),
+                                octaves: n.octaves.clamp(1, 8),
+                                seed: n.seed,
+                                turbulence: n.kind == "turbulence",
+                            }),
+                            blend: Some(n.blend.clone()),
+                            color: "#ffffff".into(),
+                            opacity: opacity * n.opacity,
+                            scale,
+                            ..Default::default()
+                        });
+                    }
                     // the rim rides ON TOP of the body, not instead of it: a
                     // glass card is a translucent fill and a hairline edge, and
                     // stroking in place of the fill would lose the card
@@ -3691,6 +3776,39 @@ mod tests {
             assert_eq!(g["color"], "#e8671f", "scale glyphs keep accent");
         }
         assert_eq!(settled[0]["color"], "#161616");
+    }
+
+    #[test]
+    fn noise_rides_over_the_body_as_its_own_blended_layer() {
+        // a lit surface needs a material, not a swatch. the body keeps its
+        // gradient and the noise arrives as a separate command, so the same
+        // material can sit on a gradient or on a flat colour
+        let stage = r##"{"fps":30,"size":[600,400],"scenes":[{"id":"s","dur":1,"nodes":[
+            {"id":"orb","type":"rect","x":300,"y":200,"w":200,"h":200,"radius":100,
+             "gradient":{"kind":"radial","stops":[
+               {"at":0,"color":"#a9ffdd"},{"at":1,"color":"#062a1f"}]},
+             "noise":{"kind":"turbulence","freq":0.012,"octaves":4,
+                      "opacity":0.5,"blend":"softLight"}}]}]}"##;
+        load_font();
+        let raw = render_frame(stage, "", 0.0);
+        let cmds: Vec<Value> = serde_json::from_str(&raw)
+            .unwrap_or_else(|e| panic!("render_frame said: {raw} ({e})"));
+
+        let own: Vec<&Value> = cmds.iter().filter(|c| c["id"] == "orb").collect();
+        assert_eq!(own.len(), 2, "a body and a noise layer, not one merged fill");
+
+        // the body still carries its gradient and no blend of its own
+        assert!(own[0]["grad"]["radius"].is_number(), "body keeps the radial");
+        assert!(own[0]["noise"].is_null());
+        assert!(own[0]["blend"].is_null());
+
+        // the noise layer carries the shader and the mode
+        let n = &own[1]["noise"];
+        assert_eq!(n["turbulence"], true);
+        assert_eq!(n["octaves"], 4);
+        assert_eq!(own[1]["blend"], "softLight");
+        // and it is scaled by the node opacity, not replacing it
+        assert!((own[1]["opacity"].as_f64().unwrap() - 0.5).abs() < 1e-6);
     }
 
     #[test]

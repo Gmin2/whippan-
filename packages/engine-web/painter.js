@@ -20,12 +20,29 @@ function drawOne(CK, skc, paint, c, images) {
           [c.grad.x0, c.grad.y0], [c.grad.x1, c.grad.y1],
           colors, at, CK.TileMode.Clamp);
     paint.setShader(shader);
+  } else if (c.noise) {
+    // perlin, as its own layer. the same skia shader the native painter
+    // builds, so the browser preview and the export agree.
+    shader = c.noise.turbulence
+      ? CK.Shader.MakeTurbulence(c.noise.freq, c.noise.freq, c.noise.octaves, c.noise.seed, 0, 0)
+      : CK.Shader.MakeFractalNoise(c.noise.freq, c.noise.freq, c.noise.octaves, c.noise.seed, 0, 0);
+    paint.setShader(shader);
+    paint.setAlphaf(c.opacity);
   } else {
     const col = CK.parseColorString(c.color);
     col[3] = c.opacity;
     paint.setColor(col);
     paint.setShader(null);
   }
+  // one paint is threaded through every command in the frame, so this has to
+  // be set on EVERY command and not only the blended ones — otherwise the
+  // first noise layer would grade everything drawn after it
+  const modes = {
+    screen: CK.BlendMode.Screen, softLight: CK.BlendMode.SoftLight,
+    multiply: CK.BlendMode.Multiply, plus: CK.BlendMode.Plus,
+    overlay: CK.BlendMode.Overlay,
+  };
+  paint.setBlendMode(c.blend ? (modes[c.blend] || CK.BlendMode.Overlay) : CK.BlendMode.SrcOver);
   paint.setMaskFilter(c.blur
     ? CK.MaskFilter.MakeBlur(CK.BlurStyle.Normal, c.blur, true)
     : null);

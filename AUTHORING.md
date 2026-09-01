@@ -86,6 +86,13 @@ optional on rect:
 - `glow`: `{"sigma": 34, "opacity": 0.9, "color": "#a32a32", "dx": 0,
   "dy": 0}` — a blurred echo behind the body. color defaults to the fill
   (or mid gradient stop). use for lit pills, status dots, rim glows.
+- `noise`: `{"kind": "turbulence", "freq": 0.012, "octaves": 4, "seed": 0,
+  "opacity": 0.55, "blend": "overlay"}` — perlin laid over the body as its
+  own blended layer, so the fill or gradient underneath survives. this is
+  what turns a lit swatch into a material. `kind` is `fractal` (soft
+  billows) or `turbulence` (churned, higher contrast). `freq` is cycles per
+  pixel: 0.004 is broad cloud, 0.05 is film grain. `blend` is `overlay`,
+  `softLight`, `screen`, `multiply` or `plus`.
 - `blur`: gaussian sigma on the body itself — defocus, soft light pools.
 - `streak`: `{"samples": 5, "window": 0.06, "gain": 0.5}` — motion echo
   trail, only visible while the node moves. use on crash-ins and whips.
