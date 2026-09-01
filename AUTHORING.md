@@ -123,6 +123,19 @@ optional on any node:
   to the node's own `w`/`h` and falls back to the whole stage, which is
   what a text node needs since it carries no box.
 
+**particles** — a drifting field of specks: dust, stars, depth behind a subject
+```json
+{"id": "dust", "type": "particles", "x": 960, "y": 540, "w": 1920, "h": 1080,
+ "fill": "#cfe0ff",
+ "particles": {"count": 260, "size": 3.4, "speed": 14, "seed": 0,
+               "depth": 0.8, "twinkle": true}}
+```
+dealt from a hash of the particle index, so the same `seed` gives the same
+field on every render and on both painters, with nothing baked. `depth`
+spreads size, alpha and drift speed together, which is what makes it read
+as space rather than confetti. `speed` is px per second at the nearest
+depth.
+
 **bars** — a generative column meter: voice waveform, level, equaliser
 ```json
 {"id": "wave", "type": "bars", "x": 960, "y": 540, "w": 900, "h": 110,

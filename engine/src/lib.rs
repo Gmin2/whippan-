@@ -139,6 +139,9 @@ pub struct Node {
     /// a directional reveal over this node's own commands. see `Wipe`.
     #[serde(default)]
     pub wipe: Option<Wipe>,
+    /// `particles` nodes: how the field is scattered. see `Particles`.
+    #[serde(default)]
+    pub particles: Option<Particles>,
     /// liquid path morphing: scene-local keyframes of whole `d` shapes.
     /// paths are resampled to fixed point loops and lerped, so any icon
     /// can flow into any other (authored with absolute M/L/C/Q/Z only)
@@ -659,6 +662,44 @@ fn d_noise_opacity() -> f32 {
 }
 fn d_blend() -> String {
     "overlay".into()
+}
+
+/// A drifting field of specks: dust, stars, the depth cue behind a lit subject.
+///
+/// Generative like `bars`, from a deterministic hash of the particle index, so
+/// the same seed gives the same field every render and nothing has to be baked.
+/// `depth` is what makes it read as space rather than confetti: particles are
+/// dealt a z, and the far ones are drawn smaller, dimmer and slower.
+#[derive(Deserialize, Clone)]
+pub struct Particles {
+    #[serde(default = "d_pcount")]
+    pub count: usize,
+    /// px at the nearest depth; far ones scale down from here
+    #[serde(default = "d_psize")]
+    pub size: f32,
+    /// px per second of upward drift at the nearest depth
+    #[serde(default = "d_pspeed")]
+    pub speed: f32,
+    #[serde(default)]
+    pub seed: f32,
+    /// 0 flattens the field, 1 spreads it hard in size, alpha and speed
+    #[serde(default = "d_pdepth")]
+    pub depth: f32,
+    /// slow independent opacity breathing per particle
+    #[serde(default)]
+    pub twinkle: bool,
+}
+fn d_pcount() -> usize {
+    120
+}
+fn d_psize() -> f32 {
+    3.0
+}
+fn d_pspeed() -> f32 {
+    12.0
+}
+fn d_pdepth() -> f32 {
+    0.7
 }
 
 /// A directional reveal, keyed through the node's `wipe` property (0 hidden,
@@ -2715,6 +2756,60 @@ fn render_scene(
                         });
                     }
                 }
+                "particles" => {
+                    let pf = match &node.particles {
+                        Some(p) => p.clone(),
+                        None => continue,
+                    };
+                    let n = pf.count.clamp(1, 4000);
+                    let w = node.w.unwrap_or(cw);
+                    let h = node.h.unwrap_or(ch);
+                    let fill = node.fill.clone().unwrap_or_else(|| "#ffffff".into());
+                    let (l, tp) = (node.x + dx - w / 2.0, node.y + dy - h / 2.0);
+                    // a cheap deterministic hash: same seed, same field, every
+                    // render, on both painters, with nothing baked to disk
+                    let rnd = |i: usize, salt: f32| -> f32 {
+                        let v = (i as f32 * 12.9898 + salt * 78.233 + pf.seed * 43.758).sin()
+                            * 43758.5453;
+                        v - v.floor()
+                    };
+                    for i in 0..n {
+                        // z near 0 is close, near 1 is far
+                        let z = rnd(i, 3.0);
+                        let near = 1.0 - pf.depth.clamp(0.0, 1.0) * z;
+                        let px = l + rnd(i, 1.0) * w;
+                        // far specks drift slower, which is what sells depth
+                        let travel = t * pf.speed * near;
+                        let py0 = rnd(i, 2.0) * h + h - (travel % h.max(1.0));
+                        let py = tp + (py0 % h.max(1.0));
+                        let mut a = 0.25 + 0.75 * near;
+                        if pf.twinkle {
+                            a *= 0.55 + 0.45 * ((t * (0.7 + rnd(i, 4.0)) + rnd(i, 5.0) * 6.28).sin()
+                                * 0.5
+                                + 0.5);
+                        }
+                        let d = (pf.size * near).max(0.4);
+                        cmds.push(DrawCmd {
+                            op: "rect".into(),
+                            x: px,
+                            y: py,
+                            w: Some(d),
+                            h: Some(d),
+                            radius: Some(d / 2.0),
+                            d: None,
+                            blur: body_blur,
+                            grad: None,
+                            src: None,
+                            goo: None,
+                            rot: None,
+                            stroke: None,
+                            color: fill.clone(),
+                            opacity: opacity * a,
+                            scale,
+                            ..Default::default()
+                        });
+                    }
+                }
                 "bars" => {
                     let b = match &node.bars {
                         Some(b) => b.clone(),
@@ -3949,6 +4044,50 @@ mod tests {
             assert_eq!(g["color"], "#e8671f", "scale glyphs keep accent");
         }
         assert_eq!(settled[0]["color"], "#161616");
+    }
+
+    #[test]
+    fn a_particle_field_is_deterministic_and_reads_as_depth() {
+        let stage = |seed: f32| format!(
+            r##"{{"fps":30,"size":[800,600],"scenes":[{{"id":"s","dur":3,"nodes":[
+              {{"id":"d","type":"particles","x":400,"y":300,"w":800,"h":600,
+               "fill":"#ffffff","particles":{{"count":80,"size":4,"speed":14,
+               "seed":{seed},"depth":0.8}}}}]}}]}}"##);
+        load_font();
+        let at = |st: &str, t: f32| -> Vec<Value> {
+            serde_json::from_str(&render_frame(st, "", t)).unwrap()
+        };
+        let a = at(&stage(0.0), 0.0);
+        let specks: Vec<&Value> = a.iter().filter(|c| c["id"] == "d").collect();
+        assert_eq!(specks.len(), 80);
+
+        // the same seed deals the same field, so a re-render never reshuffles
+        let again = at(&stage(0.0), 0.0);
+        let xs = |v: &[Value]| -> Vec<f64> {
+            v.iter().filter(|c| c["id"] == "d").map(|c| c["x"].as_f64().unwrap()).collect()
+        };
+        assert_eq!(xs(&a), xs(&again), "same seed, same field");
+        assert_ne!(xs(&a), xs(&at(&stage(9.0), 0.0)), "a different seed deals differently");
+
+        // depth: sizes spread, and dimmer specks are the smaller ones
+        let sz: Vec<f64> = specks.iter().map(|c| c["w"].as_f64().unwrap()).collect();
+        let (lo, hi) = (sz.iter().cloned().fold(f64::MAX, f64::min),
+                        sz.iter().cloned().fold(0.0, f64::max));
+        assert!(hi > lo * 1.5, "the field has real depth spread: {lo} to {hi}");
+        let small = specks.iter().min_by(|a, b|
+            a["w"].as_f64().unwrap().partial_cmp(&b["w"].as_f64().unwrap()).unwrap()).unwrap();
+        let big = specks.iter().max_by(|a, b|
+            a["w"].as_f64().unwrap().partial_cmp(&b["w"].as_f64().unwrap()).unwrap()).unwrap();
+        assert!(small["opacity"].as_f64().unwrap() < big["opacity"].as_f64().unwrap(),
+                "far specks are dimmer as well as smaller");
+
+        // and it drifts
+        let later = at(&stage(0.0), 1.5);
+        let ys = |v: &[Value]| -> Vec<f64> {
+            v.iter().filter(|c| c["id"] == "d").map(|c| c["y"].as_f64().unwrap()).collect()
+        };
+        let moved = ys(&a).iter().zip(ys(&later)).filter(|(p, q)| (*p - q).abs() > 0.5).count();
+        assert!(moved > 60, "only {moved} of 80 specks drifted");
     }
 
     #[test]
