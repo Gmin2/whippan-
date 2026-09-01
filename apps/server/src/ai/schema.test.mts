@@ -61,7 +61,14 @@ globalThis.fetch = (async (_u: any, init: any) => {
     note: 'x', place: [{ block: 'pill', x: 100, y: 100 }, { block: 'invented', x: 0, y: 0 }] } }])
 }) as any
 const sr = await runScreen({ prompt: 'p', size: [1920, 1080], accent: '#f00',
-  blocks: [{ key: 'pill', name: 'Pill', blurb: '', slots: ['label'] }] } as any)
-console.log('block enum        :', JSON.stringify(
-  sent.tools[0].input_schema.properties.place.items.properties.block.enum))
+  blocks: [{ key: 'pill', name: 'Pill', blurb: '', slots: [
+    { key: 'text', kind: 'text' }, { key: 'role', kind: 'role' }, { key: 'tier', kind: 'tier' },
+  ] }] } as any)
+// placement is a discriminated union now, one variant per block, so each
+// variant pins its own block key with a const rather than sharing an enum
+const variants = sent.tools[0].input_schema.properties.place.items.anyOf
+console.log('block variants    :', JSON.stringify(variants.map((v: any) => v.properties.block.const)))
+console.log('pill slot types   :', JSON.stringify(
+  Object.fromEntries(Object.entries(variants[0].properties.opts.properties)
+    .map(([k, v]: any) => [k, v.enum ? `enum(${v.enum.length})` : v.type]))))
 console.log('invented dropped  :', sr.place.length === 1)
