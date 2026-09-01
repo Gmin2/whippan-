@@ -115,6 +115,18 @@ optional on rect:
  "x": 960, "y": 540, "w": 800, "h": 500, "radius": 24}
 ```
 
+**bars** — a generative column meter: voice waveform, level, equaliser
+```json
+{"id": "wave", "type": "bars", "x": 960, "y": 540, "w": 900, "h": 110,
+ "fill": "#7c8cf8",
+ "bars": {"count": 64, "gap": 0.45, "speed": 1.2, "floor": 0.12,
+          "seed": 0, "taper": true}}
+```
+heights are a function of column index and time, so it moves on its own
+with no track and no baked frames. `gap` is the share of each slot left
+empty, `floor` keeps a quiet meter legible, `taper` fades the ends.
+key `amp` to duck and swell it.
+
 **cursor** — a vector mac-style arrow with shadow and outline
 ```json
 {"id": "cur", "type": "cursor", "x": 1200, "y": 700, "w": 26,
@@ -179,7 +191,8 @@ per chapter, never decoration.
 keyable properties: `x` `y` (offsets — see contract), `w` `h` (absolute),
 `scale` `rot` `opacity` `glow_sigma` `glow_opacity` (absolute),
 `tracking` (text only: px added to every letter gap, negative tightens —
-the line re-centres as it re-spaces), and `blur` (rects only).
+the line re-centres as it re-spaces), `amp` (bars only), and `blur`
+(rects only).
 
 easing per key (eases INTO that key): `"outCubic"`, `"inCubic"`,
 `"inOutCubic"`, `"spring"`, a cubic bezier `[0.22, 1, 0.36, 1]`, or a

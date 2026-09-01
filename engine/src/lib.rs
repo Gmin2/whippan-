@@ -133,6 +133,9 @@ pub struct Node {
     /// so 0.004 is broad billows and 0.05 is grain.
     #[serde(default)]
     pub noise: Option<Noise>,
+    /// `bars` nodes: how the column heights are shaped. see `Bars`.
+    #[serde(default)]
+    pub bars: Option<Bars>,
     /// liquid path morphing: scene-local keyframes of whole `d` shapes.
     /// paths are resampled to fixed point loops and lerped, so any icon
     /// can flow into any other (authored with absolute M/L/C/Q/Z only)
@@ -653,6 +656,43 @@ fn d_noise_opacity() -> f32 {
 }
 fn d_blend() -> String {
     "overlay".into()
+}
+
+/// A column meter: the voice waveform, the level bar, the equaliser.
+///
+/// Generative rather than an asset, because the shape is only ever a function
+/// of index and time and baking it to frames would cost a directory of PNGs
+/// per variation. `speed` scrolls the field, `amp` scales every column and is
+/// keyable through the node's `amp` property so it can duck and swell.
+#[derive(Deserialize, Clone)]
+pub struct Bars {
+    #[serde(default = "d_count")]
+    pub count: usize,
+    #[serde(default = "d_gap")]
+    pub gap: f32,
+    #[serde(default = "d_speed")]
+    pub speed: f32,
+    /// smallest column as a fraction of the tallest, so a quiet meter still
+    /// reads as a meter rather than an empty box
+    #[serde(default = "d_floor")]
+    pub floor: f32,
+    #[serde(default)]
+    pub seed: f32,
+    /// taper the ends so the field fades out instead of being clipped
+    #[serde(default)]
+    pub taper: bool,
+}
+fn d_count() -> usize {
+    48
+}
+fn d_gap() -> f32 {
+    0.45
+}
+fn d_speed() -> f32 {
+    1.0
+}
+fn d_floor() -> f32 {
+    0.12
 }
 
 #[derive(Serialize, Clone)]
@@ -2617,6 +2657,60 @@ fn render_scene(
                         });
                     }
                 }
+                "bars" => {
+                    let b = match &node.bars {
+                        Some(b) => b.clone(),
+                        None => continue,
+                    };
+                    let n = b.count.clamp(2, 512);
+                    let w = node.w.unwrap_or(600.0);
+                    let h = node.h.unwrap_or(120.0);
+                    // amp is keyable, so a meter can duck and swell without
+                    // the author writing every column
+                    let amp = node_prop(node, "amp", 1.0, t).clamp(0.0, 4.0);
+                    let fill = node.fill.clone().unwrap_or_else(|| "#7c8cf8".into());
+                    let pitch = w / n as f32;
+                    let bw = (pitch * (1.0 - b.gap.clamp(0.0, 0.95))).max(0.5);
+                    let left = node.x + dx - w / 2.0 + pitch / 2.0;
+                    let mid = node.y + dy;
+                    for i in 0..n {
+                        let fi = i as f32;
+                        // two incommensurate waves plus a slow drift: reads as
+                        // speech rather than a sine, and never repeats visibly
+                        let ph = fi * 0.37 + b.seed;
+                        let scroll = t * b.speed;
+                        let a = (ph + scroll * 2.1).sin();
+                        let c = (ph * 2.7 - scroll * 1.3).sin();
+                        let d = (ph * 0.61 + scroll * 0.4).sin();
+                        let lvl = ((a * 0.5 + c * 0.32 + d * 0.18) * 0.5 + 0.5).clamp(0.0, 1.0);
+                        let mut k = b.floor + (1.0 - b.floor) * lvl;
+                        if b.taper {
+                            // a raised cosine window, so the ends fall away
+                            let u = fi / (n - 1) as f32;
+                            k *= (std::f32::consts::PI * u).sin().powf(0.6);
+                        }
+                        let bh = (h * k * amp).max(bw * 0.6);
+                        cmds.push(DrawCmd {
+                            op: "rect".into(),
+                            x: left + fi * pitch,
+                            y: mid,
+                            w: Some(bw),
+                            h: Some(bh),
+                            radius: Some(bw / 2.0),
+                            d: None,
+                            blur: body_blur,
+                            grad: None,
+                            src: None,
+                            goo: None,
+                            rot: None,
+                            stroke: None,
+                            color: fill.clone(),
+                            opacity,
+                            scale,
+                            ..Default::default()
+                        });
+                    }
+                }
                 "cursor" => {
                     let s = node.w.unwrap_or(26.0) / 13.2;
                     let cx = node.x + dx;
@@ -3786,6 +3880,37 @@ mod tests {
             assert_eq!(g["color"], "#e8671f", "scale glyphs keep accent");
         }
         assert_eq!(settled[0]["color"], "#161616");
+    }
+
+    #[test]
+    fn a_bars_meter_is_generative_and_moves_with_time() {
+        let stage = r##"{"fps":30,"size":[800,300],"scenes":[{"id":"s","dur":2,"nodes":[
+            {"id":"m","type":"bars","x":400,"y":150,"w":600,"h":100,"fill":"#7c8cf8",
+             "bars":{"count":32,"gap":0.4,"speed":1.2}}]}]}"##;
+        load_font();
+        let at = |t: f32| -> Vec<Value> {
+            serde_json::from_str(&render_frame(stage, "", t)).unwrap()
+        };
+        let a = at(0.0);
+        let cols: Vec<&Value> = a.iter().filter(|c| c["id"] == "m").collect();
+        assert_eq!(cols.len(), 32, "one command per column");
+
+        // columns sit on a fixed pitch inside the node box
+        let xs: Vec<f64> = cols.iter().map(|c| c["x"].as_f64().unwrap()).collect();
+        let pitch = xs[1] - xs[0];
+        for w in xs.windows(2) {
+            assert!(((w[1] - w[0]) - pitch).abs() < 1e-3, "even pitch");
+        }
+        assert!(xs[0] >= 100.0 && *xs.last().unwrap() <= 700.0, "stays in the box");
+
+        // and the field is a function of time, not a still
+        let b = at(0.7);
+        let hs = |v: &[Value]| -> Vec<f64> {
+            v.iter().filter(|c| c["id"] == "m").map(|c| c["h"].as_f64().unwrap()).collect()
+        };
+        let (h0, h1) = (hs(&a), hs(&b));
+        let moved = h0.iter().zip(&h1).filter(|(p, q)| (*p - *q).abs() > 0.5).count();
+        assert!(moved > 16, "only {moved} of 32 columns moved between frames");
     }
 
     #[test]
